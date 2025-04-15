@@ -8,7 +8,10 @@ import {
   ListItemText,
   Divider,
   Paper,
-  Alert
+  Alert,
+  Checkbox,
+  FormControlLabel,
+  FormHelperText
 } from '@mui/material';
 import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS, PHONE_CODES } from '../../constants';
 
@@ -27,9 +30,13 @@ interface ReviewRegistrationProps {
     termsAccepted: boolean;
     comments: string;
   };
+  errors: Record<string, string>;
+  fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
+  onChange: (field: string, value: any) => void;
+  onBlur?: (field: string) => void;
 }
 
-const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData }) => {
+const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, errors, fieldRefs, onChange, onBlur }) => {
   // Find the selected race distance
   const selectedDistance = RACE_DISTANCES.find(
     (distance) => distance.id === formData.raceDistance
@@ -187,10 +194,26 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData }) => 
       </Paper>
 
       <Box sx={{ mt: 3 }}>
-        <Typography variant="body2" color="text.secondary">
-          By submitting this registration, you confirm that all information provided is accurate
-          and that you accept the terms and conditions for KUTC 2025.
-        </Typography>
+        <FormControlLabel
+          control={
+            <Checkbox
+              checked={formData.termsAccepted}
+              name="termsAccepted"
+              color="primary"
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('termsAccepted', e.target.checked)}
+              onBlur={() => onBlur && onBlur('termsAccepted')}
+            />
+          }
+          label={
+            <Typography variant="body2">
+              I confirm that all information provided is accurate and I accept the terms and conditions for KUTC 2025.
+            </Typography>
+          }
+          ref={fieldRefs.termsAccepted}
+        />
+        <FormHelperText error={!!errors.termsAccepted}>
+          {errors.termsAccepted || ''}
+        </FormHelperText>
       </Box>
     </Box>
   );

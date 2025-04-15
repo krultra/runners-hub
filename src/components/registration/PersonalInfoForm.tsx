@@ -10,9 +10,9 @@ import {
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { format } from 'date-fns';
+// import { format } from 'date-fns'; // Not needed
 import { nb } from 'date-fns/locale';
-import { COUNTRIES, COMMON_COUNTRIES, PHONE_CODES, COMMON_PHONE_CODES } from '../../constants';
+import { COUNTRIES, PHONE_CODES } from '../../constants';
 
 interface PersonalInfoFormProps {
   formData: {
@@ -26,9 +26,12 @@ interface PersonalInfoFormProps {
     representing: string;
   };
   onChange: (field: string, value: any) => void;
+  errors: Record<string, string>;
+  fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
+  onBlur?: (field: string) => void;
 }
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange }) => {
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur }) => {
   // No longer needed with Autocomplete component
 
   // Effect to scroll to top when component mounts
@@ -60,6 +63,10 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
               variant="outlined"
               value={formData.firstName}
               onChange={(e) => onChange('firstName', e.target.value)}
+              onBlur={() => onBlur && onBlur('firstName')}
+              error={!!errors.firstName}
+              helperText={errors.firstName || ''}
+              ref={fieldRefs.firstName}
             />
           </Grid>
           
@@ -73,6 +80,10 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
               variant="outlined"
               value={formData.lastName}
               onChange={(e) => onChange('lastName', e.target.value)}
+              onBlur={() => onBlur && onBlur('lastName')}
+              error={!!errors.lastName}
+              helperText={errors.lastName || ''}
+              ref={fieldRefs.lastName}
             />
           </Grid>
           
@@ -81,11 +92,15 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
               label="Date of Birth"
               value={formData.dateOfBirth}
               onChange={(date) => onChange('dateOfBirth', date)}
+              onClose={() => onBlur && onBlur('dateOfBirth')}
               slotProps={{
                 textField: {
                   fullWidth: true,
                   variant: 'outlined',
-                  required: true
+                  required: true,
+                  error: !!errors.dateOfBirth,
+                  helperText: errors.dateOfBirth || '',
+                  inputRef: fieldRefs.dateOfBirth
                 }
               }}
               // Norwegian date format
@@ -106,13 +121,16 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
                   onChange('nationality', newValue.code);
                 }
               }}
+              onBlur={() => onBlur && onBlur('nationality')}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   required
                   label="Nationality"
                   variant="outlined"
-                  helperText="Select your country of citizenship"
+                  helperText={errors.nationality || 'Select your country of citizenship'}
+                  error={!!errors.nationality}
+                  inputRef={fieldRefs.nationality}
                 />
               )}
             />
@@ -129,7 +147,10 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
               type="email"
               value={formData.email}
               onChange={(e) => onChange('email', e.target.value)}
-              helperText="We'll send your registration confirmation to this email"
+              onBlur={() => onBlur && onBlur('email')}
+              error={!!errors.email}
+              helperText={errors.email || "We'll send your registration confirmation to this email"}
+              ref={fieldRefs.email}
             />
           </Grid>
           
@@ -145,12 +166,16 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
                   onChange('phoneCountryCode', newValue.code);
                 }
               }}
+              onBlur={() => onBlur && onBlur('phoneCountryCode')}
               renderInput={(params) => (
                 <TextField
                   {...params}
                   required
                   label="Country Code"
                   variant="outlined"
+                  error={!!errors.phoneCountryCode}
+                  helperText={errors.phoneCountryCode || ''}
+                  inputRef={fieldRefs.phoneCountryCode}
                 />
               )}
             />
@@ -166,7 +191,10 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
               variant="outlined"
               value={formData.phoneNumber}
               onChange={(e) => onChange('phoneNumber', e.target.value)}
-              helperText="Enter number without country code"
+              onBlur={() => onBlur && onBlur('phoneNumber')}
+              error={!!errors.phoneNumber}
+              helperText={errors.phoneNumber || "Enter number without country code"}
+              ref={fieldRefs.phoneNumber}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">

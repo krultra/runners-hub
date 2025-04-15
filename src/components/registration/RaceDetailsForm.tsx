@@ -23,9 +23,12 @@ interface RaceDetailsFormProps {
     comments: string;
   };
   onChange: (field: string, value: any) => void;
+  errors: Record<string, string>;
+  fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
+  onBlur?: (field: string) => void;
 }
 
-const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange }) => {
+const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur }) => {
   // Effect to scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -41,13 +44,15 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange })
       
       <Grid container spacing={3}>
         <Grid size={12}>
-          <FormControl component="fieldset" required>
+          <FormControl component="fieldset" required error={!!errors.raceDistance}>
             <FormLabel component="legend">Race Distance</FormLabel>
             <RadioGroup
               aria-label="race-distance"
               name="raceDistance"
               value={formData.raceDistance}
               onChange={(e) => onChange('raceDistance', e.target.value)}
+              onBlur={() => onBlur && onBlur('raceDistance')}
+              ref={fieldRefs.raceDistance}
             >
               {RACE_DISTANCES.map((distance) => (
                 <FormControlLabel
@@ -58,7 +63,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange })
                 />
               ))}
             </RadioGroup>
-            <FormHelperText>Select the distance you wish to participate in</FormHelperText>
+            <FormHelperText>{errors.raceDistance || 'Select the distance you wish to participate in'}</FormHelperText>
           </FormControl>
         </Grid>
         
@@ -66,14 +71,18 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange })
           <TextField
             id="travelRequired"
             name="travelRequired"
-            label="Travel Required (Optional)"
+            label="Travel Required"
+            required
             fullWidth
             multiline
             rows={3}
             variant="outlined"
             value={formData.travelRequired}
             onChange={(e) => onChange('travelRequired', e.target.value)}
-            helperText="Please describe your travel plans to help us minimize our carbon footprint"
+            onBlur={() => onBlur && onBlur('travelRequired')}
+            error={!!errors.travelRequired}
+            helperText={errors.travelRequired || 'Please describe your travel plans to help us minimize our carbon footprint'}
+            ref={fieldRefs.travelRequired}
           />
         </Grid>
         
@@ -92,31 +101,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange })
           />
         </Grid>
         
-        <Grid size={12}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={formData.termsAccepted}
-                onChange={(e) => onChange('termsAccepted', e.target.checked)}
-                name="termsAccepted"
-                color="primary"
-                required
-              />
-            }
-            label={
-              <span>
-                I accept the{' '}
-                <Link href="#" target="_blank" rel="noopener">
-                  terms and conditions
-                </Link>{' '}
-                for participation in KUTC 2025 *
-              </span>
-            }
-          />
-          <FormHelperText>
-            You must accept the terms and conditions to complete your registration
-          </FormHelperText>
-        </Grid>
+        {/* Terms and conditions moved to the Review & Submit page */}
       </Grid>
     </Box>
   );
