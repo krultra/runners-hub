@@ -5,6 +5,14 @@ export interface Country {
   isCommon?: boolean; // For frequently used countries
 }
 
+// Phone country code type
+export interface PhoneCode {
+  country: string;
+  code: string; // e.g., +47
+  flag: string; // Unicode flag emoji
+  isCommon?: boolean; // For frequently used countries
+}
+
 // Race distance type
 export interface RaceDistance {
   id: string;
@@ -24,7 +32,8 @@ export interface Registration {
   lastName: string;
   dateOfBirth: Date;
   nationality: string; // ISO 3-letter country code
-  mobilePhone: string;
+  phoneCountryCode: string; // e.g., +47
+  phoneNumber: string; // without country code
   representing?: string; // Optional
   travelRequired?: string; // Optional
   termsAccepted: boolean;

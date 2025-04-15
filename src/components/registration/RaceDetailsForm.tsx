@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Grid,
   TextField,
@@ -26,6 +26,10 @@ interface RaceDetailsFormProps {
 }
 
 const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange }) => {
+  // Effect to scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   return (
     <Box sx={{ mt: 2, mb: 4 }}>
       <Typography variant="h6" gutterBottom>

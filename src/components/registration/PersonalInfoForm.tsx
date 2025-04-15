@@ -1,18 +1,18 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Grid,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
   Typography,
   Box,
-  FormHelperText
+  FormHelperText,
+  Autocomplete,
+  InputAdornment
 } from '@mui/material';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
-import { COUNTRIES } from '../../constants';
+import { format } from 'date-fns';
+import { nb } from 'date-fns/locale';
+import { COUNTRIES, COMMON_COUNTRIES, PHONE_CODES, COMMON_PHONE_CODES } from '../../constants';
 
 interface PersonalInfoFormProps {
   formData: {
@@ -21,23 +21,26 @@ interface PersonalInfoFormProps {
     dateOfBirth: Date | null;
     nationality: string;
     email: string;
-    mobilePhone: string;
+    phoneCountryCode: string;
+    phoneNumber: string;
     representing: string;
   };
   onChange: (field: string, value: any) => void;
 }
 
 const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange }) => {
-  // Calculate minimum date of birth (must be at least 18 years old)
-  const today = new Date();
-  const minDate = new Date(
-    today.getFullYear() - 18,
-    today.getMonth(),
-    today.getDate()
-  );
+  // No longer needed with Autocomplete component
+
+  // Effect to scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  // Find selected country and phone code
+  const selectedPhoneCode = PHONE_CODES.find(pc => pc.code === formData.phoneCountryCode) || PHONE_CODES[0];
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns}>
+    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={nb}>
       <Box sx={{ mt: 2, mb: 4 }}>
         <Typography variant="h6" gutterBottom>
           Personal Information
@@ -75,39 +78,44 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
           
           <Grid size={{ xs: 12, sm: 6 }}>
             <DatePicker
-              label="Date of Birth *"
+              label="Date of Birth"
               value={formData.dateOfBirth}
               onChange={(date) => onChange('dateOfBirth', date)}
-              maxDate={minDate}
               slotProps={{
                 textField: {
                   fullWidth: true,
                   variant: 'outlined',
-                  required: true,
-                  helperText: 'You must be at least 18 years old'
+                  required: true
                 }
               }}
+              // Norwegian date format
+              format="dd.MM.yyyy"
+              formatDensity="spacious"
             />
           </Grid>
           
           <Grid size={{ xs: 12, sm: 6 }}>
-            <FormControl fullWidth required>
-              <InputLabel id="nationality-label">Nationality</InputLabel>
-              <Select
-                labelId="nationality-label"
-                id="nationality"
-                value={formData.nationality}
-                label="Nationality"
-                onChange={(e) => onChange('nationality', e.target.value)}
-              >
-                {COUNTRIES.map((country) => (
-                  <MenuItem key={country.code} value={country.code}>
-                    {country.name}
-                  </MenuItem>
-                ))}
-              </Select>
-              <FormHelperText>Select your country of citizenship</FormHelperText>
-            </FormControl>
+            <Autocomplete
+              id="nationality-autocomplete"
+              options={COUNTRIES}
+              getOptionLabel={(option) => option.name}
+              groupBy={(option) => option.isCommon ? 'Common Countries' : 'All Countries'}
+              value={COUNTRIES.find(country => country.code === formData.nationality) || null}
+              onChange={(_, newValue) => {
+                if (newValue) {
+                  onChange('nationality', newValue.code);
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  required
+                  label="Nationality"
+                  variant="outlined"
+                  helperText="Select your country of citizenship"
+                />
+              )}
+            />
           </Grid>
           
           <Grid size={12}>
@@ -125,17 +133,47 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange 
             />
           </Grid>
           
-          <Grid size={12}>
+          <Grid size={{ xs: 12, sm: 6 }}>
+            <Autocomplete
+              id="phone-code-autocomplete"
+              options={PHONE_CODES}
+              getOptionLabel={(option) => `${option.flag} ${option.code} (${option.country})`}
+              groupBy={(option) => option.isCommon ? 'Common Countries' : 'All Countries'}
+              value={selectedPhoneCode}
+              onChange={(_, newValue) => {
+                if (newValue) {
+                  onChange('phoneCountryCode', newValue.code);
+                }
+              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  required
+                  label="Country Code"
+                  variant="outlined"
+                />
+              )}
+            />
+          </Grid>
+          
+          <Grid size={{ xs: 12, sm: 6 }}>
             <TextField
               required
-              id="mobilePhone"
-              name="mobilePhone"
-              label="Mobile Phone"
+              id="phoneNumber"
+              name="phoneNumber"
+              label="Phone Number"
               fullWidth
               variant="outlined"
-              value={formData.mobilePhone}
-              onChange={(e) => onChange('mobilePhone', e.target.value)}
-              helperText="Include country code (e.g., +47 for Norway)"
+              value={formData.phoneNumber}
+              onChange={(e) => onChange('phoneNumber', e.target.value)}
+              helperText="Enter number without country code"
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    {selectedPhoneCode.flag}
+                  </InputAdornment>
+                ),
+              }}
             />
           </Grid>
           

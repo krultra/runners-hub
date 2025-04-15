@@ -1,0 +1,12 @@
+specVersion: "v1"
+serviceId: "runners-hub"
+location: "europe-north1"
+schema:
+  source: "./schema"
+  datasource:
+    postgresql:
+      database: "fdcdb"
+      cloudSql:
+        instanceId: "runners-hub-fdc"
+      # schemaValidation: "COMPATIBLE"
+connectorDirs: ["./connector"]

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   Typography,
   Box,
@@ -10,7 +10,7 @@ import {
   Paper,
   Alert
 } from '@mui/material';
-import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS } from '../../constants';
+import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS, PHONE_CODES } from '../../constants';
 
 interface ReviewRegistrationProps {
   formData: {
@@ -19,7 +19,8 @@ interface ReviewRegistrationProps {
     dateOfBirth: Date | null;
     nationality: string;
     email: string;
-    mobilePhone: string;
+    phoneCountryCode: string;
+    phoneNumber: string;
     representing: string;
     raceDistance: string;
     travelRequired: string;
@@ -34,10 +35,15 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData }) => 
     (distance) => distance.id === formData.raceDistance
   );
 
-  // Find the selected nationality
+  // Find the selected nationality and phone code
   const selectedCountry = COUNTRIES.find(
     (country) => country.code === formData.nationality
   );
+  
+  // Effect to scroll to top when component mounts
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
 
   return (
     <Box sx={{ mt: 2, mb: 4 }}>
@@ -94,7 +100,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData }) => 
             <ListItem disablePadding>
               <ListItemText
                 primary="Mobile Phone"
-                secondary={formData.mobilePhone}
+                secondary={`${formData.phoneCountryCode} ${formData.phoneNumber}`}
               />
             </ListItem>
           </Grid>

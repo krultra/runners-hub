@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -30,7 +30,8 @@ const RegistrationPage: React.FC = () => {
     dateOfBirth: null as Date | null,
     nationality: 'NOR', // Default to Norway
     email: '',
-    mobilePhone: '+47', // Default to Norway country code
+    phoneCountryCode: '+47', // Default to Norway country code
+    phoneNumber: '', // Phone number without country code
     representing: '',
     raceDistance: '',
     travelRequired: '',
@@ -42,12 +43,48 @@ const RegistrationPage: React.FC = () => {
   const now = new Date();
   const isRegistrationOpen = now < RACE_DETAILS.registrationDeadline;
 
+  // Validate form data based on current step
+  const validateCurrentStep = () => {
+    if (activeStep === 0) {
+      // Validate personal info
+      return (
+        formData.firstName.trim() !== '' &&
+        formData.lastName.trim() !== '' &&
+        formData.dateOfBirth !== null &&
+        formData.nationality.trim() !== '' &&
+        formData.email.trim() !== '' &&
+        formData.phoneCountryCode.trim() !== '' &&
+        formData.phoneNumber.trim() !== ''
+      );
+    } else if (activeStep === 1) {
+      // Validate race details
+      return (
+        formData.raceDistance.trim() !== '' &&
+        formData.travelRequired.trim() !== ''
+      );
+    }
+    return true;
+  };
+
+  const [validationError, setValidationError] = useState(false);
+
   const handleNext = () => {
-    setActiveStep((prevActiveStep) => prevActiveStep + 1);
+    // Validate current step before proceeding
+    if (validateCurrentStep()) {
+      setValidationError(false);
+      setActiveStep((prevActiveStep) => prevActiveStep + 1);
+      // Scroll to top when moving to next step
+      window.scrollTo(0, 0);
+    } else {
+      setValidationError(true);
+    }
   };
 
   const handleBack = () => {
+    setValidationError(false);
     setActiveStep((prevActiveStep) => prevActiveStep - 1);
+    // Scroll to top when moving to previous step
+    window.scrollTo(0, 0);
   };
 
   const handleFormChange = (field: string, value: any) => {
@@ -56,6 +93,28 @@ const RegistrationPage: React.FC = () => {
       [field]: value
     });
   };
+  
+  // Store form data in localStorage when it changes
+  useEffect(() => {
+    localStorage.setItem('registrationFormData', JSON.stringify(formData));
+  }, [formData]);
+  
+  // Load form data from localStorage on component mount
+  useEffect(() => {
+    const savedFormData = localStorage.getItem('registrationFormData');
+    if (savedFormData) {
+      try {
+        const parsedData = JSON.parse(savedFormData);
+        // Convert date string back to Date object if it exists
+        if (parsedData.dateOfBirth) {
+          parsedData.dateOfBirth = new Date(parsedData.dateOfBirth);
+        }
+        setFormData(parsedData);
+      } catch (error) {
+        console.error('Error parsing saved form data:', error);
+      }
+    }
+  }, []);
 
   const handleSubmit = async () => {
     // Here we would submit the registration to Firebase
@@ -122,6 +181,14 @@ const RegistrationPage: React.FC = () => {
         <Typography variant="h4" component="h1" align="center" gutterBottom>
           Register for KUTC 2025
         </Typography>
+        
+        {validationError && (
+          <Box sx={{ mt: 2, mb: 2, p: 2, bgcolor: '#ffebee', borderRadius: 1 }}>
+            <Typography color="error" align="center" variant="body1">
+              Please fill in all required fields before proceeding.
+            </Typography>
+          </Box>
+        )}
         
         <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
           {steps.map((label) => (
