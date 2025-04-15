@@ -24,13 +24,12 @@ export interface RaceDistance {
 
 // Registration type
 export interface Registration {
-  id: string;
-  timestamp: Date;
+  id?: string;
   email: string;
   raceDistance: string; // ID of the selected race distance
   firstName: string;
   lastName: string;
-  dateOfBirth: Date;
+  dateOfBirth: Date | null;
   nationality: string; // ISO 3-letter country code
   phoneCountryCode: string; // e.g., +47
   phoneNumber: string; // without country code
@@ -38,8 +37,13 @@ export interface Registration {
   travelRequired?: string; // Optional
   termsAccepted: boolean;
   comments?: string; // Optional
-  paymentStatus: 'pending' | 'completed' | 'refunded';
-  registrationStatus: 'confirmed' | 'waitlisted' | 'cancelled';
+  
+  // Metadata fields (added by the service)
+  userId?: string | null;
+  status?: 'pending' | 'confirmed' | 'waitlisted' | 'cancelled';
+  paymentStatus?: 'pending' | 'completed' | 'refunded';
+  createdAt?: any; // Firestore Timestamp
+  updatedAt?: any; // Firestore Timestamp
 }
 
 // User type

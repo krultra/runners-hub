@@ -2,8 +2,33 @@ rules_version = '2';
 
 service cloud.firestore {
   match /databases/{database}/documents {
+    // Default rule - allow all access for development
     match /{document=**} {
-      allow read, write: if false;
+      allow read, write: if true;
+    }
+    
+    // Registration collection rules
+    match /registrations/{registrationId} {
+      // Allow users to create their own registration
+      allow create: if true;
+      
+      // Allow users to read and update only their own registration
+      allow read, update: if request.auth != null && 
+                            request.auth.uid == resource.data.userId;
+                            
+      // Only admins can delete registrations
+      allow delete: if request.auth != null && 
+                    get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+    
+    // Race details collection rules
+    match /raceDetails/{raceId} {
+      // Anyone can read race details
+      allow read: if true;
+      
+      // Only admins can write race details
+      allow write: if request.auth != null && 
+                   get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
   }
 }

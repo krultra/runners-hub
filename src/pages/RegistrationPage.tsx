@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createRegistration } from '../services/registrationService';
+import { testFirestoreConnection } from '../services/testFirestore';
 import {
   Container,
   Typography,
@@ -364,6 +366,8 @@ const RegistrationPage: React.FC = () => {
     }
   }, [activeStep, validationAttempted]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSubmit = async () => {
     // Validate the entire form including terms and conditions
     setValidationAttempted(true);
@@ -371,17 +375,56 @@ const RegistrationPage: React.FC = () => {
     
     // Only submit if the form is completely valid
     if (isFormValidForSubmission()) {
-      // Here we would submit the registration to Firebase
-      // For now, we'll just navigate back to the home page
-      
-      // Mock submission
-      console.log('Submitting registration:', formData);
-      
-      // Clear form data from localStorage before navigating away
-      localStorage.removeItem('registrationFormData');
-      
-      // Navigate to success page or home page
-      navigate('/');
+      // First test the Firestore connection
+      const isConnected = await testFirestoreConnection();
+      if (!isConnected) {
+        setSnackbarMessage('Error connecting to the database. Please check your internet connection and try again.');
+        setSnackbarOpen(true);
+        return;
+      }
+      try {
+        setIsSubmitting(true);
+        
+        // Prepare registration data
+        const registrationData = {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          dateOfBirth: formData.dateOfBirth,
+          nationality: formData.nationality,
+          email: formData.email,
+          phoneCountryCode: formData.phoneCountryCode,
+          phoneNumber: formData.phoneNumber,
+          representing: formData.representing,
+          raceDistance: formData.raceDistance,
+          travelRequired: formData.travelRequired,
+          termsAccepted: formData.termsAccepted,
+          comments: formData.comments
+        };
+        
+        // Submit to Firestore
+        const registrationId = await createRegistration(registrationData);
+        console.log('Registration submitted successfully with ID:', registrationId);
+        
+        // Show success message
+        setSnackbarMessage('Registration submitted successfully!');
+        setSnackbarOpen(true);
+        
+        // Clear form data from localStorage
+        localStorage.removeItem('registrationFormData');
+        
+        // Navigate to success page or home page after a short delay
+        setTimeout(() => {
+          navigate('/', { state: { registrationSuccess: true, registrationId } });
+        }, 2000);
+      } catch (error) {
+        console.error('Error submitting registration:', error);
+        // Show more detailed error message for debugging
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+        setSnackbarMessage(`Error submitting registration: ${errorMessage}`);
+        setSnackbarOpen(true);
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
       // Show error message
       setSnackbarMessage('Please accept the terms and conditions before submitting');
@@ -540,9 +583,9 @@ const RegistrationPage: React.FC = () => {
                     variant="contained"
                     color="primary"
                     onClick={handleSubmit}
-                    disabled={!formData.termsAccepted}
+                    disabled={!formData.termsAccepted || isSubmitting}
                   >
-                    Submit Registration
+                    {isSubmitting ? 'Submitting...' : 'Submit Registration'}
                   </Button>
                 ) : (
                   <Button

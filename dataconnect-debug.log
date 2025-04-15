@@ -1,0 +1,10 @@
+I0415 12:19:51.416586   20212 load.go:37] Reloading schema and connectors...
+I0415 12:19:51.441303   20212 control.go:71] [/emulator/runners-hub 67d1] UpdateResources(): done
+Schema: sources: schema\schema.gql [2088B] 
+Connector "default": sources: connector\mutations.gql [1233B] connector\queries.gql [1802B] 
+I0415 12:19:51.466006   20212 codegen.go:82] [connector "default" javascriptSdk] Generating sources into "C:\\Users\\tok\\Code\\runners-hub\\dataconnect-generated\\js\\default-connector"
+I0415 12:19:51.475690   20212 collector.go:107] schema extensions wrote into "C:\\Users\\tok\\Code\\runners-hub\\dataconnect\\.dataconnect\\schema"
+Generated sources: prelude.gql [67159B] 
+I0415 12:19:51.519617   20212 collector.go:107] connector "default" javascriptSdk wrote into "C:\\Users\\tok\\Code\\runners-hub\\dataconnect-generated\\js\\default-connector"
+Generated sources: esm\package.json [17B] package.json [860B] README.md [2774B] react\package.json [468B] react\index.cjs.js [0B] react\esm\index.esm.js [0B] index.d.ts [246B] esm\index.esm.js [116B] index.cjs.js [151B] react\index.d.ts [228B] react\esm\package.json [17B] react\README.md [5417B] 
+I0415 12:19:51.526874   20212 installsdk.go:80] Running command: c:\Users\tok\AppData\Roaming\fnm\node-versions\v22.14.0\installation\npm.cmd install file:dataconnect-generated\js\default-connector
