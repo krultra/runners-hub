@@ -1,0 +1,26 @@
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { ThemeProvider, CssBaseline } from '@mui/material';
+import theme from './config/theme';
+
+// Import pages (we'll create these next)
+import HomePage from './pages/HomePage';
+import RegistrationPage from './pages/RegistrationPage';
+import NotFoundPage from './pages/NotFoundPage';
+
+function App() {
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline /> {/* Provides a consistent baseline CSS */}
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/register" element={<RegistrationPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Router>
+    </ThemeProvider>
+  );
+}
+
+export default App;
