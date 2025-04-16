@@ -16,13 +16,18 @@ const firebaseConfig = {
 // Log Firebase config for debugging
 console.log('Using Firebase project:', firebaseConfig.projectId);
 console.log('Connecting to Firestore emulator');
-
+import { shouldUseFirestoreEmulator } from './firestoreMode';
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// Connect to Firestore emulator for local development
-connectFirestoreEmulator(db, '127.0.0.1', 8080);
+// Switch between emulator and production Firestore based on env
+if (shouldUseFirestoreEmulator()) {
+  console.log('Connecting to Firestore emulator on 127.0.0.1:8080');
+  connectFirestoreEmulator(db, '127.0.0.1', 8080);
+} else {
+  console.log('Using Firestore production environment');
+}
 
 export default app;

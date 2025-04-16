@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { ERROR_MESSAGES } from '../constants/messages';
 import { useNavigate } from 'react-router-dom';
 import { createRegistration } from '../services/registrationService';
 import { testFirestoreConnection } from '../services/testFirestore';
@@ -28,23 +29,96 @@ import ReviewRegistration from '../components/registration/ReviewRegistration';
 
 const steps = ['Personal Information', 'Race Details', 'Review & Submit'];
 
+// Top-level initialFormData for validation utility
+export const initialFormData = {
+  firstName: '',
+  lastName: '',
+  dateOfBirth: null as Date | null,
+  nationality: 'NOR', // Default to Norway
+  email: '',
+  phoneCountryCode: '+47', // Default to Norway country code
+  phoneNumber: '',
+  representing: '',
+  raceDistance: '',
+  travelRequired: '',
+  termsAccepted: false,
+  comments: ''
+};
+
+// Refactored: validateForm now takes formData and touchedFields as arguments for testability
+/**
+ * @param {object} formData
+ * @param {object} touchedFields
+ * @param {boolean} [showAllErrors=false]
+ * @param {boolean} [silentValidation=false]
+ * @param {function} [setErrors]
+ */
+export const validateForm = (
+  formData: any,
+  touchedFields: any,
+  showAllErrors: boolean = false,
+  silentValidation: boolean = false,
+  setErrors?: (errors: Record<string, string>) => void
+) => {
+  const newErrors: Record<string, string> = {};
+
+  // Personal info validation
+  if ((touchedFields.firstName || showAllErrors) && formData.firstName.trim() === '') {
+    newErrors.firstName = ERROR_MESSAGES.firstName;
+  }
+
+  if ((touchedFields.lastName || showAllErrors) && formData.lastName.trim() === '') {
+    newErrors.lastName = ERROR_MESSAGES.lastName;
+  }
+
+  if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth === null) {
+    newErrors.dateOfBirth = ERROR_MESSAGES.dateOfBirth;
+  }
+
+  if ((touchedFields.nationality || showAllErrors) && formData.nationality.trim() === '') {
+    newErrors.nationality = 'Nationality is required';
+  }
+
+  if ((touchedFields.email || showAllErrors) && formData.email.trim() === '') {
+    newErrors.email = 'Email is required';
+  } else if ((touchedFields.email || showAllErrors) && formData.email.trim() !== '' && !/^\S+@\S+\.\S+$/.test(formData.email)) {
+    newErrors.email = 'Please enter a valid email address';
+  }
+
+  if ((touchedFields.phoneCountryCode || showAllErrors) && formData.phoneCountryCode.trim() === '') {
+    newErrors.phoneCountryCode = 'Country code is required';
+  }
+
+  if ((touchedFields.phoneNumber || showAllErrors) && formData.phoneNumber.trim() === '') {
+    newErrors.phoneNumber = 'Phone number is required';
+  }
+
+  // Race details validation
+  if ((touchedFields.raceDistance || showAllErrors) && formData.raceDistance.trim() === '') {
+    newErrors.raceDistance = ERROR_MESSAGES.raceDistance;
+  }
+
+  if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim() === '') {
+    newErrors.travelRequired = ERROR_MESSAGES.travelRequired;
+  }
+
+  // Terms and conditions validation
+  if ((touchedFields.termsAccepted || showAllErrors) && !formData.termsAccepted) {
+    newErrors.termsAccepted = ERROR_MESSAGES.termsAccepted;
+  }
+
+  // Only update the errors state if not in silent validation mode and setErrors is provided
+  if (!silentValidation && setErrors) {
+    setErrors(newErrors);
+  }
+
+  return newErrors;
+};
+
 const RegistrationPage: React.FC = () => {
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
-  const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    dateOfBirth: null as Date | null,
-    nationality: 'NOR', // Default to Norway
-    email: '',
-    phoneCountryCode: '+47', // Default to Norway country code
-    phoneNumber: '', // Phone number without country code
-    representing: '',
-    raceDistance: '',
-    travelRequired: '',
-    termsAccepted: false,
-    comments: ''
-  });
+  const [formData, setFormData] = useState(initialFormData);
 
   // Track which fields have been touched by the user
   const [touchedFields, setTouchedFields] = useState<Record<string, boolean>>({
@@ -85,66 +159,9 @@ const RegistrationPage: React.FC = () => {
   const now = new Date();
   const isRegistrationOpen = now < RACE_DETAILS.registrationDeadline;
 
-  // Validate form data and return errors
-  const validateForm = (showAllErrors = false, silentValidation = false) => {
-    const newErrors: Record<string, string> = {};
-    
-    // Personal info validation
-    if ((touchedFields.firstName || showAllErrors) && formData.firstName.trim() === '') {
-      newErrors.firstName = 'First name is required';
-    }
-    
-    if ((touchedFields.lastName || showAllErrors) && formData.lastName.trim() === '') {
-      newErrors.lastName = 'Last name is required';
-    }
-    
-    if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth === null) {
-      newErrors.dateOfBirth = 'Date of birth is required';
-    }
-    
-    if ((touchedFields.nationality || showAllErrors) && formData.nationality.trim() === '') {
-      newErrors.nationality = 'Nationality is required';
-    }
-    
-    if ((touchedFields.email || showAllErrors) && formData.email.trim() === '') {
-      newErrors.email = 'Email is required';
-    } else if ((touchedFields.email || showAllErrors) && formData.email.trim() !== '' && !/^\S+@\S+\.\S+$/.test(formData.email)) {
-      newErrors.email = 'Please enter a valid email address';
-    }
-    
-    if ((touchedFields.phoneCountryCode || showAllErrors) && formData.phoneCountryCode.trim() === '') {
-      newErrors.phoneCountryCode = 'Country code is required';
-    }
-    
-    if ((touchedFields.phoneNumber || showAllErrors) && formData.phoneNumber.trim() === '') {
-      newErrors.phoneNumber = 'Phone number is required';
-    }
-    
-    // Race details validation
-    if ((touchedFields.raceDistance || showAllErrors) && formData.raceDistance.trim() === '') {
-      newErrors.raceDistance = 'Please select a race distance';
-    }
-    
-    if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim() === '') {
-      newErrors.travelRequired = 'Please select if you need travel assistance';
-    }
-    
-    // Terms and conditions validation
-    if ((touchedFields.termsAccepted || showAllErrors) && !formData.termsAccepted) {
-      newErrors.termsAccepted = 'You must accept the terms and conditions';
-    }
-    
-    // Only update the errors state if not in silent validation mode
-    if (!silentValidation) {
-      setErrors(newErrors);
-    }
-    
-    return newErrors;
-  };
-  
   // Check if final review step is valid
   const isFinalStepValid = () => {
-    const currentErrors = validateForm(true);
+    const currentErrors = validateForm(formData, touchedFields, true, true, undefined);
     // Check all fields for the final step
     return Object.keys(currentErrors).length === 0;
   };
@@ -157,7 +174,7 @@ const RegistrationPage: React.FC = () => {
   // Show only errors for the current step
   const showCurrentStepErrors = () => {
     // Run full validation to get all errors
-    const currentErrors = validateForm(true, true); // Get all errors silently
+    const currentErrors = validateForm(formData, touchedFields, true, true, undefined);
     const newErrors: Record<string, string> = {};
     
     // Define fields for each step
@@ -204,26 +221,26 @@ const RegistrationPage: React.FC = () => {
     }));
     
     // Validate the field when it's touched
-    validateForm();
+    validateForm(formData, touchedFields, false, false, setErrors);
   };
 
   // Check if there are any errors in the personal info step
   const hasPersonalInfoErrors = () => {
-    const errors = validateForm(true, true); // Silent validation
+    const errors = validateForm(formData, touchedFields, true, true, undefined);
     const personalInfoFields = ['firstName', 'lastName', 'dateOfBirth', 'nationality', 'email', 'phoneCountryCode', 'phoneNumber'];
     return personalInfoFields.some(field => field in errors);
   };
   
   // Check if there are any errors in the race details step
   const hasRaceDetailsErrors = () => {
-    const errors = validateForm(true, true); // Silent validation
+    const errors = validateForm(formData, touchedFields, true, true, undefined);
     const raceDetailsFields = ['raceDistance', 'travelRequired'];
     return raceDetailsFields.some(field => field in errors);
   };
   
   // Check if the form is valid for final submission (including terms)
   const isFormValidForSubmission = () => {
-    const errors = validateForm(true, true); // Silent validation
+    const errors = validateForm(formData, touchedFields, true, true, undefined); // Silent validation
     return Object.keys(errors).length === 0;
   };
 
@@ -234,7 +251,7 @@ const RegistrationPage: React.FC = () => {
       setValidationAttempted(true);
       
       // Validate all fields except terms and conditions
-      const currentErrors = validateForm(true, true); // Silent validation
+      const currentErrors = validateForm(formData, touchedFields, true, true, undefined); // Silent validation
       const errorsWithoutTerms = { ...currentErrors };
       delete errorsWithoutTerms.termsAccepted;
       
@@ -330,7 +347,7 @@ const RegistrationPage: React.FC = () => {
     }
     
     // Validate the field when it changes
-    validateForm();
+    validateForm(formData, touchedFields, false, false, setErrors);
   };
   
   // Store form data in localStorage when it changes
@@ -371,7 +388,7 @@ const RegistrationPage: React.FC = () => {
   const handleSubmit = async () => {
     // Validate the entire form including terms and conditions
     setValidationAttempted(true);
-    const currentErrors = validateForm(true);
+    const currentErrors = validateForm(formData, touchedFields, true, undefined, undefined);
     
     // Only submit if the form is completely valid
     if (isFormValidForSubmission()) {
