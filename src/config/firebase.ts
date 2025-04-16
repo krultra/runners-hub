@@ -1,6 +1,7 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
+import { shouldUseFirestoreEmulator } from './firestoreMode';
 
 // Firebase configuration for the RunnersHub project
 const firebaseConfig = {
@@ -16,7 +17,6 @@ const firebaseConfig = {
 // Log Firebase config for debugging
 console.log('Using Firebase project:', firebaseConfig.projectId);
 console.log('Connecting to Firestore emulator');
-import { shouldUseFirestoreEmulator } from './firestoreMode';
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
