@@ -22,11 +22,16 @@ describe('registrationService Firestore integration', () => {
   };
 
   afterAll(async () => {
-    // Clean up test doc
-    if (createdDocId) {
-      await deleteDoc(doc(db, testCollection, createdDocId));
-    }
-  });
+  // Clean up test doc
+  if (createdDocId) {
+    await deleteDoc(doc(db, testCollection, createdDocId));
+  }
+  // Properly terminate Firestore and delete all Firebase apps
+  const { getFirestore, terminate } = await import('firebase/firestore');
+  const { getApps, deleteApp } = await import('firebase/app');
+  await terminate(getFirestore());
+  await Promise.all(getApps().map(app => deleteApp(app)));
+});
 
   it('should add a registration and retrieve it', async () => {
     // Add
