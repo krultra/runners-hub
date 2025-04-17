@@ -29,9 +29,10 @@ interface PersonalInfoFormProps {
   errors: Record<string, string>;
   fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
   onBlur?: (field: string) => void;
+  isEmailReadOnly?: boolean;
 }
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur }) => {
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, isEmailReadOnly }) => {
   // No longer needed with Autocomplete component
 
   // Effect to scroll to top when component mounts
@@ -137,21 +138,33 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
           </Grid>
           
           <Grid size={12}>
-            <TextField
-              required
-              id="email"
-              name="email"
-              label="Email Address"
-              fullWidth
-              variant="outlined"
-              type="email"
-              value={formData.email}
-              onChange={(e) => onChange('email', e.target.value)}
-              onBlur={() => onBlur && onBlur('email')}
-              error={!!errors.email}
-              helperText={errors.email || "We'll send your registration confirmation to this email"}
-              ref={fieldRefs.email}
-            />
+            {isEmailReadOnly ? (
+              <Box sx={{ mt: 2, mb: 1 }}>
+                <Typography variant="subtitle2" color="text.secondary">
+                  Email Address
+                </Typography>
+                <Typography variant="body1" sx={{ px: 1, py: 1, bgcolor: '#f5f5f5', borderRadius: 1 }} tabIndex={-1}>
+                  {formData.email}
+                </Typography>
+                <FormHelperText sx={{ ml: 0 }}>{errors.email || "We'll send your registration confirmation to this email"}</FormHelperText>
+              </Box>
+            ) : (
+              <TextField
+                required
+                id="email"
+                name="email"
+                label="Email Address"
+                fullWidth
+                variant="outlined"
+                type="email"
+                value={formData.email}
+                onChange={(e) => onChange('email', e.target.value)}
+                onBlur={() => onBlur && onBlur('email')}
+                error={!!errors.email}
+                helperText={errors.email || "We'll send your registration confirmation to this email"}
+                ref={fieldRefs.email}
+              />
+            )}
           </Grid>
           
           <Grid size={{ xs: 12, sm: 6 }}>

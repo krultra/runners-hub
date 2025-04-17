@@ -123,6 +123,45 @@ const RegistrationPage: React.FC = () => {
   const [verifying, setVerifying] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState('');
 
+  // Prefill/edit registration state
+  const [isEditingExisting, setIsEditingExisting] = useState(false);
+  const [existingRegistrationId, setExistingRegistrationId] = useState<string | null>(null);
+
+  // Prefill form for authenticated users
+  useEffect(() => {
+    const fetchAndPrefill = async () => {
+      if (user && user.uid) {
+        try {
+          // Dynamically import to avoid SSR issues
+          const { getRegistrationsByUserId } = await import('../services/registrationService');
+          const registrations = await getRegistrationsByUserId(user.uid);
+          if (registrations && registrations.length > 0) {
+            // Use the first registration (should only be one per user)
+            const reg = registrations[0];
+            setFormData({
+              ...initialFormData,
+              ...reg,
+              email: user.email || reg.email || '',
+              dateOfBirth: reg.dateOfBirth ? new Date(reg.dateOfBirth) : null,
+              termsAccepted: false // Always require explicit acceptance
+            });
+            setIsEditingExisting(true);
+            setExistingRegistrationId(reg.id ?? null);
+          } else {
+            setIsEditingExisting(false);
+            setExistingRegistrationId(null);
+            setFormData({ ...initialFormData, email: user.email || '' });
+          }
+        } catch (err) {
+          console.error('Error fetching existing registration:', err);
+        }
+      }
+    };
+    fetchAndPrefill();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
+
+
   useEffect(() => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, (u) => {
@@ -451,7 +490,6 @@ const RegistrationPage: React.FC = () => {
       }
       try {
         setIsSubmitting(true);
-        
         // Prepare registration data
         const registrationData = {
           firstName: formData.firstName,
@@ -467,25 +505,25 @@ const RegistrationPage: React.FC = () => {
           termsAccepted: formData.termsAccepted,
           comments: formData.comments
         };
-        
-        // Submit to Firestore
-        const registrationId = await createRegistration(registrationData);
-        console.log('Registration submitted successfully with ID:', registrationId);
-        
-        // Show success message
-        setSnackbarMessage('Registration submitted successfully!');
+        let registrationId = existingRegistrationId;
+        if (isEditingExisting && existingRegistrationId) {
+          // Update
+          const { updateRegistration } = await import('../services/registrationService');
+          await updateRegistration(existingRegistrationId, registrationData);
+          setSnackbarMessage('Registration updated successfully!');
+        } else {
+          // Create
+          const { createRegistration } = await import('../services/registrationService');
+          registrationId = await createRegistration(registrationData, user?.uid);
+          setSnackbarMessage('Registration submitted successfully!');
+        }
         setSnackbarOpen(true);
-        
-        // Clear form data from localStorage
         localStorage.removeItem('registrationFormData');
-        
-        // Navigate to success page or home page after a short delay
         setTimeout(() => {
           navigate('/', { state: { registrationSuccess: true, registrationId } });
         }, 2000);
       } catch (error) {
         console.error('Error submitting registration:', error);
-        // Show more detailed error message for debugging
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         setSnackbarMessage(`Error submitting registration: ${errorMessage}`);
         setSnackbarOpen(true);
@@ -496,7 +534,6 @@ const RegistrationPage: React.FC = () => {
       // Show error message
       setSnackbarMessage('Please accept the terms and conditions before submitting');
       setSnackbarOpen(true);
-      
       // Scroll to terms checkbox
       if (currentErrors.termsAccepted) {
         const ref = fieldRefs.termsAccepted;
@@ -506,6 +543,7 @@ const RegistrationPage: React.FC = () => {
       }
     }
   };
+
 
   // Restore getStepContent so it is in scope for rendering
   const getStepContent = (step: number) => {
@@ -518,6 +556,7 @@ const RegistrationPage: React.FC = () => {
             errors={errors}
             fieldRefs={fieldRefs}
             onBlur={handleFieldTouch}
+            isEmailReadOnly={true}
           />
         );
       case 1:
@@ -620,6 +659,11 @@ const RegistrationPage: React.FC = () => {
             <Typography variant="h4" component="h1" align="center" gutterBottom>
               Register for KUTC 2025
             </Typography>
+            {isEditingExisting && (
+              <Alert severity="info" sx={{ mb: 2 }}>
+                You have already registered. You may update your registration below.
+              </Alert>
+            )}
             {validationAttempted && activeStep !== 2 && (
               <Box sx={{ mt: 2, mb: 2, p: 2, bgcolor: '#ffebee', borderRadius: 1 }}>
                 <Typography color="error" variant="body1" gutterBottom>
