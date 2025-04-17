@@ -309,64 +309,55 @@ const RegistrationPage: React.FC = () => {
   const handleNext = () => {
     // For final step (from Race Details to Review), check all fields except terms
     if (activeStep === steps.length - 2) {
-      // Set validation state to true for validation
       setValidationAttempted(true);
-      
       // Validate all fields except terms and conditions
       const currentErrors = validateForm(formData, touchedFields, true, true, undefined); // Silent validation
       const errorsWithoutTerms = { ...currentErrors };
       delete errorsWithoutTerms.termsAccepted;
-      
-      // Check if there are any errors in the form (excluding terms)
+      // Only advance if no errors
       if (Object.keys(errorsWithoutTerms).length === 0) {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         window.scrollTo(0, 0);
-        // Show validation errors for the current step
         setTimeout(() => showCurrentStepErrors(), 100);
       } else {
-        // Update the visible errors
         setErrors(errorsWithoutTerms);
-        
-        // Show snackbar with error message
         setSnackbarMessage('Please complete all required fields before submitting');
         setSnackbarOpen(true);
-        
-        // If there are errors in the personal info step, go back to that step
+        // Do NOT advance step if there are errors
+        // Optionally scroll to first error
         if (hasPersonalInfoErrors()) {
           setActiveStep(0); // Go to personal info step
           setTimeout(() => {
-            // Get personal info errors
             const personalInfoFields = ['firstName', 'lastName', 'dateOfBirth', 'nationality', 'email', 'phoneCountryCode', 'phoneNumber'];
             const personalInfoErrors: Record<string, string> = {};
-            
-            // Only keep errors for personal info fields
             personalInfoFields.forEach(field => {
               if (field in errorsWithoutTerms) {
                 personalInfoErrors[field] = errorsWithoutTerms[field];
               }
             });
-            
-            // Update the errors state with only personal info errors
             setErrors(personalInfoErrors);
-            
-            // Scroll to the first error
             scrollToFirstError(personalInfoErrors);
           }, 100);
         } else {
-          // Otherwise, find the first error field in the current step and scroll to it
           scrollToFirstError(errorsWithoutTerms);
         }
       }
     } else {
-      // For navigation from Personal Info to Race Details
-      // Don't mark validation as attempted yet
-      
-      // Move to next step
-      setActiveStep((prevActiveStep) => prevActiveStep + 1);
-      window.scrollTo(0, 0);
-      
-      // Clear all errors when navigating forward
-      clearAllErrors();
+      // For other steps, validate only relevant fields
+      // Only advance if current step is valid
+      let stepValid = true;
+      if (activeStep === 0 && hasPersonalInfoErrors()) stepValid = false;
+      if (activeStep === 1 && hasRaceDetailsErrors()) stepValid = false;
+      if (stepValid) {
+        setActiveStep((prevActiveStep) => prevActiveStep + 1);
+        window.scrollTo(0, 0);
+        clearAllErrors();
+      } else {
+        setValidationAttempted(true);
+        showCurrentStepErrors();
+        setSnackbarMessage('Please complete all required fields before proceeding');
+        setSnackbarOpen(true);
+      }
     }
   };
 
@@ -516,6 +507,7 @@ const RegistrationPage: React.FC = () => {
     }
   };
 
+  // Restore getStepContent so it is in scope for rendering
   const getStepContent = (step: number) => {
     switch (step) {
       case 0:
@@ -576,114 +568,124 @@ const RegistrationPage: React.FC = () => {
 
   return (
     <Container maxWidth="md">
-      {/* Snackbar for validation errors */}
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={10000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert 
-          onClose={handleSnackbarClose} 
-          severity="error" 
-          variant="filled"
-          sx={{ width: '100%' }}
-        >
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
-      <Paper elevation={3} sx={{ p: 4, my: 4 }}>
-        <Typography variant="h4" component="h1" align="center" gutterBottom>
-          Register for KUTC 2025
-        </Typography>
-        
-        {validationAttempted && activeStep !== 2 && (
-          <Box sx={{ mt: 2, mb: 2, p: 2, bgcolor: '#ffebee', borderRadius: 1 }}>
-            <Typography color="error" variant="body1" gutterBottom>
-              {Object.keys(errors).length > 0 
-                ? 'Please complete the following required fields:'
-                : 'Please complete all required fields before proceeding.'}
-            </Typography>
-            {Object.keys(errors).length > 0 && (
-              <List dense>
-                {Object.entries(errors).map(([field, message]) => (
-                  <ListItem key={field} sx={{ py: 0 }}>
-                    <ListItemText 
-                      primary={message}
-                      primaryTypographyProps={{ color: 'error' }}
-                    />
-                  </ListItem>
-                ))}
-              </List>
-            )}
-          </Box>
-        )}
-        
-        <Stepper activeStep={activeStep} sx={{ pt: 3, pb: 5 }}>
-          {steps.map((label) => (
-            <Step key={label}>
-              <StepLabel>{label}</StepLabel>
-            </Step>
-          ))}
-        </Stepper>
-        
+      {!user ? (
+        <Box mt={4}>
+          <Typography variant="h4" align="center" gutterBottom>
+            Register for KUTC 2025
+          </Typography>
+          <Typography variant="h6" color="error" gutterBottom>
+            You must verify your email before you can register.
+          </Typography>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Enter your email below and click "Verify Email" to receive a sign-in link.<br />
+            Once you click the link in your inbox, return to this page to complete your registration.
+          </Typography>
+          <input
+            type="email"
+            placeholder="Enter your email"
+            value={emailForVerification}
+            onChange={e => setEmailForVerification(e.target.value)}
+            disabled={verifying}
+            style={{ marginRight: 8, padding: 4 }}
+          />
+          <Button
+            variant="contained"
+            onClick={handleSendVerificationLink}
+            disabled={!emailForVerification || verifying}
+          >
+            {verifying ? 'Sending...' : 'Verify Email'}
+          </Button>
+          {verificationStatus === 'sent' && <span style={{ color: 'green', marginLeft: 8 }}>Verification link sent!</span>}
+          {verificationStatus === 'error' && <span style={{ color: 'red', marginLeft: 8 }}>Failed to send verification link.</span>}
+        </Box>
+      ) : (
         <React.Fragment>
-          {activeStep === steps.length ? (
-            <React.Fragment>
-              <Typography variant="h5" gutterBottom>
-                Thank you for your registration!
-              </Typography>
-              <Typography variant="subtitle1">
-                Your registration has been submitted. You will receive a confirmation email shortly.
-              </Typography>
-              <Button
-                variant="contained"
-                onClick={() => navigate('/')}
-                sx={{ mt: 3 }}
-              >
-                Return to Home
-              </Button>
-            </React.Fragment>
-          ) : (
-            <React.Fragment>
-              {getStepContent(activeStep)}
-              <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                {activeStep !== 0 && (
-                  <Button onClick={handleBack} sx={{ mr: 1 }}>
-                    Back
-                  </Button>
-                )}
-                {activeStep === steps.length - 1 ? (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleSubmit}
-                    disabled={!formData.termsAccepted || isSubmitting}
-                  >
-                    {isSubmitting ? 'Submitting...' : 'Submit Registration'}
-                  </Button>
-                ) : (
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={handleNext}
-                  >
-                    Next
-                  </Button>
+          {/* Snackbar for validation errors */}
+          <Snackbar
+            open={snackbarOpen}
+            autoHideDuration={10000}
+            onClose={handleSnackbarClose}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          >
+            <Alert 
+              onClose={handleSnackbarClose} 
+              severity="error" 
+              variant="filled"
+              sx={{ width: '100%' }}
+            >
+              {snackbarMessage}
+            </Alert>
+          </Snackbar>
+          <Paper elevation={3} sx={{ p: 4, my: 4 }}>
+            <Typography variant="h4" component="h1" align="center" gutterBottom>
+              Register for KUTC 2025
+            </Typography>
+            {validationAttempted && activeStep !== 2 && (
+              <Box sx={{ mt: 2, mb: 2, p: 2, bgcolor: '#ffebee', borderRadius: 1 }}>
+                <Typography color="error" variant="body1" gutterBottom>
+                  {Object.keys(errors).length > 0 
+                    ? 'Please complete the following required fields:'
+                    : 'Please complete all required fields before proceeding.'}
+                </Typography>
+                {Object.keys(errors).length > 0 && (
+                  <List dense>
+                    {Object.entries(errors).map(([field, message]) => (
+                      <ListItem key={field} sx={{ py: 0 }}>
+                        <ListItemText 
+                          primary={message}
+                          primaryTypographyProps={{ color: 'error' }}
+                        />
+                      </ListItem>
+                    ))}
+                  </List>
                 )}
               </Box>
-            </React.Fragment>
-          )}
+            )}
+            {activeStep === steps.length ? (
+              <Box sx={{ my: 8, textAlign: 'center' }}>
+                <Typography variant="h4" component="h1" gutterBottom>
+                  Registration Submitted!
+                </Typography>
+                <Typography variant="body1" paragraph>
+                  Thank you for registering for KUTC 2025. You will receive a confirmation email soon.
+                </Typography>
+                <Button
+                  variant="contained"
+                  onClick={() => navigate('/')}
+                >
+                  Return to Home
+                </Button>
+              </Box>
+            ) : (
+              <>
+                {getStepContent(activeStep)}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+                  {activeStep !== 0 && (
+                    <Button onClick={handleBack} sx={{ mr: 2 }}>
+                      Back
+                    </Button>
+                  )}
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
+                    disabled={isSubmitting || (activeStep === steps.length - 1 && !isFormValidForSubmission())}
+                  >
+                    {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+                  </Button>
+                </Box>
+              </>
+            )}
+          </Paper>
+          <Grid container justifyContent="center" sx={{ mb: 4 }}>
+            <Grid>
+              <Link href="/" underline="hover">
+                Return to Home
+              </Link>
+            </Grid>
+          </Grid>
         </React.Fragment>
-      </Paper>
-
-      <Grid container justifyContent="center" sx={{ mb: 4 }}>
-        <Grid>
-          <Link href="/" underline="hover">
-            Return to Home
-          </Link>
-        </Grid>
-      </Grid>
+      )}
     </Container>
   );
 };
