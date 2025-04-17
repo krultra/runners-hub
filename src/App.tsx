@@ -7,6 +7,7 @@ import theme from './config/theme';
 import HomePage from './pages/HomePage';
 import RegistrationPage from './pages/RegistrationPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AuthTest from './components/AuthTest';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/register" element={<RegistrationPage />} />
+          <Route path="/auth" element={<AuthTest />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>

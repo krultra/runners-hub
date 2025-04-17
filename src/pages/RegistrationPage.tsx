@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { getAuth, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { ERROR_MESSAGES } from '../constants/messages';
 import { useNavigate } from 'react-router-dom';
 import { createRegistration } from '../services/registrationService';
@@ -116,6 +117,64 @@ export const validateForm = (
 };
 
 const RegistrationPage: React.FC = () => {
+  // Firebase Auth state
+  const [user, setUser] = useState<any>(null);
+  const [emailForVerification, setEmailForVerification] = useState('');
+  const [verifying, setVerifying] = useState(false);
+  const [verificationStatus, setVerificationStatus] = useState('');
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUser(u);
+      if (u && u.email) {
+        setFormData((prev: any) => ({ ...prev, email: u.email }));
+        setVerificationStatus('verified');
+      }
+    });
+    return unsub;
+  }, []);
+
+  // Handle sign-in link in URL for email link authentication
+  useEffect(() => {
+    const auth = getAuth();
+    if (isSignInWithEmailLink(auth, window.location.href)) {
+      let email = window.localStorage.getItem('emailForSignIn') || '';
+      if (!email) {
+        email = window.prompt('Please provide your email for confirmation') || '';
+      }
+      signInWithEmailLink(auth, email, window.location.href)
+        .then((result) => {
+          setVerificationStatus('verified');
+          setUser(result.user);
+          setFormData((prev: any) => ({ ...prev, email: result.user.email }));
+          window.localStorage.removeItem('emailForSignIn');
+        })
+        .catch((error) => {
+          setVerificationStatus('error');
+        });
+    }
+  }, []);
+
+  const handleSendVerificationLink = async () => {
+    setVerifying(true);
+    setVerificationStatus('sending');
+    try {
+      const auth = getAuth();
+      const actionCodeSettings = {
+        url: window.location.origin + '/register',
+        handleCodeInApp: true,
+      };
+      await sendSignInLinkToEmail(auth, emailForVerification, actionCodeSettings);
+      window.localStorage.setItem('emailForSignIn', emailForVerification);
+      setVerificationStatus('sent');
+    } catch (error: any) {
+      setVerificationStatus('error');
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState(initialFormData);
@@ -241,8 +300,11 @@ const RegistrationPage: React.FC = () => {
   // Check if the form is valid for final submission (including terms)
   const isFormValidForSubmission = () => {
     const errors = validateForm(formData, touchedFields, true, true, undefined); // Silent validation
+    // Block submission if not authenticated
+    if (!user || !user.email) return false;
     return Object.keys(errors).length === 0;
   };
+
 
   const handleNext = () => {
     // For final step (from Race Details to Review), check all fields except terms
@@ -336,19 +398,16 @@ const RegistrationPage: React.FC = () => {
   };
 
   const handleFormChange = (field: string, value: any) => {
-    setFormData({
-      ...formData,
-      [field]: value
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value };
+      // Validate using the updated form data
+      validateForm(updated, { ...touchedFields, [field]: true }, false, false, setErrors);
+      return updated;
     });
-    
     // Mark the field as touched
-    if (!touchedFields[field]) {
-      handleFieldTouch(field);
-    }
-    
-    // Validate the field when it changes
-    validateForm(formData, touchedFields, false, false, setErrors);
+    setTouchedFields(prev => ({ ...prev, [field]: true }));
   };
+
   
   // Store form data in localStorage when it changes
   useEffect(() => {
@@ -533,7 +592,6 @@ const RegistrationPage: React.FC = () => {
           {snackbarMessage}
         </Alert>
       </Snackbar>
-      
       <Paper elevation={3} sx={{ p: 4, my: 4 }}>
         <Typography variant="h4" component="h1" align="center" gutterBottom>
           Register for KUTC 2025

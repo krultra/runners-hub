@@ -5,13 +5,13 @@ import { shouldUseFirestoreEmulator } from './firestoreMode';
 
 // Firebase configuration for the RunnersHub project
 const firebaseConfig = {
-  apiKey: "AIzaSyBxJA5vMRmtX_25LZGzKlF-dHvKqZa6kUw",
-  authDomain: "runnershub-62442.firebaseapp.com",
-  projectId: "runnershub-62442",
-  storageBucket: "runnershub-62442.appspot.com",
-  messagingSenderId: "1234567890",
-  appId: "1:1234567890:web:abcdef1234567890",
-  measurementId: "G-ABCDEFGHIJ"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID,
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
 // Log Firebase config for debugging
