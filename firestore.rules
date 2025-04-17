@@ -4,13 +4,13 @@ service cloud.firestore {
     // Registrations collection
     match /registrations/{registrationId} {
       // Temporarily, anyone can create, read, update, and delete registrations (for public leaderboard, email checks, etc)
-      allow read, write: if true;
+      //allow read, write: if true;
       // Anyone can read registrations (for public leaderboard, email checks, etc)
-      // allow read: if true;
+      allow read: if true;
 
       // Only authenticated user with matching email can create, update, or delete their registration
       allow create, update, delete: if request.auth != null
-        && request.auth.token.email == request.resource.data.email;
+        && request.auth.uid == request.resource.data.userId;
     }
 
     // Deny all other access by default

@@ -6,14 +6,11 @@ import { db } from '../config/firebase';
  */
 export const testFirestoreConnection = async (): Promise<boolean> => {
   try {
-    console.log('Testing Firestore connection...');
     // Try to get a list of collections
     const snapshot = await getDocs(collection(db, 'registrations'));
-    console.log('Firestore connection successful!');
-    console.log('Number of documents:', snapshot.size);
     return true;
   } catch (error) {
-    console.error('Firestore connection test failed:', error);
+    // Firestore connection test failed
     return false;
   }
 };

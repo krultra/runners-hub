@@ -37,6 +37,10 @@ export interface Registration {
   travelRequired?: string; // Optional
   termsAccepted: boolean;
   comments?: string; // Optional
+
+  // Payment fields
+  paymentRequired: number;
+  paymentMade: number;
   
   // Metadata fields (added by the service)
   userId?: string | null;

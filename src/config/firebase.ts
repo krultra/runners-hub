@@ -14,10 +14,11 @@ const firebaseConfig = {
   measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID,
 };
 
-// Log Firebase config for debugging
-console.log('Using Firebase project:', firebaseConfig.projectId);
-console.log('Connecting to Firestore emulator');
-// Initialize Firebase
+
+/**
+ * Firebase configuration and initialization for RunnersHub.
+ * Switches between emulator and production Firestore based on env.
+ */
 const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);

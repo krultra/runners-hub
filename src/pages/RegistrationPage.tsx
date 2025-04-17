@@ -23,98 +23,14 @@ import {
 } from '@mui/material';
 import { RACE_DETAILS } from '../constants';
 
-// We'll create these components next
 import PersonalInfoForm from '../components/registration/PersonalInfoForm';
 import RaceDetailsForm from '../components/registration/RaceDetailsForm';
 import ReviewRegistration from '../components/registration/ReviewRegistration';
+import RegistrationStepper from '../components/registration/RegistrationStepper';
+import RegistrationSnackbar from '../components/registration/RegistrationSnackbar';
+import { initialFormData, validateForm } from '../utils/validation';
 
 const steps = ['Personal Information', 'Race Details', 'Review & Submit'];
-
-// Top-level initialFormData for validation utility
-export const initialFormData = {
-  firstName: '',
-  lastName: '',
-  dateOfBirth: null as Date | null,
-  nationality: 'NOR', // Default to Norway
-  email: '',
-  phoneCountryCode: '+47', // Default to Norway country code
-  phoneNumber: '',
-  representing: '',
-  raceDistance: '',
-  travelRequired: '',
-  termsAccepted: false,
-  comments: ''
-};
-
-// Refactored: validateForm now takes formData and touchedFields as arguments for testability
-/**
- * @param {object} formData
- * @param {object} touchedFields
- * @param {boolean} [showAllErrors=false]
- * @param {boolean} [silentValidation=false]
- * @param {function} [setErrors]
- */
-export const validateForm = (
-  formData: any,
-  touchedFields: any,
-  showAllErrors: boolean = false,
-  silentValidation: boolean = false,
-  setErrors?: (errors: Record<string, string>) => void
-) => {
-  const newErrors: Record<string, string> = {};
-
-  // Personal info validation
-  if ((touchedFields.firstName || showAllErrors) && formData.firstName.trim() === '') {
-    newErrors.firstName = ERROR_MESSAGES.firstName;
-  }
-
-  if ((touchedFields.lastName || showAllErrors) && formData.lastName.trim() === '') {
-    newErrors.lastName = ERROR_MESSAGES.lastName;
-  }
-
-  if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth === null) {
-    newErrors.dateOfBirth = ERROR_MESSAGES.dateOfBirth;
-  }
-
-  if ((touchedFields.nationality || showAllErrors) && formData.nationality.trim() === '') {
-    newErrors.nationality = 'Nationality is required';
-  }
-
-  if ((touchedFields.email || showAllErrors) && formData.email.trim() === '') {
-    newErrors.email = 'Email is required';
-  } else if ((touchedFields.email || showAllErrors) && formData.email.trim() !== '' && !/^\S+@\S+\.\S+$/.test(formData.email)) {
-    newErrors.email = 'Please enter a valid email address';
-  }
-
-  if ((touchedFields.phoneCountryCode || showAllErrors) && formData.phoneCountryCode.trim() === '') {
-    newErrors.phoneCountryCode = 'Country code is required';
-  }
-
-  if ((touchedFields.phoneNumber || showAllErrors) && formData.phoneNumber.trim() === '') {
-    newErrors.phoneNumber = 'Phone number is required';
-  }
-
-  // Race details validation
-  if ((touchedFields.raceDistance || showAllErrors) && formData.raceDistance.trim() === '') {
-    newErrors.raceDistance = ERROR_MESSAGES.raceDistance;
-  }
-
-  if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim() === '') {
-    newErrors.travelRequired = ERROR_MESSAGES.travelRequired;
-  }
-
-  // Terms and conditions validation
-  if ((touchedFields.termsAccepted || showAllErrors) && !formData.termsAccepted) {
-    newErrors.termsAccepted = ERROR_MESSAGES.termsAccepted;
-  }
-
-  // Only update the errors state if not in silent validation mode and setErrors is provided
-  if (!silentValidation && setErrors) {
-    setErrors(newErrors);
-  }
-
-  return newErrors;
-};
 
 const RegistrationPage: React.FC = () => {
   // Firebase Auth state
@@ -503,7 +419,9 @@ const RegistrationPage: React.FC = () => {
           raceDistance: formData.raceDistance,
           travelRequired: formData.travelRequired,
           termsAccepted: formData.termsAccepted,
-          comments: formData.comments
+          comments: formData.comments,
+          paymentRequired: formData.paymentRequired ?? 300,
+          paymentMade: formData.paymentMade ?? 0
         };
         let registrationId = existingRegistrationId;
         if (isEditingExisting && existingRegistrationId) {
@@ -513,7 +431,15 @@ const RegistrationPage: React.FC = () => {
           setSnackbarMessage('Registration updated successfully!');
         } else {
           // Create
-          const { createRegistration } = await import('../services/registrationService');
+          const { createRegistration, getRegistrationsByUserId } = await import('../services/registrationService');
+          // Check for existing registration for this user
+          const existingRegs = await getRegistrationsByUserId(user?.uid);
+          if (existingRegs && existingRegs.length > 0) {
+            setSnackbarMessage('You have already submitted a registration. Duplicate entries are not allowed.');
+            setSnackbarOpen(true);
+            setIsSubmitting(false);
+            return;
+          }
           registrationId = await createRegistration(registrationData, user?.uid);
           setSnackbarMessage('Registration submitted successfully!');
         }
@@ -639,87 +565,51 @@ const RegistrationPage: React.FC = () => {
         </Box>
       ) : (
         <React.Fragment>
-          {/* Snackbar for validation errors */}
-          <Snackbar
-            open={snackbarOpen}
-            autoHideDuration={10000}
-            onClose={handleSnackbarClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-          >
-            <Alert 
-              onClose={handleSnackbarClose} 
-              severity="error" 
-              variant="filled"
-              sx={{ width: '100%' }}
-            >
-              {snackbarMessage}
-            </Alert>
-          </Snackbar>
+          <RegistrationSnackbar open={snackbarOpen} message={snackbarMessage} onClose={handleSnackbarClose} />
           <Paper elevation={3} sx={{ p: 4, my: 4 }}>
+            {/* Registration Stepper */}
+            <RegistrationStepper 
+              steps={steps}
+              activeStep={activeStep}
+              onStepClick={setActiveStep}
+            />
             <Typography variant="h4" component="h1" align="center" gutterBottom>
               Register for KUTC 2025
             </Typography>
             {isEditingExisting && (
-              <Alert severity="info" sx={{ mb: 2 }}>
-                You have already registered. You may update your registration below.
-              </Alert>
-            )}
-            {validationAttempted && activeStep !== 2 && (
-              <Box sx={{ mt: 2, mb: 2, p: 2, bgcolor: '#ffebee', borderRadius: 1 }}>
-                <Typography color="error" variant="body1" gutterBottom>
-                  {Object.keys(errors).length > 0 
-                    ? 'Please complete the following required fields:'
-                    : 'Please complete all required fields before proceeding.'}
-                </Typography>
-                {Object.keys(errors).length > 0 && (
-                  <List dense>
-                    {Object.entries(errors).map(([field, message]) => (
-                      <ListItem key={field} sx={{ py: 0 }}>
-                        <ListItemText 
-                          primary={message}
-                          primaryTypographyProps={{ color: 'error' }}
-                        />
-                      </ListItem>
-                    ))}
-                  </List>
-                )}
-              </Box>
-            )}
-            {activeStep === steps.length ? (
-              <Box sx={{ my: 8, textAlign: 'center' }}>
-                <Typography variant="h4" component="h1" gutterBottom>
-                  Registration Submitted!
-                </Typography>
-                <Typography variant="body1" paragraph>
-                  Thank you for registering for KUTC 2025. You will receive a confirmation email soon.
-                </Typography>
-                <Button
-                  variant="contained"
-                  onClick={() => navigate('/')}
-                >
-                  Return to Home
-                </Button>
-              </Box>
-            ) : (
-              <>
-                {getStepContent(activeStep)}
-                <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
-                  {activeStep !== 0 && (
-                    <Button onClick={handleBack} sx={{ mr: 2 }}>
-                      Back
-                    </Button>
-                  )}
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
-                    disabled={isSubmitting || (activeStep === steps.length - 1 && !isFormValidForSubmission())}
-                  >
-                    {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
-                  </Button>
+              <React.Fragment>
+                <Alert severity="info" sx={{ mb: 2 }}>
+                  You have already registered. You may update your registration below.
+                </Alert>
+                <Box sx={{ mb: 2 }}>
+                  <Alert severity={
+                    formData.paymentMade >= formData.paymentRequired ? 'success' :
+                    formData.paymentMade < formData.paymentRequired ? 'warning' :
+                    'info'
+                  }>
+                    Status: {formData.paymentMade >= formData.paymentRequired ? 'Payment Made' :
+                      formData.paymentMade < formData.paymentRequired ? 'Payment Required' :
+                      'Pending'}
+                  </Alert>
                 </Box>
-              </>
+              </React.Fragment>
             )}
+            {getStepContent(activeStep)}
+            <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: 3 }}>
+              {activeStep !== 0 && (
+                <Button onClick={handleBack} sx={{ mr: 2 }}>
+                  Back
+                </Button>
+              )}
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
+                disabled={isSubmitting || (activeStep === steps.length - 1 && !isFormValidForSubmission())}
+              >
+                {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
+              </Button>
+            </Box>
           </Paper>
           <Grid container justifyContent="center" sx={{ mb: 4 }}>
             <Grid>

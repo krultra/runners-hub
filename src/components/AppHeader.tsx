@@ -7,6 +7,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const AppHeader: React.FC = () => {
   const [user, setUser] = useState<any>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const auth = getAuth();
@@ -22,7 +23,11 @@ const AppHeader: React.FC = () => {
   return (
     <AppBar position="static" color="primary" elevation={2}>
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          sx={{ flexGrow: 1, cursor: 'pointer' }}
+          onClick={() => navigate('/')}
+        >
           RunnersHub
         </Typography>
         {user ? (
