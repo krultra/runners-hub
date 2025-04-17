@@ -10,10 +10,12 @@ import {
   Grid,
   Paper,
   Divider,
-  Link
+  Link,
+  Alert
 } from '@mui/material';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { RACE_DETAILS } from '../constants';
-import { getTotalRegistrationsCount } from '../services/registrationService';
+import { getTotalRegistrationsCount, getRegistrationsByUserId } from '../services/registrationService';
 
 const HomePage: React.FC = () => {
   // State for countdown timer
@@ -28,6 +30,11 @@ const HomePage: React.FC = () => {
   const [availableSpots, setAvailableSpots] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   
+  // State for user authentication and registration
+  const [user, setUser] = useState<any>(null);
+  const [isUserRegistered, setIsUserRegistered] = useState(false);
+  const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
+  
   // Calculate time remaining until the race
   const now = new Date();
   const raceDate = RACE_DETAILS.date;
@@ -35,6 +42,30 @@ const HomePage: React.FC = () => {
   
   // Check if registration is still open
   const isRegistrationOpen = now < RACE_DETAILS.registrationDeadline;
+  
+  // Check if user is authenticated and has a registration
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
+      setUser(currentUser);
+      
+      if (currentUser) {
+        try {
+          const registrations = await getRegistrationsByUserId(currentUser.uid);
+          setIsUserRegistered(registrations.length > 0);
+        } catch (error) {
+          console.error('Error checking user registration:', error);
+        } finally {
+          setIsCheckingRegistration(false);
+        }
+      } else {
+        setIsUserRegistered(false);
+        setIsCheckingRegistration(false);
+      }
+    });
+    
+    return () => unsubscribe();
+  }, []);
   
   // Fetch registration count on component mount
   useEffect(() => {
@@ -134,6 +165,25 @@ const HomePage: React.FC = () => {
             <Typography variant="h6" color="error" sx={{ mb: 4 }}>
               Event is fully booked
             </Typography>
+          ) : isUserRegistered ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+              <Typography 
+                variant="subtitle1" 
+                color="success.main" 
+                sx={{ mb: 1.5, fontWeight: 'medium' }}
+              >
+                You are registered for this event
+              </Typography>
+              <Button 
+                component={RouterLink} 
+                to="/register" 
+                variant="outlined" 
+                size="large" 
+                sx={{ py: 1.5, px: 4 }}
+              >
+                Review Registration
+              </Button>
+            </Box>
           ) : (
             <>
               <Button 
@@ -142,7 +192,7 @@ const HomePage: React.FC = () => {
                 variant="contained" 
                 size="large" 
                 sx={{ mb: 2, py: 1.5, px: 4 }}
-                disabled={isLoading}
+                disabled={isLoading || isCheckingRegistration}
               >
                 Register Now
               </Button>
