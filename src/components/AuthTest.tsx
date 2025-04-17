@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, onAuthStateChanged } from 'firebase/auth';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const actionCodeSettings = {
-  // TODO: Replace with your deployed app's URL that handles sign-in completion
   url: window.location.origin + '/auth',
   handleCodeInApp: true,
 };
@@ -13,14 +13,25 @@ const AuthTest: React.FC = () => {
   const [isVerifying, setIsVerifying] = useState(false);
   const [user, setUser] = useState<any>(null);
 
+  const navigate = useNavigate();
+  const location = useLocation();
+
   useEffect(() => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       if (u) setStatus('Signed in as ' + u.email);
+      // If user is signed in and there's a returnTo param, redirect
+      if (u) {
+        const params = new URLSearchParams(location.search);
+        const returnTo = params.get('returnTo');
+        if (returnTo) {
+          navigate(returnTo, { replace: true });
+        }
+      }
     });
     return unsub;
-  }, []);
+  }, [navigate, location.search]);
 
   // Handle sign-in link in URL
   useEffect(() => {
@@ -35,12 +46,18 @@ const AuthTest: React.FC = () => {
           setStatus('Successfully signed in as ' + result.user.email);
           setUser(result.user);
           window.localStorage.removeItem('emailForSignIn');
+          // After sign in, redirect if returnTo param exists
+          const params = new URLSearchParams(window.location.search);
+          const returnTo = params.get('returnTo');
+          if (returnTo) {
+            navigate(returnTo, { replace: true });
+          }
         })
         .catch((error) => {
           setStatus('Error signing in: ' + error.message);
         });
     }
-  }, []);
+  }, [navigate]);
 
   const handleSendLink = async () => {
     setIsVerifying(true);
@@ -66,11 +83,14 @@ const AuthTest: React.FC = () => {
 
   return (
     <div style={{ padding: 24, maxWidth: 400, margin: '40px auto', border: '1px solid #ddd', borderRadius: 8 }}>
-      <h2>Email Link Authentication Test</h2>
+      <h2>Log in</h2>
       {user ? (
         <>
           <div style={{ marginBottom: 16 }}>Signed in as: <b>{user.email}</b></div>
           <button onClick={handleLogout}>Log out</button>
+          <div style={{ marginTop: 16, color: '#1976d2', fontWeight: 500 }}>
+            You are now logged in. You may return to the application and continue as a logged-in user.
+          </div>
         </>
       ) : (
         <>

@@ -9,11 +9,14 @@ import RegistrationPage from './pages/RegistrationPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AuthTest from './components/AuthTest';
 
+import AppHeader from './components/AppHeader';
+
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Provides a consistent baseline CSS */}
       <Router>
+        <AppHeader />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/register" element={<RegistrationPage />} />
