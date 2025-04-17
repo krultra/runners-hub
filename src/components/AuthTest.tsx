@@ -46,11 +46,24 @@ const AuthTest: React.FC = () => {
           setStatus('Successfully signed in as ' + result.user.email);
           setUser(result.user);
           window.localStorage.removeItem('emailForSignIn');
-          // After sign in, redirect if returnTo param exists
-          const params = new URLSearchParams(window.location.search);
-          const returnTo = params.get('returnTo');
-          if (returnTo) {
-            navigate(returnTo, { replace: true });
+          
+          // Check for stored return path in localStorage
+          const returnPath = localStorage.getItem('authReturnPath');
+          if (returnPath) {
+            // Clear the stored path
+            localStorage.removeItem('authReturnPath');
+            // Navigate back to the stored path
+            navigate(returnPath, { replace: true });
+          } else {
+            // Fallback to URL parameter if available
+            const params = new URLSearchParams(window.location.search);
+            const returnTo = params.get('returnTo');
+            if (returnTo) {
+              navigate(returnTo, { replace: true });
+            } else {
+              // Default to home page if no return path is specified
+              navigate('/', { replace: true });
+            }
           }
         })
         .catch((error) => {
@@ -89,7 +102,7 @@ const AuthTest: React.FC = () => {
           <div style={{ marginBottom: 16 }}>Signed in as: <b>{user.email}</b></div>
           <button onClick={handleLogout}>Log out</button>
           <div style={{ marginTop: 16, color: '#1976d2', fontWeight: 500 }}>
-            You are now logged in. You may return to the application and continue as a logged-in user.
+            You are now logged in. Redirecting you back...
           </div>
         </>
       ) : (

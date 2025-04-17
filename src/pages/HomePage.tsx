@@ -10,8 +10,7 @@ import {
   Grid,
   Paper,
   Divider,
-  Link,
-  Alert
+  Link
 } from '@mui/material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { RACE_DETAILS } from '../constants';
@@ -38,7 +37,7 @@ const HomePage: React.FC = () => {
   // Calculate time remaining until the race
   const now = new Date();
   const raceDate = RACE_DETAILS.date;
-  const timeRemaining = raceDate.getTime() - now.getTime();
+  // const timeRemaining = raceDate.getTime() - now.getTime();
   
   // Check if registration is still open
   const isRegistrationOpen = now < RACE_DETAILS.registrationDeadline;
@@ -232,7 +231,7 @@ const HomePage: React.FC = () => {
                 )}
               </Typography>
               <Typography variant="body1" paragraph>
-                <strong>Loop Distance:</strong> {RACE_DETAILS.loopDistance} km
+                <strong>Each loop:</strong> {RACE_DETAILS.loopDistance} km, 369 meter ascent/descent
               </Typography>
               <Typography variant="body1">
                 <strong>Available Distances:</strong>

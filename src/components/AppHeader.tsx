@@ -46,8 +46,12 @@ const AppHeader: React.FC = () => {
             <IconButton
               color="inherit"
               onClick={() => {
-                const location = window.location.pathname + window.location.search;
-                window.location.href = `/auth?returnTo=${encodeURIComponent(location)}`;
+                // Store the current path to return to after authentication
+                const currentPath = window.location.pathname;
+                // Store the return path in localStorage for after email authentication
+                localStorage.setItem('authReturnPath', currentPath);
+                // Navigate to auth page
+                navigate('/auth');
               }}
             >
               <LoginIcon />
