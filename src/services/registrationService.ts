@@ -157,3 +157,18 @@ export const getRegistrationsByRaceDistance = async (raceDistance: string): Prom
     throw error;
   }
 };
+
+/**
+ * Gets the total count of registrations
+ * @returns Promise with the total number of registrations
+ */
+export const getTotalRegistrationsCount = async (): Promise<number> => {
+  try {
+    const q = query(collection(db, REGISTRATIONS_COLLECTION));
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.size;
+  } catch (error) {
+    console.error('Error getting total registrations count:', error);
+    throw error;
+  }
+};

@@ -71,7 +71,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
           Personal Information
         </Typography>
         <Grid container spacing={2}>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
                 primary="Full Name"
@@ -79,7 +79,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
               />
             </ListItem>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
                 primary="Date of Birth"
@@ -87,7 +87,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
               />
             </ListItem>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
                 primary="Nationality"
@@ -95,7 +95,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
               />
             </ListItem>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
                 primary="Email"
@@ -103,7 +103,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
               />
             </ListItem>
           </Grid>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
                 primary="Mobile Phone"
@@ -112,7 +112,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
             </ListItem>
           </Grid>
           {formData.representing && (
-            <Grid size={{ xs: 12, sm: 6 }}>
+            <Grid item xs={12} sm={6}>
               <ListItem disablePadding>
                 <ListItemText
                   primary="Representing"
@@ -129,7 +129,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
           Race Details
         </Typography>
         <Grid container spacing={2}>
-          <Grid size={12}>
+          <Grid item xs={12}>
             <ListItem disablePadding>
               <ListItemText
                 primary="Race Distance"
@@ -138,7 +138,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
             </ListItem>
           </Grid>
           {formData.travelRequired && (
-            <Grid size={12}>
+            <Grid item xs={12}>
               <ListItem disablePadding>
                 <ListItemText
                   primary="Travel Required"
@@ -148,7 +148,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
             </Grid>
           )}
           {formData.comments && (
-            <Grid size={12}>
+            <Grid item xs={12}>
               <ListItem disablePadding>
                 <ListItemText
                   primary="Comments"

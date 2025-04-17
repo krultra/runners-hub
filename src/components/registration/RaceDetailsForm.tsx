@@ -43,7 +43,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
       </Typography>
       
       <Grid container spacing={3}>
-        <Grid size={12}>
+        <Grid item xs={12}>
           <FormControl component="fieldset" required error={!!errors.raceDistance}>
             <FormLabel component="legend">Race Distance</FormLabel>
             <RadioGroup
@@ -52,7 +52,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
               value={formData.raceDistance}
               onChange={(e) => onChange('raceDistance', e.target.value)}
               onBlur={() => onBlur && onBlur('raceDistance')}
-              ref={fieldRefs.raceDistance}
+              ref={fieldRefs.raceDistance as any}
             >
               {RACE_DISTANCES.map((distance) => (
                 <FormControlLabel
@@ -67,7 +67,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
           </FormControl>
         </Grid>
         
-        <Grid size={12}>
+        <Grid item xs={12}>
           <TextField
             id="travelRequired"
             name="travelRequired"
@@ -82,11 +82,11 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
             onBlur={() => onBlur && onBlur('travelRequired')}
             error={!!errors.travelRequired}
             helperText={errors.travelRequired || 'Please describe your travel plans to help us minimize our carbon footprint'}
-            ref={fieldRefs.travelRequired}
+            inputRef={fieldRefs.travelRequired as any}
           />
         </Grid>
         
-        <Grid size={12}>
+        <Grid item xs={12}>
           <TextField
             id="comments"
             name="comments"

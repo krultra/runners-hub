@@ -44,7 +44,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
   const selectedPhoneCode = PHONE_CODES.find(pc => pc.code === formData.phoneCountryCode) || PHONE_CODES[0];
 
   return (
-    <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={nb}>
+    <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={nb}>
       <Box sx={{ mt: 2, mb: 4 }}>
         <Typography variant="h6" gutterBottom>
           Personal Information
@@ -54,7 +54,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
         </Typography>
         
         <Grid container spacing={3}>
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <TextField
               required
               id="firstName"
@@ -67,11 +67,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               onBlur={() => onBlur && onBlur('firstName')}
               error={!!errors.firstName}
               helperText={errors.firstName || ''}
-              ref={fieldRefs.firstName}
+              inputRef={fieldRefs.firstName as any}
             />
           </Grid>
           
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <TextField
               required
               id="lastName"
@@ -84,33 +84,34 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               onBlur={() => onBlur && onBlur('lastName')}
               error={!!errors.lastName}
               helperText={errors.lastName || ''}
-              ref={fieldRefs.lastName}
+              inputRef={fieldRefs.lastName as any}
             />
           </Grid>
           
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <DatePicker
               label="Date of Birth"
               value={formData.dateOfBirth}
               onChange={(date) => onChange('dateOfBirth', date)}
               onClose={() => onBlur && onBlur('dateOfBirth')}
-              slotProps={{
-                textField: {
-                  fullWidth: true,
-                  variant: 'outlined',
-                  required: true,
-                  error: !!errors.dateOfBirth,
-                  helperText: errors.dateOfBirth || '',
-                  inputRef: fieldRefs.dateOfBirth
-                }
-              }}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  fullWidth
+                  variant="outlined"
+                  required
+                  error={!!errors.dateOfBirth}
+                  helperText={errors.dateOfBirth || ''}
+                  inputRef={fieldRefs.dateOfBirth}
+                />
+              )}
               // Norwegian date format
-              format="dd.MM.yyyy"
-              formatDensity="spacious"
+              // Using Norwegian date format
+              // formatDensity="spacious" removed as it's not supported in this version
             />
           </Grid>
           
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <Autocomplete
               id="nationality-autocomplete"
               options={COUNTRIES}
@@ -137,7 +138,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
             />
           </Grid>
           
-          <Grid size={12}>
+          <Grid item xs={12}>
             {isEmailReadOnly ? (
               <Box sx={{ mt: 2, mb: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
@@ -162,12 +163,12 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                 onBlur={() => onBlur && onBlur('email')}
                 error={!!errors.email}
                 helperText={errors.email || "We'll send your registration confirmation to this email"}
-                ref={fieldRefs.email}
+                inputRef={fieldRefs.email as any}
               />
             )}
           </Grid>
           
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <Autocomplete
               id="phone-code-autocomplete"
               options={PHONE_CODES}
@@ -194,7 +195,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
             />
           </Grid>
           
-          <Grid size={{ xs: 12, sm: 6 }}>
+          <Grid item xs={12} sm={6}>
             <TextField
               required
               id="phoneNumber"
@@ -207,7 +208,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               onBlur={() => onBlur && onBlur('phoneNumber')}
               error={!!errors.phoneNumber}
               helperText={errors.phoneNumber || "Enter number without country code"}
-              ref={fieldRefs.phoneNumber}
+              inputRef={fieldRefs.phoneNumber as any}
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
@@ -218,7 +219,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
             />
           </Grid>
           
-          <Grid size={12}>
+          <Grid item xs={12}>
             <TextField
               id="representing"
               name="representing"
