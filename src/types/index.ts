@@ -22,6 +22,15 @@ export interface RaceDistance {
   displayName: string;
 }
 
+export type PaymentMethod = 'vipps' | 'bank transfer' | 'paypal' | 'cash' | 'other';
+
+export interface Payment {
+  date: Date | string; // Firestore Timestamp or ISO string
+  method: PaymentMethod;
+  amount: number;
+  comment?: string;
+}
+
 // Registration type
 export interface Registration {
   id?: string;
@@ -44,6 +53,7 @@ export interface Registration {
   sendRunningOffers: boolean; // Send offers related to trail and ultra running
 
   // Payment fields
+  payments?: Payment[];
   paymentRequired: number;
   paymentMade: number;
   

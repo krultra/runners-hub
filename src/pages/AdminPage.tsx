@@ -2,6 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { Box, Button, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Checkbox, CircularProgress } from '@mui/material';
 import InviteSummaryDialog from '../components/InviteSummaryDialog';
 import { fetchInvitations, addInvitation, updateInvitationSent, Invitation } from '../utils/invitationUtils';
+import { getRegistrationsByEdition, updateRegistration, addPaymentToRegistration } from '../services/registrationService';
+import { Registration, PaymentMethod } from '../types';
+import { sendPaymentConfirmationEmail } from '../services/emailService';
 
 const EDITION_ID = 'kutc-2025';
 
@@ -13,6 +16,12 @@ const AdminPage: React.FC = () => {
   const [addName, setAddName] = useState('');
   const [addLoading, setAddLoading] = useState(false);
   const [numToSend, setNumToSend] = useState(0);
+  const [registrations, setRegistrations] = useState<Registration[]>([]);
+const [regLoading, setRegLoading] = useState(false);
+const [editValues, setEditValues] = useState<{ [id: string]: number }>({});
+
+// Payment form state per registration
+const [paymentForms, setPaymentForms] = useState<{ [id: string]: { amount: string; method: PaymentMethod; comment: string; date: string } }>({});
 
   // Fetch invitees on mount or when changed
   useEffect(() => {
@@ -23,6 +32,17 @@ const AdminPage: React.FC = () => {
       setLoading(false);
     };
     fetchData();
+  }, []);
+
+  // Fetch registrations on mount
+  useEffect(() => {
+    const fetchRegs = async () => {
+      setRegLoading(true);
+      const regs = await getRegistrationsByEdition(EDITION_ID);
+      setRegistrations(regs);
+      setRegLoading(false);
+    };
+    fetchRegs();
   }, []);
 
   const handleAddInvitee = async () => {
@@ -68,6 +88,75 @@ const AdminPage: React.FC = () => {
     // Refresh list
     const data = await fetchInvitations(EDITION_ID);
     setInvitees(data);
+  };
+
+  const handlePaymentChange = (id: string, value: string) => {
+    setEditValues(prev => ({ ...prev, [id]: Number(value) }));
+  };
+
+// Handle payment form field changes
+const handlePaymentFormChange = (id: string, field: string, value: string) => {
+  setPaymentForms(prev => ({
+    ...prev,
+    [id]: {
+      ...prev[id],
+      [field]: value
+    }
+  }));
+};
+
+const handleAddPayment = async (id: string) => {
+  const form = paymentForms[id] || {};
+  if (!form.amount || isNaN(Number(form.amount))) return;
+
+  // Find the registration before the payment is added
+  const regBefore = registrations.find(r => r.id === id);
+  const payment = {
+    amount: Number(form.amount),
+    method: form.method || 'vipps',
+    comment: form.comment || '',
+    date: new Date(),
+  };
+  // Remove undefined fields
+  Object.keys(payment).forEach(key => {
+    if (payment[key as keyof typeof payment] === undefined) {
+      delete payment[key as keyof typeof payment];
+    }
+  });
+  await addPaymentToRegistration(id, payment);
+  // Refresh registrations
+  const regs = await getRegistrationsByEdition(EDITION_ID);
+  setRegistrations(regs);
+  // Find the updated registration
+  const regAfter = regs.find(r => r.id === id);
+  if (
+    regBefore && regAfter &&
+    regBefore.paymentMade < regBefore.paymentRequired &&
+    regAfter.paymentMade >= regAfter.paymentRequired &&
+    regAfter.email
+  ) {
+    try {
+      // Always send email with status 'confirmed' in the registration object
+      await sendPaymentConfirmationEmail({ ...regAfter, status: 'confirmed' });
+      // Update registration status to 'confirmed'
+      try {
+        await updateRegistration(id, { status: 'confirmed' }, false);
+      } catch (updateError) {
+        console.error('Failed to update registration status to confirmed:', updateError);
+      }
+    } catch (e) {
+      console.error('Failed to send payment confirmation email:', e);
+    }
+  }
+  // Clear form
+  setPaymentForms(prev => ({ ...prev, [id]: { amount: '', method: 'vipps', comment: '', date: '' } }));
+};
+  
+  const handlePaymentUpdate = async (id: string) => {
+    const newPayment = editValues[id];
+    await updateRegistration(id, { paymentMade: newPayment });
+    // Optionally, refetch or update local state
+    setRegistrations(regs => regs.map(reg => reg.id === id ? { ...reg, paymentMade: newPayment } : reg));
   };
 
   return (
@@ -137,6 +226,124 @@ const AdminPage: React.FC = () => {
         numRun={numToSend}
         loading={loading}
       />
+      <Paper sx={{ mt: 4, p: 2 }}>
+        <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', letterSpacing: 1, mb: 2 }}>
+          Registrations & Payment Status
+        </Typography>
+        {regLoading ? (
+          <CircularProgress />
+        ) : (
+          <TableContainer>
+            <Table>
+              <TableHead>
+                <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
+                  <TableCell sx={{ fontWeight: 'bold' }}>#</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Name</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Race</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Payment Required</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Payment Made</TableCell>
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {[...registrations]
+  .sort((a, b) => {
+    if (a.registrationNumber == null && b.registrationNumber == null) return 0;
+    if (a.registrationNumber == null) return 1;
+    if (b.registrationNumber == null) return -1;
+    return a.registrationNumber - b.registrationNumber;
+  })
+  .map(reg => (
+    <TableRow key={reg.id}>
+                    <TableCell>{reg.registrationNumber ?? ''}</TableCell>
+                    <TableCell>{reg.firstName} {reg.lastName}</TableCell>
+                    <TableCell>{reg.raceDistance}</TableCell>
+                    <TableCell>{reg.paymentRequired}</TableCell>
+                    <TableCell>
+                      {/* List all payments */}
+                      <Table size="small">
+                        <TableBody>
+                          {(reg.payments || []).map((p, i) => (
+                            <TableRow key={i}>
+                              <TableCell>{p.date ? new Date(p.date).toLocaleString() : ''}</TableCell>
+                              <TableCell>{p.method}</TableCell>
+                              <TableCell>{p.amount}</TableCell>
+                              <TableCell>{p.comment}</TableCell>
+                            </TableRow>
+                          ))}
+                          {/* Add payment form as a single row */}
+                          <TableRow>
+                            <TableCell colSpan={1}></TableCell>
+                            <TableCell>
+                              <TextField
+                                size="small"
+                                select
+                                SelectProps={{ native: true }}
+                                value={paymentForms[reg.id!]?.method ?? 'vipps'}
+                                onChange={e => handlePaymentFormChange(reg.id!, 'method', e.target.value)}
+                                sx={{ width: 110 }}
+                                label=""
+                                placeholder=""
+                              >
+                                <option value="vipps">Vipps</option>
+                                <option value="bank transfer">Bank Transfer</option>
+                                <option value="paypal">PayPal</option>
+                                <option value="cash">Cash</option>
+                                <option value="other">Other</option>
+                              </TextField>
+                            </TableCell>
+                            <TableCell>
+                              <TextField
+                                type="number"
+                                size="small"
+                                value={paymentForms[reg.id!]?.amount ?? ''}
+                                onChange={e => handlePaymentFormChange(reg.id!, 'amount', e.target.value)}
+                                sx={{ width: 80 }}
+                                label=""
+                                placeholder=""
+                              />
+                            </TableCell>
+                            <TableCell>
+                              <TextField
+                                size="small"
+                                value={paymentForms[reg.id!]?.comment ?? ''}
+                                onChange={e => handlePaymentFormChange(reg.id!, 'comment', e.target.value)}
+                                sx={{ width: 120 }}
+                                label=""
+                                placeholder=""
+                              />
+                              <Button
+                                variant="contained"
+                                color="success"
+                                size="small"
+                                sx={{ ml: 1 }}
+                                onClick={() => handleAddPayment(reg.id!)}
+                                disabled={!paymentForms[reg.id!] || !paymentForms[reg.id!].amount}
+                              >
+                                Add
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </TableCell>
+                    <TableCell>
+                      <TextField
+                        type="number"
+                        size="small"
+                        value={editValues[reg.id!] ?? reg.paymentMade}
+                        onChange={e => handlePaymentChange(reg.id!, e.target.value)}
+                        inputProps={{ min: 0 }}
+                        sx={{ width: 100 }}
+                        variant="outlined"
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </TableContainer>
+        )}
+      </Paper>
     </Box>
   );
 };

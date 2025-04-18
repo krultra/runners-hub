@@ -11,7 +11,7 @@ import {
   Timestamp
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
-import { Registration } from '../types';
+import { Registration, Payment } from '../types';
 import { sendWelcomeEmail, sendRegistrationUpdateEmail } from './emailService';
 import { getNextSequentialNumber } from './counterService';
 
@@ -86,7 +86,9 @@ export const getRegistrationById = async (registrationId: string): Promise<Regis
       // Convert Firestore Timestamp back to Date
       return {
         ...data,
-        dateOfBirth: data.dateOfBirth ? data.dateOfBirth.toDate() : null,
+        dateOfBirth: (data.dateOfBirth && typeof data.dateOfBirth === 'object' && typeof (data.dateOfBirth as any).toDate === 'function')
+        ? (data.dateOfBirth as any).toDate()
+        : data.dateOfBirth || null,
         id: docSnap.id
       } as Registration;
     } else {
@@ -112,7 +114,9 @@ export const getRegistrationsByUserId = async (userId: string): Promise<Registra
       const data = doc.data();
       return {
         ...data,
-        dateOfBirth: data.dateOfBirth ? data.dateOfBirth.toDate() : null,
+        dateOfBirth: (data.dateOfBirth && typeof data.dateOfBirth === 'object' && typeof (data.dateOfBirth as any).toDate === 'function')
+        ? (data.dateOfBirth as any).toDate()
+        : data.dateOfBirth || null,
         id: doc.id
       } as Registration;
     });
@@ -130,8 +134,14 @@ export const getRegistrationsByUserId = async (userId: string): Promise<Registra
  */
 export const updateRegistration = async (
   registrationId: string, 
-  registrationData: Partial<Registration>
+  registrationData: Partial<Registration>,
+  sendEmail: boolean = true
 ): Promise<void> => {
+  // If payments array is updated, recalculate paymentMade
+  if (registrationData.payments) {
+    registrationData.paymentMade = sumPayments(registrationData.payments);
+  }
+
   try {
     // Prepare data for update
     const updateData: Record<string, any> = { ...registrationData };
@@ -148,22 +158,23 @@ export const updateRegistration = async (
     const docRef = doc(db, REGISTRATIONS_COLLECTION, registrationId);
     await updateDoc(docRef, updateData);
     
-    // Send registration update email
-    try {
-      // Get the full updated registration data
-      const updatedDoc = await getDoc(docRef);
-      if (updatedDoc.exists()) {
-        const updatedRegistration = {
-          ...updatedDoc.data(),
-          id: registrationId,
-          dateOfBirth: updatedDoc.data().dateOfBirth ? updatedDoc.data().dateOfBirth.toDate() : null
-        } as Registration;
-        
-        await sendRegistrationUpdateEmail(updatedRegistration);
+    // Send registration update email only if requested
+    if (sendEmail) {
+      try {
+        // Get the full updated registration data
+        const updatedDoc = await getDoc(docRef);
+        if (updatedDoc.exists()) {
+          const updatedRegistration = {
+            ...updatedDoc.data(),
+            id: registrationId,
+            dateOfBirth: updatedDoc.data().dateOfBirth ? updatedDoc.data().dateOfBirth.toDate() : null
+          } as Registration;
+          await sendRegistrationUpdateEmail(updatedRegistration);
+        }
+      } catch (emailError) {
+        // Log email error but don't fail the update process
+        console.error('Error sending registration update email:', emailError);
       }
-    } catch (emailError) {
-      // Log email error but don't fail the update process
-      console.error('Error sending registration update email:', emailError);
     }
   } catch (error) {
     console.error('Error updating registration:', error);
@@ -185,7 +196,9 @@ export const getRegistrationsByRaceDistance = async (raceDistance: string): Prom
       const data = doc.data();
       return {
         ...data,
-        dateOfBirth: data.dateOfBirth ? data.dateOfBirth.toDate() : null,
+        dateOfBirth: (data.dateOfBirth && typeof data.dateOfBirth === 'object' && typeof (data.dateOfBirth as any).toDate === 'function')
+        ? (data.dateOfBirth as any).toDate()
+        : data.dateOfBirth || null,
         id: doc.id
       } as Registration;
     });
@@ -208,4 +221,74 @@ export const getTotalRegistrationsCount = async (): Promise<number> => {
     console.error('Error getting total registrations count:', error);
     throw error;
   }
+};
+
+/**
+ * Gets all registrations for a specific edition
+ * @param editionId Edition ID
+ * @returns Promise with array of registrations
+ */
+function sumPayments(payments: Payment[] = []): number {
+  return payments.reduce((sum, p) => sum + Number(p.amount), 0);
+}
+
+export const addPaymentToRegistration = async (
+  registrationId: string,
+  payment: Payment
+): Promise<void> => {
+  const regRef = doc(db, 'registrations', registrationId);
+  const regSnap = await getDoc(regRef);
+  if (!regSnap.exists()) throw new Error('Registration not found');
+
+  const regData = regSnap.data() as Registration;
+  const newPayments = [
+    ...((regData.payments || []).map(p => ({
+      ...p,
+      date: p.date instanceof Date ? Timestamp.fromDate(p.date) : p.date
+    }))),
+    {
+      ...payment,
+      date: payment.date instanceof Date ? Timestamp.fromDate(payment.date) : payment.date,
+    }
+  ];
+  // Convert all dates to Date for sumPayments
+  const paymentsForSum = newPayments.map(p => ({
+    ...p,
+    date: (p.date && typeof p.date === 'object' && 'toDate' in p.date) ? p.date.toDate() : p.date
+  }));
+  const paymentMade = sumPayments(paymentsForSum);
+
+  await updateDoc(regRef, {
+    payments: newPayments,
+    paymentMade,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+export const getRegistrationsByEdition = async (editionId: string): Promise<Registration[]> => {
+  const q = query(collection(db, 'registrations'), where('editionId', '==', editionId));
+  const snap = await getDocs(q);
+  return snap.docs.map(doc => {
+    const data = doc.data() as Registration;
+    // Convert payments dates to Date
+    const payments = (data.payments || []).map(p => {
+  let date = p.date;
+  // Only convert if it's a Firestore Timestamp
+  if (date && typeof date === 'object' && typeof (date as any).toDate === 'function') {
+    date = (date as any).toDate();
+  }
+  return {
+    ...p,
+    date
+  };
+});
+    return {
+      ...data,
+      id: doc.id,
+      dateOfBirth: (data.dateOfBirth && typeof data.dateOfBirth === 'object' && typeof (data.dateOfBirth as any).toDate === 'function')
+        ? (data.dateOfBirth as any).toDate()
+        : data.dateOfBirth || null,
+      payments,
+    };
+  });
 };

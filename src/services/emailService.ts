@@ -2,6 +2,7 @@ import { addDoc, collection } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { Registration } from '../types';
 import { RACE_DETAILS } from '../constants';
+import { logSentEmail } from './emailLogService';
 
 /**
  * Email types supported by the application
@@ -56,6 +57,13 @@ export const sendInvitationEmail = async (email: string, name: string): Promise<
       type: EmailType.INVITATION,
     };
     await addDoc(collection(db, 'mail'), emailDoc);
+    await logSentEmail({
+      to: email,
+      subject: 'KUTC 2025 – Invitation to register',
+      type: 'invitation',
+      registrationId: undefined,
+      meta: { name }
+    });
     console.log(`Invitation email sent to ${email}`);
   } catch (error) {
     console.error('Error sending invitation email:', error);
@@ -86,6 +94,13 @@ export const sendWelcomeEmail = async (registration: Registration): Promise<void
     
     // Add to the mail collection
     const docRef = await addDoc(collection(db, 'mail'), emailDoc);
+    await logSentEmail({
+      to: registration.email,
+      subject: 'KUTC 2025 Registration Confirmation',
+      type: 'welcome',
+      registrationId: registration.id,
+      meta: {}
+    });
     console.log('Welcome email document created with ID:', docRef.id);
   } catch (error) {
     console.error('Error sending welcome email:', error);
@@ -108,6 +123,13 @@ export const sendRegistrationUpdateEmail = async (registration: Registration): P
         html: generateUpdateEmailHtml(registration),
       }
     });
+    await logSentEmail({
+      to: registration.email,
+      subject: 'KUTC 2025 Registration Update',
+      type: 'registration_update',
+      registrationId: registration.id,
+      meta: {}
+    });
     console.log('Registration update email sent successfully');
   } catch (error) {
     console.error('Error sending registration update email:', error);
@@ -129,6 +151,13 @@ export const sendPaymentConfirmationEmail = async (registration: Registration): 
         subject: `KUTC 2025 Payment Confirmation`,
         html: generatePaymentConfirmationHtml(registration),
       }
+    });
+    await logSentEmail({
+      to: registration.email,
+      subject: 'KUTC 2025 Payment Confirmation',
+      type: 'payment_confirmation',
+      registrationId: registration.id,
+      meta: { paymentMade: registration.paymentMade, paymentRequired: registration.paymentRequired }
     });
     console.log('Payment confirmation email sent successfully');
   } catch (error) {
@@ -302,6 +331,35 @@ const generateUpdateEmailHtml = (registration: Registration): string => {
 
 /**
  * Generates HTML content for payment confirmation email
+ *
+ * EMAIL TEXT PREVIEW (template variables in curly braces):
+ *
+ * Subject: KUTC 2025 Payment Confirmation
+ *
+ * Hello {firstName},
+ *
+ * We have received your payment for Kruke's Ultra-Trail Challenge 2025. Thank you!
+ *
+ * Payment Details
+ * Registration #: {registrationNumber}
+ * Payment Reference: {editionId}-{registrationNumber}
+ * Amount Paid: {paymentMade} NOK
+ * Payment Date: {today's date}
+ * Registration Status: {status or 'pending'}
+ *
+ * Registration Details
+ * Name: {firstName} {lastName}
+ * Email: {email}
+ * Race Distance: {raceDistance}
+ *
+ * Your spot in the event is now confirmed. We look forward to seeing you at KUTC 2025 on {eventDate}!
+ *
+ * If you have any questions, please don't hesitate to contact us at post@krultra.no.
+ *
+ * Best regards,
+ * The KUTC Team
+ *
+ * This email was sent to {email}. If you did not register for this event, please ignore this email.
  */
 const generatePaymentConfirmationHtml = (registration: Registration): string => {
   // Format event date safely
