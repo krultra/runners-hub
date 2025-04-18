@@ -12,6 +12,8 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Registration } from '../types';
+import { sendWelcomeEmail, sendRegistrationUpdateEmail } from './emailService';
+import { getNextSequentialNumber } from './counterService';
 
 // Collection reference
 const REGISTRATIONS_COLLECTION = 'registrations';
@@ -27,6 +29,9 @@ export const createRegistration = async (
   userId?: string
 ): Promise<string> => {
   try {
+    // Get the next sequential registration number
+    const registrationNumber = await getNextSequentialNumber(`registrations-${registrationData.editionId}`);
+    
     // Prepare data for Firestore
     const registrationToSave = {
       ...registrationData,
@@ -38,12 +43,26 @@ export const createRegistration = async (
       // Add metadata
       userId: userId || null,
       status: 'pending', // Initial status
+      registrationNumber, // Add the sequential registration number
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
     };
 
     // Add document to Firestore
     const docRef = await addDoc(collection(db, REGISTRATIONS_COLLECTION), registrationToSave);
+    
+    // Send welcome email with registration and payment details
+    try {
+      await sendWelcomeEmail({ 
+        ...registrationToSave, 
+        id: docRef.id,
+        registrationNumber // Make sure the registration number is included
+      } as Registration);
+    } catch (emailError) {
+      // Log email error but don't fail the registration process
+      console.error('Error sending welcome email:', emailError);
+    }
+    
     return docRef.id;
   } catch (error) {
     console.error('Error creating registration:', error);
@@ -128,6 +147,24 @@ export const updateRegistration = async (
     // Update document
     const docRef = doc(db, REGISTRATIONS_COLLECTION, registrationId);
     await updateDoc(docRef, updateData);
+    
+    // Send registration update email
+    try {
+      // Get the full updated registration data
+      const updatedDoc = await getDoc(docRef);
+      if (updatedDoc.exists()) {
+        const updatedRegistration = {
+          ...updatedDoc.data(),
+          id: registrationId,
+          dateOfBirth: updatedDoc.data().dateOfBirth ? updatedDoc.data().dateOfBirth.toDate() : null
+        } as Registration;
+        
+        await sendRegistrationUpdateEmail(updatedRegistration);
+      }
+    } catch (emailError) {
+      // Log email error but don't fail the update process
+      console.error('Error sending registration update email:', emailError);
+    }
   } catch (error) {
     console.error('Error updating registration:', error);
     throw error;

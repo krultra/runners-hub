@@ -279,10 +279,10 @@ const HomePage: React.FC = () => {
               </Typography>
               <ul>
                 <li>
-                  <strong>Vipps</strong> - Available in Norway, Sweden, Denmark and Finland (Preferred method)
+                  <strong>Vipps and MobilePay</strong> - Available in Norway, Sweden, Denmark and Finland (Preferred method)
                 </li>
                 <li>
-                  <strong>PayPal and International Bank Transfer</strong> - Available for participants from all countries
+                  <strong>PayPal and Bank Transfer</strong> - Available for participants from all countries
                 </li>
               </ul>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>

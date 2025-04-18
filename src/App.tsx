@@ -7,6 +7,7 @@ import theme from './config/theme';
 import HomePage from './pages/HomePage';
 import RegistrationPage from './pages/RegistrationPage';
 import NotFoundPage from './pages/NotFoundPage';
+import EmailTestPage from './pages/EmailTestPage';
 import AuthTest from './components/AuthTest';
 
 import AppHeader from './components/AppHeader';
@@ -21,6 +22,7 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/auth" element={<AuthTest />} />
+          <Route path="/email-test" element={<EmailTestPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>

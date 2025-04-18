@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, onAuthStateChanged } from 'firebase/auth';
+import { getAuth, isSignInWithEmailLink, signInWithEmailLink, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { Paper, Typography, Button, Box } from '@mui/material';
+import EmailVerificationGuide from './auth/EmailVerificationGuide';
 
 // Dynamically determine the correct URL based on environment
 const getActionCodeSettings = () => {
@@ -83,21 +85,8 @@ const AuthTest: React.FC = () => {
     }
   }, [navigate]);
 
-  const handleSendLink = async () => {
-    setIsVerifying(true);
-    setStatus('Sending email...');
-    try {
-      const auth = getAuth();
-      // Always use the latest action code settings
-      const currentSettings = getActionCodeSettings();
-      await sendSignInLinkToEmail(auth, email, currentSettings);
-      window.localStorage.setItem('emailForSignIn', email);
-      setStatus('Verification email sent! Check your inbox.');
-    } catch (error: any) {
-      setStatus('Error sending email: ' + error.message);
-    } finally {
-      setIsVerifying(false);
-    }
+  const handleEmailSent = () => {
+    setStatus('Verification email sent! Check your inbox.');
   };
 
   const handleLogout = () => {
@@ -108,33 +97,50 @@ const AuthTest: React.FC = () => {
   };
 
   return (
-    <div style={{ padding: 24, maxWidth: 400, margin: '40px auto', border: '1px solid #ddd', borderRadius: 8 }}>
-      <h2>Log in</h2>
+    <Paper elevation={3} sx={{ p: 3, maxWidth: 600, mx: 'auto', my: 4 }}>
+      <Typography variant="h4" gutterBottom align="center">
+        Log in
+      </Typography>
+      
       {user ? (
-        <>
-          <div style={{ marginBottom: 16 }}>Signed in as: <b>{user.email}</b></div>
-          <button onClick={handleLogout}>Log out</button>
-          <div style={{ marginTop: 16, color: '#1976d2', fontWeight: 500 }}>
+        <Box sx={{ textAlign: 'center' }}>
+          <Typography variant="body1" sx={{ mb: 2 }}>
+            Signed in as: <strong>{user.email}</strong>
+          </Typography>
+          
+          <Button 
+            variant="contained" 
+            color="primary" 
+            onClick={handleLogout}
+            sx={{ mb: 2 }}
+          >
+            Log out
+          </Button>
+          
+          <Typography variant="body1" color="primary" sx={{ fontWeight: 'medium' }}>
             You are now logged in. Redirecting you back...
-          </div>
-        </>
+          </Typography>
+        </Box>
       ) : (
         <>
-          <input
-            type="email"
-            value={email}
-            onChange={e => setEmail(e.target.value)}
-            placeholder="Enter your email"
-            style={{ width: '100%', padding: 8, marginBottom: 12 }}
-            disabled={isVerifying}
+          <Typography variant="body1" paragraph align="center">
+            Enter your email to receive a secure sign-in link.
+          </Typography>
+          
+          <EmailVerificationGuide 
+            email={email} 
+            setEmail={setEmail} 
+            onEmailSent={handleEmailSent}
           />
-          <button onClick={handleSendLink} disabled={!email || isVerifying} style={{ width: '100%', padding: 10 }}>
-            {isVerifying ? 'Sending...' : 'Send Verification Link'}
-          </button>
+          
+          {status && (
+            <Typography variant="body2" color="text.secondary" align="center" sx={{ mt: 2 }}>
+              {status}
+            </Typography>
+          )}
         </>
       )}
-      <div style={{ marginTop: 18, color: '#555' }}>{status}</div>
-    </div>
+    </Paper>
   );
 };
 

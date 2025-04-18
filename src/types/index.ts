@@ -49,6 +49,7 @@ export interface Registration {
   
   // Metadata fields (added by the service)
   userId?: string | null;
+  registrationNumber?: number; // Sequential registration number
   status?: 'pending' | 'confirmed' | 'waitlisted' | 'cancelled';
   paymentStatus?: 'pending' | 'completed' | 'refunded';
   createdAt?: any; // Firestore Timestamp

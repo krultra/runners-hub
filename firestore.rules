@@ -12,6 +12,21 @@ service cloud.firestore {
       allow create, update, delete: if request.auth != null
         && request.auth.uid == request.resource.data.userId;
     }
+    
+    // Allow writes to the mail collection for email sending
+    match /mail/{emailId} {
+      // Allow authenticated users to create emails
+      allow create: if request.auth != null;
+      
+      // Allow the Trigger Email extension to read and delete emails
+      allow read, delete: if true;
+    }
+    
+    // Allow access to the counters collection
+    match /counters/{counterId} {
+      // Allow anyone to read and write to counters
+      allow read, write: if true;
+    }
 
     // Deny all other access by default
     match /{document=**} {

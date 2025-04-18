@@ -13,7 +13,7 @@ export const RACE_DETAILS = {
   },
   paymentMethods: [
     {
-      name: 'Vipps',
+      name: 'Vipps/MobilePay',
       description: 'Available in Norway, Sweden, Denmark and Finland',
       isPreferred: true
     },

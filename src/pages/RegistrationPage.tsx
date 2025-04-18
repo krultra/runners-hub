@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { getAuth, onAuthStateChanged, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
-import { ERROR_MESSAGES } from '../constants/messages';
 import { useNavigate } from 'react-router-dom';
+import { getAuth, onAuthStateChanged, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
+import { ERROR_MESSAGES } from '../constants/messages';
 import { createRegistration } from '../services/registrationService';
 import { testFirestoreConnection } from '../services/testFirestore';
 import {
@@ -28,6 +28,7 @@ import RaceDetailsForm from '../components/registration/RaceDetailsForm';
 import ReviewRegistration from '../components/registration/ReviewRegistration';
 import RegistrationStepper from '../components/registration/RegistrationStepper';
 import RegistrationSnackbar from '../components/registration/RegistrationSnackbar';
+import EmailVerificationGuide from '../components/auth/EmailVerificationGuide';
 import { initialFormData, validateForm } from '../utils/validation';
 
 const steps = ['Personal Information', 'Race Details', 'Review & Submit'];
@@ -111,23 +112,8 @@ const RegistrationPage: React.FC = () => {
     }
   }, []);
 
-  const handleSendVerificationLink = async () => {
-    setVerifying(true);
-    setVerificationStatus('sending');
-    try {
-      const auth = getAuth();
-      const actionCodeSettings = {
-        url: window.location.origin + '/register',
-        handleCodeInApp: true,
-      };
-      await sendSignInLinkToEmail(auth, emailForVerification, actionCodeSettings);
-      window.localStorage.setItem('emailForSignIn', emailForVerification);
-      setVerificationStatus('sent');
-    } catch (error: any) {
-      setVerificationStatus('error');
-    } finally {
-      setVerifying(false);
-    }
+  const handleEmailSent = () => {
+    // Additional actions after email is sent, if needed
   };
 
   const navigate = useNavigate();
@@ -168,6 +154,7 @@ const RegistrationPage: React.FC = () => {
   // Snackbar state
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState('');
+  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error' | 'info' | 'warning'>('error');
 
   // Check if registration is still open
   const now = new Date();
@@ -401,6 +388,7 @@ const RegistrationPage: React.FC = () => {
       const isConnected = await testFirestoreConnection();
       if (!isConnected) {
         setSnackbarMessage('Error connecting to the database. Please check your internet connection and try again.');
+        setSnackbarSeverity('error');
         setSnackbarOpen(true);
         return;
       }
@@ -434,6 +422,7 @@ const RegistrationPage: React.FC = () => {
           const { updateRegistration } = await import('../services/registrationService');
           await updateRegistration(existingRegistrationId, registrationData);
           setSnackbarMessage('Registration updated successfully!');
+          setSnackbarSeverity('success');
         } else {
           // Create
           const { createRegistration, getRegistrationsByUserId } = await import('../services/registrationService');
@@ -441,12 +430,14 @@ const RegistrationPage: React.FC = () => {
           const existingRegs = await getRegistrationsByUserId(user?.uid);
           if (existingRegs && existingRegs.length > 0) {
             setSnackbarMessage('You have already submitted a registration. Duplicate entries are not allowed.');
+            setSnackbarSeverity('warning');
             setSnackbarOpen(true);
             setIsSubmitting(false);
             return;
           }
           registrationId = await createRegistration(registrationData, user?.uid);
           setSnackbarMessage('Registration submitted successfully!');
+          setSnackbarSeverity('success');
         }
         setSnackbarOpen(true);
         localStorage.removeItem('registrationFormData');
@@ -457,7 +448,10 @@ const RegistrationPage: React.FC = () => {
         console.error('Error submitting registration:', error);
         const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         setSnackbarMessage(`Error submitting registration: ${errorMessage}`);
+        setSnackbarSeverity('error');
         setSnackbarOpen(true);
+        setIsSubmitting(false);
+        return;
       } finally {
         setIsSubmitting(false);
       }
@@ -544,34 +538,19 @@ const RegistrationPage: React.FC = () => {
           <Typography variant="h4" align="center" gutterBottom>
             Register for KUTC 2025
           </Typography>
-          <Typography variant="h6" color="error" gutterBottom>
-            You must verify your email before you can register.
+          <Typography variant="h6" color="primary" gutterBottom align="center">
+            Please verify your email to continue
           </Typography>
-          <Typography variant="body1" sx={{ mb: 2 }}>
-            Enter your email below and click "Verify Email" to receive a sign-in link.<br />
-            Once you click the link in your inbox, return to this page to complete your registration.
-          </Typography>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={emailForVerification}
-            onChange={e => setEmailForVerification(e.target.value)}
-            disabled={verifying}
-            style={{ marginRight: 8, padding: 4 }}
+          
+          <EmailVerificationGuide 
+            email={emailForVerification} 
+            setEmail={setEmailForVerification} 
+            onEmailSent={handleEmailSent}
           />
-          <Button
-            variant="contained"
-            onClick={handleSendVerificationLink}
-            disabled={!emailForVerification || verifying}
-          >
-            {verifying ? 'Sending...' : 'Verify Email'}
-          </Button>
-          {verificationStatus === 'sent' && <span style={{ color: 'green', marginLeft: 8 }}>Verification link sent!</span>}
-          {verificationStatus === 'error' && <span style={{ color: 'red', marginLeft: 8 }}>Failed to send verification link.</span>}
         </Box>
       ) : (
         <React.Fragment>
-          <RegistrationSnackbar open={snackbarOpen} message={snackbarMessage} onClose={handleSnackbarClose} />
+          <RegistrationSnackbar open={snackbarOpen} message={snackbarMessage} severity={snackbarSeverity} onClose={handleSnackbarClose} />
           <Paper elevation={3} sx={{ p: 4, my: 4 }}>
             {/* Registration Stepper */}
             <RegistrationStepper 
