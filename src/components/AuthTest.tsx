@@ -2,10 +2,21 @@ import React, { useState, useEffect } from 'react';
 import { getAuth, sendSignInLinkToEmail, isSignInWithEmailLink, signInWithEmailLink, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
 
-const actionCodeSettings = {
-  url: window.location.origin + '/auth',
-  handleCodeInApp: true,
+// Dynamically determine the correct URL based on environment
+const getActionCodeSettings = () => {
+  // In production, use the custom domain if available
+  const isCustomDomain = window.location.hostname === 'runnershub.krultra.no';
+  const baseUrl = isCustomDomain 
+    ? 'https://runnershub.krultra.no' 
+    : window.location.origin;
+    
+  return {
+    url: baseUrl + '/auth',
+    handleCodeInApp: true,
+  };
 };
+
+const actionCodeSettings = getActionCodeSettings();
 
 const AuthTest: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -77,7 +88,9 @@ const AuthTest: React.FC = () => {
     setStatus('Sending email...');
     try {
       const auth = getAuth();
-      await sendSignInLinkToEmail(auth, email, actionCodeSettings);
+      // Always use the latest action code settings
+      const currentSettings = getActionCodeSettings();
+      await sendSignInLinkToEmail(auth, email, currentSettings);
       window.localStorage.setItem('emailForSignIn', email);
       setStatus('Verification email sent! Check your inbox.');
     } catch (error: any) {

@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Typography,
   Box,
@@ -11,9 +11,11 @@ import {
   Alert,
   Checkbox,
   FormControlLabel,
-  FormHelperText
+  FormHelperText,
+  Link
 } from '@mui/material';
 import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS, PHONE_CODES } from '../../constants';
+import TermsAndConditions from './TermsAndConditions';
 
 interface ReviewRegistrationProps {
   formData: {
@@ -37,6 +39,9 @@ interface ReviewRegistrationProps {
 }
 
 const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, errors, fieldRefs, onChange, onBlur }) => {
+  // State for terms and conditions dialog
+  const [termsDialogOpen, setTermsDialogOpen] = useState(false);
+
   // Find the selected race distance
   const selectedDistance = RACE_DISTANCES.find(
     (distance) => distance.id === formData.raceDistance
@@ -46,6 +51,10 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
   const selectedCountry = COUNTRIES.find(
     (country) => country.code === formData.nationality
   );
+  
+  // Handle opening and closing the terms dialog
+  const handleOpenTermsDialog = () => setTermsDialogOpen(true);
+  const handleCloseTermsDialog = () => setTermsDialogOpen(false);
   
   // Effect to scroll to top when component mounts
   useEffect(() => {
@@ -206,7 +215,17 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
           }
           label={
             <Typography variant="body2">
-              I confirm that all information provided is accurate and I accept the terms and conditions for KUTC 2025.
+              I confirm that all information provided is accurate and I accept the <Link 
+                component="button" 
+                variant="body2" 
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleOpenTermsDialog();
+                }}
+                sx={{ textDecoration: 'underline' }}
+              >
+                terms and conditions
+              </Link> for KUTC 2025.
             </Typography>
           }
           ref={fieldRefs.termsAccepted}
@@ -215,6 +234,12 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
           {errors.termsAccepted || ''}
         </FormHelperText>
       </Box>
+      
+      {/* Terms and Conditions Dialog */}
+      <TermsAndConditions 
+        open={termsDialogOpen} 
+        onClose={handleCloseTermsDialog} 
+      />
     </Box>
   );
 };
