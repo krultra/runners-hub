@@ -1,0 +1,11 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "outDir": "scripts",
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "include": ["scripts/*.ts"]
+}

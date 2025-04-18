@@ -11,8 +11,57 @@ export enum EmailType {
   REGISTRATION_UPDATE = 'registration_update',
   PAYMENT_CONFIRMATION = 'payment_confirmation',
   NEWSLETTER = 'newsletter',
-  REMINDER = 'reminder'
+  REMINDER = 'reminder',
+  INVITATION = 'invitation',
 }
+
+/**
+ * Generates HTML content for the invitation email (bilingual, personalized)
+ */
+export const generateInvitationEmailHtml = (name: string): string => {
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
+      <div style="margin-bottom: 20px;">
+        <h2 style="color: #1976d2;">Hei ${name}!</h2>
+        <p><em>(english version below)</em></p>
+        <p>Tradisjonen tro åpner påmeldingen til KUTC i påsken, og som en av deltakerne de siste tre årene får du herved en mulighet til å melde deg på før vi annonserer til alle og enhver at påmeldingen har åpnet.</p>
+        <p>I år har jeg laget et nytt påmeldingssystem, og det er nok bare i en beta-versjon ennå. Derfor er jeg interessert i å høre fra deg dersom du får problemer med påmeldingen eller har tips til hva som bør forbedres.</p>
+        <p><b>Påmelding gjøres ved å gå til <a href='https://runnershub.krultra.no'>https://runnershub.krultra.no</a>.</b></p>
+        <p>Håper se deg på startstreken igjen 11. oktober i år!</p>
+        <p>Med vennlig hilsen,<br/>Torgeir</p>
+        <hr style="margin: 32px 0;" />
+        <h2 style="color: #1976d2;">Hi ${name}!</h2>
+        <p>As is tradition, registration for KUTC opens at Easter, and as a participant in the last three years, you are hereby given the opportunity to register before we announce to the general public that registration is open.</p>
+        <p>This year, I have created a new registration system, and it is still in a beta version. Therefore, I would appreciate hearing from you if you encounter any problems with registration or have suggestions for improvements.</p>
+        <p><b>You can register by visiting <a href='https://runnershub.krultra.no'>https://runnershub.krultra.no</a>.</b></p>
+        <p>Hope to see you at the starting line again on October 11th this year!</p>
+        <p>Best regards,<br/>Torgeir</p>
+      </div>
+    </div>
+  `;
+};
+
+/**
+ * Sends an invitation email to a single invitee
+ */
+export const sendInvitationEmail = async (email: string, name: string): Promise<void> => {
+  const db = getFirestore();
+  try {
+    const emailDoc = {
+      to: email,
+      message: {
+        subject: 'KUTC 2025 – Invitation to register',
+        html: generateInvitationEmailHtml(name),
+      },
+      type: EmailType.INVITATION,
+    };
+    await addDoc(collection(db, 'mail'), emailDoc);
+    console.log(`Invitation email sent to ${email}`);
+  } catch (error) {
+    console.error('Error sending invitation email:', error);
+    throw error;
+  }
+};
 
 /**
  * Sends a welcome email with registration confirmation and payment instructions
@@ -169,13 +218,13 @@ const generateWelcomeEmailHtml = (registration: Registration): string => {
         <p>Please complete your payment within 7 days to secure your spot.</p>
       </div>
       
-      <p>The event will take place on ${eventDate} at Jamthaugvegen 37, Saksvik. More details about the event schedule and logistics will be sent closer to the event date.</p>
+      <p>The event will take place on ${eventDate} at Jamthaugvegen 37, Saksvik. More details about the event will be sent closer to the event date.</p>
       
       <p>If you have any questions, please don't hesitate to contact us at post@krultra.no.</p>
       
       <p>Looking forward to seeing you at the event!</p>
       
-      <p>Best regards,<br>The KUTC Team</p>
+      <p>Best regards,<br>KrUltra</p>
       
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eaeaea; font-size: 12px; color: #666; text-align: center;">
         <p>This email was sent to ${registration.email}. If you did not register for this event, please ignore this email.</p>

@@ -9,6 +9,8 @@ import RegistrationPage from './pages/RegistrationPage';
 import NotFoundPage from './pages/NotFoundPage';
 import EmailTestPage from './pages/EmailTestPage';
 import AuthTest from './components/AuthTest';
+import AdminPage from './pages/AdminPage';
+import RequireAdmin from './components/RequireAdmin';
 
 import AppHeader from './components/AppHeader';
 
@@ -23,6 +25,11 @@ function App() {
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/auth" element={<AuthTest />} />
           <Route path="/email-test" element={<EmailTestPage />} />
+          <Route path="/admin" element={
+            <RequireAdmin>
+              <AdminPage />
+            </RequireAdmin>
+          } />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>
