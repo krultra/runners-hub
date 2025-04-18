@@ -92,18 +92,35 @@ export const sendPaymentConfirmationEmail = async (registration: Registration): 
  * Generates HTML content for welcome email
  */
 const generateWelcomeEmailHtml = (registration: Registration): string => {
+  console.log('[generateWelcomeEmailHtml] registration:', registration);
+  console.log('[generateWelcomeEmailHtml] dateOfBirth:', registration.dateOfBirth, 'type:', typeof registration.dateOfBirth);
+
   // Format date safely
-  let eventDate = 'October 11, 2025';
+  let eventDate = '11 October 2025';
   try {
-    eventDate = RACE_DETAILS.date.toLocaleDateString();
+    eventDate = RACE_DETAILS.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   } catch (e) {
     console.error('Error formatting date:', e);
   }
   
   // Format birth date safely
+  // Format birth date safely
   let birthDate = 'Not provided';
   try {
-    birthDate = registration.dateOfBirth ? registration.dateOfBirth.toLocaleDateString() : 'Not provided';
+    if (registration.dateOfBirth) {
+      let dob: Date;
+      // Firestore Timestamp object detection
+      if (registration.dateOfBirth && typeof (registration.dateOfBirth as any).toDate === 'function') {
+        dob = (registration.dateOfBirth as any).toDate();
+      } else if (typeof registration.dateOfBirth === 'string') {
+        dob = new Date(registration.dateOfBirth);
+      } else {
+        dob = registration.dateOfBirth;
+      }
+      if (!isNaN(dob.getTime())) {
+        birthDate = dob.toLocaleDateString('no-NO');
+      }
+    }
   } catch (e) {
     console.error('Error formatting birth date:', e);
   }
@@ -152,7 +169,7 @@ const generateWelcomeEmailHtml = (registration: Registration): string => {
         <p>Please complete your payment within 7 days to secure your spot.</p>
       </div>
       
-      <p>The event will take place on ${eventDate} at Kruke in Ål, Hallingdal. More details about the event schedule and logistics will be sent closer to the event date.</p>
+      <p>The event will take place on ${eventDate} at Jamthaugvegen 37, Saksvik. More details about the event schedule and logistics will be sent closer to the event date.</p>
       
       <p>If you have any questions, please don't hesitate to contact us at post@krultra.no.</p>
       
@@ -171,10 +188,26 @@ const generateWelcomeEmailHtml = (registration: Registration): string => {
  * Generates HTML content for registration update email
  */
 const generateUpdateEmailHtml = (registration: Registration): string => {
+  console.log('[generateUpdateEmailHtml] registration:', registration);
+  console.log('[generateUpdateEmailHtml] dateOfBirth:', registration.dateOfBirth, 'type:', typeof registration.dateOfBirth);
+
   // Format birth date safely
   let birthDate = 'Not provided';
   try {
-    birthDate = registration.dateOfBirth ? registration.dateOfBirth.toLocaleDateString() : 'Not provided';
+    if (registration.dateOfBirth) {
+      let dob: Date;
+      // Firestore Timestamp object detection
+      if (registration.dateOfBirth && typeof (registration.dateOfBirth as any).toDate === 'function') {
+        dob = (registration.dateOfBirth as any).toDate();
+      } else if (typeof registration.dateOfBirth === 'string') {
+        dob = new Date(registration.dateOfBirth);
+      } else {
+        dob = registration.dateOfBirth;
+      }
+      if (!isNaN(dob.getTime())) {
+        birthDate = dob.toLocaleDateString('no-NO');
+      }
+    }
   } catch (e) {
     console.error('Error formatting birth date:', e);
   }
@@ -223,9 +256,9 @@ const generateUpdateEmailHtml = (registration: Registration): string => {
  */
 const generatePaymentConfirmationHtml = (registration: Registration): string => {
   // Format event date safely
-  let eventDate = 'October 11, 2025';
+  let eventDate = '11 October 2025';
   try {
-    eventDate = RACE_DETAILS.date.toLocaleDateString();
+    eventDate = RACE_DETAILS.date.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
   } catch (e) {
     console.error('Error formatting date:', e);
   }
