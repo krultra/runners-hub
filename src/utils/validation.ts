@@ -1,5 +1,7 @@
 import { ERROR_MESSAGES } from '../constants/messages';
 
+import { CURRENT_EDITION_ID } from '../constants';
+
 export const initialFormData = {
   firstName: '',
   lastName: '',
@@ -13,6 +15,11 @@ export const initialFormData = {
   travelRequired: '',
   termsAccepted: false,
   comments: '',
+  // Marketing preferences (default to false)
+  notifyFutureEvents: false,
+  sendRunningOffers: false,
+  // Event edition ID
+  editionId: CURRENT_EDITION_ID,
   status: 'pending', // Default status
   paymentRequired: 300,
   paymentMade: 0
@@ -37,27 +44,46 @@ export const validateForm = (
   const newErrors: Record<string, string> = {};
 
   // Personal info validation
+  // First name validation (with length check)
   if ((touchedFields.firstName || showAllErrors) && formData.firstName.trim() === '') {
     newErrors.firstName = ERROR_MESSAGES.firstName;
+  } else if ((touchedFields.firstName || showAllErrors) && formData.firstName.trim().length > 60) {
+    newErrors.firstName = 'First and middle names cannot exceed 60 characters';
   }
 
+  // Last name validation (with length check)
   if ((touchedFields.lastName || showAllErrors) && formData.lastName.trim() === '') {
     newErrors.lastName = ERROR_MESSAGES.lastName;
+  } else if ((touchedFields.lastName || showAllErrors) && formData.lastName.trim().length > 60) {
+    newErrors.lastName = 'Last name cannot exceed 60 characters';
   }
 
+  // Date of birth validation with age restrictions
   if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth === null) {
     newErrors.dateOfBirth = ERROR_MESSAGES.dateOfBirth;
+  } else if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth !== null) {
+    const birthYear = formData.dateOfBirth.getFullYear();
+    const eventYear = 2025; // Year of the event
+    const age = eventYear - birthYear;
+    
+    if (age < 15) {
+      newErrors.dateOfBirth = 'Participants must be at least 15 years old in the year of the event';
+    } else if (age > 100) {
+      newErrors.dateOfBirth = 'Please enter a valid date of birth (maximum age is 100 years)';
+    }
   }
 
   if ((touchedFields.nationality || showAllErrors) && formData.nationality.trim() === '') {
     newErrors.nationality = 'Nationality is required';
   }
 
-  // Email validation
+  // Email validation (with length check)
   if ((touchedFields.email || showAllErrors) && formData.email.trim() === '') {
     newErrors.email = 'Email is required';
   } else if ((touchedFields.email || showAllErrors) && formData.email.trim() !== '' && !/^\S+@\S+\.\S+$/.test(formData.email)) {
     newErrors.email = 'Please enter a valid email address';
+  } else if ((touchedFields.email || showAllErrors) && formData.email.trim().length > 60) {
+    newErrors.email = 'Email cannot exceed 60 characters';
   }
 
   // Phone code
@@ -65,22 +91,40 @@ export const validateForm = (
     newErrors.phoneCountryCode = 'Country code is required';
   }
 
-  // Phone number
+  // Phone number validation with basic format check
   if ((touchedFields.phoneNumber || showAllErrors) && formData.phoneNumber.trim() === '') {
     newErrors.phoneNumber = 'Phone number is required';
+  } else if ((touchedFields.phoneNumber || showAllErrors) && formData.phoneNumber.trim() !== '') {
+    // Remove any non-digit characters for validation
+    const digitsOnly = formData.phoneNumber.replace(/\D/g, '');
+    
+    // Basic phone number validation - must have at least 6 digits and no more than 15
+    if (digitsOnly.length < 6) {
+      newErrors.phoneNumber = 'Phone number is too short (minimum 6 digits)';
+    } else if (digitsOnly.length > 15) {
+      newErrors.phoneNumber = 'Phone number is too long (maximum 15 digits)';
+    }
   }
 
   // Race details
   if ((touchedFields.raceDistance || showAllErrors) && formData.raceDistance.trim() === '') {
     newErrors.raceDistance = ERROR_MESSAGES.raceDistance;
   }
+  // Travel requirements validation with length check
   if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim() === '') {
     newErrors.travelRequired = ERROR_MESSAGES.travelRequired;
+  } else if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim().length > 200) {
+    newErrors.travelRequired = 'Travel requirements cannot exceed 200 characters';
   }
 
   // Terms and conditions validation
   if ((touchedFields.termsAccepted || showAllErrors) && !formData.termsAccepted) {
     newErrors.termsAccepted = ERROR_MESSAGES.termsAccepted || 'You must accept the terms and conditions';
+  }
+  
+  // Comments length validation
+  if ((touchedFields.comments || showAllErrors) && formData.comments && formData.comments.trim().length > 500) {
+    newErrors.comments = 'Comments cannot exceed 500 characters';
   }
 
   if (setErrors && !silentValidation) {

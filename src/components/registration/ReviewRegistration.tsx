@@ -12,7 +12,8 @@ import {
   Checkbox,
   FormControlLabel,
   FormHelperText,
-  Link
+  Link,
+  Button
 } from '@mui/material';
 import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS, PHONE_CODES } from '../../constants';
 import TermsAndConditions from './TermsAndConditions';
@@ -31,14 +32,19 @@ interface ReviewRegistrationProps {
     travelRequired: string;
     termsAccepted: boolean;
     comments: string;
+    notifyFutureEvents: boolean;
+    sendRunningOffers: boolean;
+    paymentRequired: number;
+    paymentMade: number;
   };
   errors: Record<string, string>;
   fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
   onChange: (field: string, value: any) => void;
   onBlur?: (field: string) => void;
+  isEditingExisting?: boolean;
 }
 
-const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, errors, fieldRefs, onChange, onBlur }) => {
+const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, errors, fieldRefs, onChange, onBlur, isEditingExisting = false }) => {
   // State for terms and conditions dialog
   const [termsDialogOpen, setTermsDialogOpen] = useState(false);
 
@@ -174,7 +180,10 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
           Payment Information
         </Typography>
         <Typography variant="body2" paragraph>
-          After submitting your registration, you will need to pay the following fees:
+          {!isEditingExisting ? 
+            'After submitting your registration, you will need to pay the following fees:' :
+            'Your registration requires the following payments:'
+          }
         </Typography>
         <List disablePadding>
           <ListItem sx={{ py: 1, px: 0 }}>
@@ -196,13 +205,74 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
               {RACE_DETAILS.fees.total} NOK
             </Typography>
           </ListItem>
+          
+          {isEditingExisting && (
+            <>
+              <ListItem sx={{ py: 1, px: 0 }}>
+                <ListItemText primary="Payment Made" />
+                <Typography variant="body2">
+                  {formData.paymentMade} NOK
+                </Typography>
+              </ListItem>
+              
+              {formData.paymentMade < formData.paymentRequired && (
+                <ListItem sx={{ py: 1, px: 0 }}>
+                  <ListItemText primary="Payment Remaining" />
+                  <Typography variant="subtitle1" color="error" sx={{ fontWeight: 700 }}>
+                    {formData.paymentRequired - formData.paymentMade} NOK
+                  </Typography>
+                </ListItem>
+              )}
+            </>
+          )}
         </List>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
-          Payment instructions will be sent to your email after registration.
+          {!isEditingExisting ? 
+            'Payment instructions will be sent to your email after registration.' :
+            formData.paymentMade < formData.paymentRequired ?
+              'Registration is not valid until the full payment has been made.' :
+              'Required payments have been made.'
+          }
         </Typography>
       </Paper>
 
       <Box sx={{ mt: 3 }}>
+        <Box sx={{ mb: 2 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.notifyFutureEvents}
+                name="notifyFutureEvents"
+                color="primary"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('notifyFutureEvents', e.target.checked)}
+              />
+            }
+            label={
+              <Typography variant="body2">
+                Notify me and send me information about future events
+              </Typography>
+            }
+          />
+        </Box>
+        
+        <Box sx={{ mb: 2 }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={formData.sendRunningOffers}
+                name="sendRunningOffers"
+                color="primary"
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('sendRunningOffers', e.target.checked)}
+              />
+            }
+            label={
+              <Typography variant="body2">
+                Send me relevant information and offers related to trail and ultra running
+              </Typography>
+            }
+          />
+        </Box>
+        
         <FormControlLabel
           control={
             <Checkbox
@@ -233,6 +303,20 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
         <FormHelperText error={!!errors.termsAccepted}>
           {errors.termsAccepted || ''}
         </FormHelperText>
+        
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              onChange('notifyFutureEvents', true);
+              onChange('sendRunningOffers', true);
+              onChange('termsAccepted', true);
+            }}
+          >
+            Accept all
+          </Button>
+        </Box>
       </Box>
       
       {/* Terms and Conditions Dialog */}

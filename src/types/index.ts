@@ -25,6 +25,7 @@ export interface RaceDistance {
 // Registration type
 export interface Registration {
   id?: string;
+  editionId: string; // ID of the event edition (e.g., 'kutc-2025')
   email: string;
   raceDistance: string; // ID of the selected race distance
   firstName: string;
@@ -37,6 +38,10 @@ export interface Registration {
   travelRequired?: string; // Optional
   termsAccepted: boolean;
   comments?: string; // Optional
+  
+  // Marketing preferences
+  notifyFutureEvents: boolean; // Notify about future events
+  sendRunningOffers: boolean; // Send offers related to trail and ultra running
 
   // Payment fields
   paymentRequired: number;

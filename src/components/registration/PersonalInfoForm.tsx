@@ -59,11 +59,12 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               required
               id="firstName"
               name="firstName"
-              label="First Name(s)"
+              label="First and Middle Names"
               fullWidth
               variant="outlined"
               value={formData.firstName}
               onChange={(e) => onChange('firstName', e.target.value)}
+              inputProps={{ maxLength: 60 }}
               onBlur={() => onBlur && onBlur('firstName')}
               error={!!errors.firstName}
               helperText={errors.firstName || ''}
@@ -81,6 +82,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               variant="outlined"
               value={formData.lastName}
               onChange={(e) => onChange('lastName', e.target.value)}
+              inputProps={{ maxLength: 60 }}
               onBlur={() => onBlur && onBlur('lastName')}
               error={!!errors.lastName}
               helperText={errors.lastName || ''}
@@ -160,6 +162,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                 type="email"
                 value={formData.email}
                 onChange={(e) => onChange('email', e.target.value)}
+                inputProps={{ maxLength: 60 }}
                 onBlur={() => onBlur && onBlur('email')}
                 error={!!errors.email}
                 helperText={errors.email || "We'll send your registration confirmation to this email"}
@@ -204,7 +207,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               fullWidth
               variant="outlined"
               value={formData.phoneNumber}
-              onChange={(e) => onChange('phoneNumber', e.target.value)}
+              onChange={(e) => onChange('phoneNumber', e.target.value.replace(/[^0-9+\-\s()]/g, ''))}
               onBlur={() => onBlur && onBlur('phoneNumber')}
               error={!!errors.phoneNumber}
               helperText={errors.phoneNumber || "Enter number without country code"}
@@ -228,6 +231,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               variant="outlined"
               value={formData.representing}
               onChange={(e) => onChange('representing', e.target.value)}
+              inputProps={{ maxLength: 60 }}
               helperText="Sports club, company, charity, etc."
             />
           </Grid>

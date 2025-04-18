@@ -21,7 +21,7 @@ import {
   ListItem,
   ListItemText
 } from '@mui/material';
-import { RACE_DETAILS } from '../constants';
+import { RACE_DETAILS, CURRENT_EDITION_ID } from '../constants';
 
 import PersonalInfoForm from '../components/registration/PersonalInfoForm';
 import RaceDetailsForm from '../components/registration/RaceDetailsForm';
@@ -406,20 +406,25 @@ const RegistrationPage: React.FC = () => {
       }
       try {
         setIsSubmitting(true);
-        // Prepare registration data
+        // Prepare registration data with trimmed text fields
         const registrationData = {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
+          firstName: formData.firstName?.trim() || '',
+          lastName: formData.lastName?.trim() || '',
           dateOfBirth: formData.dateOfBirth,
           nationality: formData.nationality,
-          email: formData.email,
+          email: formData.email?.trim() || '',
           phoneCountryCode: formData.phoneCountryCode,
-          phoneNumber: formData.phoneNumber,
-          representing: formData.representing,
+          phoneNumber: formData.phoneNumber?.trim() || '',
+          representing: formData.representing?.trim() || '',
           raceDistance: formData.raceDistance,
-          travelRequired: formData.travelRequired,
+          travelRequired: formData.travelRequired?.trim() || '',
           termsAccepted: formData.termsAccepted,
-          comments: formData.comments,
+          comments: formData.comments?.trim() || '',
+          // Include marketing preferences
+          notifyFutureEvents: formData.notifyFutureEvents ?? false,
+          sendRunningOffers: formData.sendRunningOffers ?? false,
+          // Include edition ID
+          editionId: formData.editionId || CURRENT_EDITION_ID,
           paymentRequired: formData.paymentRequired ?? 300,
           paymentMade: formData.paymentMade ?? 0
         };
@@ -503,6 +508,7 @@ const RegistrationPage: React.FC = () => {
             errors={errors}
             fieldRefs={fieldRefs}
             onBlur={handleFieldTouch}
+            isEditingExisting={isEditingExisting}
           />
         );
       default:

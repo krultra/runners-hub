@@ -79,6 +79,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
             variant="outlined"
             value={formData.travelRequired}
             onChange={(e) => onChange('travelRequired', e.target.value)}
+            inputProps={{ maxLength: 200 }}
             onBlur={() => onBlur && onBlur('travelRequired')}
             error={!!errors.travelRequired}
             helperText={errors.travelRequired || 'Please describe your travel plans to help us minimize our carbon footprint'}
@@ -97,6 +98,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
             variant="outlined"
             value={formData.comments}
             onChange={(e) => onChange('comments', e.target.value)}
+            inputProps={{ maxLength: 500 }}
             helperText="Any additional information you'd like to share with the organizers"
           />
         </Grid>
