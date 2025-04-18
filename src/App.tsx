@@ -11,6 +11,7 @@ import EmailTestPage from './pages/EmailTestPage';
 import AuthTest from './components/AuthTest';
 import AdminPage from './pages/AdminPage';
 import RequireAdmin from './components/RequireAdmin';
+import PublicRegistrationsPage from './pages/PublicRegistrationsPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -25,6 +26,7 @@ function App() {
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/auth" element={<AuthTest />} />
           <Route path="/email-test" element={<EmailTestPage />} />
+          <Route path="/participants" element={<PublicRegistrationsPage />} />
           <Route path="/admin" element={
             <RequireAdmin>
               <AdminPage />

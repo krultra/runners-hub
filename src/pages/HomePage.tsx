@@ -15,6 +15,7 @@ import {
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { RACE_DETAILS } from '../constants';
 import { getTotalRegistrationsCount, getRegistrationsByUserId } from '../services/registrationService';
+import { useNavigate } from 'react-router-dom';
 
 const HomePage: React.FC = () => {
   // State for countdown timer
@@ -105,6 +106,7 @@ const HomePage: React.FC = () => {
     return () => clearInterval(timer);
   }, [raceDate]);
 
+  const navigate = useNavigate();
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4, textAlign: 'center' }}>
@@ -173,28 +175,52 @@ const HomePage: React.FC = () => {
               >
                 You are registered for this event
               </Typography>
-              <Button 
-                component={RouterLink} 
-                to="/register" 
-                variant="outlined" 
-                size="large" 
-                sx={{ py: 1.5, px: 4 }}
-              >
-                Review Registration
-              </Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <Button 
+                  component={RouterLink} 
+                  to="/register" 
+                  variant="outlined" 
+                  size="large" 
+                  sx={{ py: 1.5, px: 4 }}
+                >
+                  Review Registration
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/participants"
+                  variant="outlined"
+                  color="success"
+                  size="large"
+                  sx={{ ml: 2, py: 1.5, px: 4 }}
+                >
+                  See participants
+                </Button>
+              </Box>
             </Box>
           ) : (
             <>
-              <Button 
-                component={RouterLink} 
-                to="/register" 
-                variant="contained" 
-                size="large" 
-                sx={{ mb: 2, py: 1.5, px: 4 }}
-                disabled={isLoading || isCheckingRegistration}
-              >
-                Register Now
-              </Button>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+                <Button 
+                  component={RouterLink} 
+                  to="/register" 
+                  variant="contained" 
+                  size="large" 
+                  sx={{ py: 1.5, px: 4 }}
+                  disabled={isLoading || isCheckingRegistration}
+                >
+                  Register Now
+                </Button>
+                <Button
+                  component={RouterLink}
+                  to="/participants"
+                  variant="outlined"
+                  color="success"
+                  size="large"
+                  sx={{ ml: 2, py: 1.5, px: 4 }}
+                >
+                  See participants
+                </Button>
+              </Box>
               {!isLoading && availableSpots !== null && (
                 <Typography variant="body1" sx={{ mb: 4 }}>
                   {availableSpots} spots still available
