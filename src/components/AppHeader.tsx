@@ -4,7 +4,7 @@ import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { isAdminUser } from '../utils/adminUtils';
+import { createOrUpdateUser, getUser } from '../utils/userUtils';
 
 const AppHeader: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -15,8 +15,10 @@ const AppHeader: React.FC = () => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
-      if (u && u.email) {
-        setIsAdmin(await isAdminUser(u.email));
+      if (u) {
+        await createOrUpdateUser(u);
+        const userDoc = await getUser(u.uid);
+        setIsAdmin(!!userDoc?.isAdmin);
       } else {
         setIsAdmin(false);
       }
