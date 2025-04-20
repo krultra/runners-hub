@@ -146,9 +146,23 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                 <Typography variant="subtitle2" color="text.secondary">
                   Email Address
                 </Typography>
-                <Typography variant="body1" sx={{ px: 1, py: 1, bgcolor: '#f5f5f5', borderRadius: 1 }} tabIndex={-1}>
-                  {formData.email}
-                </Typography>
+                <Typography
+  variant="body1"
+  sx={theme => ({
+    px: 1,
+    py: 1,
+    bgcolor: theme.palette.mode === 'dark' ? theme.palette.grey[900] : theme.palette.grey[100],
+    color: theme.palette.text.primary,
+    borderRadius: 1,
+    wordBreak: 'break-all',
+    fontFamily: 'monospace',
+    fontSize: '1rem',
+    fontWeight: 500
+  })}
+  tabIndex={-1}
+>
+  {formData.email}
+</Typography>
                 <FormHelperText sx={{ ml: 0 }}>{errors.email || "We'll send your registration confirmation to this email"}</FormHelperText>
               </Box>
             ) : (
