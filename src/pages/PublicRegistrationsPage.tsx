@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPublicRegistrations, PublicRegistration } from '../utils/publicRegistrations';
+import StatusIndicator from '../components/StatusIndicator';
 import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress } from '@mui/material';
 
 interface PublicRegistrationsPageProps {
@@ -43,7 +44,7 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
                   <TableCell>{reg.firstName} {reg.lastName}</TableCell>
                   <TableCell>{reg.nationality}</TableCell>
                   <TableCell>{reg.representing}</TableCell>
-                  <TableCell>{reg.status}</TableCell>
+                  <TableCell><StatusIndicator status={reg.status} /></TableCell>
                 </TableRow>
               ))}
             </TableBody>

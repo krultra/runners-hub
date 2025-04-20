@@ -1,7 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, CssBaseline } from '@mui/material';
-import theme from './config/theme';
+import { ThemeProvider, CssBaseline, useMediaQuery } from '@mui/material';
+import { createRunnersHubTheme } from './config/theme';
 
 // Import pages (we'll create these next)
 import HomePage from './pages/HomePage';
@@ -16,6 +16,10 @@ import PublicRegistrationsPage from './pages/PublicRegistrationsPage';
 import AppHeader from './components/AppHeader';
 
 function App() {
+  // Detect system/browser dark mode
+  const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
+  const theme = createRunnersHubTheme(prefersDarkMode ? 'dark' : 'light');
+
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline /> {/* Provides a consistent baseline CSS */}

@@ -1,21 +1,26 @@
-import { createTheme } from '@mui/material/styles';
+import { createTheme, ThemeOptions } from '@mui/material/styles';
+import { PaletteMode } from '@mui/material';
 
-// Create a custom theme for the Runners Hub application
-const theme = createTheme({
+// Create a theme based on mode
+export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
   palette: {
+    mode,
     primary: {
-      main: '#2E7D32', // Forest green - representing trail running in nature
+      main: '#2E7D32',
       light: '#4CAF50',
       dark: '#1B5E20',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#FF6F00', // Amber/Orange - representing energy and endurance
+      main: '#FF6F00',
       light: '#FFA726',
       dark: '#E65100',
       contrastText: '#FFFFFF',
     },
-    background: {
+    background: mode === 'dark' ? {
+      default: '#181a1b',
+      paper: '#232526',
+    } : {
       default: '#F5F5F5',
       paper: '#FFFFFF',
     },
@@ -99,4 +104,4 @@ const theme = createTheme({
   },
 });
 
-export default theme;
+// No default export. Use createRunnersHubTheme(mode) to get the theme.
