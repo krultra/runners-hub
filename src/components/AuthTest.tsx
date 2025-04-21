@@ -97,8 +97,21 @@ const AuthTest: React.FC = () => {
   };
 
   return (
-    <Paper elevation={3} sx={{ p: 3, maxWidth: 600, mx: 'auto', my: 4 }}>
-      <Typography variant="h4" gutterBottom align="center">
+    <Paper
+      elevation={0}
+      sx={{
+        backgroundColor: 'var(--color-surface)',
+        color: 'var(--color-text)',
+        border: '1px solid var(--color-surface-border)',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+        borderRadius: 2,
+        p: 3,
+        maxWidth: 420,
+        mx: 'auto',
+        my: 5,
+      }}
+    >
+      <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 700 }}>
         Log in
       </Typography>
       
@@ -108,22 +121,30 @@ const AuthTest: React.FC = () => {
             Signed in as: <strong>{user.email}</strong>
           </Typography>
           
-          <Button 
-            variant="contained" 
-            color="primary" 
+          <Button
+            variant="contained"
+            color="inherit"
             onClick={handleLogout}
-            sx={{ mb: 2 }}
+            sx={{
+              mb: 2,
+              backgroundColor: 'black',
+              color: 'white',
+              border: '2px solid var(--color-surface-border)',
+              fontWeight: 700,
+              minWidth: 210,
+              '&:hover': { backgroundColor: '#222' }
+            }}
           >
             Log out
           </Button>
           
-          <Typography variant="body1" color="primary" sx={{ fontWeight: 'medium' }}>
+          <Typography variant="body1" color="text.secondary" sx={{ fontWeight: 500 }}>
             You are now logged in. Redirecting you back...
           </Typography>
         </Box>
       ) : (
         <>
-          <Typography variant="body1" paragraph align="center">
+          <Typography variant="body1" paragraph align="center" sx={{ fontWeight: 500 }}>
             Enter your email to receive a secure sign-in link.
           </Typography>
           

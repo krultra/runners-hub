@@ -32,7 +32,15 @@ const AppHeader: React.FC = () => {
   };
 
   return (
-    <AppBar position="static" color="primary" elevation={2}>
+    <AppBar
+      position="static"
+      elevation={0}
+      sx={{
+        background: 'var(--color-header-bg)',
+        color: 'var(--color-text)',
+        borderBottom: '1.5px solid var(--color-header-border)'
+      }}
+    >
       <Toolbar>
         <Typography
           variant="h6"

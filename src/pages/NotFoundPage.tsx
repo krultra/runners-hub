@@ -6,7 +6,18 @@ const NotFoundPage: React.FC = () => {
   return (
     <Container maxWidth="md">
       <Box sx={{ my: 8, textAlign: 'center' }}>
-        <Paper elevation={3} sx={{ p: 4 }}>
+        <Paper 
+  elevation={0}
+  sx={{
+    backgroundColor: 'var(--color-surface)',
+    color: 'var(--color-text)',
+    border: '1px solid var(--color-surface-border)',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+    borderRadius: 2,
+    p: 3,
+    mb: 4
+  }}
+>
           <Typography variant="h2" component="h1" gutterBottom>
             404
           </Typography>

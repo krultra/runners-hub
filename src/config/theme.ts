@@ -6,35 +6,45 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
   palette: {
     mode,
     primary: {
-      main: '#2E7D32',
-      light: '#4CAF50',
-      dark: '#1B5E20',
+      main: '#000000', // Black
+      light: '#222222',
+      dark: '#000000',
       contrastText: '#FFFFFF',
     },
     secondary: {
-      main: '#FF6F00',
-      light: '#FFA726',
-      dark: '#E65100',
+      main: '#888888', // Neutral grey
+      light: '#CCCCCC',
+      dark: '#555555',
       contrastText: '#FFFFFF',
     },
     background: mode === 'dark' ? {
       default: '#181a1b',
-      paper: '#232526',
+      paper: '#222222',
     } : {
       default: '#F5F5F5',
       paper: '#FFFFFF',
     },
+    text: {
+      primary: '#111111',
+      secondary: '#555555',
+      disabled: '#AAAAAA',
+    },
+    divider: '#E0E0E0',
     error: {
       main: '#D32F2F',
+      contrastText: '#FFFFFF',
     },
     warning: {
       main: '#FFC107',
+      contrastText: '#000000',
     },
     info: {
       main: '#0288D1',
+      contrastText: '#FFFFFF',
     },
     success: {
       main: '#388E3C',
+      contrastText: '#FFFFFF',
     },
   },
   typography: {

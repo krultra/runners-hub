@@ -119,25 +119,28 @@ const HomePage: React.FC = () => {
         </Typography>
         
         <Box sx={{ mb: 2 }}>
-          <Link 
-            href="https://krultra.no/en/KUTC" 
-            target="_blank" 
+          <Link
+            href="https://krultra.no/en/KUTC"
+            target="_blank"
             rel="noopener noreferrer"
             color="primary"
-            sx={{ fontSize: '0.9rem' }}
+            underline="always"
+            sx={{
+              fontSize: '0.9rem',
+              fontWeight: 500,
+              textUnderlineOffset: '4px',
+            }}
           >
             More info about KUTC
           </Link>
         </Box>
         
-        <Paper 
-          elevation={0} 
-          sx={{ 
-            p: 3, 
-            mb: 4, 
-            backgroundColor: 'primary.light', 
-            color: 'primary.contrastText',
-            borderRadius: 2
+        <Paper
+          elevation={1}
+          sx={{
+            borderRadius: 2,
+            p: 3,
+            mb: 4
           }}
         >
           <Typography variant="h4">
@@ -180,45 +183,47 @@ const HomePage: React.FC = () => {
                   component={RouterLink} 
                   to="/register" 
                   variant="outlined" 
+                  color="primary"
                   size="large" 
-                  sx={{ py: 1.5, px: 4 }}
-                >
-                  Review Registration
-                </Button>
+                  sx={{ py: 1.5, px: 4 }} 
+                > 
+                  Review Registration 
+                </Button> 
                 <Button
                   component={RouterLink}
                   to="/participants"
                   variant="outlined"
-                  color="success"
+                  color="inherit"
                   size="large"
-                  sx={{ ml: 2, py: 1.5, px: 4 }}
+                  sx={{ ml: 2, py: 1.5, px: 4, minWidth: 210 }}
                 >
-                  See participants
+                  See Participants
                 </Button>
               </Box>
             </Box>
           ) : (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                <Button 
-                  component={RouterLink} 
-                  to="/register" 
-                  variant="contained" 
-                  size="large" 
-                  sx={{ py: 1.5, px: 4 }}
+                <Button
+                  component={RouterLink}
+                  to="/register"
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
                   disabled={isLoading || isCheckingRegistration}
                 >
                   Register Now
-                </Button>
+                </Button> 
                 <Button
                   component={RouterLink}
                   to="/participants"
                   variant="outlined"
-                  color="success"
+                  color="inherit"
                   size="large"
-                  sx={{ ml: 2, py: 1.5, px: 4 }}
+                  sx={{ ml: 2, py: 1.5, px: 4, minWidth: 210 }}
                 >
-                  See participants
+                  See Participants
                 </Button>
               </Box>
               {!isLoading && availableSpots !== null && (
@@ -235,87 +240,99 @@ const HomePage: React.FC = () => {
         )}
       </Box>
       
-      <Grid container spacing={4} sx={{ mb: 6 }}>
+      <Grid container spacing={4} sx={{ mb: 4 }}>
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" component="h2" gutterBottom>
-                Race Details
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              
-              <Typography variant="body1" paragraph>
-                <strong>Date:</strong> {raceDate.toLocaleDateString()}
-              </Typography>
-              <Typography variant="body1" paragraph>
-                <strong>Registration Deadline:</strong> {RACE_DETAILS.registrationDeadline.toLocaleDateString()}
-              </Typography>
-              <Typography variant="body1" paragraph>
-                <strong>Maximum Participants:</strong> {RACE_DETAILS.maxParticipants}
-                {!isLoading && availableSpots !== null && (
-                  <> ({availableSpots} spots still available)</>  
-                )}
-              </Typography>
-              <Typography variant="body1" paragraph>
-                <strong>Each loop:</strong> {RACE_DETAILS.loopDistance} km, 369 meter ascent/descent
-              </Typography>
-              <Typography variant="body1">
-                <strong>Available Distances:</strong>
-              </Typography>
-              <ul>
-                <li>4 loops (26.8 km / 16.7 miles)</li>
-                <li>8 loops (53.6 km / 33.3 miles)</li>
-                <li>12 loops (80.4 km / 50.0 miles)</li>
-                <li>16 loops (107.2 km / 66.6 miles)</li>
-                <li>20 loops (134.0 km / 83.3 miles)</li>
-                <li>24 loops (160.9 km / 100.0 miles)</li>
-              </ul>
-              <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
-                All participants are part of the 'Last One Standing' challenge!
-              </Typography>
-            </CardContent>
-          </Card>
+          <Paper
+            elevation={0}
+            sx={{
+              backgroundColor: 'var(--color-surface)',
+              color: 'var(--color-text)',
+              border: '1px solid var(--color-surface-border)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              borderRadius: 2,
+              p: 3
+            }}
+          >
+            <Typography variant="h5" component="h2" gutterBottom>
+              Race Details
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Typography variant="body1" paragraph>
+              <strong>Date:</strong> {raceDate.toLocaleDateString()}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <strong>Registration Deadline:</strong> {RACE_DETAILS.registrationDeadline.toLocaleDateString()}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <strong>Maximum Participants:</strong> {RACE_DETAILS.maxParticipants}
+              {!isLoading && availableSpots !== null && (
+                <> ({availableSpots} spots still available)</>  
+              )}
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <strong>Each loop:</strong> {RACE_DETAILS.loopDistance} km, 369 meter ascent/descent
+            </Typography>
+            <Typography variant="body1">
+              <strong>Available Distances:</strong>
+            </Typography>
+            <ul style={{ margin: 0, paddingLeft: 16 }}>
+              <li>4 loops (26.8 km / 16.7 miles)</li>
+              <li>8 loops (53.6 km / 33.3 miles)</li>
+              <li>12 loops (80.4 km / 50.0 miles)</li>
+              <li>16 loops (107.2 km / 66.6 miles)</li>
+              <li>20 loops (134.0 km / 83.3 miles)</li>
+              <li>24 loops (160.9 km / 100.0 miles)</li>
+            </ul>
+            <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+              All participants are part of the 'Last One Standing' challenge!
+            </Typography>
+          </Paper>
         </Grid>
-        
         <Grid item xs={12} md={6}>
-          <Card>
-            <CardContent>
-              <Typography variant="h5" component="h2" gutterBottom>
-                Registration Fees
-              </Typography>
-              <Divider sx={{ mb: 2 }} />
-              
-              <Typography variant="body1" paragraph>
-                <strong>Participation Fee:</strong> {RACE_DETAILS.fees.participation} NOK
-              </Typography>
-              <Typography variant="body1" paragraph>
-                <strong>Base Camp Services:</strong> {RACE_DETAILS.fees.baseCamp} NOK
-              </Typography>
-              <Typography variant="body1" paragraph>
-                <strong>Refundable Deposit:</strong> {RACE_DETAILS.fees.deposit} NOK
-                <br />
-                <em>(Returned to all participants who show up for the race)</em>
-              </Typography>
-              <Typography variant="body1" paragraph>
-                <strong>Total:</strong> {RACE_DETAILS.fees.total} NOK
-              </Typography>
-              
-              <Typography variant="h6" sx={{ mt: 2 }}>
-                Payment Methods
-              </Typography>
-              <ul>
-                <li>
-                  <strong>Vipps and MobilePay</strong> - Available in Norway, Sweden, Denmark and Finland (Preferred method)
-                </li>
-                <li>
-                  <strong>PayPal and Bank Transfer</strong> - Available for participants from all countries
-                </li>
-              </ul>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
-                Note: Any fees charged for payment services must be covered by the participant.
-              </Typography>
-            </CardContent>
-          </Card>
+          <Paper
+            elevation={0}
+            sx={{
+              backgroundColor: 'var(--color-surface)',
+              color: 'var(--color-text)',
+              border: '1px solid var(--color-surface-border)',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              borderRadius: 2,
+              p: 3
+            }}
+          >
+            <Typography variant="h5" component="h2" gutterBottom>
+              Registration Fees
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            <Typography variant="body1" paragraph>
+              <strong>Participation Fee:</strong> {RACE_DETAILS.fees.participation} NOK
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <strong>Base Camp Services:</strong> {RACE_DETAILS.fees.baseCamp} NOK
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <strong>Refundable Deposit:</strong> {RACE_DETAILS.fees.deposit} NOK
+              <br />
+              <em>(Returned to all participants who show up for the race)</em>
+            </Typography>
+            <Typography variant="body1" paragraph>
+              <strong>Total:</strong> {RACE_DETAILS.fees.total} NOK
+            </Typography>
+            <Typography variant="h6" sx={{ mt: 2 }}>
+              Payment Methods
+            </Typography>
+            <ul>
+                  <li>
+                    <strong>Vipps and MobilePay</strong> - Available in Norway, Sweden, Denmark and Finland (Preferred method)
+                  </li>
+                  <li>
+                    <strong>PayPal and Bank Transfer</strong> - Available for participants from all countries
+                  </li>
+                </ul>
+                <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
+                  Note: Any fees charged for payment services must be covered by the participant.
+                </Typography>
+          </Paper>
         </Grid>
       </Grid>
     </Container>
