@@ -20,6 +20,23 @@ const getActionCodeSettings = () => {
 
 const actionCodeSettings = getActionCodeSettings();
 
+// Helper to robustly decode returnTo
+function robustDecodeReturnTo(raw: string | null): string | null {
+  let value = raw;
+  let count = 0;
+  while (value && value.startsWith('%') && count < 3) {
+    try {
+      const decoded = decodeURIComponent(value);
+      if (decoded === value) break;
+      value = decoded;
+      count++;
+    } catch {
+      break;
+    }
+  }
+  return value;
+}
+
 const AuthTest: React.FC = () => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<string>('');
@@ -59,22 +76,19 @@ const AuthTest: React.FC = () => {
           setStatus('Successfully signed in as ' + result.user.email);
           setUser(result.user);
           window.localStorage.removeItem('emailForSignIn');
-          
-          // Check for stored return path in localStorage
-          const returnPath = localStorage.getItem('authReturnPath');
-          if (returnPath) {
-            // Clear the stored path
-            localStorage.removeItem('authReturnPath');
-            // Navigate back to the stored path
-            navigate(returnPath, { replace: true });
+          // Prefer ?returnTo= param in URL
+          const params = new URLSearchParams(window.location.search);
+          let returnTo = params.get('returnTo');
+          returnTo = robustDecodeReturnTo(returnTo);
+          if (returnTo) {
+            navigate(returnTo, { replace: true });
           } else {
-            // Fallback to URL parameter if available
-            const params = new URLSearchParams(window.location.search);
-            const returnTo = params.get('returnTo');
-            if (returnTo) {
-              navigate(returnTo, { replace: true });
+            // Otherwise fallback to stored path
+            const returnPath = localStorage.getItem('authReturnPath');
+            if (returnPath) {
+              localStorage.removeItem('authReturnPath');
+              navigate(returnPath, { replace: true });
             } else {
-              // Default to home page if no return path is specified
               navigate('/', { replace: true });
             }
           }
@@ -111,6 +125,19 @@ const AuthTest: React.FC = () => {
       <Typography variant="h4" gutterBottom align="center" sx={{ fontWeight: 700 }}>
         Log in
       </Typography>
+      {/* Show message if redirected here for login-required route */}
+      {(() => {
+        const params = new URLSearchParams(location.search);
+        const returnTo = params.get('returnTo');
+        if (returnTo) {
+          return (
+            <Typography variant="body1" align="center" sx={{ mb: 2 }}>
+              You need to log in to be able to continue
+            </Typography>
+          );
+        }
+        return null;
+      })()}
       
       {user ? (
         <Box sx={{ textAlign: 'center' }}>

@@ -26,8 +26,15 @@ const EmailVerificationGuide: React.FC<EmailVerificationGuideProps> = ({
     
     try {
       const auth = getAuth();
+      // Preserve ?returnTo= param in the email link
+      const params = new URLSearchParams(window.location.search);
+      const returnTo = params.get('returnTo');
+      let url = window.location.origin + (window.location.pathname || '/');
+      if (returnTo) {
+        url += `?returnTo=${encodeURIComponent(returnTo)}`;
+      }
       const actionCodeSettings = {
-        url: window.location.origin + (window.location.pathname || '/'),
+        url,
         handleCodeInApp: true,
       };
       
@@ -52,36 +59,48 @@ const EmailVerificationGuide: React.FC<EmailVerificationGuideProps> = ({
       {/* Email input and button at the top */}
       {showResendButton && (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 3 }}>
-          <input
-            type="email"
-            placeholder="Enter your email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            disabled={sending}
-            style={{ 
-              padding: '8px 12px',
-              borderRadius: '4px',
-              border: '1px solid #ccc',
-              width: '250px'
+          <form
+            onSubmit={e => {
+              e.preventDefault();
+              handleSendVerificationLink();
             }}
-          />
-          
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={handleSendVerificationLink}
-            disabled={!email || sending}
-            startIcon={sending ? <CircularProgress size={20} color="inherit" /> : null}
+            style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 24 }}
           >
-            {sending ? 'Sending...' : status === 'sent' ? 'Resend Email' : 'Send Verification Email'}
-          </Button>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              disabled={sending}
+              style={{ 
+                padding: '8px 12px',
+                borderRadius: '4px',
+                border: '1px solid #ccc',
+                width: '250px'
+              }}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              disabled={!email || sending}
+              startIcon={sending ? <CircularProgress size={20} color="inherit" /> : null}
+              type="submit"
+            >
+              {sending ? 'Sending...' : status === 'sent' ? 'Resend Email' : 'Send Verification Email'}
+            </Button>
+          </form>
         </Box>
       )}
       
       {/* Status alerts */}
       {status === 'sent' && (
-        <Alert severity="success" variant="filled" sx={{ mb: 2 }}>
-          <Typography variant="body2">
+        <Alert 
+          icon={false}
+          severity="success" 
+          variant="filled" 
+          sx={theme => ({ mb: 2, backgroundColor: theme.palette.primary.main, color: theme.palette.primary.contrastText })}
+        >
+          <Typography variant="body2" sx={{ color: 'inherit' }}>
             <strong>Verification link sent!</strong><br />
             Please check your inbox for an email from Firebase with the subject "Sign in to runnershub-62442 requested at [date and time]".<br />
             <em>If you don't see it, please check your spam or junk folder.</em>

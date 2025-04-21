@@ -119,20 +119,16 @@ const HomePage: React.FC = () => {
         </Typography>
         
         <Box sx={{ mb: 2 }}>
-          <Link
+          <Button
             href="https://krultra.no/en/KUTC"
             target="_blank"
             rel="noopener noreferrer"
-            color="primary"
-            underline="always"
-            sx={{
-              fontSize: '0.9rem',
-              fontWeight: 500,
-              textUnderlineOffset: '4px',
-            }}
+            variant="text"
+            color="inherit"
+            sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '1rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}
           >
             More info about KUTC
-          </Link>
+          </Button>
         </Box>
         
         <Paper
@@ -179,23 +175,23 @@ const HomePage: React.FC = () => {
                 You are registered for this event
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Button 
-                  component={RouterLink} 
-                  to="/register" 
-                  variant="outlined" 
+                <Button
+                  component={RouterLink}
+                  to="/register"
+                  variant="contained"
                   color="primary"
-                  size="large" 
-                  sx={{ py: 1.5, px: 4 }} 
-                > 
-                  Review Registration 
-                </Button> 
+                  size="large"
+                  sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700, boxShadow: 2 }}
+                >
+                  Review Registration
+                </Button>
                 <Button
                   component={RouterLink}
                   to="/participants"
                   variant="outlined"
                   color="inherit"
                   size="large"
-                  sx={{ ml: 2, py: 1.5, px: 4, minWidth: 210 }}
+                  sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
                 >
                   See Participants
                 </Button>
@@ -204,24 +200,41 @@ const HomePage: React.FC = () => {
           ) : (
             <>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                <Button
-                  component={RouterLink}
-                  to="/register"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
-                  disabled={isLoading || isCheckingRegistration}
+                <form
+                  onSubmit={e => {
+                    e.preventDefault();
+                    if (isLoading || isCheckingRegistration) return;
+                    if (user) {
+                      navigate('/register');
+                    } else {
+                      navigate('/auth?returnTo=/register');
+                    }
+                  }}
+                  style={{ display: 'inline' }}
                 >
-                  Register Now
-                </Button> 
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    sx={{
+                      py: 1.5,
+                      px: 4,
+                      minWidth: 210,
+                      fontWeight: 700
+                    }}
+                    disabled={isLoading || isCheckingRegistration}
+                    type="submit"
+                  >
+                    Register Now
+                  </Button>
+                </form> 
                 <Button
                   component={RouterLink}
                   to="/participants"
                   variant="outlined"
                   color="inherit"
                   size="large"
-                  sx={{ ml: 2, py: 1.5, px: 4, minWidth: 210 }}
+                  sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
                 >
                   See Participants
                 </Button>

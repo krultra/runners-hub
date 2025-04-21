@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { getAuth, onAuthStateChanged, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { ERROR_MESSAGES } from '../constants/messages';
 import { createRegistration } from '../services/registrationService';
@@ -34,20 +34,18 @@ import { initialFormData, validateForm } from '../utils/validation';
 const steps = ['Personal Information', 'Race Details', 'Review & Submit'];
 
 const RegistrationPage: React.FC = () => {
+  const navigate = useNavigate();
   // Firebase Auth state
   const [user, setUser] = useState<any>(null);
-  const [emailForVerification, setEmailForVerification] = useState('');
-  const [verifying, setVerifying] = useState(false);
-  const [verificationStatus, setVerificationStatus] = useState('');
+  const [authChecked, setAuthChecked] = useState(false);
 
   // Prefill/edit registration state
   const [isEditingExisting, setIsEditingExisting] = useState(false);
   const [existingRegistrationId, setExistingRegistrationId] = useState<string | null>(null);
 
-  // Prefill form for authenticated users
   useEffect(() => {
     const fetchAndPrefill = async () => {
-      if (user && user.uid) {
+      if (authChecked && user && user.uid) {
         try {
           // Dynamically import to avoid SSR issues
           const { getRegistrationsByUserId } = await import('../services/registrationService');
@@ -69,54 +67,38 @@ const RegistrationPage: React.FC = () => {
             setExistingRegistrationId(null);
             setFormData({ ...initialFormData, email: user.email || '' });
           }
-        } catch (err) {
-          console.error('Error fetching existing registration:', err);
+        } catch (err: any) {
+          if (err && err.code === 'unavailable') {
+            setSnackbarMessage('Could not connect to the database. Please check your internet connection.');
+            setSnackbarSeverity('error');
+            setSnackbarOpen(true);
+          } else {
+            console.error('Error fetching existing registration:', err);
+          }
         }
       }
     };
     fetchAndPrefill();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
-
+  }, [authChecked, user]);
 
   useEffect(() => {
     const auth = getAuth();
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
+      setAuthChecked(true);
       if (u && u.email) {
         setFormData((prev: any) => ({ ...prev, email: u.email }));
-        setVerificationStatus('verified');
       }
     });
     return unsub;
   }, []);
 
-  // Handle sign-in link in URL for email link authentication
   useEffect(() => {
-    const auth = getAuth();
-    if (isSignInWithEmailLink(auth, window.location.href)) {
-      let email = window.localStorage.getItem('emailForSignIn') || '';
-      if (!email) {
-        email = window.prompt('Please provide your email for confirmation') || '';
-      }
-      signInWithEmailLink(auth, email, window.location.href)
-        .then((result) => {
-          setVerificationStatus('verified');
-          setUser(result.user);
-          setFormData((prev: any) => ({ ...prev, email: result.user.email }));
-          window.localStorage.removeItem('emailForSignIn');
-        })
-        .catch((error) => {
-          setVerificationStatus('error');
-        });
+    if (authChecked && !user) {
+      navigate('/auth?returnTo=/register', { replace: true });
     }
-  }, []);
+  }, [authChecked, user, navigate]);
 
-  const handleEmailSent = () => {
-    // Additional actions after email is sent, if needed
-  };
-
-  const navigate = useNavigate();
   const [activeStep, setActiveStep] = useState(0);
   const [formData, setFormData] = useState(initialFormData);
 
@@ -533,25 +515,8 @@ const RegistrationPage: React.FC = () => {
 
   return (
     <Container maxWidth="md">
-      {!user ? (
-        <Box mt={4}>
-          <Typography variant="h4" align="center" gutterBottom>
-            Register for KUTC 2025
-          </Typography>
-          <Typography variant="h6" color="primary" gutterBottom align="center">
-            Please verify your email to continue
-          </Typography>
-          
-          <EmailVerificationGuide 
-            email={emailForVerification} 
-            setEmail={setEmailForVerification} 
-            onEmailSent={handleEmailSent}
-          />
-        </Box>
-      ) : (
-        <React.Fragment>
-          <RegistrationSnackbar open={snackbarOpen} message={snackbarMessage} severity={snackbarSeverity} onClose={handleSnackbarClose} />
-          <Paper 
+      <RegistrationSnackbar open={snackbarOpen} message={snackbarMessage} severity={snackbarSeverity} onClose={handleSnackbarClose} />
+      <Paper 
   elevation={0}
   sx={{
     backgroundColor: 'var(--color-surface)',
@@ -609,13 +574,17 @@ const RegistrationPage: React.FC = () => {
           </Paper>
           <Grid container justifyContent="center" sx={{ mb: 4 }}>
             <Grid>
-              <Link href="/" underline="hover">
-                Return to Home
-              </Link>
+               <Button
+                 component={RouterLink}
+                 to="/"
+                 variant="text"
+                 color="inherit"
+                 sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '1rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}
+               >
+                 Return to Home
+               </Button>
             </Grid>
           </Grid>
-        </React.Fragment>
-      )}
     </Container>
   );
 };

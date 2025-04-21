@@ -69,6 +69,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               error={!!errors.firstName}
               helperText={errors.firstName || ''}
               inputRef={fieldRefs.firstName as any}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: 'text.primary',
+                }
+              }}
             />
           </Grid>
           
@@ -87,6 +92,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               error={!!errors.lastName}
               helperText={errors.lastName || ''}
               inputRef={fieldRefs.lastName as any}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: 'text.primary',
+                }
+              }}
             />
           </Grid>
           
@@ -105,6 +115,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                   error={!!errors.dateOfBirth}
                   helperText={errors.dateOfBirth || ''}
                   inputRef={fieldRefs.dateOfBirth}
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      color: 'text.primary',
+                    }
+                  }}
                 />
               )}
               // Norwegian date format
@@ -135,6 +150,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                   helperText={errors.nationality || 'Select your country of citizenship'}
                   error={!!errors.nationality}
                   inputRef={fieldRefs.nationality}
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      color: 'text.primary',
+                    }
+                  }}
                 />
               )}
             />
@@ -181,6 +201,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                 error={!!errors.email}
                 helperText={errors.email || "We'll send your registration confirmation to this email"}
                 inputRef={fieldRefs.email as any}
+                sx={{
+                  '& .MuiInputBase-input': {
+                    color: 'text.primary',
+                  }
+                }}
               />
             )}
           </Grid>
@@ -207,6 +232,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                   error={!!errors.phoneCountryCode}
                   helperText={errors.phoneCountryCode || ''}
                   inputRef={fieldRefs.phoneCountryCode}
+                  sx={{
+                    '& .MuiInputBase-input': {
+                      color: 'text.primary',
+                    }
+                  }}
                 />
               )}
             />
@@ -232,6 +262,11 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                     {selectedPhoneCode.flag}
                   </InputAdornment>
                 ),
+              }}
+              sx={{
+                '& .MuiInputBase-input': {
+                  color: 'text.primary',
+                }
               }}
             />
           </Grid>

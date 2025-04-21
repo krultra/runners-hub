@@ -5,6 +5,7 @@ import { PaletteMode } from '@mui/material';
 export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
   palette: {
     mode,
+
     primary: {
       main: '#000000', // Black
       light: '#222222',
@@ -24,7 +25,11 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
       default: '#F5F5F5',
       paper: '#FFFFFF',
     },
-    text: {
+    text: mode === 'dark' ? {
+      primary: '#FFFFFF',
+      secondary: '#CCCCCC',
+      disabled: '#888888',
+    } : {
       primary: '#111111',
       secondary: '#555555',
       disabled: '#AAAAAA',
@@ -90,8 +95,24 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
         },
         contained: {
           boxShadow: 'none',
+          border: '2px solid',
+          borderColor: 'unset',
           '&:hover': {
             boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
+            backgroundColor: '#292929',
+          },
+          '@media (prefers-color-scheme: dark)': {
+            borderColor: '#fff',
+            '&:hover': {
+              backgroundColor: 'rgba(255,255,255,0.08)',
+            },
+          },
+        },
+        outlined: {
+          border: '2px solid',
+          borderColor: 'unset',
+          '@media (prefers-color-scheme: dark)': {
+            borderColor: '#fff',
           },
         },
       },
