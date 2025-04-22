@@ -6,6 +6,9 @@ import { createRunnersHubTheme } from './config/theme';
 
 // Import pages (we'll create these next)
 import HomePage from './pages/HomePage';
+import NewHomePage from './pages/NewHomePage';
+import Kutc2025Page from './pages/Kutc2025Page';
+import MalvikingenOpp2025Page from './pages/MalvikingenOpp2025Page';
 import RegistrationPage from './pages/RegistrationPage';
 import NotFoundPage from './pages/NotFoundPage';
 import EmailTestPage from './pages/EmailTestPage';
@@ -28,6 +31,9 @@ function App() {
         <AppHeader />
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/newhome" element={<NewHomePage />} />
+          <Route path="/kutc-2025" element={<Kutc2025Page />} />
+          <Route path="/malvikingen-opp-2025" element={<MalvikingenOpp2025Page />} />
           <Route path="/register" element={<RegistrationPage />} />
           <Route path="/auth" element={<AuthTest />} />
           <Route path="/email-test" element={<EmailTestPage />} />
