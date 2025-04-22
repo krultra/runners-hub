@@ -1,4 +1,5 @@
-import { getFirestore, collection, getDocs, query, where } from 'firebase/firestore';
+import { db } from '../config/firebase';
+import { collection, query, where, getDocs } from 'firebase/firestore';
 
 /**
  * Checks if the given email belongs to an admin user by querying the Firestore 'admins' collection.
@@ -7,7 +8,6 @@ import { getFirestore, collection, getDocs, query, where } from 'firebase/firest
  */
 export async function isAdminUser(email: string): Promise<boolean> {
   if (!email) return false;
-  const db = getFirestore();
   const adminsRef = collection(db, 'admins');
   const q = query(adminsRef, where('userId', '==', email));
   const snapshot = await getDocs(q);

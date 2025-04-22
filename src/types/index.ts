@@ -48,6 +48,10 @@ export interface Registration {
   termsAccepted: boolean;
   comments?: string; // Optional
   
+  // Waiting list fields
+  isOnWaitinglist?: boolean;   // Indicates if registration is on waiting list
+  waitinglistExpires?: any;    // Firestore Timestamp or ISO string for expiration date
+  
   // Marketing preferences
   notifyFutureEvents: boolean; // Notify about future events
   sendRunningOffers: boolean; // Send offers related to trail and ultra running

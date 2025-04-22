@@ -14,6 +14,7 @@ import { db } from '../config/firebase';
 import { Registration, Payment } from '../types';
 import { sendWelcomeEmail, sendRegistrationUpdateEmail } from './emailService';
 import { getNextSequentialNumber } from './counterService';
+import { RACE_DETAILS, RACE_DISTANCES } from '../constants';
 
 // Collection reference
 const REGISTRATIONS_COLLECTION = 'registrations';
@@ -291,4 +292,47 @@ export const getRegistrationsByEdition = async (editionId: string): Promise<Regi
       payments,
     };
   });
+};
+
+/**
+ * Generates test registrations in Firestore emulator for given edition
+ * @param editionId Event edition ID
+ * @param count Number of registrations to generate
+ * @returns Promise that resolves when all registrations are created
+ */
+export const generateTestRegistrations = async (editionId: string, count: number): Promise<void> => {
+  const distances = RACE_DISTANCES.map(d => d.id);
+  const totalFee = RACE_DETAILS.fees.total;
+  const collectionRef = collection(db, REGISTRATIONS_COLLECTION);
+  const counterName = `registrations-${editionId}`;
+  for (let i = 0; i < count; i++) {
+    const registrationNumber = await getNextSequentialNumber(counterName);
+    const randomDistance = distances[Math.floor(Math.random() * distances.length)];
+    const email = `test${registrationNumber}@example.com`;
+    const regToSave = {
+      editionId,
+      email,
+      raceDistance: randomDistance,
+      firstName: `Test${registrationNumber}`,
+      lastName: 'User',
+      dateOfBirth: Timestamp.fromDate(new Date(1990, 0, 1)),
+      nationality: 'NOR',
+      phoneCountryCode: '+47',
+      phoneNumber: String(10000000 + registrationNumber),
+      termsAccepted: true,
+      comments: 'Generated test data',
+      notifyFutureEvents: false,
+      sendRunningOffers: false,
+      paymentRequired: totalFee,
+      paymentMade: 0,
+      status: 'pending',
+      registrationNumber,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+      isOnWaitinglist: false,
+      waitinglistExpires: null,
+    };
+
+    await addDoc(collectionRef, regToSave);
+  }
 };

@@ -1,6 +1,6 @@
 import { ERROR_MESSAGES } from '../constants/messages';
-
 import { CURRENT_EDITION_ID } from '../constants';
+import { RACE_DETAILS } from '../constants';
 
 export const initialFormData = {
   firstName: '',
@@ -22,7 +22,10 @@ export const initialFormData = {
   editionId: CURRENT_EDITION_ID,
   status: 'pending', // Default status
   paymentRequired: 300,
-  paymentMade: 0
+  paymentMade: 0,
+  // Waiting list fields
+  isOnWaitinglist: false,   // Join waiting list flag
+  waitinglistExpires: null as Date | null,   // Expiration date
 };
 
 /**
@@ -125,6 +128,20 @@ export const validateForm = (
   // Comments length validation
   if ((touchedFields.comments || showAllErrors) && formData.comments && formData.comments.trim().length > 500) {
     newErrors.comments = 'Comments cannot exceed 500 characters';
+  }
+
+  // Waiting list expiration date validation
+  if ((touchedFields.waitinglistExpires || showAllErrors) && formData.waitinglistExpires !== null) {
+    const expirationYear = formData.waitinglistExpires.getFullYear();
+    const eventYear = 2025; // Year of the event
+    const expirationDate = formData.waitinglistExpires.getTime();
+    const today = new Date().getTime();
+    
+    if (expirationYear < eventYear) {
+      newErrors.waitinglistExpires = 'Waiting list expiration date must be in the year of the event or later';
+    } else if (expirationDate < today) {
+      newErrors.waitinglistExpires = 'Waiting list expiration date must be in the future';
+    }
   }
 
   if (setErrors && !silentValidation) {
