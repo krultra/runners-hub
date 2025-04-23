@@ -311,22 +311,22 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
           {errors.termsAccepted || ''}
         </FormHelperText>
         
+        <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-start' }}>
+          <Button
+            variant="outlined"
+            size="small"
+            onClick={() => {
+              onChange('notifyFutureEvents', true);
+              onChange('sendRunningOffers', true);
+              onChange('termsAccepted', true);
+            }}
+          >
+            Accept all the above
+          </Button>
+        </Box>
+
         {isFull && (
           <>
-            <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-start' }}>
-              <Button
-                variant="outlined"
-                size="small"
-                onClick={() => {
-                  onChange('notifyFutureEvents', true);
-                  onChange('sendRunningOffers', true);
-                  onChange('termsAccepted', true);
-                }}
-              >
-                Accept all the above
-              </Button>
-            </Box>
-
             <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
               <FormControlLabel
                 control={

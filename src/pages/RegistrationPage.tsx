@@ -58,6 +58,13 @@ const RegistrationPage: React.FC = () => {
               ...reg,
               email: user.email || reg.email || '',
               dateOfBirth: reg.dateOfBirth ? new Date(reg.dateOfBirth) : null,
+              waitinglistExpires: reg.waitinglistExpires
+                ? (reg.waitinglistExpires instanceof Date
+                  ? reg.waitinglistExpires
+                  : typeof (reg.waitinglistExpires as any).toDate === 'function'
+                    ? (reg.waitinglistExpires as any).toDate()
+                    : new Date(reg.waitinglistExpires))
+                : null,
               termsAccepted: false // Always require explicit acceptance
             });
             setIsEditingExisting(true);
@@ -249,10 +256,10 @@ const RegistrationPage: React.FC = () => {
 
   // Default waiting-list expiration to event date
   useEffect(() => {
-    if (isFull && formData.waitinglistExpires === null) {
+    if (isFull && (formData.waitinglistExpires === null || formData.waitinglistExpires === undefined)) {
       setFormData(prev => ({ ...prev, waitinglistExpires: RACE_DETAILS.date }));
     }
-  }, [isFull]);
+  }, [isFull, formData.waitinglistExpires]);
 
   const handleNext = () => {
     // For final step (from Race Details to Review), check all fields except terms

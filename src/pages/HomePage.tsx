@@ -16,6 +16,7 @@ import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { RACE_DETAILS } from '../constants';
 import { getTotalRegistrationsCount, getRegistrationsByUserId } from '../services/registrationService';
 import { useNavigate } from 'react-router-dom';
+import { Registration } from '../types';
 
 const HomePage: React.FC = () => {
   // State for countdown timer
@@ -33,6 +34,7 @@ const HomePage: React.FC = () => {
   // State for user authentication and registration
   const [user, setUser] = useState<any>(null);
   const [isUserRegistered, setIsUserRegistered] = useState(false);
+  const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
   
   // Calculate time remaining until the race
@@ -51,8 +53,10 @@ const HomePage: React.FC = () => {
       
       if (currentUser) {
         try {
-          const registrations = await getRegistrationsByUserId(currentUser.uid);
-          setIsUserRegistered(registrations.length > 0);
+          const regs = await getRegistrationsByUserId(currentUser.uid);
+          const reg = regs.length > 0 ? regs[0] : null;
+          setIsUserRegistered(!!reg);
+          setUserRegistration(reg);
         } catch (error) {
           console.error('Error checking user registration:', error);
         } finally {
@@ -60,6 +64,7 @@ const HomePage: React.FC = () => {
         }
       } else {
         setIsUserRegistered(false);
+        setUserRegistration(null);
         setIsCheckingRegistration(false);
       }
     });
@@ -160,11 +165,82 @@ const HomePage: React.FC = () => {
           </Box>
         </Paper>
         
-        {isRegistrationOpen ? (
-          availableSpots === 0 ? (
-            <Typography variant="h6" color="error" sx={{ mb: 4 }}>
-              Event is fully booked
+        {user && isUserRegistered ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+            <Typography
+              variant="subtitle1"
+              color={userRegistration?.isOnWaitinglist ? 'warning.main' : 'success.main'}
+              sx={{ mb: 1.5, fontWeight: 'medium' }}
+            >
+              {userRegistration?.isOnWaitinglist
+                ? 'You are on the waiting-list for this event'
+                : 'You are already registered for this event'}
             </Typography>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Button
+                component={RouterLink}
+                to="/register"
+                variant="contained"
+                color="primary"
+                size="large"
+                sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700, boxShadow: 2 }}
+              >
+                Review Registration
+              </Button>
+              <Button
+                component={RouterLink}
+                to="/participants"
+                variant="outlined"
+                color="inherit"
+                size="large"
+                sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+              >
+                Show participants and waiting-list
+              </Button>
+            </Box>
+          </Box>
+        ) : isRegistrationOpen ? (
+          availableSpots === 0 ? (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+              <Typography variant="h6" color="error" sx={{ mb: 2 }}>
+                Event is fully booked
+              </Typography>
+              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <form
+                  onSubmit={e => {
+                    e.preventDefault();
+                    if (isLoading || isCheckingRegistration) return;
+                    if (user) {
+                      navigate('/register');
+                    } else {
+                      navigate('/auth?returnTo=/register');
+                    }
+                  }}
+                  style={{ display: 'inline' }}
+                >
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    size="large"
+                    sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
+                    disabled={isLoading || isCheckingRegistration}
+                    type="submit"
+                  >
+                    Sign up for the waiting-list
+                  </Button>
+                </form>
+                <Button
+                  component={RouterLink}
+                  to="/participants"
+                  variant="outlined"
+                  color="inherit"
+                  size="large"
+                  sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+                >
+                  Show participants and waiting-list
+                </Button>
+              </Box>
+            </Box>
           ) : isUserRegistered ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
               <Typography 
