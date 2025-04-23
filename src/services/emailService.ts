@@ -14,6 +14,7 @@ export enum EmailType {
   NEWSLETTER = 'newsletter',
   REMINDER = 'reminder',
   INVITATION = 'invitation',
+  WAITING_LIST_CONFIRMATION = 'waiting_list_confirmation',
 }
 
 /**
@@ -413,4 +414,71 @@ const generatePaymentConfirmationHtml = (registration: Registration): string => 
       </div>
     </div>
   `;
+};
+
+/**
+ * Generates HTML content for waiting-list confirmation email
+ */
+export const generateWaitingListEmailHtml = (registration: Registration): string => {
+  // Format waiting-list expiry date
+  let expiry = 'Unknown date';
+  try {
+    if (registration.waitinglistExpires && typeof (registration.waitinglistExpires as any).toDate === 'function') {
+      expiry = (registration.waitinglistExpires as any).toDate().toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+    } else if (registration.waitinglistExpires instanceof Date) {
+      expiry = registration.waitinglistExpires.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+  } catch (e) {
+    console.error('Error formatting waiting-list expiry date:', e);
+  }
+  return `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
+      <div style="margin-bottom: 20px;">
+        <h2 style="color: #1976d2;">Hei ${registration.firstName}!</h2>
+        <p>Du er nå registrert på ventelisten for KUTC 2025.</p>
+        <p>Ventelisten utløper ${expiry}. Dersom du ikke blir flyttet til deltakerlisten innen denne datoen, vil du automatisk bli fjernet fra ventelisten.</p>
+        <p>Skulle en plass bli ledig, vil du motta et nytt tilbud på e-post. Hvis du aksepterer tilbudet, må du bekrefte innen 24 timer for å sikre din plass.</p>
+        <p>Hvis du ikke får mulighet til å flyttes til deltakerlisten, vil alle betalinger (minus transaksjonsgebyrer) bli refundert.</p>
+        <p>Merk at hvis du mottar et tilbud om deltakerplass og velger å avslå, vil det ikke være noen refusjon.</p>
+        <p>Med vennlig hilsen,<br/>KUTC Teamet</p>
+        <hr style="margin: 32px 0;" />
+        <h2 style="color: #1976d2;">Hi ${registration.firstName}!</h2>
+        <p>You have been added to the waiting list for KUTC 2025.</p>
+        <p>The waiting list expires on ${expiry}. If you are not moved to the participants list before this date, you will be automatically removed from the waiting list.</p>
+        <p>If a spot becomes available, you will receive a new email offer. If you choose to accept the offer, you must confirm within 24 hours to secure your spot.</p>
+        <p>If you never get an opportunity to move to the participants list, all payments (minus transaction fees) will be refunded.</p>
+        <p>Please note that if you receive an offer to move to the participants list and decide to reject the offer, there will be no refund.</p>
+        <p>Best regards,<br/>The KUTC Team</p>
+      </div>
+    </div>
+  `;
+};
+
+/**
+ * Sends waiting-list confirmation email
+ */
+export const sendWaitingListEmail = async (registration: Registration): Promise<void> => {
+  const db = getFirestore();
+  try {
+    const emailDoc = {
+      to: registration.email,
+      message: {
+        subject: `KUTC 2025 Waiting List Confirmation`,
+        html: generateWaitingListEmailHtml(registration),
+      },
+      type: EmailType.WAITING_LIST_CONFIRMATION,
+    };
+    await addDoc(collection(db, 'mail'), emailDoc);
+    await logSentEmail({
+      to: registration.email,
+      subject: 'KUTC 2025 Waiting List Confirmation',
+      type: EmailType.WAITING_LIST_CONFIRMATION,
+      registrationId: registration.id,
+      meta: { waitinglistExpires: registration.waitinglistExpires }
+    });
+    console.log('Waiting list email sent to', registration.email);
+  } catch (error) {
+    console.error('Error sending waiting-list email:', error);
+    throw error;
+  }
 };

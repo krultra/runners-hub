@@ -141,6 +141,8 @@ export const validateForm = (
       newErrors.waitinglistExpires = 'Waiting list expiration date must be in the year of the event or later';
     } else if (expirationDate < today) {
       newErrors.waitinglistExpires = 'Waiting list expiration date must be in the future';
+    } else if (expirationDate > RACE_DETAILS.date.getTime()) {
+      newErrors.waitinglistExpires = 'Waiting list expiration date must be on or before the race date';
     }
   }
 

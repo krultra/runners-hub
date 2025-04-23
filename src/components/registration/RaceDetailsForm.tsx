@@ -9,7 +9,6 @@ import {
   Typography,
   Box,
   FormLabel,
-  Checkbox,
   FormHelperText,
   Link
 } from '@mui/material';
@@ -19,7 +18,6 @@ interface RaceDetailsFormProps {
   formData: {
     raceDistance: string;
     travelRequired: string;
-    termsAccepted: boolean;
     comments: string;
   };
   onChange: (field: string, value: any) => void;
@@ -102,7 +100,6 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
             helperText="Any additional information you'd like to share with the organizers"
           />
         </Grid>
-        
         {/* Terms and conditions moved to the Review & Submit page */}
       </Grid>
     </Box>

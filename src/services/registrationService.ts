@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Registration, Payment } from '../types';
-import { sendWelcomeEmail, sendRegistrationUpdateEmail } from './emailService';
+import { sendWelcomeEmail, sendRegistrationUpdateEmail, sendWaitingListEmail } from './emailService';
 import { getNextSequentialNumber } from './counterService';
 import { RACE_DETAILS, RACE_DISTANCES } from '../constants';
 
@@ -41,6 +41,9 @@ export const createRegistration = async (
       paymentMade: registrationData.paymentMade ?? 0,
       // Convert Date object to Firestore Timestamp
       dateOfBirth: registrationData.dateOfBirth ? Timestamp.fromDate(registrationData.dateOfBirth) : null,
+      // Waiting list fields
+      isOnWaitinglist: registrationData.isOnWaitinglist ?? false,
+      waitinglistExpires: registrationData.waitinglistExpires ? Timestamp.fromDate(registrationData.waitinglistExpires) : null,
       // Add metadata
       userId: userId || null,
       status: 'pending', // Initial status
@@ -52,16 +55,23 @@ export const createRegistration = async (
     // Add document to Firestore
     const docRef = await addDoc(collection(db, REGISTRATIONS_COLLECTION), registrationToSave);
     
-    // Send welcome email with registration and payment details
+    // Send appropriate email based on waiting-list status
     try {
-      await sendWelcomeEmail({ 
-        ...registrationToSave, 
-        id: docRef.id,
-        registrationNumber // Make sure the registration number is included
-      } as Registration);
+      if (registrationToSave.isOnWaitinglist) {
+        await sendWaitingListEmail({
+          ...registrationToSave,
+          id: docRef.id,
+          registrationNumber
+        } as Registration);
+      } else {
+        await sendWelcomeEmail({
+          ...registrationToSave,
+          id: docRef.id,
+          registrationNumber
+        } as Registration);
+      }
     } catch (emailError) {
-      // Log email error but don't fail the registration process
-      console.error('Error sending welcome email:', emailError);
+      console.error('Error sending email:', emailError);
     }
     
     return docRef.id;
@@ -150,6 +160,10 @@ export const updateRegistration = async (
     // Convert Date to Timestamp if present
     if (updateData.dateOfBirth instanceof Date) {
       updateData.dateOfBirth = Timestamp.fromDate(updateData.dateOfBirth);
+    }
+    // Convert waiting list expiration date to Timestamp if present
+    if (updateData.waitinglistExpires instanceof Date) {
+      updateData.waitinglistExpires = Timestamp.fromDate(updateData.waitinglistExpires);
     }
     
     // Add metadata

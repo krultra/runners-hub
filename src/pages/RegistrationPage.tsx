@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { getAuth, onAuthStateChanged, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
 import { ERROR_MESSAGES } from '../constants/messages';
-import { createRegistration } from '../services/registrationService';
+import { createRegistration, getRegistrationsByEdition, getRegistrationsByUserId } from '../services/registrationService';
 import { testFirestoreConnection } from '../services/testFirestore';
 import {
   Container,
@@ -130,7 +130,9 @@ const RegistrationPage: React.FC = () => {
     phoneNumber: useRef<HTMLDivElement>(null),
     raceDistance: useRef<HTMLDivElement>(null),
     travelRequired: useRef<HTMLDivElement>(null),
-    termsAccepted: useRef<HTMLDivElement>(null)
+    termsAccepted: useRef<HTMLDivElement>(null),
+    isOnWaitinglist: useRef<HTMLDivElement>(null),
+    waitinglistExpires: useRef<HTMLDivElement>(null)
   };
   
   // Snackbar state
@@ -229,6 +231,28 @@ const RegistrationPage: React.FC = () => {
     return Object.keys(errors).length === 0;
   };
 
+  const [isFull, setIsFull] = useState(false); // event full -> waiting list
+
+  // Check if event is full
+  useEffect(() => {
+    const loadCount = async () => {
+      try {
+        const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
+        const openRegs = regs.filter(r => !r.isOnWaitinglist && (r.status === 'pending' || r.status === 'confirmed'));
+        setIsFull(openRegs.length >= RACE_DETAILS.maxParticipants);
+      } catch (err) {
+        console.error('Error checking registration count:', err);
+      }
+    };
+    loadCount();
+  }, []);
+
+  // Default waiting-list expiration to event date
+  useEffect(() => {
+    if (isFull && formData.waitinglistExpires === null) {
+      setFormData(prev => ({ ...prev, waitinglistExpires: RACE_DETAILS.date }));
+    }
+  }, [isFull]);
 
   const handleNext = () => {
     // For final step (from Race Details to Review), check all fields except terms
@@ -364,6 +388,26 @@ const RegistrationPage: React.FC = () => {
     setValidationAttempted(true);
     const currentErrors = validateForm(formData, touchedFields, true, undefined, undefined);
     
+    // Require waiting-list agreement if event full
+    if (isFull) {
+      if (!formData.isOnWaitinglist) {
+        setErrors(prev => ({ ...prev, isOnWaitinglist: 'You must agree to join the waiting-list' }));
+        setSnackbarMessage('Please agree to join the waiting-list before submitting');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        fieldRefs.isOnWaitinglist.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+      if (!formData.waitinglistExpires) {
+        setErrors(prev => ({ ...prev, waitinglistExpires: 'Select expiration date' }));
+        setSnackbarMessage('Please select a waiting-list expiration date');
+        setSnackbarSeverity('error');
+        setSnackbarOpen(true);
+        fieldRefs.waitinglistExpires.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+    
     // Only submit if the form is completely valid
     if (isFormValidForSubmission()) {
       // First test the Firestore connection
@@ -395,6 +439,9 @@ const RegistrationPage: React.FC = () => {
           sendRunningOffers: formData.sendRunningOffers ?? false,
           // Include edition ID
           editionId: formData.editionId || CURRENT_EDITION_ID,
+          // Waiting list info
+          isOnWaitinglist: formData.isOnWaitinglist,
+          waitinglistExpires: formData.waitinglistExpires,
           paymentRequired: formData.paymentRequired ?? 300,
           paymentMade: formData.paymentMade ?? 0
         };
@@ -418,7 +465,11 @@ const RegistrationPage: React.FC = () => {
             return;
           }
           registrationId = await createRegistration(registrationData, user?.uid);
-          setSnackbarMessage('Registration submitted successfully!');
+          if (registrationData.isOnWaitinglist) {
+            setSnackbarMessage('Successful waiting-list registration!');
+          } else {
+            setSnackbarMessage('Registration submitted successfully!');
+          }
           setSnackbarSeverity('success');
         }
         setSnackbarOpen(true);
@@ -450,7 +501,6 @@ const RegistrationPage: React.FC = () => {
       }
     }
   };
-
 
   // Restore getStepContent so it is in scope for rendering
   const getStepContent = (step: number) => {
@@ -485,6 +535,7 @@ const RegistrationPage: React.FC = () => {
             fieldRefs={fieldRefs}
             onBlur={handleFieldTouch}
             isEditingExisting={isEditingExisting}
+            isFull={isFull}
           />
         );
       default:
@@ -535,7 +586,7 @@ const RegistrationPage: React.FC = () => {
               onStepClick={setActiveStep}
             />
             <Typography variant="h4" component="h1" align="center" gutterBottom>
-              Register for KUTC 2025
+              {isFull ? 'KUTC 2025 - Sign up for the Waiting-list' : 'Register for KUTC 2025'}
             </Typography>
             {isEditingExisting && (
               <React.Fragment>
@@ -566,7 +617,13 @@ const RegistrationPage: React.FC = () => {
                 variant="contained"
                 color="primary"
                 onClick={activeStep === steps.length - 1 ? handleSubmit : handleNext}
-                disabled={isSubmitting || (activeStep === steps.length - 1 && !isFormValidForSubmission())}
+                disabled={
+                  isSubmitting ||
+                  (activeStep === steps.length - 1 && (
+                    !isFormValidForSubmission() ||
+                    (isFull && (!formData.isOnWaitinglist || !formData.waitinglistExpires))
+                  ))
+                }
               >
                 {activeStep === steps.length - 1 ? 'Submit' : 'Next'}
               </Button>

@@ -13,7 +13,8 @@ import {
   FormControlLabel,
   FormHelperText,
   Link,
-  Button
+  Button,
+  TextField
 } from '@mui/material';
 import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS, PHONE_CODES } from '../../constants';
 import TermsAndConditions from './TermsAndConditions';
@@ -36,15 +37,18 @@ interface ReviewRegistrationProps {
     sendRunningOffers: boolean;
     paymentRequired: number;
     paymentMade: number;
+    isOnWaitinglist: boolean;
+    waitinglistExpires: Date | null;
   };
   errors: Record<string, string>;
   fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
   onChange: (field: string, value: any) => void;
   onBlur?: (field: string) => void;
   isEditingExisting?: boolean;
+  isFull?: boolean;
 }
 
-const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, errors, fieldRefs, onChange, onBlur, isEditingExisting = false }) => {
+const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, errors, fieldRefs, onChange, onBlur, isEditingExisting = false, isFull = false }) => {
   // State for terms and conditions dialog
   const [termsDialogOpen, setTermsDialogOpen] = useState(false);
 
@@ -279,12 +283,12 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
               checked={formData.termsAccepted}
               name="termsAccepted"
               color="primary"
-              onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('termsAccepted', e.target.checked)}
+              onChange={(e) => onChange('termsAccepted', e.target.checked)}
               onBlur={() => onBlur && onBlur('termsAccepted')}
             />
           }
           label={
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
               I confirm that all information provided is accurate and I accept the <Link 
                 component="button" 
                 variant="body2" 
@@ -295,7 +299,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
                 sx={{ textDecoration: 'underline' }}
               >
                 terms and conditions
-              </Link> for KUTC 2025.
+              </Link> for KUTC 2025.<span style={{ color: 'grey' }}> *</span>
             </Typography>
           }
           ref={fieldRefs.termsAccepted}
@@ -304,19 +308,65 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
           {errors.termsAccepted || ''}
         </FormHelperText>
         
-        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Button
-            variant="outlined"
-            size="small"
-            onClick={() => {
-              onChange('notifyFutureEvents', true);
-              onChange('sendRunningOffers', true);
-              onChange('termsAccepted', true);
-            }}
-          >
-            Accept all
-          </Button>
-        </Box>
+        {isFull && (
+          <>
+            <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-start' }}>
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={() => {
+                  onChange('notifyFutureEvents', true);
+                  onChange('sendRunningOffers', true);
+                  onChange('termsAccepted', true);
+                }}
+              >
+                Accept all the above
+              </Button>
+            </Box>
+
+            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={formData.isOnWaitinglist}
+                    name="isOnWaitinglist"
+                    color="primary"
+                    onChange={(e) => onChange('isOnWaitinglist', e.target.checked)}
+                    inputRef={fieldRefs.isOnWaitinglist as any}
+                  />
+                }
+                label={
+                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                    I want to join the waiting-list, and am aware that this does not secure me a place in the race.<span style={{ color: 'grey' }}> *</span>
+                  </Typography>
+                }
+                ref={fieldRefs.isOnWaitinglist}
+              />
+            </Box>
+            <FormHelperText error={!!errors.isOnWaitinglist}>
+              {errors.isOnWaitinglist || ''}
+            </FormHelperText>
+
+            <Box sx={{ mb: 2 }}>
+              <Typography variant="body2">
+                I want my spot on the waiting-list to expire if I'm not promoted to the participants list before the following date:
+              </Typography>
+              <TextField
+                id="waitinglistExpires"
+                name="waitinglistExpires"
+                type="date"
+                InputLabelProps={{ shrink: true }}
+                value={formData.waitinglistExpires ? formData.waitinglistExpires.toISOString().substring(0, 10) : ''}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('waitinglistExpires', e.target.value ? new Date(e.target.value) : null)}
+                onBlur={() => onBlur && onBlur('waitinglistExpires')}
+                error={!!errors.waitinglistExpires}
+                helperText={errors.waitinglistExpires || ''}
+                inputRef={fieldRefs.waitinglistExpires as any}
+              />
+            </Box>
+          </>
+        )}
+        
       </Box>
       
       {/* Terms and Conditions Dialog */}
