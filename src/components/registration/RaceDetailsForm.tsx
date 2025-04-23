@@ -52,11 +52,11 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
               onBlur={() => onBlur && onBlur('raceDistance')}
               ref={fieldRefs.raceDistance as any}
             >
-              {RACE_DISTANCES.map((distance) => (
+              {RACE_DISTANCES.map((distance, idx) => (
                 <FormControlLabel
                   key={distance.id}
                   value={distance.id}
-                  control={<Radio />}
+                  control={<Radio autoFocus={idx === 0} />}
                   label={distance.displayName}
                 />
               ))}

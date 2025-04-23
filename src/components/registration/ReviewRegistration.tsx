@@ -18,6 +18,9 @@ import {
 } from '@mui/material';
 import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS, PHONE_CODES } from '../../constants';
 import TermsAndConditions from './TermsAndConditions';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
+import { nb } from 'date-fns/locale';
 
 interface ReviewRegistrationProps {
   formData: {
@@ -347,22 +350,31 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
               {errors.isOnWaitinglist || ''}
             </FormHelperText>
 
-            <Box sx={{ mb: 2 }}>
+            <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
               <Typography variant="body2">
                 I want my spot on the waiting-list to expire if I'm not promoted to the participants list before the following date:
               </Typography>
-              <TextField
-                id="waitinglistExpires"
-                name="waitinglistExpires"
-                type="date"
-                InputLabelProps={{ shrink: true }}
-                value={formData.waitinglistExpires ? formData.waitinglistExpires.toISOString().substring(0, 10) : ''}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('waitinglistExpires', e.target.value ? new Date(e.target.value) : null)}
-                onBlur={() => onBlur && onBlur('waitinglistExpires')}
-                error={!!errors.waitinglistExpires}
-                helperText={errors.waitinglistExpires || ''}
-                inputRef={fieldRefs.waitinglistExpires as any}
-              />
+              <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={nb}>
+                <DatePicker
+                  value={formData.waitinglistExpires}
+                  onChange={(date) => onChange('waitinglistExpires', date)}
+                  onClose={() => onBlur && onBlur('waitinglistExpires')}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      error={!!errors.waitinglistExpires}
+                      helperText={errors.waitinglistExpires || ''}
+                      inputRef={fieldRefs.waitinglistExpires as any}
+                      sx={{
+                        width: { xs: '100%', sm: '50%' },
+                        '& .MuiInputBase-input': {
+                          color: 'text.primary',
+                        },
+                      }}
+                    />
+                  )}
+                />
+              </LocalizationProvider>
             </Box>
           </>
         )}

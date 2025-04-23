@@ -69,6 +69,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               error={!!errors.firstName}
               helperText={errors.firstName || ''}
               inputRef={fieldRefs.firstName as any}
+              autoFocus
               sx={{
                 '& .MuiInputBase-input': {
                   color: 'text.primary',

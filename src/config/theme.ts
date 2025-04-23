@@ -6,12 +6,9 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
   palette: {
     mode,
 
-    primary: {
-      main: '#000000', // Black
-      light: '#222222',
-      dark: '#000000',
-      contrastText: '#FFFFFF',
-    },
+    primary: mode === 'dark'
+      ? { main: '#FFFFFF', light: '#EEEEEE', dark: '#CCCCCC', contrastText: '#000000' }
+      : { main: '#000000', light: '#222222', dark: '#000000', contrastText: '#FFFFFF' },
     secondary: {
       main: '#888888', // Neutral grey
       light: '#CCCCCC',
@@ -115,6 +112,11 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
             borderColor: '#fff',
           },
         },
+        text: {
+          '@media (prefers-color-scheme: dark)': {
+            color: '#FFFFFF',
+          },
+        },
       },
     },
     MuiCard: {
@@ -129,6 +131,42 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
       styleOverrides: {
         root: {
           marginBottom: 16,
+        },
+      },
+    },
+    MuiRadio: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color: theme.palette.mode === 'dark' ? theme.palette.grey[400] : undefined,
+          '&.Mui-checked': {
+            color: theme.palette.primary.main,
+          },
+        }),
+      },
+    },
+    MuiCheckbox: {
+      styleOverrides: {
+        root: ({ theme }) => ({
+          color: theme.palette.mode === 'dark' ? theme.palette.grey[400] : undefined,
+          '&.Mui-checked': {
+            color: theme.palette.primary.main,
+          },
+        }),
+      },
+    },
+    MuiOutlinedInput: {
+      styleOverrides: {
+        notchedOutline: ({ theme }) => ({
+          borderColor: theme.palette.mode === 'dark' ? theme.palette.grey[500] : undefined,
+        }),
+      },
+    },
+    MuiLink: {
+      styleOverrides: {
+        root: {
+          '@media (prefers-color-scheme: dark)': {
+            color: '#FFFFFF',
+          },
         },
       },
     },
