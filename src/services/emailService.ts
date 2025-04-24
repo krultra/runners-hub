@@ -3,6 +3,9 @@ import { getFirestore } from 'firebase/firestore';
 import { Registration } from '../types';
 import { RACE_DETAILS } from '../constants';
 import { logSentEmail } from './emailLogService';
+import Handlebars from 'handlebars';
+import { getEmailTemplate } from './templateService';
+import { EVENT_NAME, EVENT_SHORT_NAME, EVENT_EDITION } from '../config/event';
 
 /**
  * Email types supported by the application
@@ -48,12 +51,17 @@ export const generateInvitationEmailHtml = (name: string): string => {
  */
 export const sendInvitationEmail = async (email: string, name: string): Promise<void> => {
   const db = getFirestore();
+  // Load template
+  const tplInv = await getEmailTemplate(EmailType.INVITATION, 'en');
+  const invContext = { name, firstName: name, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const subjectInv = Handlebars.compile(tplInv.subjectTemplate || 'KUTC 2025 – Invitation to register')(invContext);
+  const bodyInv = Handlebars.compile(tplInv.bodyTemplate || generateInvitationEmailHtml(name))(invContext);
   try {
     const emailDoc = {
       to: email,
       message: {
-        subject: 'KUTC 2025 – Invitation to register',
-        html: generateInvitationEmailHtml(name),
+        subject: subjectInv,
+        html: bodyInv,
       },
       type: EmailType.INVITATION,
     };
@@ -82,12 +90,18 @@ export const sendWelcomeEmail = async (registration: Registration): Promise<void
   try {
     console.log('Attempting to send welcome email to:', registration.email);
     
+    // Load template
+    const tplWelcome = await getEmailTemplate(EmailType.WELCOME, 'en');
+    const welcomeContext = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+    const subjectWelcome = Handlebars.compile(tplWelcome.subjectTemplate || `KUTC 2025 Registration Confirmation`)(welcomeContext);
+    const bodyWelcome = Handlebars.compile(tplWelcome.bodyTemplate || generateWelcomeEmailHtml(registration))(welcomeContext);
+    
     // Create the email document
     const emailDoc = {
       to: registration.email,
       message: {
-        subject: `KUTC 2025 Registration Confirmation`,
-        html: generateWelcomeEmailHtml(registration),
+        subject: subjectWelcome,
+        html: bodyWelcome,
       }
     };
     
@@ -117,11 +131,17 @@ export const sendRegistrationUpdateEmail = async (registration: Registration): P
   const db = getFirestore();
   
   try {
+    // Load template
+    const tplUpdate = await getEmailTemplate(EmailType.REGISTRATION_UPDATE, 'en');
+    const updateContext = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+    const subjectUpdate = Handlebars.compile(tplUpdate.subjectTemplate || `KUTC 2025 Registration Update`)(updateContext);
+    const bodyUpdate = Handlebars.compile(tplUpdate.bodyTemplate || generateUpdateEmailHtml(registration))(updateContext);
+    
     await addDoc(collection(db, 'mail'), {
       to: registration.email,
       message: {
-        subject: `KUTC 2025 Registration Update`,
-        html: generateUpdateEmailHtml(registration),
+        subject: subjectUpdate,
+        html: bodyUpdate,
       }
     });
     await logSentEmail({
@@ -146,11 +166,17 @@ export const sendPaymentConfirmationEmail = async (registration: Registration): 
   const db = getFirestore();
   
   try {
+    // Load template
+    const tplPay = await getEmailTemplate(EmailType.PAYMENT_CONFIRMATION, 'en');
+    const payContext = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+    const subjectPay = Handlebars.compile(tplPay.subjectTemplate || `KUTC 2025 Payment Confirmation`)(payContext);
+    const bodyPay = Handlebars.compile(tplPay.bodyTemplate || generatePaymentConfirmationHtml(registration))(payContext);
+    
     await addDoc(collection(db, 'mail'), {
       to: registration.email,
       message: {
-        subject: `KUTC 2025 Payment Confirmation`,
-        html: generatePaymentConfirmationHtml(registration),
+        subject: subjectPay,
+        html: bodyPay,
       }
     });
     await logSentEmail({
@@ -407,7 +433,7 @@ const generatePaymentConfirmationHtml = (registration: Registration): string => 
       
       <p>If you have any questions, please don't hesitate to contact us at post@krultra.no.</p>
       
-      <p>Best regards,<br>The KUTC Team</p>
+      <p>Best regards,<br/>The KUTC Team</p>
       
       <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eaeaea; font-size: 12px; color: #666; text-align: center;">
         <p>This email was sent to ${registration.email}. If you did not register for this event, please ignore this email.</p>
@@ -460,11 +486,17 @@ export const generateWaitingListEmailHtml = (registration: Registration): string
 export const sendWaitingListEmail = async (registration: Registration): Promise<void> => {
   const db = getFirestore();
   try {
+    // Load template
+    const tplWait = await getEmailTemplate(EmailType.WAITING_LIST_CONFIRMATION, 'en');
+    const waitContext = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+    const subjectWait = Handlebars.compile(tplWait.subjectTemplate || `KUTC 2025 Waiting List Confirmation`)(waitContext);
+    const bodyWait = Handlebars.compile(tplWait.bodyTemplate || generateWaitingListEmailHtml(registration))(waitContext);
+    
     const emailDoc = {
       to: registration.email,
       message: {
-        subject: `KUTC 2025 Waiting List Confirmation`,
-        html: generateWaitingListEmailHtml(registration),
+        subject: subjectWait,
+        html: bodyWait,
       },
       type: EmailType.WAITING_LIST_CONFIRMATION,
     };

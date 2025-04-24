@@ -1,5 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Button, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Checkbox, CircularProgress } from '@mui/material';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { Box, Button, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Checkbox, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import Editor from '@monaco-editor/react';
+import Handlebars from 'handlebars';
+import { html as beautifyHtml } from 'js-beautify';
+import { EmailType } from '../services/emailService';
+import { getEmailTemplate, updateEmailTemplate } from '../services/templateService';
 import InviteSummaryDialog from '../components/InviteSummaryDialog';
 import { fetchInvitations, addInvitation, updateInvitationSent, Invitation } from '../utils/invitationUtils';
 import { getRegistrationsByEdition, updateRegistration, addPaymentToRegistration, generateTestRegistrations } from '../services/registrationService';
@@ -23,6 +28,16 @@ const AdminPage: React.FC = () => {
   const [testCount, setTestCount] = useState<string>('');
   const [testLoading, setTestLoading] = useState(false);
 
+  // Email template editor state
+  const [selectedTemplateType, setSelectedTemplateType] = useState<EmailType>(EmailType.WELCOME);
+  const [subjectTemplate, setSubjectTemplate] = useState('');
+  const [bodyTemplate, setBodyTemplate] = useState('');
+  const [loadingTpl, setLoadingTpl] = useState(false);
+  const [savingTpl, setSavingTpl] = useState(false);
+  const [previewHtml, setPreviewHtml] = useState('');
+  // Sample data for preview
+  const sampleContext = { name: 'John Doe', firstName: 'John', lastName: 'Doe', registrationNumber: 123, editionId: 'kutc-2025', raceDistance: '10K', paymentMade: 300, paymentRequired: 300, status: 'confirmed', comments: 'No comments', phoneCountryCode: '+47', phoneNumber: '12345678', representing: 'ACME', dateOfBirth: '1990-01-01', waitinglistExpires: '2025-05-01' };
+
   // Fetch invitees on mount or when changed
   useEffect(() => {
     const fetchData = async () => {
@@ -44,6 +59,19 @@ const AdminPage: React.FC = () => {
     };
     fetchRegs();
   }, []);
+
+  // Load template when type changes
+  useEffect(() => {
+    const loadTpl = async () => {
+      setLoadingTpl(true);
+      const tpl = await getEmailTemplate(selectedTemplateType, 'en');
+      setSubjectTemplate(tpl.subjectTemplate);
+      setBodyTemplate(tpl.bodyTemplate);
+      setLoadingTpl(false);
+      setPreviewHtml('');
+    };
+    loadTpl();
+  }, [selectedTemplateType]);
 
   const handleAddInvitee = async () => {
     if (!addEmail || !addName) return;
@@ -159,6 +187,12 @@ const AdminPage: React.FC = () => {
     setRegistrations(regs => regs.map(reg => reg.id === id ? { ...reg, paymentMade: newPayment } : reg));
   };
 
+  const handleSaveTemplate = async () => {
+    setSavingTpl(true);
+    await updateEmailTemplate(selectedTemplateType, 'en', subjectTemplate, bodyTemplate);
+    setSavingTpl(false);
+  };
+
   return (
     <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="60vh">
       <Paper elevation={3} sx={{ p: 4, width: 600, maxWidth: '98%' }}>
@@ -253,6 +287,34 @@ const AdminPage: React.FC = () => {
         numRun={numToSend}
         loading={loading}
       />
+      {/* Email Template Editor */}
+      <Paper sx={{ mt: 4, p: 2, width: '100%', maxWidth: '98%' }}>
+        <Typography variant="h5" gutterBottom>Email Templates (English)</Typography>
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <FormControl size="small">
+            <InputLabel>Type</InputLabel>
+            <Select value={selectedTemplateType} label="Type" onChange={e => setSelectedTemplateType(e.target.value as EmailType)} disabled={loadingTpl}>
+              {Object.values(EmailType).map(t => (<MenuItem key={t} value={t}>{t}</MenuItem>))}
+            </Select>
+          </FormControl>
+        </Box>
+        <TextField label="Subject Template" fullWidth size="small" value={subjectTemplate} onChange={e => setSubjectTemplate(e.target.value)} disabled={loadingTpl} sx={{ mb: 2 }} />
+        <Editor height="400px" width="100%" defaultLanguage="handlebars" value={bodyTemplate} onChange={val => setBodyTemplate(val || '')} />
+        <Box sx={{ mt: 2 }}>
+          <Button variant="contained" onClick={handleSaveTemplate} disabled={savingTpl}>
+            {savingTpl ? <CircularProgress size={20} /> : 'Save Template'}
+          </Button>
+          <Button variant="outlined" sx={{ ml: 2 }} onClick={() => setPreviewHtml(Handlebars.compile(bodyTemplate)(sampleContext))}>
+            Preview
+          </Button>
+          <Button variant="outlined" sx={{ ml: 2 }} onClick={() => setBodyTemplate(beautifyHtml(bodyTemplate, { indent_size: 2, wrap_line_length: 0 }))}>
+            Format
+          </Button>
+        </Box>
+        {previewHtml && (
+          <Box sx={{ mt: 2, border: '1px solid #ccc', p: 2 }} dangerouslySetInnerHTML={{ __html: previewHtml }} />
+        )}
+      </Paper>
       <Paper sx={{ mt: 4, p: 2 }}>
         <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', letterSpacing: 1, mb: 2 }}>
           Registrations & Payment Status
