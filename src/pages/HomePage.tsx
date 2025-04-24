@@ -10,7 +10,8 @@ import {
   Grid,
   Paper,
   Divider,
-  Link
+  Link,
+  Alert
 } from '@mui/material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { RACE_DETAILS } from '../constants';
@@ -167,15 +168,11 @@ const HomePage: React.FC = () => {
         
         {user && isUserRegistered ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-            <Typography
-              variant="subtitle1"
-              color={userRegistration?.isOnWaitinglist ? 'warning.main' : 'success.main'}
-              sx={{ mb: 1.5, fontWeight: 'medium' }}
-            >
+            <Alert severity="info" sx={{ mb: 2 }}>
               {userRegistration?.isOnWaitinglist
                 ? 'You are on the waiting-list for this event'
                 : 'You are already registered for this event'}
-            </Typography>
+            </Alert>
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Button
                 component={RouterLink}
@@ -202,9 +199,9 @@ const HomePage: React.FC = () => {
         ) : isRegistrationOpen ? (
           availableSpots === 0 ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-              <Typography variant="h6" color="error" sx={{ mb: 2 }}>
-                Event is fully booked
-              </Typography>
+              <Alert severity="error" sx={{ mb: 2 }}>
+                This event is fully booked
+              </Alert>
               <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <form
                   onSubmit={e => {
@@ -332,12 +329,12 @@ const HomePage: React.FC = () => {
       <Grid container spacing={4} sx={{ mb: 4 }}>
         <Grid item xs={12} md={6}>
           <Paper
-            elevation={0}
+            elevation={1}
             sx={{
               backgroundColor: 'var(--color-surface)',
               color: 'var(--color-text)',
               border: '1px solid var(--color-surface-border)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               borderRadius: 2,
               p: 3
             }}
@@ -379,12 +376,12 @@ const HomePage: React.FC = () => {
         </Grid>
         <Grid item xs={12} md={6}>
           <Paper
-            elevation={0}
+            elevation={1}
             sx={{
               backgroundColor: 'var(--color-surface)',
               color: 'var(--color-text)',
               border: '1px solid var(--color-surface-border)',
-              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
               borderRadius: 2,
               p: 3
             }}
