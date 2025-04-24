@@ -1,4 +1,4 @@
-import { getFirestore, collection, getDocs, query, orderBy, where } from 'firebase/firestore';
+import { getFirestore, collection, query, where, orderBy, getDocs } from 'firebase/firestore';
 
 export interface PublicRegistration {
   registrationNumber: number;
@@ -7,6 +7,7 @@ export interface PublicRegistration {
   nationality: string;
   representing: string;
   status: string;
+  isOnWaitinglist: boolean;
 }
 
 export async function fetchPublicRegistrations(editionId: string): Promise<PublicRegistration[]> {
@@ -26,6 +27,7 @@ export async function fetchPublicRegistrations(editionId: string): Promise<Publi
       nationality: data.nationality ?? '',
       representing: data.representing ?? '',
       status: data.status ?? '',
+      isOnWaitinglist: data.isOnWaitinglist ?? false,
     };
   });
 }
