@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, doc, deleteDoc } from 'firebase/firestore';
+import { doc, deleteDoc } from 'firebase/firestore';
 import { Registration } from '../types';
 import { getRegistrationsByUserId, createRegistration } from '../services/registrationService';
 
@@ -21,6 +21,11 @@ describe('registrationService duplicate prevention', () => {
     travelRequired: 'No',
     termsAccepted: true,
     comments: 'Test comment',
+    editionId: '2025',
+    notifyFutureEvents: false,
+    sendRunningOffers: false,
+    paymentRequired: 0,
+    paymentMade: 0,
   };
 
   beforeAll(async () => {
@@ -53,18 +58,7 @@ describe('registrationService duplicate prevention', () => {
   });
 
   it('should block duplicate registrations for the same userId', async () => {
-    // Try to create a second registration for the same user
     const regsBefore = await getRegistrationsByUserId(userId);
     expect(regsBefore.length).toBe(1);
-    // Simulate client-side duplicate prevention (should not allow)
-    if (regsBefore.length > 0) {
-      // Simulate the logic in RegistrationPage.handleSubmit
-      expect(true).toBe(true); // Already blocked by client logic
-    } else {
-      // If somehow allowed, this would be a failure
-      const regId = await createRegistration({ ...registration, email: 'unique2@example.com' }, userId);
-      createdDocIds.push(regId);
-      throw new Error('Duplicate registration should not be allowed');
-    }
   });
 });

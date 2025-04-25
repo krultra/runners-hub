@@ -83,10 +83,12 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
         Please review your registration details before submitting.
       </Typography>
 
-      <Alert severity="info" sx={{ mb: 3 }}>
-        After submitting your registration, you will need to complete the payment process
-        separately. Details will be sent to your email address.
-      </Alert>
+      {!isEditingExisting && (
+        <Alert severity="info" sx={{ mb: 3 }}>
+          After submitting your registration, you will need to complete the payment process
+          separately. Details will be sent to your email address.
+        </Alert>
+      )}
 
       <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>

@@ -4,21 +4,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { Paper, Typography, Button, Box } from '@mui/material';
 import EmailVerificationGuide from './auth/EmailVerificationGuide';
 
-// Dynamically determine the correct URL based on environment
-const getActionCodeSettings = () => {
-  // In production, use the custom domain if available
-  const isCustomDomain = window.location.hostname === 'runnershub.krultra.no';
-  const baseUrl = isCustomDomain 
-    ? 'https://runnershub.krultra.no' 
-    : window.location.origin;
-    
-  return {
-    url: baseUrl + '/auth',
-    handleCodeInApp: true,
-  };
-};
-
-const actionCodeSettings = getActionCodeSettings();
+// Removed unused action code settings logic
 
 // Helper to robustly decode returnTo
 function robustDecodeReturnTo(raw: string | null): string | null {
@@ -40,7 +26,7 @@ function robustDecodeReturnTo(raw: string | null): string | null {
 const AuthTest: React.FC = () => {
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<string>('');
-  const [isVerifying, setIsVerifying] = useState(false);
+  // Removed unused verification state
   const [user, setUser] = useState<any>(null);
 
   const navigate = useNavigate();

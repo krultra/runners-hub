@@ -37,7 +37,9 @@
     "eject": "react-scripts eject",
     "deploy": "firebase deploy --only hosting",
     "build:test": "env-cmd -f .env.test npm run build",
-    "deploy:test": "firebase deploy --only hosting --project runnershubtest"
+    "deploy:test": "firebase deploy --only hosting --project runnershubtest",
+    "lint": "eslint \"src/**/*.{ts,tsx}\"",
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix"
   },
   "eslintConfig": {
     "extends": [

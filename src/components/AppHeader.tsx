@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Button } from '@
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createOrUpdateUser, getUser } from '../utils/userUtils';
 
 const AppHeader: React.FC = () => {
