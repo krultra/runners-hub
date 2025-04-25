@@ -1,6 +1,6 @@
 {
   "projects": {
-    "default": "runnershub-62442",
+    "default": "runnershub",
     "test": "runnershubtest"
   },
   "targets": {},
