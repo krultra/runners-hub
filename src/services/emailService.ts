@@ -499,8 +499,20 @@ export const sendWaitingListEmail = async (registration: Registration): Promise<
   try {
     // Load template
     const tplWait = await getEmailTemplate(EmailType.WAITING_LIST_CONFIRMATION, 'en');
+    // Format waiting-list expiry date for templates
+    let formattedExpiry = 'Unknown date';
+    try {
+      if (registration.waitinglistExpires && typeof (registration.waitinglistExpires as any).toDate === 'function') {
+        formattedExpiry = (registration.waitinglistExpires as any).toDate().toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+      } else if (registration.waitinglistExpires instanceof Date) {
+        formattedExpiry = registration.waitinglistExpires.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+    } catch (e) {
+      console.error('Error formatting waiting-list expiry date:', e);
+    }
     const waitContext = {
       ...registration,
+      waitinglistExpires: formattedExpiry,
       eventName: EVENT_NAME,
       eventShortName: EVENT_SHORT_NAME,
       eventEdition: EVENT_EDITION,
@@ -540,7 +552,24 @@ export const sendWaitingListRegistrationEmail = async (registration: Registratio
   const db = getFirestore();
   // Load template
   const tpl = await getEmailTemplate(EmailType.WAITING_LIST_REGISTRATION, 'en');
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  // Format waiting-list expiry date
+  let formattedExpiry = 'Unknown date';
+  try {
+    if (registration.waitinglistExpires && typeof (registration.waitinglistExpires as any).toDate === 'function') {
+      formattedExpiry = (registration.waitinglistExpires as any).toDate().toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+    } else if (registration.waitinglistExpires instanceof Date) {
+      formattedExpiry = registration.waitinglistExpires.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' });
+    }
+  } catch (e) {
+    console.error('Error formatting waiting-list expiry date:', e);
+  }
+  const context = {
+    ...registration,
+    waitinglistExpires: formattedExpiry,
+    eventName: EVENT_NAME,
+    eventShortName: EVENT_SHORT_NAME,
+    eventEdition: EVENT_EDITION
+  };
   const subject = Handlebars.compile(tpl.subjectTemplate || `KUTC ${EVENT_EDITION} Waiting List Registration`)(context);
   const body = Handlebars.compile(tpl.bodyTemplate || generateWaitingListEmailHtml(registration))(context);
   try {

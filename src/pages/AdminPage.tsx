@@ -77,6 +77,12 @@ const AdminPage: React.FC = () => {
   // Fetch template list on mount
   useEffect(() => {
     const loadList = async () => {
+      // create stubs for all email types (English locale)
+      await Promise.all(
+        (Object.values(EmailType) as EmailType[]).map(type =>
+          getEmailTemplate(type, 'en')
+        )
+      );
       const list = await listEmailTemplates();
       setTemplateList(list);
       if (list.length > 0) setSelectedTemplateId(list[0].id);
