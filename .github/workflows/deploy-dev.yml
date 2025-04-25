@@ -1,0 +1,22 @@
+name: Deploy to Firebase Test
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+      - run: npm ci
+      - run: npm run build:test
+      - run: npm install -g firebase-tools
+      - run: firebase deploy --only hosting --project runnershubtest
+        env:
+          FIREBASE_TOKEN: 
+            ${{ secrets.FIREBASE_TOKEN }}
