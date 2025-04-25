@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { 
   Container, 
   Typography, 
@@ -15,7 +16,7 @@ import {
 } from '@mui/material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { RACE_DETAILS } from '../constants';
-import { getTotalRegistrationsCount, getRegistrationsByUserId } from '../services/registrationService';
+import { countActiveParticipants, getRegistrationsByUserId } from '../services/registrationService';
 import { useNavigate } from 'react-router-dom';
 import { Registration } from '../types';
 
@@ -46,8 +47,10 @@ const HomePage: React.FC = () => {
   // Check if registration is still open
   const isRegistrationOpen = now < RACE_DETAILS.registrationDeadline;
   
-  // Check if user is authenticated and has a registration
+  // Check if user is authenticated and has a registration (re-run on location change)
+  const location = useLocation();
   useEffect(() => {
+    setIsCheckingRegistration(true);
     const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
@@ -71,24 +74,27 @@ const HomePage: React.FC = () => {
     });
     
     return () => unsubscribe();
-  }, []);
+  }, [location.key]);
   
-  // Fetch registration count on component mount
+  // Edition ID constant
+  const EDITION_ID = 'kutc-2025';
+  
+  // Fetch active participant count (pending/confirmed) and compute available spots
   useEffect(() => {
-    const fetchRegistrationCount = async () => {
+    setIsLoading(true);
+    const fetchActiveCount = async () => {
       try {
-        const count = await getTotalRegistrationsCount();
-        setAvailableSpots(Math.max(0, RACE_DETAILS.maxParticipants - count));
+        const activeCount = await countActiveParticipants(EDITION_ID);
+        setAvailableSpots(Math.max(0, RACE_DETAILS.maxParticipants - activeCount));
       } catch (error) {
-        console.error('Error fetching registration count:', error);
+        console.error('Error fetching active participants count:', error);
         setAvailableSpots(null);
       } finally {
         setIsLoading(false);
       }
     };
-    
-    fetchRegistrationCount();
-  }, []);
+    fetchActiveCount();
+  }, [location.key]);
   
   // Update countdown timer every second
   useEffect(() => {

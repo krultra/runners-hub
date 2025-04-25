@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPublicRegistrations, PublicRegistration } from '../utils/publicRegistrations';
 import StatusIndicator from '../components/StatusIndicator';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Alert } from '@mui/material';
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Alert, Switch, FormControlLabel } from '@mui/material';
 
 interface PublicRegistrationsPageProps {
   editionId?: string;
@@ -10,6 +10,7 @@ interface PublicRegistrationsPageProps {
 const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editionId = 'kutc-2025' }) => {
   const [registrations, setRegistrations] = useState<PublicRegistration[] | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showCancelled, setShowCancelled] = useState(false);
 
   useEffect(() => {
     fetchPublicRegistrations(editionId).then(data => {
@@ -18,8 +19,12 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
     });
   }, [editionId]);
 
-  const participants = registrations?.filter(r => !r.isOnWaitinglist) || [];
-  const waitingList = registrations?.filter(r => r.isOnWaitinglist) || [];
+  const regsList = registrations || [];
+  const filteredRegs = regsList.filter(r => showCancelled || ['pending','confirmed'].includes(r.status));
+  const participants = filteredRegs.filter(r => !r.isOnWaitinglist);
+  const waitingList = filteredRegs.filter(r => r.isOnWaitinglist);
+  const participantsCount = regsList.filter(r => ['pending','confirmed'].includes(r.status) && !r.isOnWaitinglist).length;
+  const waitingListCount = regsList.filter(r => ['pending','confirmed'].includes(r.status) && r.isOnWaitinglist).length;
   const hasWaitingList = waitingList.length > 0;
 
   return (
@@ -32,6 +37,10 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
           ? 'This table shows all public registrations for the current race edition, including registrations for the waiting-list. Only basic information is displayed for privacy. Status is updated as registrations are processed, and when waiting-list entries are moved to the participants list.'
           : 'This table shows all public registrations for the current race edition. Only basic information is displayed for privacy. Status is updated as registrations are processed.'}
       </Alert>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography>Participants: {participantsCount} &nbsp; Waiting-list: {waitingListCount}</Typography>
+        <FormControlLabel control={<Switch checked={showCancelled} onChange={e => setShowCancelled(e.target.checked)} />} label="Show cancelled registrations" />
+      </Box>
       {loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 180 }}>
           <CircularProgress />

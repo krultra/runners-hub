@@ -240,6 +240,25 @@ export const getTotalRegistrationsCount = async (): Promise<number> => {
 };
 
 /**
+ * Counts active participants for an edition (status pending or confirmed, not on waiting list)
+ */
+export const countActiveParticipants = async (editionId: string): Promise<number> => {
+  try {
+    const q = query(
+      collection(db, REGISTRATIONS_COLLECTION),
+      where('editionId', '==', editionId),
+      where('isOnWaitinglist', '==', false),
+      where('status', 'in', ['pending', 'confirmed'])
+    );
+    const snap = await getDocs(q);
+    return snap.size;
+  } catch (error) {
+    console.error('Error counting active participants:', error);
+    throw error;
+  }
+};
+
+/**
  * Gets all registrations for a specific edition
  * @param editionId Edition ID
  * @returns Promise with array of registrations
