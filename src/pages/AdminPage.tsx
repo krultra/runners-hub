@@ -1,15 +1,17 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Box, Button, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Checkbox, CircularProgress, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
+import { Box, Button, Typography, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TextField, Checkbox, CircularProgress, FormControl, InputLabel, Select, MenuItem, List, ListItem, ListItemText, IconButton } from '@mui/material';
 import Editor from '@monaco-editor/react';
 import Handlebars from 'handlebars';
 import { html as beautifyHtml } from 'js-beautify';
 import { EmailType } from '../services/emailService';
-import { getEmailTemplate, updateEmailTemplate } from '../services/templateService';
+import { getEmailTemplate, updateEmailTemplate, listEmailTemplates, importEmailTemplates, EmailTemplate } from '../services/templateService';
 import InviteSummaryDialog from '../components/InviteSummaryDialog';
 import { fetchInvitations, addInvitation, updateInvitationSent, Invitation } from '../utils/invitationUtils';
 import { getRegistrationsByEdition, updateRegistration, addPaymentToRegistration, generateTestRegistrations } from '../services/registrationService';
 import { Registration, PaymentMethod } from '../types';
-import { sendPaymentConfirmationEmail } from '../services/emailService';
+import { sendPaymentConfirmationEmail, sendWaitingListEmail } from '../services/emailService';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { listRegistrationStatuses, addRegistrationStatus, deleteRegistrationStatus, RegistrationStatus } from '../services/statusService';
 
 const EDITION_ID = 'kutc-2025';
 
@@ -22,6 +24,8 @@ const AdminPage: React.FC = () => {
   const [addLoading, setAddLoading] = useState(false);
   const [numToSend, setNumToSend] = useState(0);
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [statuses, setStatuses] = useState<RegistrationStatus[]>([]);
+  const [newStatusLabel, setNewStatusLabel] = useState('');
   const [regLoading, setRegLoading] = useState(false);
   const [editValues, setEditValues] = useState<{ [id: string]: number }>({});
   const [paymentForms, setPaymentForms] = useState<{ [id: string]: { amount: string; method: PaymentMethod; comment: string; date: string } }>({});
@@ -29,7 +33,8 @@ const AdminPage: React.FC = () => {
   const [testLoading, setTestLoading] = useState(false);
 
   // Email template editor state
-  const [selectedTemplateType, setSelectedTemplateType] = useState<EmailType>(EmailType.WELCOME);
+  const [templateList, setTemplateList] = useState<EmailTemplate[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>('');
   const [subjectTemplate, setSubjectTemplate] = useState('');
   const [bodyTemplate, setBodyTemplate] = useState('');
   const [loadingTpl, setLoadingTpl] = useState(false);
@@ -60,18 +65,41 @@ const AdminPage: React.FC = () => {
     fetchRegs();
   }, []);
 
-  // Load template when type changes
+  // Fetch status list on mount
   useEffect(() => {
+    const fetchStatuses = async () => {
+      const list = await listRegistrationStatuses();
+      setStatuses(list);
+    };
+    fetchStatuses();
+  }, []);
+
+  // Fetch template list on mount
+  useEffect(() => {
+    const loadList = async () => {
+      const list = await listEmailTemplates();
+      setTemplateList(list);
+      if (list.length > 0) setSelectedTemplateId(list[0].id);
+    };
+    loadList();
+  }, []);
+
+  // Load template when selectedTemplateId changes
+  useEffect(() => {
+    if (!selectedTemplateId) return;
     const loadTpl = async () => {
       setLoadingTpl(true);
-      const tpl = await getEmailTemplate(selectedTemplateType, 'en');
+      const idx = selectedTemplateId.lastIndexOf('_');
+      const type = selectedTemplateId.slice(0, idx) as EmailType;
+      const locale = selectedTemplateId.slice(idx + 1);
+      const tpl = await getEmailTemplate(type, locale);
       setSubjectTemplate(tpl.subjectTemplate);
       setBodyTemplate(tpl.bodyTemplate);
       setLoadingTpl(false);
       setPreviewHtml('');
     };
     loadTpl();
-  }, [selectedTemplateType]);
+  }, [selectedTemplateId]);
 
   const handleAddInvitee = async () => {
     if (!addEmail || !addName) return;
@@ -164,11 +192,17 @@ const AdminPage: React.FC = () => {
       regAfter.email
     ) {
       try {
-        // Always send email with status 'confirmed' in the registration object
-        await sendPaymentConfirmationEmail({ ...regAfter, status: 'confirmed' });
+        // Send confirmation based on waiting-list status
+        if (regAfter.isOnWaitinglist) {
+          await sendWaitingListEmail({ ...regAfter, status: 'confirmed' });
+        } else {
+          await sendPaymentConfirmationEmail({ ...regAfter, status: 'confirmed' });
+        }
         // Update registration status to 'confirmed'
         try {
           await updateRegistration(id, { status: 'confirmed' }, false);
+          // Reflect status change in UI dropdown
+          setRegistrations(prev => prev.map(r => r.id === id ? { ...r, status: 'confirmed' } : r));
         } catch (updateError) {
           console.error('Failed to update registration status to confirmed:', updateError);
         }
@@ -189,8 +223,61 @@ const AdminPage: React.FC = () => {
 
   const handleSaveTemplate = async () => {
     setSavingTpl(true);
-    await updateEmailTemplate(selectedTemplateType, 'en', subjectTemplate, bodyTemplate);
+    const idx = selectedTemplateId.lastIndexOf('_');
+    const type = selectedTemplateId.slice(0, idx) as EmailType;
+    const locale = selectedTemplateId.slice(idx + 1);
+    await updateEmailTemplate(type, locale, subjectTemplate, bodyTemplate);
     setSavingTpl(false);
+  };
+
+  // Export/Import email templates
+  const handleExportTemplates = async () => {
+    const templates = await listEmailTemplates();
+    const blob = new Blob([JSON.stringify(templates, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'emailTemplates_backup.json'; a.click(); URL.revokeObjectURL(url);
+  };
+
+  const handleImportFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]; if (!file) return;
+    const text = await file.text();
+    const templates = JSON.parse(text) as any[];
+    await importEmailTemplates(templates);
+    alert('Imported templates successfully');
+  };
+
+  /**
+   * Create a new email template stub (key + locale)
+   */
+  const handleNewTemplate = async () => {
+    const key = window.prompt('Enter new template key (no spaces), e.g. "newsletter"');
+    if (!key) return;
+    setLoadingTpl(true);
+    const id = `${key}_en`;
+    const newTpl: EmailTemplate = { id, type: key as EmailType, locale: 'en', subjectTemplate: '', bodyTemplate: '', updatedAt: new Date() };
+    await importEmailTemplates([newTpl]);
+    const list = await listEmailTemplates();
+    setTemplateList(list);
+    setSelectedTemplateId(id);
+    setLoadingTpl(false);
+  };
+
+  const handleAddStatus = async () => {
+    if (!newStatusLabel.trim()) return;
+    await addRegistrationStatus(newStatusLabel.trim());
+    setNewStatusLabel('');
+    const list = await listRegistrationStatuses();
+    setStatuses(list);
+  };
+
+  const handleDeleteStatus = async (id: string) => {
+    await deleteRegistrationStatus(id);
+    setStatuses(prev => prev.filter(s => s.id !== id));
+  };
+
+  const handleStatusChange = async (id: string, status: string) => {
+    await updateRegistration(id, { status }, false);
+    setRegistrations(prev => prev.map(r => r.id === id ? { ...r, status } : r));
   };
 
   return (
@@ -291,12 +378,31 @@ const AdminPage: React.FC = () => {
       <Paper sx={{ mt: 4, p: 2, width: '100%', maxWidth: '98%' }}>
         <Typography variant="h5" gutterBottom>Email Templates (English)</Typography>
         <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
+          <Button variant="outlined" onClick={handleExportTemplates}>Export Templates</Button>
+          <Button variant="outlined" component="label">
+            Import Templates
+            <input hidden accept=".json" type="file" onChange={handleImportFile} />
+          </Button>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 2, mb: 2 }}>
           <FormControl size="small">
-            <InputLabel>Type</InputLabel>
-            <Select value={selectedTemplateType} label="Type" onChange={e => setSelectedTemplateType(e.target.value as EmailType)} disabled={loadingTpl}>
-              {Object.values(EmailType).map(t => (<MenuItem key={t} value={t}>{t}</MenuItem>))}
+            <InputLabel>Template</InputLabel>
+            <Select
+              value={selectedTemplateId}
+              label="Template"
+              onChange={e => setSelectedTemplateId(e.target.value)}
+              disabled={loadingTpl}
+            >
+              {templateList.map(tpl => (
+                <MenuItem key={tpl.id} value={tpl.id}>
+                  {tpl.id}
+                </MenuItem>
+              ))}
             </Select>
           </FormControl>
+          <Button variant="outlined" sx={{ ml: 2 }} onClick={handleNewTemplate} disabled={loadingTpl}>
+            + New Template
+          </Button>
         </Box>
         <TextField label="Subject Template" fullWidth size="small" value={subjectTemplate} onChange={e => setSubjectTemplate(e.target.value)} disabled={loadingTpl} sx={{ mb: 2 }} />
         <Editor height="400px" width="100%" defaultLanguage="handlebars" value={bodyTemplate} onChange={val => setBodyTemplate(val || '')} />
@@ -315,6 +421,22 @@ const AdminPage: React.FC = () => {
           <Box sx={{ mt: 2, border: '1px solid #ccc', p: 2 }} dangerouslySetInnerHTML={{ __html: previewHtml }} />
         )}
       </Paper>
+      {/* Manage registration status values */}
+      <Paper sx={{ mt: 4, p: 2 }}>
+        <Typography variant="h5" gutterBottom>Manage Registration Statuses</Typography>
+        <Box display="flex" gap={2} alignItems="center" mb={2}>
+          <TextField size="small" label="New Status" value={newStatusLabel} onChange={e => setNewStatusLabel(e.target.value)} />
+          <Button variant="contained" onClick={handleAddStatus} disabled={!newStatusLabel.trim()}>Add</Button>
+        </Box>
+        <List dense>
+          {statuses.map(s => (
+            <ListItem key={s.id} secondaryAction={<IconButton edge="end" onClick={() => handleDeleteStatus(s.id)}><DeleteIcon /></IconButton>}>
+              <ListItemText primary={s.label} />
+            </ListItem>
+          ))}
+        </List>
+      </Paper>
+      {/* Registrations & Payment Status */}
       <Paper sx={{ mt: 4, p: 2 }}>
         <Typography variant="h5" gutterBottom sx={{ fontWeight: 'bold', letterSpacing: 1, mb: 2 }}>
           Registrations & Payment Status
@@ -331,6 +453,7 @@ const AdminPage: React.FC = () => {
                   <TableCell sx={{ fontWeight: 'bold' }}>Race</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Payment Required</TableCell>
                   <TableCell sx={{ fontWeight: 'bold' }}>Payment Made</TableCell>
+                  <TableCell sx={{ fontWeight: 'bold' }}>Status</TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>
@@ -416,15 +539,11 @@ const AdminPage: React.FC = () => {
                         </Table>
                       </TableCell>
                       <TableCell>
-                        <TextField
-                          type="number"
-                          size="small"
-                          value={editValues[reg.id!] ?? reg.paymentMade}
-                          onChange={e => handlePaymentChange(reg.id!, e.target.value)}
-                          inputProps={{ min: 0 }}
-                          sx={{ width: 100 }}
-                          variant="outlined"
-                        />
+                        <FormControl size="small">
+                          <Select value={reg.status ?? ''} onChange={e => handleStatusChange(reg.id!, e.target.value as string)}>
+                            {statuses.map(s => <MenuItem key={s.id} value={s.label}>{s.label}</MenuItem>)}
+                          </Select>
+                        </FormControl>
                       </TableCell>
                     </TableRow>
                   ))}

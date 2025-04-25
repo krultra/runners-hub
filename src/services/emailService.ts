@@ -1,4 +1,4 @@
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { Registration } from '../types';
 import { RACE_DETAILS } from '../constants';
@@ -17,6 +17,7 @@ export enum EmailType {
   NEWSLETTER = 'newsletter',
   REMINDER = 'reminder',
   INVITATION = 'invitation',
+  WAITING_LIST_REGISTRATION = 'waiting_list_registration',
   WAITING_LIST_CONFIRMATION = 'waiting_list_confirmation',
 }
 
@@ -64,6 +65,7 @@ export const sendInvitationEmail = async (email: string, name: string): Promise<
         html: bodyInv,
       },
       type: EmailType.INVITATION,
+      createdAt: serverTimestamp()
     };
     await addDoc(collection(db, 'mail'), emailDoc);
     await logSentEmail({
@@ -102,7 +104,8 @@ export const sendWelcomeEmail = async (registration: Registration): Promise<void
       message: {
         subject: subjectWelcome,
         html: bodyWelcome,
-      }
+      },
+      createdAt: serverTimestamp()
     };
     
     console.log('Email document prepared:', JSON.stringify(emailDoc, null, 2));
@@ -142,7 +145,8 @@ export const sendRegistrationUpdateEmail = async (registration: Registration): P
       message: {
         subject: subjectUpdate,
         html: bodyUpdate,
-      }
+      },
+      createdAt: serverTimestamp()
     });
     await logSentEmail({
       to: registration.email,
@@ -168,7 +172,13 @@ export const sendPaymentConfirmationEmail = async (registration: Registration): 
   try {
     // Load template
     const tplPay = await getEmailTemplate(EmailType.PAYMENT_CONFIRMATION, 'en');
-    const payContext = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+    const payContext = {
+      ...registration,
+      eventName: EVENT_NAME,
+      eventShortName: EVENT_SHORT_NAME,
+      eventEdition: EVENT_EDITION,
+      today: new Date().toLocaleDateString()
+    };
     const subjectPay = Handlebars.compile(tplPay.subjectTemplate || `KUTC 2025 Payment Confirmation`)(payContext);
     const bodyPay = Handlebars.compile(tplPay.bodyTemplate || generatePaymentConfirmationHtml(registration))(payContext);
     
@@ -177,7 +187,8 @@ export const sendPaymentConfirmationEmail = async (registration: Registration): 
       message: {
         subject: subjectPay,
         html: bodyPay,
-      }
+      },
+      createdAt: serverTimestamp()
     });
     await logSentEmail({
       to: registration.email,
@@ -418,7 +429,7 @@ const generatePaymentConfirmationHtml = (registration: Registration): string => 
         <p><strong>Registration #:</strong> ${regNumber}</p>
         <p><strong>Payment Reference:</strong> ${paymentReference}</p>
         <p><strong>Amount Paid:</strong> ${registration.paymentMade} NOK</p>
-        <p><strong>Payment Date:</strong> ${new Date().toLocaleDateString()}</p>
+        <p><strong>Payment Date:</strong> {{today}}</p>
         <p><strong>Registration Status:</strong> ${registration.status || 'pending'}</p>
       </div>
       
@@ -488,7 +499,13 @@ export const sendWaitingListEmail = async (registration: Registration): Promise<
   try {
     // Load template
     const tplWait = await getEmailTemplate(EmailType.WAITING_LIST_CONFIRMATION, 'en');
-    const waitContext = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+    const waitContext = {
+      ...registration,
+      eventName: EVENT_NAME,
+      eventShortName: EVENT_SHORT_NAME,
+      eventEdition: EVENT_EDITION,
+      today: new Date().toLocaleDateString()
+    };
     const subjectWait = Handlebars.compile(tplWait.subjectTemplate || `KUTC 2025 Waiting List Confirmation`)(waitContext);
     const bodyWait = Handlebars.compile(tplWait.bodyTemplate || generateWaitingListEmailHtml(registration))(waitContext);
     
@@ -499,6 +516,7 @@ export const sendWaitingListEmail = async (registration: Registration): Promise<
         html: bodyWait,
       },
       type: EmailType.WAITING_LIST_CONFIRMATION,
+      createdAt: serverTimestamp()
     };
     await addDoc(collection(db, 'mail'), emailDoc);
     await logSentEmail({
@@ -511,6 +529,26 @@ export const sendWaitingListEmail = async (registration: Registration): Promise<
     console.log('Waiting list email sent to', registration.email);
   } catch (error) {
     console.error('Error sending waiting-list email:', error);
+    throw error;
+  }
+};
+
+/**
+ * Sends an initial waiting-list registration email to a user.
+ */
+export const sendWaitingListRegistrationEmail = async (registration: Registration): Promise<void> => {
+  const db = getFirestore();
+  // Load template
+  const tpl = await getEmailTemplate(EmailType.WAITING_LIST_REGISTRATION, 'en');
+  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const subject = Handlebars.compile(tpl.subjectTemplate || `KUTC ${EVENT_EDITION} Waiting List Registration`)(context);
+  const body = Handlebars.compile(tpl.bodyTemplate || generateWaitingListEmailHtml(registration))(context);
+  try {
+    await addDoc(collection(db, 'mail'), { to: registration.email, message: { subject, html: body }, type: EmailType.WAITING_LIST_REGISTRATION, createdAt: serverTimestamp() });
+    await logSentEmail({ to: registration.email, subject, type: 'waiting_list_registration', registrationId: registration.id, meta: { waitinglistExpires: registration.waitinglistExpires } });
+    console.log('Waiting list registration email sent to', registration.email);
+  } catch (error) {
+    console.error('Error sending waiting list registration email:', error);
     throw error;
   }
 };

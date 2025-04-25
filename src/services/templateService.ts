@@ -1,4 +1,4 @@
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection } from 'firebase/firestore';
 import { EmailType } from './emailService';
 
 export interface EmailTemplate {
@@ -53,4 +53,30 @@ export const updateEmailTemplate = async (
     bodyTemplate,
     updatedAt: serverTimestamp(),
   });
+};
+
+/**
+ * Lists all email templates from Firestore.
+ */
+export const listEmailTemplates = async (): Promise<EmailTemplate[]> => {
+  const db = getFirestore();
+  const snaps = await getDocs(collection(db, 'emailTemplates'));
+  return snaps.docs.map(d => ({ id: d.id, ...(d.data() as Omit<EmailTemplate, 'id'>) }));
+};
+
+/**
+ * Imports email templates into Firestore.
+ */
+export const importEmailTemplates = async (templates: EmailTemplate[]): Promise<void> => {
+  const db = getFirestore();
+  for (const tpl of templates) {
+    const ref = doc(db, 'emailTemplates', tpl.id);
+    await setDoc(ref, {
+      type: tpl.type,
+      locale: tpl.locale,
+      subjectTemplate: tpl.subjectTemplate,
+      bodyTemplate: tpl.bodyTemplate,
+      updatedAt: serverTimestamp(),
+    });
+  }
 };

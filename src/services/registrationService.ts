@@ -12,7 +12,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Registration, Payment } from '../types';
-import { sendWelcomeEmail, sendRegistrationUpdateEmail, sendWaitingListEmail } from './emailService';
+import { sendWelcomeEmail, sendRegistrationUpdateEmail, sendWaitingListEmail, sendWaitingListRegistrationEmail } from './emailService';
 import { getNextSequentialNumber } from './counterService';
 import { RACE_DETAILS, RACE_DISTANCES } from '../constants';
 
@@ -58,7 +58,8 @@ export const createRegistration = async (
     // Send appropriate email based on waiting-list status
     try {
       if (registrationToSave.isOnWaitinglist) {
-        await sendWaitingListEmail({
+        // Initial waiting-list registration email
+        await sendWaitingListRegistrationEmail({
           ...registrationToSave,
           id: docRef.id,
           registrationNumber
