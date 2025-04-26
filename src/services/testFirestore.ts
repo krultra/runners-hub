@@ -10,7 +10,7 @@ export const testFirestoreConnection = async (): Promise<boolean> => {
     const snapshot = await getDocs(collection(db, 'registrations'));
     return true;
   } catch (error) {
-    console.error('testFirestoreConnection failed:', error);
+    // Firestore connection test failed
     return false;
   }
 };
