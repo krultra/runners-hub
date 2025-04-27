@@ -3,12 +3,14 @@ import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Button } from '@
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
-import { useNavigate } from 'react-router-dom';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { createOrUpdateUser, getUser } from '../utils/userUtils';
 
 const AppHeader: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const location = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -51,6 +53,14 @@ const AppHeader: React.FC = () => {
         </Typography>
         {user ? (
           <Box display="flex" alignItems="center">
+            {/* Admin drawer toggle on admin pages */}
+            {isAdmin && location.pathname.startsWith('/admin') && (
+              <Tooltip title="Toggle menu">
+                <IconButton color="inherit" onClick={() => window.dispatchEvent(new Event('toggleAdminDrawer'))} sx={{ mr: 1 }}>
+                  <MenuIcon />
+                </IconButton>
+              </Tooltip>
+            )}
             {isAdmin && (
               <Button color="inherit" onClick={() => navigate('/admin')} sx={{ mr: 2 }}>
                 Admin
