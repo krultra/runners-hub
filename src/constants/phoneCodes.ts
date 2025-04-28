@@ -4,9 +4,8 @@ import { PhoneCode } from '../types';
 export const COMMON_PHONE_CODES: PhoneCode[] = [
   { country: 'Norway', code: '+47', flag: '🇳🇴', isCommon: true },
   { country: 'Sweden', code: '+46', flag: '🇸🇪', isCommon: true },
-  { country: 'Denmark', code: '+45', flag: '🇩🇰', isCommon: true },
-  { country: 'Finland', code: '+358', flag: '🇫🇮', isCommon: true },
-;
+  { country: 'Denmark', code: '+45', flag: '🇩🇰', isCommon: true }
+];
 
 // All phone country codes
 export const PHONE_CODES: PhoneCode[] = [
