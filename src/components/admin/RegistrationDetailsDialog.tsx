@@ -571,35 +571,54 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
         <DialogTitle>Email Details</DialogTitle>
         <DialogContent>
           {selectedMailDetails && (
-            <TableContainer>
-              <Table size="small">
-                <TableBody>
-                  <TableRow>
-                    <TableCell>Created At</TableCell>
-                    <TableCell>{selectedMailDetails.createdAt?.toDate
-                      ? selectedMailDetails.createdAt.toDate().toLocaleString()
-                      : new Date(selectedMailDetails.createdAt).toLocaleString()}
-                    </TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>To</TableCell>
-                    <TableCell>{selectedMailDetails.to}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Type</TableCell>
-                    <TableCell>{selectedMailDetails.type}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Subject</TableCell>
-                    <TableCell>{selectedMailDetails.message?.subject}</TableCell>
-                  </TableRow>
-                  <TableRow>
-                    <TableCell>Status</TableCell>
-                    <TableCell>{selectedMailDetails.delivery?.state || selectedMailDetails.status}</TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </TableContainer>
+            <>
+              <TableContainer>
+                <Table size="small">
+                  <TableBody>
+                    <TableRow>
+                      <TableCell>Created At</TableCell>
+                      <TableCell>{selectedMailDetails.createdAt?.toDate
+                        ? selectedMailDetails.createdAt.toDate().toLocaleString()
+                        : new Date(selectedMailDetails.createdAt).toLocaleString()}
+                      </TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>To</TableCell>
+                      <TableCell>{selectedMailDetails.to}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Type</TableCell>
+                      <TableCell>{selectedMailDetails.type}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Subject</TableCell>
+                      <TableCell>{selectedMailDetails.message?.subject}</TableCell>
+                    </TableRow>
+                    <TableRow>
+                      <TableCell>Status</TableCell>
+                      <TableCell>{selectedMailDetails.delivery?.state || selectedMailDetails.status}</TableCell>
+                    </TableRow>
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <Typography variant="h6" sx={{ mt: 2 }}>
+                Message
+              </Typography>
+              <Box
+                sx={{
+                  border: 1,
+                  borderColor: 'grey.300',
+                  p: 2,
+                  mt: 1,
+                  overflow: 'auto',
+                  maxHeight: 300,
+                }}
+              >
+                <div
+                  dangerouslySetInnerHTML={{ __html: selectedMailDetails.message.html }}
+                />
+              </Box>
+            </>
           )}
         </DialogContent>
         <DialogActions>
