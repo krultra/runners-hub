@@ -18,6 +18,9 @@ export enum EmailType {
   INVITATION = 'invitation',
   WAITING_LIST_REGISTRATION = 'waiting_list_registration',
   WAITING_LIST_CONFIRMATION = 'waiting_list_confirmation',
+  CANCELLATION = 'registration_cancellation',
+  EXPIRATION = 'registration_expiration',
+  STATUS_CHANGED = 'status_changed',
 }
 
 // Date formatting helper for Handlebars
@@ -81,16 +84,43 @@ export const sendWaitingListRegistrationEmail = async (registration: Registratio
   return sendEmail(EmailType.WAITING_LIST_REGISTRATION, registration.email, context);
 };
 
+/**
+ * Sends registration cancellation email
+ */
+export const sendRegistrationCancellationEmail = async (registration: Registration): Promise<void> => {
+  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  return sendEmail(EmailType.CANCELLATION, registration.email, context);
+};
+
+/**
+ * Sends registration expiration email
+ */
+export const sendRegistrationExpirationEmail = async (registration: Registration): Promise<void> => {
+  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  return sendEmail(EmailType.EXPIRATION, registration.email, context);
+};
+
+/**
+ * Sends status-changed email
+ */
+export const sendStatusChangedEmail = async (registration: Registration): Promise<void> => {
+  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  return sendEmail(EmailType.STATUS_CHANGED, registration.email, context);
+};
+
 // Default subjects for fallback
 const DEFAULT_SUBJECTS: Record<EmailType, string> = {
-  [EmailType.INVITATION]: 'KUTC 2025 – Invitation to register',
-  [EmailType.WELCOME]: 'KUTC 2025 Registration Confirmation',
-  [EmailType.REGISTRATION_UPDATE]: 'KUTC 2025 Registration Update',
-  [EmailType.PAYMENT_CONFIRMATION]: 'KUTC 2025 Payment Confirmation',
-  [EmailType.NEWSLETTER]: '',
-  [EmailType.REMINDER]: '',
-  [EmailType.WAITING_LIST_REGISTRATION]: `KUTC ${EVENT_EDITION} Waiting List Registration`,
-  [EmailType.WAITING_LIST_CONFIRMATION]: 'KUTC 2025 Waiting List Confirmation'
+  [EmailType.INVITATION]: 'Invitation to register',
+  [EmailType.WELCOME]: 'Registration Confirmation',
+  [EmailType.REGISTRATION_UPDATE]: 'Registration Update',
+  [EmailType.PAYMENT_CONFIRMATION]: 'Payment Confirmation',
+  [EmailType.NEWSLETTER]: 'KrUltra Newsletter',
+  [EmailType.REMINDER]: 'Reminder',
+  [EmailType.WAITING_LIST_REGISTRATION]: `Waiting List Registration`,
+  [EmailType.WAITING_LIST_CONFIRMATION]: 'Waiting List Confirmation',
+  [EmailType.CANCELLATION]: 'Registration Cancellation',
+  [EmailType.EXPIRATION]: 'Registration Expiration',
+  [EmailType.STATUS_CHANGED]: 'Registration Status Changed',
 };
 
 /**

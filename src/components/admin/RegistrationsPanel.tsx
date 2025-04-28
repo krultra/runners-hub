@@ -1,62 +1,49 @@
 import React, { useState, useEffect } from 'react';
-import { useTheme, Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
-import { getRegistrationsByEdition, updateRegistration, addPaymentToRegistration, generateTestRegistrations } from '../../services/registrationService';
+import { useTheme, Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import RegistrationDetailsDialog from './RegistrationDetailsDialog';
+import { getRegistrationsByEdition, generateTestRegistrations } from '../../services/registrationService';
 import { listRegistrationStatuses, RegistrationStatus } from '../../services/statusService';
-import { Registration, PaymentMethod } from '../../types';
+import { Registration } from '../../types';
 import { CURRENT_EDITION_ID } from '../../constants/events';
 
 const RegistrationsPanel: React.FC = () => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [statuses, setStatuses] = useState<RegistrationStatus[]>([]);
   const [regLoading, setRegLoading] = useState(false);
-  const [paymentForms, setPaymentForms] = useState<Record<string, { amount: string; method: PaymentMethod; comment: string }>>({});
-  const [testCount, setTestCount] = useState('');
+  const [testCount, setTestCount] = useState<number>(0);
   const [testLoading, setTestLoading] = useState(false);
 
   const theme = useTheme();
 
-  useEffect(() => {
-    const loadData = async () => {
-      setRegLoading(true);
-      const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
-      const sts = await listRegistrationStatuses();
-      setRegistrations(regs);
-      setStatuses(sts);
-      setRegLoading(false);
-    };
-    loadData();
-  }, []);
+  // State for details dialog
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [selectedReg, setSelectedReg] = useState<Registration | null>(null);
 
-  const handlePaymentFormChange = (id: string, field: string, value: string) => {
-    setPaymentForms(prev => ({
-      ...prev,
-      [id]: { ...prev[id], [field]: value }
-    }));
-  };
-
-  const handleAddPayment = async (id: string) => {
-    const form = paymentForms[id];
-    if (!form?.amount || isNaN(Number(form.amount))) return;
-    await addPaymentToRegistration(id, { amount: Number(form.amount), method: form.method, comment: form.comment, date: new Date() });
+  // Load registrations and statuses
+  const loadData = async () => {
+    setRegLoading(true);
     const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
+    const sts = await listRegistrationStatuses();
     setRegistrations(regs);
-    setPaymentForms(prev => ({ ...prev, [id]: { amount: '', method: 'vipps', comment: '' } }));
+    setStatuses(sts);
+    setRegLoading(false);
   };
+  useEffect(() => { loadData(); }, []);
 
-  const handleStatusChange = async (id: string, status: string) => {
-    await updateRegistration(id, { status }, false);
-    setRegistrations(prev => prev.map(r => r.id === id ? { ...r, status } : r));
+  // Handlers for details dialog
+  const openDetails = (reg: Registration) => {
+    setSelectedReg(reg);
+    setDialogOpen(true);
   };
-
-  const handleListChange = async (id: string, listType: string) => {
-    const isOnWaitinglist = listType === 'waiting-list';
-    await updateRegistration(id, { isOnWaitinglist }, false);
-    setRegistrations(prev => prev.map(r => r.id === id ? { ...r, isOnWaitinglist } : r));
+  const closeDetails = () => {
+    setDialogOpen(false);
+    setSelectedReg(null);
   };
+  const handleUpdate = () => { loadData(); };
 
   const handleGenerateTest = async () => {
     setTestLoading(true);
-    await generateTestRegistrations(CURRENT_EDITION_ID, parseInt(testCount, 10));
+    await generateTestRegistrations(CURRENT_EDITION_ID, testCount);
     const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
     setRegistrations(regs);
     setTestLoading(false);
@@ -122,7 +109,7 @@ const RegistrationsPanel: React.FC = () => {
         </Table>
       </TableContainer>
       <Box display="flex" gap={2} alignItems="center" mt={2}>
-        <TextField label="Test Count" type="number" size="small" value={testCount} onChange={e => setTestCount(e.target.value)} />
+        <TextField label="Test Count" type="number" size="small" value={testCount} onChange={e => setTestCount(Number(e.target.value))} />
         <Button variant="contained" onClick={handleGenerateTest} disabled={!testCount || testLoading}>
           {testLoading ? <CircularProgress size={20} /> : 'Generate Test Registrations'}
         </Button>
@@ -136,63 +123,37 @@ const RegistrationsPanel: React.FC = () => {
             <TableRow>
               <TableCell>#</TableCell>
               <TableCell>Name</TableCell>
-              <TableCell>Race</TableCell>
-              <TableCell>Req.</TableCell>
               <TableCell>Paid</TableCell>
-              <TableCell>Add Payment</TableCell>
               <TableCell>List</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {registrations.map(reg => (
               <TableRow key={reg.id}>
-                <TableCell>{reg.registrationNumber ?? ''}</TableCell>
+                <TableCell>{reg.registrationNumber}</TableCell>
                 <TableCell>{reg.firstName} {reg.lastName}</TableCell>
-                <TableCell>{reg.raceDistance}</TableCell>
-                <TableCell>{reg.paymentRequired}</TableCell>
                 <TableCell>{reg.paymentMade}</TableCell>
+                <TableCell>{reg.isOnWaitinglist ? 'Waiting-list' : 'Participant'}</TableCell>
+                <TableCell>{reg.status}</TableCell>
                 <TableCell>
-                  <Box display="flex" alignItems="center" gap={1}>
-                    <FormControl size="small">
-                      <InputLabel>Method</InputLabel>
-                      <Select value={paymentForms[reg.id!]?.method ?? 'vipps'} label="Method" onChange={e => handlePaymentFormChange(reg.id!, 'method', e.target.value)}>
-                        <MenuItem value="vipps">Vipps</MenuItem>
-                        <MenuItem value="bank transfer">Bank Transfer</MenuItem>
-                        <MenuItem value="paypal">PayPal</MenuItem>
-                        <MenuItem value="cash">Cash</MenuItem>
-                        <MenuItem value="other">Other</MenuItem>
-                      </Select>
-                    </FormControl>
-                    <TextField size="small" type="number" value={paymentForms[reg.id!]?.amount ?? ''} onChange={e => handlePaymentFormChange(reg.id!, 'amount', e.target.value)} placeholder="Amount" />
-                    <TextField size="small" value={paymentForms[reg.id!]?.comment ?? ''} onChange={e => handlePaymentFormChange(reg.id!, 'comment', e.target.value)} placeholder="Comment" />
-                    <Button variant="contained" size="small" onClick={() => handleAddPayment(reg.id!)} disabled={!paymentForms[reg.id!]?.amount}>
-                      Add
-                    </Button>
-                  </Box>
-                </TableCell>
-                <TableCell>
-                  <FormControl size="small">
-                    <InputLabel>List</InputLabel>
-                    <Select value={reg.isOnWaitinglist ? 'waiting-list' : 'participant'} label="List" onChange={e => handleListChange(reg.id!, e.target.value as string)}>
-                      <MenuItem value="participant">Participant</MenuItem>
-                      <MenuItem value="waiting-list">Waiting-list</MenuItem>
-                    </Select>
-                  </FormControl>
-                </TableCell>
-                <TableCell>
-                  <FormControl size="small">
-                    <InputLabel>Status</InputLabel>
-                    <Select value={reg.status ?? ''} onChange={e => handleStatusChange(reg.id!, e.target.value as string)}>
-                      {statuses.map(s => <MenuItem key={s.id} value={s.label}>{s.label}</MenuItem>)}
-                    </Select>
-                  </FormControl>
+                  <Button size="small" onClick={() => openDetails(reg)}>Details</Button>
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
+      )}
+      {selectedReg && (
+        <RegistrationDetailsDialog
+          open={dialogOpen}
+          registration={selectedReg}
+          statuses={statuses}
+          onClose={closeDetails}
+          onUpdate={handleUpdate}
+        />
       )}
     </Box>
   );

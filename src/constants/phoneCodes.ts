@@ -6,11 +6,7 @@ export const COMMON_PHONE_CODES: PhoneCode[] = [
   { country: 'Sweden', code: '+46', flag: '🇸🇪', isCommon: true },
   { country: 'Denmark', code: '+45', flag: '🇩🇰', isCommon: true },
   { country: 'Finland', code: '+358', flag: '🇫🇮', isCommon: true },
-  { country: 'United States', code: '+1', flag: '🇺🇸', isCommon: true },
-  { country: 'United Kingdom', code: '+44', flag: '🇬🇧', isCommon: true },
-  { country: 'Germany', code: '+49', flag: '🇩🇪', isCommon: true },
-  { country: 'France', code: '+33', flag: '🇫🇷', isCommon: true }
-];
+;
 
 // All phone country codes
 export const PHONE_CODES: PhoneCode[] = [
@@ -23,6 +19,8 @@ export const PHONE_CODES: PhoneCode[] = [
   { country: 'China', code: '+86', flag: '🇨🇳' },
   { country: 'Czech Republic', code: '+420', flag: '🇨🇿' },
   { country: 'Estonia', code: '+372', flag: '🇪🇪' },
+  { country: 'France', code: '+33', flag: '🇫🇷' },
+  { country: 'Germany', code: '+49', flag: '🇩🇪' },
   { country: 'Greece', code: '+30', flag: '🇬🇷' },
   { country: 'Iceland', code: '+354', flag: '🇮🇸' },
   { country: 'India', code: '+91', flag: '🇮🇳' },
@@ -39,6 +37,9 @@ export const PHONE_CODES: PhoneCode[] = [
   { country: 'Russia', code: '+7', flag: '🇷🇺' },
   { country: 'South Africa', code: '+27', flag: '🇿🇦' },
   { country: 'Spain', code: '+34', flag: '🇪🇸' },
-  { country: 'Switzerland', code: '+41', flag: '🇨🇭' }
+  { country: 'Switzerland', code: '+41', flag: '🇨🇭' },
+  { country: 'United States', code: '+1', flag: '🇺🇸' },
+  { country: 'United Kingdom', code: '+44', flag: '🇬🇧' }
+]
   // More phone codes can be added here or loaded from a database in the future
 ];
