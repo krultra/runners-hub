@@ -91,7 +91,7 @@ const RegistrationsPanel: React.FC = () => {
               <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>Sum p/c</TableCell>
               <TableCell>{participantsPending + participantsConfirmed}</TableCell>
               <TableCell>{waitingPending + waitingConfirmed}</TableCell>
-              <TableCell>{participantsTotal + waitingTotal}</TableCell>
+              <TableCell>{participantsPending + participantsConfirmed + waitingPending + waitingConfirmed}</TableCell>
             </TableRow>
             <TableRow>
               <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>Cancelled</TableCell>

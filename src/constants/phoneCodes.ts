@@ -39,6 +39,5 @@ export const PHONE_CODES: PhoneCode[] = [
   { country: 'Switzerland', code: '+41', flag: '🇨🇭' },
   { country: 'United States', code: '+1', flag: '🇺🇸' },
   { country: 'United Kingdom', code: '+44', flag: '🇬🇧' }
-]
-  // More phone codes can be added here or loaded from a database in the future
 ];
+// More phone codes can be added here or loaded from a database in the future

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -14,11 +14,26 @@ import {
   MenuItem,
   Table,
   TableBody,
+  TableHead,
   TableRow,
   TableCell,
+  TableContainer,
   SelectChangeEvent,
 } from '@mui/material';
-import { Registration, Payment, PaymentMethod } from '../../types';
+import {
+  onSnapshot,
+  DocumentReference,
+} from 'firebase/firestore';
+import { doc, updateDoc, getDoc, arrayUnion, Timestamp } from 'firebase/firestore';
+import { db } from '../../config/firebase';
+import CircularProgress from '@mui/material/CircularProgress';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
+import {
+  Registration,
+  Payment,
+  PaymentMethod,
+} from '../../types';
 import {
   updateRegistration,
   addPaymentToRegistration,
@@ -26,14 +41,11 @@ import {
   getRegistrationById,
 } from '../../services/registrationService';
 import {
-  sendPaymentConfirmationEmail,
-  sendWaitingListEmail,
-  sendRegistrationCancellationEmail,
-  sendRegistrationExpirationEmail,
-  sendStatusChangedEmail,
+  sendEmail,
   EmailType,
 } from '../../services/emailService';
 import { RegistrationStatus } from '../../services/statusService';
+import { listEmailTemplates, EmailTemplate } from '../../services/templateService';
 
 interface Props {
   open: boolean;
@@ -43,24 +55,71 @@ interface Props {
   onUpdate: () => void;
 }
 
-const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, statuses, onClose, onUpdate }) => {
-  const [isOnWaitinglist, setIsOnWaitinglist] = useState(registration.isOnWaitinglist || false);
+const RegistrationDetailsDialog: React.FC<Props> = ({
+  open,
+  registration,
+  statuses,
+  onClose,
+  onUpdate,
+}) => {
+  const [isOnWaitinglist, setIsOnWaitinglist] = useState(
+    registration.isOnWaitinglist || false
+  );
   const [status, setStatus] = useState(registration.status || '');
-  const [payments, setPayments] = useState<Payment[]>(registration.payments || []);
-  const [paymentForm, setPaymentForm] = useState<{ amount: string; method: PaymentMethod; comment: string }>({ amount: '', method: 'vipps', comment: '' });
+  const [payments, setPayments] = useState<Payment[]>(
+    registration.payments || []
+  );
+  const [paymentForm, setPaymentForm] = useState<{
+    amount: string;
+    method: PaymentMethod;
+    comment: string;
+  }>({ amount: '', method: 'vipps', comment: '' });
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
   const [adminComment, setAdminComment] = useState('');
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
-  const [selectedEmailType, setSelectedEmailType] = useState<EmailType>(EmailType.PAYMENT_CONFIRMATION);
-  const allEmailTypes = Object.values(EmailType);
-  const [adminCommentsList, setAdminCommentsList] = useState(registration.adminComments || []);
+  const [selectedEmailType, setSelectedEmailType] = useState<EmailType>(
+    EmailType.PAYMENT_CONFIRMATION
+  );
+  const [templates, setTemplates] = useState<EmailTemplate[]>([]);
+  const [adminCommentsList, setAdminCommentsList] = useState(
+    registration.adminComments || []
+  );
+
+  // mail send progress state
+  const [mailProgressOpen, setMailProgressOpen] = useState(false);
+  const [mailStatus, setMailStatus] = useState<string>('pending');
+  const [mailError, setMailError] = useState<string>('');
+  const [timerExceeded, setTimerExceeded] = useState(false);
+  const unsubscribeRef = useRef<() => void | null>(null);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [mailDetailsOpen, setMailDetailsOpen] = useState(false);
+  const [selectedMailDetails, setSelectedMailDetails] = useState<any>(null);
 
   useEffect(() => {
     setIsOnWaitinglist(registration.isOnWaitinglist || false);
     setStatus(registration.status || '');
     setPayments(registration.payments || []);
-    setAdminCommentsList(registration.adminComments || []);
+    setAdminCommentsList(
+      (registration.adminComments || []).slice().sort((a, b) => {
+        const ta = a.at.toDate ? a.at.toDate().getTime() : new Date(a.at).getTime();
+        const tb = b.at.toDate ? b.at.toDate().getTime() : new Date(b.at).getTime();
+        return tb - ta;
+      })
+    );
   }, [registration]);
+
+  // load dynamic email templates
+  useEffect(() => {
+    listEmailTemplates().then(setTemplates).catch(console.error);
+  }, []);
+
+  // cleanup mail listener & timer on unmount
+  useEffect(() => {
+    return () => {
+      if (unsubscribeRef.current) unsubscribeRef.current();
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, []);
 
   const refreshReg = async () => {
     const fresh = await getRegistrationById(registration.id!);
@@ -68,7 +127,13 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
     setIsOnWaitinglist(fresh.isOnWaitinglist || false);
     setStatus(fresh.status || '');
     setPayments(fresh.payments || []);
-    setAdminCommentsList(fresh.adminComments || []);
+    setAdminCommentsList(
+      (fresh.adminComments || []).slice().sort((a, b) => {
+        const ta = a.at.toDate ? a.at.toDate().getTime() : new Date(a.at).getTime();
+        const tb = b.at.toDate ? b.at.toDate().getTime() : new Date(b.at).getTime();
+        return tb - ta;
+      })
+    );
   };
 
   const handleListChange = async (e: SelectChangeEvent<string>) => {
@@ -76,6 +141,12 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
     const newList = listType === 'waiting-list';
     await updateRegistration(registration.id!, { isOnWaitinglist: newList }, false);
     setIsOnWaitinglist(newList);
+    // suggest mail template for list switch
+    const defaultTemplate = newList
+      ? EmailType.P_LIST2W_LIST
+      : EmailType.W_LIST2P_LIST_OFFER;
+    setSelectedEmailType(defaultTemplate);
+    setEmailDialogOpen(true);
     onUpdate();
   };
 
@@ -88,7 +159,11 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
   const confirmStatusChange = async () => {
     setCommentDialogOpen(false);
     // refresh and prompt email
-    await updateRegistrationStatus(registration.id!, status, adminComment.trim() || undefined);
+    await updateRegistrationStatus(
+      registration.id!,
+      status,
+      adminComment.trim() || undefined
+    );
     await refreshReg();
     const def =
       status === 'cancelled'
@@ -130,38 +205,82 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
   };
 
   const confirmSendEmail = async () => {
+    setEmailDialogOpen(false);
+    // reset progress state
+    setMailProgressOpen(true);
+    setMailStatus('pending');
+    setMailError('');
+    setTimerExceeded(false);
+    // clear previous listener/timer
+    if (unsubscribeRef.current) unsubscribeRef.current();
+    if (timerRef.current) clearTimeout(timerRef.current);
     try {
       const fullReg = await getRegistrationById(registration.id!);
-      if (fullReg) {
-        // ensure correct recipient
-        const toEmail = fullReg.originalEmail || fullReg.email;
-        const regForEmail = { ...fullReg, email: toEmail };
-        switch (selectedEmailType) {
-          case EmailType.PAYMENT_CONFIRMATION:
-            await sendPaymentConfirmationEmail(regForEmail);
-            break;
-          case EmailType.WAITING_LIST_CONFIRMATION:
-            await sendWaitingListEmail(regForEmail);
-            break;
-          case EmailType.CANCELLATION:
-            await sendRegistrationCancellationEmail(regForEmail);
-            break;
-          case EmailType.EXPIRATION:
-            await sendRegistrationExpirationEmail(regForEmail);
-            break;
-          case EmailType.STATUS_CHANGED:
-            await sendStatusChangedEmail(regForEmail);
-            break;
-        }
-        // refresh views
-        await refreshReg();
-        onUpdate();
+      if (!fullReg) throw new Error('Registration not found');
+      const toEmail = fullReg.originalEmail || fullReg.email;
+      const regForEmail = { ...fullReg, email: toEmail };
+      // send any template by type
+      const mailRef: DocumentReference<any> = await sendEmail(
+        selectedEmailType,
+        toEmail,
+        regForEmail
+      );
+      if (mailRef) {
+        // record in adminComments
+        await updateDoc(doc(db, 'registrations', registration.id!), {
+          adminComments: arrayUnion({
+            at: Timestamp.now(),
+            mailRef: mailRef.id,
+            type: selectedEmailType,
+            state: 'pending'
+          })
+        });
+        // listen for status updates
+        const unsub = onSnapshot(mailRef, (snap) => {
+          const data = snap.data() as any;
+          const rawStatus = data.delivery?.state || data.status;
+          const statusVal = String(rawStatus).toLowerCase();
+          // @ts-ignore: allow dynamic status
+          setMailStatus(statusVal);
+          if (statusVal !== 'pending') {
+            if (timerRef.current) clearTimeout(timerRef.current);
+            if (statusVal === 'error') setMailError(
+              data.delivery?.error ||
+              data.delivery?.errorMsg ||
+              data.errorMsg ||
+              'Unknown error'
+            );
+            if (statusVal === 'success') setTimeout(() => setMailProgressOpen(false), 1000);
+          }
+        });
+        // @ts-ignore: ref assignment
+        unsubscribeRef.current = unsub;
+        // timer for slow sends
+        // @ts-ignore: ref assignment
+        timerRef.current = setTimeout(() => setTimerExceeded(true), 5000);
       }
-    } catch (error) {
-      console.error('Error sending email:', error);
-    } finally {
-      setEmailDialogOpen(false);
+    } catch (err: any) {
+      console.error('Error initiating email send:', err);
+      setMailError(err.message || 'Error sending email');
     }
+    // always refresh
+    await refreshReg();
+    onUpdate();
+  };
+
+  // open mail details popup
+  const openMailDetails = async (mailRefId: string) => {
+    const ref = doc(db, 'mail', mailRefId);
+    const snap = await getDoc(ref);
+    if (snap.exists()) {
+      setSelectedMailDetails({ id: mailRefId, ...snap.data() });
+      setMailDetailsOpen(true);
+    }
+  };
+
+  const closeMailDetails = () => {
+    setMailDetailsOpen(false);
+    setSelectedMailDetails(null);
   };
 
   return (
@@ -171,13 +290,21 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
         <Typography variant="subtitle1">
           {registration.firstName} {registration.lastName}
         </Typography>
-        <Typography variant="body2">Email: {registration.originalEmail || registration.email}</Typography>
+        <Typography variant="body2">
+          Email: {registration.originalEmail || registration.email}
+        </Typography>
         <Typography variant="body2">Race: {registration.raceDistance}</Typography>
-        <Typography variant="body2">Payment Made: {registration.paymentMade}</Typography>
+        <Typography variant="body2">
+          Payment Made: {registration.paymentMade}
+        </Typography>
 
         <FormControl fullWidth margin="normal">
           <InputLabel>List</InputLabel>
-          <Select value={isOnWaitinglist ? 'waiting-list' : 'participant'} label="List" onChange={handleListChange}>
+          <Select
+            value={isOnWaitinglist ? 'waiting-list' : 'participant'}
+            label="List"
+            onChange={handleListChange}
+          >
             <MenuItem value="participant">Participant</MenuItem>
             <MenuItem value="waiting-list">Waiting-list</MenuItem>
           </Select>
@@ -186,13 +313,17 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
         <FormControl fullWidth margin="normal">
           <InputLabel>Status</InputLabel>
           <Select value={status} label="Status" onChange={handleStatusSelect}>
-            {statuses.map(s => (
-              <MenuItem key={s.id} value={s.label}>{s.label}</MenuItem>
+            {statuses.map((s) => (
+              <MenuItem key={s.id} value={s.label}>
+                {s.label}
+              </MenuItem>
             ))}
           </Select>
         </FormControl>
 
-        <Typography variant="h6" sx={{ mt: 2 }}>Payments</Typography>
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Payments
+        </Typography>
         <Table size="small">
           <TableBody>
             {payments.map((p, i) => (
@@ -208,9 +339,16 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
 
         <Box sx={{ display: 'flex', gap: 1, mt: 1 }}>
           <FormControl size="small">
-            <Select value={paymentForm.method} onChange={e => setPaymentForm(f => ({ ...f, method: e.target.value as PaymentMethod }))}>
-              {['vipps','bank transfer','paypal','cash','other'].map(m => (
-                <MenuItem key={m} value={m}>{m}</MenuItem>
+            <Select
+              value={paymentForm.method}
+              onChange={(e) =>
+                setPaymentForm((f) => ({ ...f, method: e.target.value as PaymentMethod }))
+              }
+            >
+              {['vipps', 'bank transfer', 'paypal', 'cash', 'other'].map((m) => (
+                <MenuItem key={m} value={m}>
+                  {m}
+                </MenuItem>
               ))}
             </Select>
           </FormControl>
@@ -218,32 +356,66 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
             size="small"
             label="Amount"
             value={paymentForm.amount}
-            onChange={e => setPaymentForm(f => ({ ...f, amount: e.target.value }))}
+            onChange={(e) =>
+              setPaymentForm((f) => ({ ...f, amount: e.target.value }))
+            }
           />
           <TextField
             size="small"
             label="Comment"
             value={paymentForm.comment}
-            onChange={e => setPaymentForm(f => ({ ...f, comment: e.target.value }))}
+            onChange={(e) =>
+              setPaymentForm((f) => ({ ...f, comment: e.target.value }))
+            }
           />
-          <Button variant="contained" onClick={handleAddPayment}>Add</Button>
+          <Button variant="contained" onClick={handleAddPayment}>
+            Add
+          </Button>
         </Box>
 
         {/* Admin comments section */}
-        <Typography variant="h6" sx={{ mt: 2 }}>Admin Comments</Typography>
-        <Table size="small">
-          <TableBody>
-            {(adminCommentsList || []).map((c, i) => (
-              <TableRow key={i}>
-                <TableCell>{c.text}</TableCell>
-                <TableCell>{c.at.toDate ? c.at.toDate().toLocaleString() : new Date(c.at).toLocaleString()}</TableCell>
+        <Typography variant="h6" sx={{ mt: 2 }}>
+          Admin Comments
+        </Typography>
+        <Box sx={{ maxHeight: 400, overflow: 'auto' }}>
+          <Table size="small">
+            <TableHead>
+              <TableRow>
+                <TableCell>Email type</TableCell>
+                <TableCell>Admin comments</TableCell>
+                <TableCell>Timestamp</TableCell>
+                <TableCell>Status</TableCell>
+                <TableCell>Actions</TableCell>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-
+            </TableHead>
+            <TableBody>
+              {(adminCommentsList || []).map((c, i) => (
+                <TableRow key={i}>
+                  <TableCell>{c.type || '-'}</TableCell>
+                  <TableCell>{c.text || '-'}</TableCell>
+                  <TableCell>
+                    {c.at.toDate
+                      ? c.at.toDate().toLocaleString()
+                      : new Date(c.at).toLocaleString()}
+                  </TableCell>
+                  <TableCell>{c.state || '-'}</TableCell>
+                  <TableCell>
+                    {c.mailRef ? (
+                      <Button size="small" onClick={() => openMailDetails(c.mailRef!)}>
+                        Details
+                      </Button>
+                    ) : null}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </Box>
       </DialogContent>
       <DialogActions>
+        <Button variant="outlined" onClick={() => { setSelectedEmailType(EmailType.NEWSLETTER); setEmailDialogOpen(true); }}>
+          Send Email
+        </Button>
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
 
@@ -258,12 +430,14 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
             multiline
             minRows={3}
             value={adminComment}
-            onChange={e => setAdminComment(e.target.value)}
+            onChange={(e) => setAdminComment(e.target.value)}
           />
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setCommentDialogOpen(false)}>Cancel</Button>
-          <Button onClick={confirmStatusChange} autoFocus>Confirm</Button>
+          <Button onClick={confirmStatusChange} autoFocus>
+            Confirm
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -277,11 +451,13 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
             <Select
               value={selectedEmailType}
               label="Template"
-              onChange={e => setSelectedEmailType(e.target.value as EmailType)}
+              onChange={(e) =>
+                setSelectedEmailType(e.target.value as EmailType)
+              }
             >
-              {allEmailTypes.map(opt => (
-                <MenuItem key={opt} value={opt}>
-                  {opt.replace(/_/g, ' ')}
+              {templates.map((tpl) => (
+                <MenuItem key={tpl.type} value={tpl.type}>
+                  {tpl.type.replace(/_/g, ' ')}
                 </MenuItem>
               ))}
             </Select>
@@ -292,6 +468,100 @@ const RegistrationDetailsDialog: React.FC<Props> = ({ open, registration, status
           <Button onClick={confirmSendEmail} autoFocus>
             Yes
           </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Mail progress dialog */}
+      <Dialog
+        open={mailProgressOpen}
+        onClose={() => {
+          setMailProgressOpen(false);
+          if (unsubscribeRef.current) unsubscribeRef.current();
+          if (timerRef.current) clearTimeout(timerRef.current);
+        }}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Email Sending</DialogTitle>
+        <DialogContent>
+          {mailError ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <ErrorIcon color="error" />
+              <Typography color="error">{mailError}</Typography>
+            </Box>
+          ) : mailStatus === 'success' ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+              <CheckCircleIcon color="success" />
+              <Typography>Email sent successfully.</Typography>
+            </Box>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2 }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                <CircularProgress />
+                <Typography>Sending email…</Typography>
+              </Box>
+              {timerExceeded && (
+                <Typography variant="body2" color="textSecondary">
+                  This is taking longer than expected…
+                </Typography>
+              )}
+            </Box>
+          )}
+          <Typography variant="body2" sx={{ mt: 2 }}>
+            You can safely close this dialog even if mail process is still running
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setMailProgressOpen(false);
+              if (unsubscribeRef.current) unsubscribeRef.current();
+              if (timerRef.current) clearTimeout(timerRef.current);
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Mail Details Dialog */}
+      <Dialog open={mailDetailsOpen} onClose={closeMailDetails} maxWidth="sm" fullWidth>
+        <DialogTitle>Email Details</DialogTitle>
+        <DialogContent>
+          {selectedMailDetails && (
+            <TableContainer>
+              <Table size="small">
+                <TableBody>
+                  <TableRow>
+                    <TableCell>Created At</TableCell>
+                    <TableCell>{selectedMailDetails.createdAt?.toDate
+                      ? selectedMailDetails.createdAt.toDate().toLocaleString()
+                      : new Date(selectedMailDetails.createdAt).toLocaleString()}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>To</TableCell>
+                    <TableCell>{selectedMailDetails.to}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Type</TableCell>
+                    <TableCell>{selectedMailDetails.type}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Subject</TableCell>
+                    <TableCell>{selectedMailDetails.message?.subject}</TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell>Status</TableCell>
+                    <TableCell>{selectedMailDetails.delivery?.state || selectedMailDetails.status}</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </TableContainer>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={closeMailDetails}>Close</Button>
         </DialogActions>
       </Dialog>
     </Dialog>
