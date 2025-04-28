@@ -94,6 +94,8 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mailDetailsOpen, setMailDetailsOpen] = useState(false);
   const [selectedMailDetails, setSelectedMailDetails] = useState<any>(null);
+  const [emailCommentDialogOpen, setEmailCommentDialogOpen] = useState(false);
+  const [emailAdminComment, setEmailAdminComment] = useState('');
 
   useEffect(() => {
     setIsOnWaitinglist(registration.isOnWaitinglist || false);
@@ -146,7 +148,8 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
       ? EmailType.P_LIST2W_LIST
       : EmailType.W_LIST2P_LIST_OFFER;
     setSelectedEmailType(defaultTemplate);
-    setEmailDialogOpen(true);
+    setEmailAdminComment('');
+    setEmailCommentDialogOpen(true);
     onUpdate();
   };
 
@@ -226,15 +229,18 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
         regForEmail
       );
       if (mailRef) {
-        // record in adminComments
+        // record in adminComments with comment text
         await updateDoc(doc(db, 'registrations', registration.id!), {
           adminComments: arrayUnion({
             at: Timestamp.now(),
             mailRef: mailRef.id,
             type: selectedEmailType,
-            state: 'pending'
+            state: 'pending',
+            text: emailAdminComment
           })
         });
+        // clear admin comment
+        setEmailAdminComment('');
         // listen for status updates
         const unsub = onSnapshot(mailRef, (snap) => {
           const data = snap.data() as any;
@@ -413,7 +419,14 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" onClick={() => { setSelectedEmailType(EmailType.NEWSLETTER); setEmailDialogOpen(true); }}>
+        <Button
+          variant="outlined"
+          onClick={() => {
+            setEmailAdminComment('');
+            setSelectedEmailType(EmailType.NEWSLETTER);
+            setEmailCommentDialogOpen(true);
+          }}
+        >
           Send Email
         </Button>
         <Button onClick={onClose}>Close</Button>
@@ -436,6 +449,35 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
         <DialogActions>
           <Button onClick={() => setCommentDialogOpen(false)}>Cancel</Button>
           <Button onClick={confirmStatusChange} autoFocus>
+            Confirm
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Email Admin Comment Dialog */}
+      <Dialog open={emailCommentDialogOpen} onClose={() => setEmailCommentDialogOpen(false)}>
+        <DialogTitle>Admin Comment</DialogTitle>
+        <DialogContent>
+          <TextField
+            autoFocus
+            margin="dense"
+            label="Comment"
+            fullWidth
+            multiline
+            minRows={3}
+            value={emailAdminComment}
+            onChange={(e) => setEmailAdminComment(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setEmailCommentDialogOpen(false)}>Cancel</Button>
+          <Button
+            onClick={() => {
+              setEmailCommentDialogOpen(false);
+              setEmailDialogOpen(true);
+            }}
+            autoFocus
+          >
             Confirm
           </Button>
         </DialogActions>
