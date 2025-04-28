@@ -8,7 +8,9 @@ import {
   query, 
   where, 
   serverTimestamp,
-  Timestamp
+  Timestamp,
+  runTransaction,
+  arrayUnion
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Registration, Payment } from '../types';
@@ -372,4 +374,34 @@ export const generateTestRegistrations = async (editionId: string, count: number
 
     await addDoc(collectionRef, regToSave);
   }
+};
+
+/**
+ * Updates registration status with admin tracking (stashes email and comments)
+ * @param id Registration document ID
+ * @param newStatus Target status (e.g., 'cancelled', 'expired')
+ * @param comment Optional admin comment for change
+ */
+export const updateRegistrationStatus = async (
+  id: string,
+  newStatus: string,
+  comment?: string
+): Promise<void> => {
+  const ref = doc(db, REGISTRATIONS_COLLECTION, id);
+  await runTransaction(db, async tx => {
+    const snap = await tx.get(ref);
+    if (!snap.exists()) throw new Error('Registration not found');
+    const data = snap.data() as any;
+    const updates: any = { status: newStatus };
+    // On invalidation, stash original email
+    if ((newStatus === 'cancelled' || newStatus === 'expired') && !data.originalEmail) {
+      updates.originalEmail = data.email;
+      updates.email = '';
+    }
+    // Append admin comment
+    if (comment) {
+      updates.adminComments = arrayUnion({ text: comment, at: Timestamp.now() });
+    }
+    tx.update(ref, updates);
+  });
 };

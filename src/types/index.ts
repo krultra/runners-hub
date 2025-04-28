@@ -65,6 +65,18 @@ export interface Registration {
   userId?: string | null;
   registrationNumber?: number; // Sequential registration number
   status?: string; // Dynamic registration status from Firestore
+  
+  // Admin tracking (including email sends)
+  adminComments?: Array<{
+    text?: string;
+    at: any;
+    mailRef?: string;
+    type?: string;
+    state?: string;
+  }>;
+  
+  originalEmail?: string; // Stashes previous email on invalidation
+  
   paymentStatus?: 'pending' | 'completed' | 'refunded';
   createdAt?: any; // Firestore Timestamp
   updatedAt?: any; // Firestore Timestamp

@@ -20,6 +20,7 @@
     "@types/node": "^16.18.126",
     "csv-writer": "^1.6.0",
     "date-fns": "^2.30.0",
+    "file-saver": "^2.0.5",
     "firebase": "^11.6.0",
     "handlebars": "^4.7.8",
     "js-beautify": "^1.15.4",
