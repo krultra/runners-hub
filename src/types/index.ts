@@ -80,6 +80,19 @@ export interface Registration {
   paymentStatus?: 'pending' | 'completed' | 'refunded';
   createdAt?: any; // Firestore Timestamp
   updatedAt?: any; // Firestore Timestamp
+  remindersSent?: number; // number of reminder emails sent
+}
+
+// ActionRequests for admin review
+export interface ActionRequest {
+  id?: string;
+  registrationId: string;
+  email: string;
+  type: 'sendReminder' | 'sendLastNotice' | 'expireRegistration';
+  reason: string;
+  createdAt?: any;
+  status: 'pending' | 'done' | 'approved' | 'rejected';
+  actedAt?: any;
 }
 
 // User type

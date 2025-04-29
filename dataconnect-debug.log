@@ -1,10 +1,16 @@
-I0417 08:13:07.899707    3860 load.go:37] Reloading schema and connectors...
-I0417 08:13:07.932978    3860 control.go:71] [/emulator/runners-hub ab0d] UpdateResources(): done
-Schema: sources: schema\schema.gql [2088B] 
-Connector "default": sources: connector\mutations.gql [1233B] connector\queries.gql [1802B] 
-I0417 08:13:07.952438    3860 codegen.go:82] [connector "default" javascriptSdk] Generating sources into "C:\\Users\\tok\\Code\\runners-hub\\dataconnect-generated\\js\\default-connector"
-I0417 08:13:07.960087    3860 collector.go:107] schema extensions wrote into "C:\\Users\\tok\\Code\\runners-hub\\dataconnect\\.dataconnect\\schema"
-Generated sources: prelude.gql [69396B] 
-I0417 08:13:07.994408    3860 collector.go:107] connector "default" javascriptSdk wrote into "C:\\Users\\tok\\Code\\runners-hub\\dataconnect-generated\\js\\default-connector"
-Generated sources: index.d.ts [246B] README.md [2774B] react\package.json [468B] react\README.md [5417B] react\esm\package.json [17B] react\index.cjs.js [0B] react\esm\index.esm.js [0B] esm\index.esm.js [116B] esm\package.json [17B] index.cjs.js [151B] package.json [860B] react\index.d.ts [228B] 
-I0417 08:13:08.002383    3860 installsdk.go:80] Running command: c:\Users\tok\AppData\Roaming\fnm\node-versions\v22.14.0\installation\npm.cmd install file:dataconnect-generated\js\default-connector
+I0429 19:29:55.288159  762314 load.go:37] Reloading schema and connectors...
+I0429 19:29:55.305405  762314 control.go:59] [/emulator/runners-hub 012e] UpdateResources(): done
+Schema: sources: schema/schema.gql [2088B] 
+Connector "default": sources: connector/mutations.gql [1233B] connector/queries.gql [1802B] 
+I0429 19:29:55.316884  762314 codegen.go:82] [connector "default" javascriptSdk] Generating sources into "/home/torgeir-kruke/CascadeProjects/runners-hub/dataconnect/connector/..\\..\\dataconnect-generated\\js\\default-connector"
+I0429 19:29:55.319097  762314 collector.go:107] schema extensions wrote into "/home/torgeir-kruke/CascadeProjects/runners-hub/dataconnect/.dataconnect/schema"
+Generated sources: prelude.gql [66094B] 
+I0429 19:29:55.319815  762314 collector.go:107] connector "default" javascriptSdk wrote into "/home/torgeir-kruke/CascadeProjects/runners-hub/dataconnect/connector/..\\..\\dataconnect-generated\\js\\default-connector"
+Generated sources: index.cjs.js [152B] package.json [895B] README.md [2800B] react/package.json [468B] react/esm/package.json [17B] react/index.cjs.js [0B] index.d.ts [246B] esm/index.esm.js [116B] esm/package.json [17B] react/index.d.ts [228B] react/esm/index.esm.js [0B] react/README.md [5443B] 
+I0429 19:29:55.319834  762314 installsdk.go:33] Unable to find package.json. Skipping automatic installation of @firebasegen/default-connector
+I0429 19:29:55.319840  762314 load.go:115] Finished reloading
+I0429 19:29:55.319913  762314 dev.go:95] Listening on address (HTTP + gRPC): 127.0.0.1:9399
+I0429 19:29:55.319939  762314 dev.go:95] Listening on address (HTTP + gRPC): [::1]:9399
+I0429 19:29:58.209453  762314 control.go:59] [/emulator/runners-hub fc80] UpdateResources(): done
+Schema: sources: schema/schema.gql [2088B] 
+Connector "default": sources: connector/mutations.gql [1233B] connector/queries.gql [1802B] 

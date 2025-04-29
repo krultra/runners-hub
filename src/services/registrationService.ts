@@ -49,6 +49,7 @@ export const createRegistration = async (
       // Add metadata
       userId: userId || null,
       status: 'pending', // Initial status
+      remindersSent: 0, // initialize reminder count
       registrationNumber, // Add the sequential registration number
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()

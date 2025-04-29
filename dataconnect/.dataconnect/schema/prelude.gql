@@ -57,6 +57,83 @@ directive @check(
   optional: Boolean = false
 ) repeatable on QUERY | MUTATION | FIELD | FRAGMENT_DEFINITION | FRAGMENT_SPREAD | INLINE_FRAGMENT
 
+"AccessLevel specifies coarse access policies for common situations."
+enum AccessLevel {
+  """
+  This operation is accessible to anyone, with or without authentication.
+  Equivalent to: `@auth(expr: "true")`
+  """
+  PUBLIC
+
+  """
+  This operation can be executed only with  a valid Firebase Auth ID token.
+  **Note:** This access level allows anonymous and unverified accounts,
+  which may present security and abuse risks.
+  Equivalent to: `@auth(expr: "auth.uid != nil")`
+  """
+  USER_ANON
+
+  """
+  This operation is restricted to non-anonymous Firebase Auth accounts.
+  Equivalent to: `@auth(expr: "auth.uid != nil && auth.token.firebase.sign_in_provider != 'anonymous'")`
+  """
+  USER
+
+  """
+  This operation is restricted to Firebase Auth accounts with verified email addresses.
+  Equivalent to: `@auth(expr: "auth.uid != nil && auth.token.email_verified")`
+  """
+  USER_EMAIL_VERIFIED
+
+  """
+  This operation cannot be executed by anyone. The operation can only be performed
+  by using the Admin SDK from a privileged environment.
+  Equivalent to: `@auth(expr: "false")`
+  """
+  NO_ACCESS
+}
+
+"""
+The `@auth` directive defines the authentication policy for a query or mutation.
+
+It must be added to any operation that you wish to be accessible from a client
+application. If not specified, the operation defaults to `@auth(level: NO_ACCESS)`.
+
+Refer to [Data Connect Auth Guide](https://firebase.google.com/docs/data-connect/authorization-and-security) for the best practices.
+"""
+directive @auth(
+  """
+  The minimal level of access required to perform this operation.
+  Exactly one of `level` and `expr` should be specified.
+  """
+  level: AccessLevel @fdc_oneOf(required: true)
+  """
+  A CEL expression that grants access to this operation if the expression
+  evaluates to `true`.
+  Exactly one of `level` and `expr` should be specified.
+  """
+  expr: Boolean_Expr @fdc_oneOf(required: true)
+) on QUERY | MUTATION
+
+
+"""
+Require that this mutation always run in a DB transaction.
+
+Mutations with `@transaction` are guaranteed to either fully succeed or fully
+fail. If any of the fields within the transaction fails, the entire transaction
+is rolled back. From a client standpoint, any failure behaves as if the entire
+request had failed with a request error and execution had not begun.
+
+Mutations without `@transaction` would execute each root field one after
+another in sequence. It surfaces any errors as partial [field errors](https://spec.graphql.org/October2021/#sec-Errors.Field-errors),
+but not impacts the subsequent executions.
+
+The `@transaction` directive cannot be added to queries for now.
+Currently, queries cannot fail partially, the response data is not guaranteed
+to be a consistent snapshot.
+"""
+directive @transaction on MUTATION
+
 "Query filter criteria for `String` scalar fields."
 input String_Filter {
   "When true, match if field `IS NULL`. When false, match if field is `NOT NULL`."
@@ -157,14 +234,14 @@ input Int_Filter {
   "When true, match if field `IS NULL`. When false, match if field is `NOT NULL`."
   isNull: Boolean
   "Match if field is exactly equal to provided value."
-  eq: Int @fdc_oneOf(group: "eq")
+  eq: Int
   """
   Match if field is exactly equal to the result of the provided server value
   expression.
   """
   eq_expr: Int_Expr @fdc_oneOf(group: "eq")
   "Match if field is not equal to provided value."
-  ne: Int @fdc_oneOf(group: "ne")
+  ne: Int
   """
   Match if field is not equal to the result of the provided server value
   expression.
@@ -175,28 +252,28 @@ input Int_Filter {
   "Match if field value is not among the provided list of values."
   nin: [Int!]
   "Match if field value is greater than the provided value."
-  gt: Int @fdc_oneOf(group: "gt")
+  gt: Int
   """
   Match if field value is greater than the result of the provided server value
   expression.
   """
   gt_expr: Int_Expr @fdc_oneOf(group: "gt")
   "Match if field value is greater than or equal to the provided value."
-  ge: Int @fdc_oneOf(group: "ge")
+  ge: Int
   """
   Match if field value is greater than or equal to the result of the provided
   server value expression.
   """
   ge_expr: Int_Expr @fdc_oneOf(group: "ge")
   "Match if field value is less than the provided value."
-  lt: Int @fdc_oneOf(group: "lt")
+  lt: Int
   """
   Match if field value is less than the result of the provided server value
   expression.
   """
   lt_expr: Int_Expr @fdc_oneOf(group: "lt")
   "Match if field value is less than or equal to the provided value."
-  le: Int @fdc_oneOf(group: "le")
+  le: Int
   """
   Match if field value is less than or equal to the result of the provided
   server value expression.
@@ -221,51 +298,21 @@ input Int64_Filter {
   "When true, match if field `IS NULL`. When false, match if field is `NOT NULL`."
   isNull: Boolean
   "Match if field is exactly equal to provided value."
-  eq: Int64 @fdc_oneOf(group: "eq")
-  """
-  Match if field is exactly equal to the result of the provided server value
-  expression.
-  """
-  eq_expr: Int64_Expr @fdc_oneOf(group: "eq")
+  eq: Int64
   "Match if field is not equal to provided value."
-  ne: Int64 @fdc_oneOf(group: "ne")
-  """
-  Match if field is not equal to the result of the provided server value
-  expression.
-  """
-  ne_expr: Int64_Expr @fdc_oneOf(group: "ne")
+  ne: Int64
   "Match if field value is among the provided list of values."
   in: [Int64!]
   "Match if field value is not among the provided list of values."
   nin: [Int64!]
   "Match if field value is greater than the provided value."
-  gt: Int64 @fdc_oneOf(group: "gt")
-  """
-  Match if field value is greater than the result of the provided server value
-  expression.
-  """
-  gt_expr: Int64_Expr @fdc_oneOf(group: "gt")
+  gt: Int64
   "Match if field value is greater than or equal to the provided value."
-  ge: Int64 @fdc_oneOf(group: "ge")
-  """
-  Match if field value is greater than or equal to the result of the provided
-  server value expression.
-  """
-  ge_expr: Int64_Expr @fdc_oneOf(group: "ge")
+  ge: Int64
   "Match if field value is less than the provided value."
-  lt: Int64 @fdc_oneOf(group: "lt")
-  """
-  Match if field value is less than the result of the provided server value
-  expression.
-  """
-  lt_expr: Int64_Expr @fdc_oneOf(group: "lt")
+  lt: Int64
   "Match if field value is less than or equal to the provided value."
-  le: Int64 @fdc_oneOf(group: "le")
-  """
-  Match if field value is less than or equal to the result of the provided
-  server value expression.
-  """
-  le_expr: Int64_Expr @fdc_oneOf(group: "le")
+  le: Int64
 }
 
 "Query filter criteria for `[Int64!]` scalar fields."
@@ -349,15 +396,9 @@ input Boolean_Filter {
   "When true, match if field `IS NULL`. When false, match if field is `NOT NULL`."
   isNull: Boolean
   "Match if field is exactly equal to provided value."
-  eq: Boolean @fdc_oneOf(group: "eq")
-  "Match if field is equal to the result of the provided expression."
-  eq_expr: Boolean_Expr @fdc_oneOf(group: "eq")
+  eq: Boolean
   "Match if field is not equal to provided value."
-  ne: Boolean @fdc_oneOf(group: "ne")
-  """
-  Match if field does not match the result of the provided expression.
-  """
-  ne_expr: Boolean_Expr @fdc_oneOf(group: "ne")
+  ne: Boolean
   "Match if field value is among the provided list of values."
   in: [Boolean!]
   "Match if field value is not among the provided list of values."
@@ -729,17 +770,6 @@ scalar Int_Expr
   @fdc_forbiddenAsFieldType
   @fdc_example(value: "2 * 4", description: "Evaluates to 8.")
   @fdc_example(value: "vars.foo.size()", description: "Assuming `vars.foo` is a string, it will evaluate to the length of the string.")
-
-
-"""
-A Common Expression Language (CEL) expression that returns a Int64 at runtime.
-"""
-scalar Int64_Expr
-  @specifiedBy(url: "https://github.com/google/cel-spec")
-  @fdc_celExpression(returnType: "int64")
-  @fdc_forbiddenAsVariableType
-  @fdc_forbiddenAsFieldType
-  @fdc_example(value: "5000*1000*1000", description: "Evaluates to 5e9.")
 
 """
 A Common Expression Language (CEL) expression that returns a Float at runtime.
@@ -1657,7 +1687,7 @@ input Timestamp_ListFilter {
   excludesAll: [Timestamp!]
 }
 
-"Update input of a `Date` value. Only one of `inc` or `dec` may be specified."
+"Update input of a `Date` value."
 input Date_Update {
   "Increment the field by a provided duration."
   inc: Date_Duration @fdc_oneOf
@@ -1665,7 +1695,7 @@ input Date_Update {
   dec: Date_Duration @fdc_oneOf
 }
 
-"Update input of a `Date` list value. Only one of `append` or `prepend` may be specified."
+"Update input of a `Date` list value."
 input Date_ListUpdate {
   "Append the provided `Date` values to the existing list."
   append: [Date!] @fdc_oneOf
@@ -1673,7 +1703,7 @@ input Date_ListUpdate {
   prepend: [Date!] @fdc_oneOf
 }
 
-"Update input of a `Timestamp` value. Only one of `inc` or `dec` may be specified."
+"Update input of a `Timestamp` value."
 input Timestamp_Update {
   "Increment the field by a provided duration."
   inc: Timestamp_Duration @fdc_oneOf
@@ -1681,7 +1711,7 @@ input Timestamp_Update {
   dec: Timestamp_Duration @fdc_oneOf
 }
 
-"Update input of an `Timestamp` list value. Only one of `append` or `prepend` may be specified."
+"Update input of an `Timestamp` list value."
 input Timestamp_ListUpdate {
   "Append the provided `Timestamp` values to the existing list."
   append: [Timestamp!] @fdc_oneOf
@@ -1774,7 +1804,7 @@ enum Date_Interval @fdc_forbiddenAsFieldType {
   YEAR
 }
 
-"Update input of a `String` list value. Only one of `append` or `prepend` may be specified."
+"Update input of a `String` list value."
 input String_ListUpdate {
   "Append the provided values to the existing list."
   append: [String!] @fdc_oneOf
@@ -1782,7 +1812,7 @@ input String_ListUpdate {
   prepend: [String!] @fdc_oneOf
 }
 
-"Update input of an `ID` list value. Only one of `append` or `prepend` may be specified."
+"Update input of an `ID` list value."
 input UUID_ListUpdate {
   "Append the provided UUIDs to the existing list."
   append: [UUID!] @fdc_oneOf
@@ -1790,7 +1820,7 @@ input UUID_ListUpdate {
   prepend: [UUID!] @fdc_oneOf
 }
 
-"Update input of an `Int` value. Only one of `inc` or `dec` may be specified."
+"Update input of an `Int` value."
 input Int_Update {
   "Increment the field by a provided value."
   inc: Int @fdc_oneOf
@@ -1798,7 +1828,7 @@ input Int_Update {
   dec: Int @fdc_oneOf
 }
 
-"Update input of an `Int` list value. Only one of `append` or `prepend` may be specified."
+"Update input of an `Int` list value."
 input Int_ListUpdate {
   "Append the provided list of values to the existing list."
   append: [Int!] @fdc_oneOf
@@ -1806,7 +1836,7 @@ input Int_ListUpdate {
   prepend: [Int!] @fdc_oneOf
 }
 
-"Update input of an `Int64` value. Only one of `inc` or `dec` may be specified."
+"Update input of an `Int64` value."
 input Int64_Update {
   "Increment the field by a provided value."
   inc: Int64 @fdc_oneOf
@@ -1814,7 +1844,7 @@ input Int64_Update {
   dec: Int64 @fdc_oneOf
 }
 
-"Update input of an `Int64` list value. Only one of `append` or `prepend` may be specified."
+"Update input of an `Int64` list value."
 input Int64_ListUpdate {
   "Append the provided list of values to the existing list."
   append: [Int64!] @fdc_oneOf
@@ -1822,7 +1852,7 @@ input Int64_ListUpdate {
   prepend: [Int64!] @fdc_oneOf
 }
 
-"Update input of a `Float` value. Only one of `inc` or `dec` may be specified."
+"Update input of a `Float` value."
 input Float_Update {
   "Increment the field by a provided value."
   inc: Float @fdc_oneOf
@@ -1830,7 +1860,7 @@ input Float_Update {
   dec: Float @fdc_oneOf
 }
 
-"Update input of a `Float` list value. Only one of `append` or `prepend` may be specified."
+"Update input of a `Float` list value."
 input Float_ListUpdate {
   "Append the provided list of values to the existing list."
   append: [Float!] @fdc_oneOf
@@ -1838,7 +1868,7 @@ input Float_ListUpdate {
   prepend: [Float!] @fdc_oneOf
 }
 
-"Update input of a `Boolean` list value. Only one of `append` or `prepend` may be specified."
+"Update input of a `Boolean` list value."
 input Boolean_ListUpdate {
   "Append the provided list of values to the existing list."
   append: [Boolean!] @fdc_oneOf
@@ -1846,7 +1876,7 @@ input Boolean_ListUpdate {
   prepend: [Boolean!] @fdc_oneOf
 }
 
-"Update input of an `Any` list value. Only one of `append` or `prepend` may be specified."
+"Update input of an `Any` list value."
 input Any_ListUpdate {
   "Append the provided list of values to the existing list."
   append: [Any!] @fdc_oneOf
@@ -1981,101 +2011,6 @@ scalar Vector_Embed_Model
   @fdc_example(value: "textembedding-gecko@003", description: "A stable version of the textembedding-gecko model")
   @fdc_example(value: "textembedding-gecko@001", description: "An older version of the textembedding-gecko model")
   @fdc_example(value: "text-embedding-004", description: "Another text embedding model")
-
-"""
-Marks an element of a GraphQL operation as no longer supported for client use.
-The Firebase Data Connect backend will continue supporting this element,
-but it will no longer be visible in the generated SDKs.
-"""
-directive @retired(
-  "Provides the reason for retirement."
-  reason: String
-) on QUERY | MUTATION | FIELD | VARIABLE_DEFINITION
-
-"AccessLevel specifies coarse access policies for common situations."
-enum AccessLevel {
-  """
-  This operation is accessible to anyone, with or without authentication.
-  Equivalent to: `@auth(expr: "true")`
-  """
-  PUBLIC
-
-  """
-  This operation can be executed only with  a valid Firebase Auth ID token.
-  **Note:** This access level allows anonymous and unverified accounts,
-  which may present security and abuse risks.
-  Equivalent to: `@auth(expr: "auth.uid != nil")`
-  """
-  USER_ANON
-
-  """
-  This operation is restricted to non-anonymous Firebase Auth accounts.
-  Equivalent to: `@auth(expr: "auth.uid != nil && auth.token.firebase.sign_in_provider != 'anonymous'")`
-  """
-  USER
-
-  """
-  This operation is restricted to Firebase Auth accounts with verified email addresses.
-  Equivalent to: `@auth(expr: "auth.uid != nil && auth.token.email_verified")`
-  """
-  USER_EMAIL_VERIFIED
-
-  """
-  This operation cannot be executed by anyone. The operation can only be performed
-  by using the Admin SDK from a privileged environment.
-  Equivalent to: `@auth(expr: "false")`
-  """
-  NO_ACCESS
-}
-
-"""
-The `@auth` directive defines the authentication policy for a query or mutation.
-
-It must be added to any operation that you wish to be accessible from a client
-application. If not specified, the operation defaults to `@auth(level: NO_ACCESS)`.
-
-Refer to [Data Connect Auth Guide](https://firebase.google.com/docs/data-connect/authorization-and-security) for the best practices.
-"""
-directive @auth(
-  """
-  The minimal level of access required to perform this operation.
-  Exactly one of `level` and `expr` should be specified.
-  """
-  level: AccessLevel @fdc_oneOf(required: true)
-  """
-  A CEL expression that grants access to this operation if the expression
-  evaluates to `true`.
-  Exactly one of `level` and `expr` should be specified.
-  """
-  expr: Boolean_Expr @fdc_oneOf(required: true)
-  """
-  If the `@auth` on this operation is considered insecure, then developer
-  acknowledgement is required to deploy this operation, for new operations.
-  `@auth` is considered insecure if `level: PUBLIC`, or if
-  `level: USER/USER_ANON/USER_EMAIL_VERIFIED` and `auth.uid` is not referenced
-  in the operation.
-  If `insecureReason` is set, no further developer acknowledgement is needed.
-  """
-  insecureReason: String
-) on QUERY | MUTATION
-
-"""
-Require that this mutation always run in a DB transaction.
-
-Mutations with `@transaction` are guaranteed to either fully succeed or fully
-fail. If any of the fields within the transaction fails, the entire transaction
-is rolled back. From a client standpoint, any failure behaves as if the entire
-request had failed with a request error and execution had not begun.
-
-Mutations without `@transaction` would execute each root field one after
-another in sequence. It surfaces any errors as partial [field errors](https://spec.graphql.org/October2021/#sec-Errors.Field-errors),
-but not impacts the subsequent executions.
-
-The `@transaction` directive cannot be added to queries for now.
-Currently, queries cannot fail partially, the response data is not guaranteed
-to be a consistent snapshot.
-"""
-directive @transaction on MUTATION
 
 """
 The `_Metadata` type is used to return metadata about a field in a response.

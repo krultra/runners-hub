@@ -40,7 +40,9 @@
     "build:test": "env-cmd -f .env.test npm run build",
     "deploy:test": "firebase deploy --only hosting --project runnershubtest",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
-    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix"
+    "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
+    "start:test": "env-cmd -f .env.test react-scripts start",
+    "start:dev": "react-scripts start"
   },
   "eslintConfig": {
     "extends": [
