@@ -24,3 +24,9 @@ yarn-debug.log*
 yarn-error.log*
 firebase-debug.log*
 firestore-debug.log*
+# Data Connect emulator debug log
+dataconnect-debug.log*
+# Emulator state and import folders
+/emulator-data
+/firestore-data
+/.firebase/

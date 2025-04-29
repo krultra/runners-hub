@@ -5,6 +5,7 @@ import {
   where,
   onSnapshot,
   doc,
+  getDoc,
   updateDoc,
   serverTimestamp,
   increment,
@@ -45,32 +46,37 @@ const ActionRequestsPanel: React.FC = () => {
       if (req.type === 'sendReminder') {
         const mailRef = await sendEmail(EmailType.REMINDER, req.email, { id: req.registrationId });
         await updateDoc(regRef, { remindersSent: increment(1) });
+        const regSnap = await getDoc(regRef);
+        const currentStatus = regSnap.data()?.status || '';
         await updateDoc(regRef, { adminComments: arrayUnion({
-          text: 'Action request approved by admin',
-          at: serverTimestamp(),
+          text: 'Action request processed by admin',
+          at: new Date(),
           type: req.type,
           mailRef: mailRef.id,
-          state: 'approved'
+          state: currentStatus
         }) });
       } else if (req.type === 'sendLastNotice') {
         const mailRef = await sendEmail(EmailType.LAST_NOTICE, req.email, { id: req.registrationId });
         await updateDoc(regRef, { remindersSent: increment(1) });
+        const regSnap = await getDoc(regRef);
+        const currentStatus = regSnap.data()?.status || '';
         await updateDoc(regRef, { adminComments: arrayUnion({
-          text: 'Action request approved by admin',
-          at: serverTimestamp(),
+          text: 'Action request processed by admin',
+          at: new Date(),
           type: req.type,
           mailRef: mailRef.id,
-          state: 'approved'
+          state: currentStatus
         }) });
       } else if (req.type === 'expireRegistration') {
         await updateDoc(regRef, { status: 'expired', updatedAt: serverTimestamp() });
         const mailRef = await sendEmail(EmailType.EXPIRATION, req.email, { id: req.registrationId });
+        const currentStatus = 'expired';
         await updateDoc(regRef, { adminComments: arrayUnion({
-          text: 'Action request approved by admin',
-          at: serverTimestamp(),
+          text: 'Action request processed by admin',
+          at: new Date(),
           type: req.type,
           mailRef: mailRef.id,
-          state: 'approved'
+          state: currentStatus
         }) });
       }
       await updateDoc(reqRef, { status: 'done', actedAt: serverTimestamp() });
