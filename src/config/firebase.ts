@@ -1,5 +1,5 @@
 import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
+import { getAuth, connectAuthEmulator } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { shouldUseFirestoreEmulator } from './firestoreMode';
 
@@ -27,6 +27,8 @@ export const db = getFirestore(app);
 if (shouldUseFirestoreEmulator()) {
   console.log('Connecting to Firestore emulator on 127.0.0.1:8080');
   connectFirestoreEmulator(db, '127.0.0.1', 8080);
+  console.log('Connecting to Auth emulator on 127.0.0.1:9099');
+  connectAuthEmulator(auth, 'http://127.0.0.1:9099');
 } else {
   console.log('Using Firestore production environment');
 }

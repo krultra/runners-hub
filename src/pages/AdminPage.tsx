@@ -5,12 +5,14 @@ import InvitationsPanel from '../components/admin/InvitationsPanel';
 import RegistrationsPanel from '../components/admin/RegistrationsPanel';
 import TemplatesPanel from '../components/admin/TemplatesPanel';
 import StatusesPanel from '../components/admin/StatusesPanel';
+import ActionRequestsPanel from '../components/admin/ActionRequestsPanel';
 
 const sections = [
   { key: 'invitations', label: 'Invitations' },
   { key: 'registrations', label: 'Registrations' },
   { key: 'templates', label: 'Email Templates' },
   { key: 'statuses', label: 'Statuses' },
+  { key: 'actions', label: 'Action Requests' },
 ] as const;
 type SectionKey = typeof sections[number]['key'];
 
@@ -74,6 +76,7 @@ const AdminPage: React.FC = () => {
         {active === 'registrations' && <RegistrationsPanel />}
         {active === 'templates' && <TemplatesPanel />}
         {active === 'statuses' && <StatusesPanel />}
+        {active === 'actions' && <ActionRequestsPanel />}
       </Box>
     </Box>
   );

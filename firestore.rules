@@ -61,10 +61,21 @@ service cloud.firestore {
       allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
+    // Allow any signed-in user to read actionRequests but restrict writes to admins
+    match /actionRequests/{reqId} {
+      // any signed-in user can list/fetch
+      allow read: if request.auth != null;
+      // only admins can modify
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
     // Allow anyone to read registrations, but only admins to write
     match /registrations/{registrationId} {
       allow read: if true;
-      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      allow write: if request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
     // Deny all other access by default

@@ -1,5 +1,6 @@
 import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
 import { User } from 'firebase/auth';
+import { isAdminUser } from './adminUtils';
 
 export interface AppUser {
   uid: string;
@@ -17,11 +18,13 @@ export async function createOrUpdateUser(user: User) {
   const userRef = doc(db, COLLECTION, user.uid);
   const userSnap = await getDoc(userRef);
   const now = serverTimestamp();
+  const adminFlag = await isAdminUser(user.email!);
   if (userSnap.exists()) {
     await setDoc(userRef, {
       email: user.email,
       displayName: user.displayName || '',
       lastLogin: now,
+      isAdmin: adminFlag,
     }, { merge: true });
   } else {
     await setDoc(userRef, {
@@ -30,7 +33,7 @@ export async function createOrUpdateUser(user: User) {
       displayName: user.displayName || '',
       createdAt: now,
       lastLogin: now,
-      isAdmin: false,
+      isAdmin: adminFlag,
     });
   }
 }

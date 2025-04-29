@@ -5,7 +5,8 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { createOrUpdateUser, getUser } from '../utils/userUtils';
+import { createOrUpdateUser } from '../utils/userUtils';
+import { isAdminUser } from '../utils/adminUtils';
 
 const AppHeader: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -19,8 +20,8 @@ const AppHeader: React.FC = () => {
       setUser(u);
       if (u) {
         await createOrUpdateUser(u);
-        const userDoc = await getUser(u.uid);
-        setIsAdmin(!!userDoc?.isAdmin);
+        const adminFlag = await isAdminUser(u.email!);
+        setIsAdmin(adminFlag);
       } else {
         setIsAdmin(false);
       }

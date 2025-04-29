@@ -1,5 +1,9 @@
 {
   "emulators": {
+    "dataDir": "./emulator-data",
+    "auth": {
+      "port": 9099
+    },
     "dataconnect": {
       "dataDir": "dataconnect/.dataconnect/pgliteData",
       "port": 9399
@@ -24,6 +28,9 @@
   },
   "storage": {
     "rules": "storage.rules"
+  },
+  "functions": {
+    "source": "functions"
   },
   "hosting": {
     "public": "build",
