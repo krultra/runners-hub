@@ -71,12 +71,19 @@ export const importEmailTemplates = async (templates: EmailTemplate[]): Promise<
   const db = getFirestore();
   for (const tpl of templates) {
     const ref = doc(db, 'emailTemplates', tpl.id);
-    await setDoc(ref, {
-      type: tpl.type,
-      locale: tpl.locale,
-      subjectTemplate: tpl.subjectTemplate,
-      bodyTemplate: tpl.bodyTemplate,
-      updatedAt: serverTimestamp(),
-    });
+    try {
+      console.log(`importEmailTemplates: writing template ${tpl.id}`, tpl);
+      await setDoc(ref, {
+        type: tpl.type,
+        locale: tpl.locale,
+        subjectTemplate: tpl.subjectTemplate,
+        bodyTemplate: tpl.bodyTemplate,
+        updatedAt: serverTimestamp(),
+      });
+      console.log(`importEmailTemplates: success for ${tpl.id}`);
+    } catch (error) {
+      console.error(`importEmailTemplates: failed for ${tpl.id}`, error);
+      throw error;
+    }
   }
 };

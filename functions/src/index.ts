@@ -65,7 +65,9 @@ export const reminderPendingRegistrations = functions.pubsub
     const due = snap.docs.filter(d => {
       const data = d.data();
       const requests = data.actionRequests || [];
-      return !data.remindersSent && !requests.includes('sendReminder');
+      const reminders = data.remindersSent || 0;
+      const lastNotices = data.lastNoticesSent || 0;
+      return reminders === 0 && lastNotices === 0 && !requests.includes('sendReminder');
     });
     if (!due.length) return null;
     await Promise.all(due.map(d => {
@@ -107,7 +109,9 @@ export const lastNoticePendingRegistrations = functions.pubsub
     const due = snap.docs.filter(d => {
       const data = d.data();
       const requests = data.actionRequests || [];
-      return data.remindersSent === 1 && !requests.includes('sendLastNotice');
+      const reminders = data.remindersSent || 0;
+      const lastNotices = data.lastNoticesSent || 0;
+      return reminders >= 1 && lastNotices === 0 && !requests.includes('sendLastNotice');
     });
     if (!due.length) return null;
     await Promise.all(due.map(d => {

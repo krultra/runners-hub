@@ -50,6 +50,7 @@ export const createRegistration = async (
       userId: userId || null,
       status: 'pending', // Initial status
       remindersSent: 0, // initialize reminder count
+      lastNoticesSent: 0, // initialize last notice count
       registrationNumber, // Add the sequential registration number
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp()
@@ -250,11 +251,14 @@ export const countActiveParticipants = async (editionId: string): Promise<number
     const q = query(
       collection(db, REGISTRATIONS_COLLECTION),
       where('editionId', '==', editionId),
-      where('isOnWaitinglist', '==', false),
       where('status', 'in', ['pending', 'confirmed'])
     );
     const snap = await getDocs(q);
-    return snap.size;
+    // Count only those not on waiting list (missing flag treated as false)
+    return snap.docs.filter(doc => {
+      const data = doc.data();
+      return data.isOnWaitinglist !== true;
+    }).length;
   } catch (error) {
     console.error('Error counting active participants:', error);
     throw error;

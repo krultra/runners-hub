@@ -8,7 +8,6 @@ import {
   getDoc,
   updateDoc,
   serverTimestamp,
-  increment,
   arrayUnion
 } from 'firebase/firestore';
 import { db } from '../../config/firebase';
@@ -27,25 +26,48 @@ import {
 } from '@mui/material';
 import { ActionRequest } from '../../types';
 
+// Extend ActionRequest with registration details
+interface ActionRequestWithReg extends ActionRequest {
+  firstName?: string;
+  lastName?: string;
+  registrationNumber?: number;
+}
+
 const ActionRequestsPanel: React.FC = () => {
-  const [requests, setRequests] = useState<ActionRequest[]>([]);
+  const [requests, setRequests] = useState<ActionRequestWithReg[]>([]);
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const q = query(collection(db, 'actionRequests'), where('status', '==', 'pending'));
     const unsub = onSnapshot(q, snap => {
-      setRequests(snap.docs.map(d => ({ id: d.id, ...(d.data() as ActionRequest) })));
+      (async () => {
+        const items = await Promise.all(
+          snap.docs.map(async d => {
+            const req = d.data() as ActionRequest;
+            const regSnap = await getDoc(doc(db, 'registrations', req.registrationId));
+            const regData = regSnap.data();
+            return {
+              id: d.id,
+              ...req,
+              firstName: regData?.firstName,
+              lastName: regData?.lastName,
+              registrationNumber: regData?.registrationNumber,
+            };
+          })
+        );
+        setRequests(items);
+      })();
     });
     return () => unsub();
   }, []);
 
-  const handleApprove = async (req: ActionRequest) => {
+  const handleApprove = async (req: ActionRequestWithReg) => {
     const reqRef = doc(db, 'actionRequests', req.id!);
     const regRef = doc(db, 'registrations', req.registrationId);
     try {
       if (req.type === 'sendReminder') {
         const mailRef = await sendEmail(EmailType.REMINDER, req.email, { id: req.registrationId });
-        await updateDoc(regRef, { remindersSent: increment(1) });
+        // remindersSent incremented inside sendEmail
         const regSnap = await getDoc(regRef);
         const currentStatus = regSnap.data()?.status || '';
         await updateDoc(regRef, { adminComments: arrayUnion({
@@ -57,7 +79,7 @@ const ActionRequestsPanel: React.FC = () => {
         }) });
       } else if (req.type === 'sendLastNotice') {
         const mailRef = await sendEmail(EmailType.LAST_NOTICE, req.email, { id: req.registrationId });
-        await updateDoc(regRef, { remindersSent: increment(1) });
+        // lastNoticesSent incremented inside sendEmail
         const regSnap = await getDoc(regRef);
         const currentStatus = regSnap.data()?.status || '';
         await updateDoc(regRef, { adminComments: arrayUnion({
@@ -85,7 +107,7 @@ const ActionRequestsPanel: React.FC = () => {
     }
   };
 
-  const handleReject = async (req: ActionRequest) => {
+  const handleReject = async (req: ActionRequestWithReg) => {
     const reqRef = doc(db, 'actionRequests', req.id!);
     await updateDoc(reqRef, { status: 'rejected', actedAt: serverTimestamp() });
   };
@@ -123,6 +145,8 @@ const ActionRequestsPanel: React.FC = () => {
                   }}
                 />
               </TableCell>
+              <TableCell>Reg #</TableCell>
+              <TableCell>Name</TableCell>
               <TableCell>Type</TableCell>
               <TableCell>Email</TableCell>
               <TableCell>Reason</TableCell>
@@ -143,6 +167,8 @@ const ActionRequestsPanel: React.FC = () => {
                     }}
                   />
                 </TableCell>
+                <TableCell>{r.registrationNumber}</TableCell>
+                <TableCell>{r.firstName} {r.lastName}</TableCell>
                 <TableCell>{r.type}</TableCell>
                 <TableCell>{r.email}</TableCell>
                 <TableCell>{r.reason}</TableCell>

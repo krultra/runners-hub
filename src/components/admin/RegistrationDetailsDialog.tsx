@@ -230,7 +230,8 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
       );
       if (mailRef) {
         // record in adminComments with comment text
-        await updateDoc(doc(db, 'registrations', registration.id!), {
+        const regRef = doc(db, 'registrations', registration.id!);
+        await updateDoc(regRef, {
           adminComments: arrayUnion({
             at: Timestamp.now(),
             mailRef: mailRef.id,
@@ -239,6 +240,7 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
             text: emailAdminComment
           })
         });
+        // counter is updated inside sendEmail
         // clear admin comment
         setEmailAdminComment('');
         // listen for status updates

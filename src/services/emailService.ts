@@ -1,4 +1,4 @@
-import { addDoc, collection, serverTimestamp, DocumentReference } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp, DocumentReference, doc, updateDoc, increment } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { Registration } from '../types';
 import { logSentEmail } from './emailLogService';
@@ -153,6 +153,23 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     createdAt: serverTimestamp(),
   });
   await logSentEmail({ to, subject, type, registrationId: enrichedContext.id, meta: enrichedContext });
+  // update registration counters for reminders and last notices (with debug logging)
+  if (enrichedContext.id) {
+    const regRef = doc(db, 'registrations', enrichedContext.id);
+    try {
+      if (type === EmailType.REMINDER) {
+        console.log(`sendEmail: incrementing remindersSent for ${enrichedContext.id}`);
+        await updateDoc(regRef, { remindersSent: increment(1) });
+        console.log('sendEmail: remindersSent incremented');
+      } else if (type === EmailType.LAST_NOTICE) {
+        console.log(`sendEmail: incrementing lastNoticesSent for ${enrichedContext.id}`);
+        await updateDoc(regRef, { lastNoticesSent: increment(1) });
+        console.log('sendEmail: lastNoticesSent incremented');
+      }
+    } catch (err) {
+      console.error(`sendEmail: error incrementing counters for ${enrichedContext.id}`, err);
+    }
+  }
   return mailRef;
 }
 
