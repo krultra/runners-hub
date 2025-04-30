@@ -3,6 +3,7 @@ import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, useMediaQuery } from '@mui/material';
 import { createRunnersHubTheme } from './config/theme';
+import Box from '@mui/material/Box';
 
 // Import pages (we'll create these next)
 import HomePage from './pages/HomePage';
@@ -46,6 +47,18 @@ function App() {
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </Router>
+      {/* Version footer */}
+      <Box
+        position="fixed"
+        bottom={0}
+        width="100%"
+        textAlign="center"
+        fontSize="0.75rem"
+        color="text.secondary"
+        p={1}
+      >
+        Made by KrUltra 2025 v{process.env.REACT_APP_VERSION || 'dev'}
+      </Box>
     </ThemeProvider>
   );
 }

@@ -81,6 +81,8 @@ export interface Registration {
   createdAt?: any; // Firestore Timestamp
   updatedAt?: any; // Firestore Timestamp
   remindersSent?: number; // number of reminder emails sent
+  /** number of last notice emails sent */
+  lastNoticesSent?: number;
 }
 
 // ActionRequests for admin review

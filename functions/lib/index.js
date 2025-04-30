@@ -34,7 +34,7 @@ const db = admin.firestore();
  * Scheduled Cloud Function: expires pending registrations older than 8 days and 2 reminders sent.
  */
 exports.expirePendingRegistrations = functions.pubsub
-    .schedule('every 24 hours')
+    .schedule('0 0 1 1 *') // once a year
     .onRun(async () => {
     const eightDaysAgo = firestore_1.Timestamp.fromDate(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000));
     const snap = await db.collection('registrations')
@@ -78,7 +78,7 @@ exports.expirePendingRegistrations = functions.pubsub
 });
 // Scheduled Cloud Function: send reminder for pending registrations older than 5 days and no reminders sent
 exports.reminderPendingRegistrations = functions.pubsub
-    .schedule('* * * * *')
+    .schedule('0 0 1 1 *') // once a year
     .onRun(async () => {
     const fiveDaysAgo = firestore_1.Timestamp.fromDate(new Date(Date.now() - 5 * 24 * 60 * 60 * 1000));
     const snap = await db.collection('registrations')
@@ -88,7 +88,9 @@ exports.reminderPendingRegistrations = functions.pubsub
     const due = snap.docs.filter(d => {
         const data = d.data();
         const requests = data.actionRequests || [];
-        return !data.remindersSent && !requests.includes('sendReminder');
+        const reminders = data.remindersSent || 0;
+        const lastNotices = data.lastNoticesSent || 0;
+        return reminders === 0 && lastNotices === 0 && !requests.includes('sendReminder');
     });
     if (!due.length)
         return null;
@@ -120,7 +122,7 @@ exports.reminderPendingRegistrations = functions.pubsub
 });
 // Scheduled Cloud Function: last notice for pending registrations >=7 days & 1 reminder sent
 exports.lastNoticePendingRegistrations = functions.pubsub
-    .schedule('* * * * *')
+    .schedule('0 0 1 1 *') // once a year
     .onRun(async () => {
     const sevenDaysAgo = firestore_1.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
     const snap = await db.collection('registrations')
@@ -130,7 +132,9 @@ exports.lastNoticePendingRegistrations = functions.pubsub
     const due = snap.docs.filter(d => {
         const data = d.data();
         const requests = data.actionRequests || [];
-        return data.remindersSent === 1 && !requests.includes('sendLastNotice');
+        const reminders = data.remindersSent || 0;
+        const lastNotices = data.lastNoticesSent || 0;
+        return reminders >= 1 && lastNotices === 0 && !requests.includes('sendLastNotice');
     });
     if (!due.length)
         return null;
