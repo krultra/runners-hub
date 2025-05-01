@@ -32,11 +32,11 @@ export const sendDailySummary = functions.pubsub
     console.log('[sendDailySummary] html=', html);
     results.forEach(r => { html += `<p>${r.label}: ${r.count}</p>` });
 
-    const adminSnap = await db.collection('admins').get();
-    console.log('[sendDailySummary] admin docs count=', adminSnap.size);
-    console.log('[sendDailySummary] admin docs data=', adminSnap.docs.map(d => d.data()));
-    // use userId as admin email
-    const admins = adminSnap.docs.map(a => (a.data() as any).userId).filter(Boolean);
+    // fetch admin users from users collection
+    const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();
+    console.log('[sendDailySummary] admin users count=', adminSnap.size);
+    console.log('[sendDailySummary] admin user data=', adminSnap.docs.map(d => d.data()));
+    const admins = adminSnap.docs.map(a => (a.data() as any).email).filter(Boolean);
     console.log('[sendDailySummary] admin emails=', admins);
     console.log('[sendDailySummary] sending emails to count=', admins.length);
 

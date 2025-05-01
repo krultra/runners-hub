@@ -72,7 +72,7 @@ exports.expirePendingRegistrations = functions.pubsub
     }));
     console.log('[expirePendingRegistrations] enqueued expireRegistration for ids=', due.map(d => d.id));
     // summary to admins
-    const adminSnap = await db.collection('admins').get();
+    const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();
     const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
     const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
     await Promise.all(admins.map(email => db.collection('mail').add({
@@ -132,7 +132,7 @@ exports.reminderPendingRegistrations = functions.pubsub
         return Promise.all([p1, p2]);
     }));
     console.log('[reminderPendingRegistrations] enqueued sendReminder for ids=', due.map(d => d.id));
-    const adminSnap = await db.collection('admins').get();
+    const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();
     const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
     const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
     await Promise.all(admins.map(email => db.collection('mail').add({
@@ -188,7 +188,7 @@ exports.lastNoticePendingRegistrations = functions.pubsub
         return Promise.all([p1, p2]);
     }));
     console.log('[lastNoticePendingRegistrations] enqueued sendLastNotice for ids=', due.map(d => d.id));
-    const adminSnap = await db.collection('admins').get();
+    const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();
     const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
     const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
     await Promise.all(admins.map(email => db.collection('mail').add({

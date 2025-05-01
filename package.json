@@ -42,7 +42,9 @@
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
     "start:test": "env-cmd -f .env.test react-scripts start",
-    "start:dev": "react-scripts start"
+    "start:dev": "react-scripts start",
+    "deploy:functions:test": "firebase deploy --only functions --project runnershubtest",
+    "deploy:functions":      "firebase deploy --only functions --project runnershub-62442"
   },
   "eslintConfig": {
     "extends": [

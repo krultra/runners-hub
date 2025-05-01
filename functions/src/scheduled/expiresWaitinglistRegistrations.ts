@@ -48,9 +48,9 @@ export const expiresWaitinglistRegistrations = functions.pubsub
     }));
     console.log('[expiresWaitinglistRegistrations] processed expirations');
 
-    // summary email to admins
-    const adminSnap = await db.collection('admins').get();
-    const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
+    // summary email to admin users
+    const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();
+    const admins = adminSnap.docs.map(a => (a.data() as any).email).filter(Boolean);
     const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
     await Promise.all(admins.map(email =>
       db.collection('mail').add({
