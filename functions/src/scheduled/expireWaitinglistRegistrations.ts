@@ -7,27 +7,27 @@ const db = admin.firestore();
 /**
  * Scheduled Cloud Function: expires waiting-list registrations with waitinglistExpires <= now
  */
-export const expiresWaitinglistRegistrations = functions.pubsub
+export const expireWaitinglistRegistrations = functions.pubsub
   .schedule('19 23 * * *') // daily at 23:19
   .timeZone('Europe/Oslo')
   .onRun(async () => {
-    console.log('[expiresWaitinglistRegistrations] triggered');
+    console.log('[expireWaitinglistRegistrations] triggered');
     const now = Timestamp.now();
     const snap = await db.collection('registrations')
       .where('isOnWaitinglist', '==', true)
       .where('waitinglistExpires', '<=', now)
       .get();
     const due = snap.docs;
-    console.log('[expiresWaitinglistRegistrations] found due count=', due.length, 'ids=', due.map(d => d.id));
+    console.log('[expireWaitinglistRegistrations] found due count=', due.length, 'ids=', due.map(d => d.id));
 
     // record run info
     const today = new Date().toISOString().slice(0,10);
     await db.collection('dailyJobLogs').doc(today)
-      .collection('expiresWaitinglistRegistrations')
+      .collection('expireWaitinglistRegistrations')
       .add({ count: due.length, ids: due.map(d => d.id), timestamp: FieldValue.serverTimestamp() });
 
     if (!due.length) {
-      console.log('[expiresWaitinglistRegistrations] no waiting-list registrations to expire');
+      console.log('[expireWaitinglistRegistrations] no waiting-list registrations to expire');
       return null;
     }
 
@@ -46,7 +46,7 @@ export const expiresWaitinglistRegistrations = functions.pubsub
         createdAt: FieldValue.serverTimestamp()
       });
     }));
-    console.log('[expiresWaitinglistRegistrations] processed expirations');
+    console.log('[expireWaitinglistRegistrations] processed expirations');
 
     // summary email to admin users
     const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();
@@ -60,6 +60,6 @@ export const expiresWaitinglistRegistrations = functions.pubsub
         createdAt: FieldValue.serverTimestamp()
       })
     ));
-    console.log('[expiresWaitinglistRegistrations] summary emails sent');
+    console.log('[expireWaitinglistRegistrations] summary emails sent');
     return null;
   });
