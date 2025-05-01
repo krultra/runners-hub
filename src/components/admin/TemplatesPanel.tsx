@@ -3,7 +3,7 @@ import { Box, Typography, MenuItem, FormControl, InputLabel, Select, TextField, 
 import Editor from '@monaco-editor/react';
 import { html as beautifyHtml } from 'js-beautify';
 import Handlebars from 'handlebars';
-import { listEmailTemplates, updateEmailTemplate, importEmailTemplates, EmailTemplate } from '../../services/templateService';
+import { listEmailTemplates, updateEmailTemplate, importEmailTemplates, addEmailTemplate, deleteEmailTemplate, EmailTemplate } from '../../services/templateService';
 
 const TemplatesPanel: React.FC = () => {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
@@ -17,6 +17,12 @@ const TemplatesPanel: React.FC = () => {
   const [previewSubject, setPreviewSubject] = useState('');
   const [previewHtml, setPreviewHtml] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  // new template dialog state
+  const [newDialogOpen, setNewDialogOpen] = useState(false);
+  const [newLocale, setNewLocale] = useState('');
+  const [newType, setNewType] = useState('');
+  const [newSubject, setNewSubject] = useState('');
+  const [newBody, setNewBody] = useState('');
 
   useEffect(() => {
     (async () => {
@@ -141,6 +147,27 @@ const TemplatesPanel: React.FC = () => {
 
   const triggerImport = () => fileInputRef.current?.click();
 
+  const addNewTemplate = async () => {
+    setLoading(true);
+    await addEmailTemplate(newType, newLocale, newSubject, newBody);
+    const data = await listEmailTemplates();
+    setTemplates(data);
+    setNewLocale(''); setNewType(''); setNewSubject(''); setNewBody('');
+    setNewDialogOpen(false);
+    setLoading(false);
+  };
+
+  const handleDelete = async () => {
+    if (!current) return;
+    if (!window.confirm('Delete this template?')) return;
+    setLoading(true);
+    await deleteEmailTemplate(current.id);
+    const data = await listEmailTemplates();
+    setTemplates(data);
+    setCurrent(null); setSelectedType('');
+    setLoading(false);
+  };
+
   return (
     <Box>
       <Typography variant="h5">Email Templates</Typography>
@@ -148,6 +175,7 @@ const TemplatesPanel: React.FC = () => {
         <Button variant="outlined" onClick={handleExport}>Export</Button>
         <Button variant="outlined" onClick={triggerImport}>Import</Button>
         <input type="file" accept="application/json" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImport} />
+        <Button variant="contained" onClick={() => setNewDialogOpen(true)}>Add Template</Button>
       </Box>
       {loading ? (
         <CircularProgress sx={{ mt: 2 }} />
@@ -191,6 +219,7 @@ const TemplatesPanel: React.FC = () => {
                 <Button variant="outlined" onClick={handlePreview}>Preview</Button>
                 <Button variant="outlined" onClick={handleFormat}>Format</Button>
                 <Button variant="contained" onClick={handleSave}>Save</Button>
+                <Button variant="outlined" color="error" onClick={handleDelete} disabled={loading}>Delete</Button>
               </Box>
             </Box>
           )}
@@ -202,6 +231,27 @@ const TemplatesPanel: React.FC = () => {
             </DialogContent>
             <DialogActions>
               <Button onClick={() => setPreviewOpen(false)}>Close</Button>
+            </DialogActions>
+          </Dialog>
+          <Dialog open={newDialogOpen} onClose={() => setNewDialogOpen(false)} maxWidth="md" fullWidth>
+            <DialogTitle>Add New Template</DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                <TextField label="Locale" value={newLocale} onChange={e => setNewLocale(e.target.value)} />
+                <TextField label="Template Type" value={newType} onChange={e => setNewType(e.target.value)} />
+                <TextField label="Subject Template" fullWidth value={newSubject} onChange={e => setNewSubject(e.target.value)} />
+                <Editor
+                  height="300px"
+                  defaultLanguage="handlebars"
+                  value={newBody}
+                  onChange={val => setNewBody(val || '')}
+                  options={{ minimap: { enabled: false } }}
+                />
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setNewDialogOpen(false)}>Cancel</Button>
+              <Button variant="contained" onClick={addNewTemplate} disabled={!newLocale || !newType}>Add</Button>
             </DialogActions>
           </Dialog>
         </Box>

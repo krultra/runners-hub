@@ -1,9 +1,9 @@
-import { getFirestore, doc, getDoc, setDoc, updateDoc, serverTimestamp, getDocs, collection } from 'firebase/firestore';
+import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, serverTimestamp, getDocs, collection } from 'firebase/firestore';
 import { EmailType } from './emailService';
 
 export interface EmailTemplate {
   id: string;
-  type: EmailType;
+  type: string;
   locale: string;
   subjectTemplate: string;
   bodyTemplate: string;
@@ -40,7 +40,7 @@ export const getEmailTemplate = async (
  * Updates an existing email template in Firestore.
  */
 export const updateEmailTemplate = async (
-  type: EmailType,
+  type: string,
   locale: string,
   subjectTemplate: string,
   bodyTemplate: string
@@ -86,4 +86,36 @@ export const importEmailTemplates = async (templates: EmailTemplate[]): Promise<
       throw error;
     }
   }
+};
+
+/**
+ * Adds a new email template to Firestore.
+ */
+export const addEmailTemplate = async (
+  type: string,
+  locale: string,
+  subjectTemplate: string,
+  bodyTemplate: string
+): Promise<void> => {
+  const db = getFirestore();
+  const docId = `${type}_${locale}`;
+  const ref = doc(db, 'emailTemplates', docId);
+  await setDoc(ref, {
+    type,
+    locale,
+    subjectTemplate,
+    bodyTemplate,
+    updatedAt: serverTimestamp(),
+  });
+};
+
+/**
+ * Deletes an email template from Firestore.
+ */
+export const deleteEmailTemplate = async (
+  id: string
+): Promise<void> => {
+  const db = getFirestore();
+  const ref = doc(db, 'emailTemplates', id);
+  await deleteDoc(ref);
 };
