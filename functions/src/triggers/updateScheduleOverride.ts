@@ -20,21 +20,49 @@ export const manageScheduleOverride = functions.firestore
     const location = process.env.FUNCTION_REGION || 'us-central1';
     // Find the existing Cloud Scheduler job for this function
     // list jobs in target location
-    const parent = scheduler.projectLocationPath(projectId!, location);
+    const parent = scheduler.locationPath(projectId!, location);
     const [jobs] = await scheduler.listJobs({ parent });
-    // find job by its final segment matching our key
-    const matchJob = jobs.find((j: any) => j.name.split('/').pop() === key);
+    const keyLower = key.toLowerCase();
+    // match any job where jobId or topicName contains the key (case-insensitive)
+    const matchJob = jobs.find((j: any) => {
+      const jobId = j.name.split('/').pop() || '';
+      const topicName = j.pubsubTarget?.topicName.split('/').pop() || '';
+      const jobLower = jobId.toLowerCase();
+      const topicLower = topicName.toLowerCase();
+      return jobLower.includes(keyLower) || topicLower.includes(keyLower);
+    });
     if (!matchJob) {
-      console.error(`Scheduler job for ${key} not found`);
+      const details = jobs.map((j: any) => {
+        const id = j.name.split('/').pop();
+        const topic = j.pubsubTarget?.topicName.split('/').pop();
+        return `${id}@${topic}`;
+      }).join(', ');
+      console.error(`Scheduler job for ${key} not found. Available (jobId@topic): ${details}`);
       return null;
     }
     const jobName = matchJob.name;
+    // derive canonical key from job name (strip 'firebase-schedule-' prefix and '-<location>' suffix)
+    const rawJobId = jobName.split('/').pop()!;
+    let canonicalKey = rawJobId;
+    const schedulePrefix = `firebase-schedule-`;
+    if (canonicalKey.startsWith(schedulePrefix) && canonicalKey.endsWith(`-${location}`)) {
+      canonicalKey = canonicalKey.slice(
+        schedulePrefix.length,
+        -(`-${location}`).length
+      );
+    }
     try {
       await scheduler.updateJob({
         job: { name: jobName, schedule: newVal },
         updateMask: { paths: ['schedule'] }
       });
       console.log(`Updated schedule for ${key} to ${newVal}`);
+      // record actual schedule in Firestore for UI sync
+      await db.collection('currentSchedules').doc(canonicalKey).set({ schedule: newVal });
+      console.log(`Recorded current schedule for ${canonicalKey}`);
+      // clean up: remove pending override request
+      await db.collection('functionSchedules').doc(key).delete();
+      console.log(`Deleted override request for ${key}`);
     } catch (err) {
       console.error(`Error updating schedule for ${key}:`, err);
     }

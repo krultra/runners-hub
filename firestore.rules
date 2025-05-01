@@ -81,6 +81,13 @@ service cloud.firestore {
       allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
+    // Allow only admin users to read currentSchedules for UI display
+    match /currentSchedules/{docId} {
+      allow read: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      allow write: if false;
+    }
+
     // Allow anyone to read registrations, but only admins to write
     match /registrations/{registrationId} {
       allow read: if true;
