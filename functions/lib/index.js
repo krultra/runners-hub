@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.lastNoticePendingRegistrations = exports.reminderPendingRegistrations = exports.expirePendingRegistrations = void 0;
+exports.createRefundTasks = exports.expiresWaitinglistRegistrations = exports.sendDailySummary = exports.lastNoticePendingRegistrations = exports.reminderPendingRegistrations = exports.expirePendingRegistrations = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const firestore_1 = require("firebase-admin/firestore");
@@ -34,8 +34,10 @@ const db = admin.firestore();
  * Scheduled Cloud Function: expires pending registrations older than 8 days and 2 reminders sent.
  */
 exports.expirePendingRegistrations = functions.pubsub
-    .schedule('0 0 1 1 *') // once a year
+    .schedule('20 23 * * *') // daily at 22:50
+    .timeZone('Europe/Oslo')
     .onRun(async () => {
+    console.log('[expirePendingRegistrations] triggered');
     const eightDaysAgo = firestore_1.Timestamp.fromDate(new Date(Date.now() - 8 * 24 * 60 * 60 * 1000));
     const snap = await db.collection('registrations')
         .where('status', '==', 'pending')
@@ -44,10 +46,14 @@ exports.expirePendingRegistrations = functions.pubsub
     const due = snap.docs.filter(d => {
         const data = d.data();
         const requests = data.actionRequests || [];
-        return data.remindersSent === 2 && !requests.includes('expireRegistration');
+        // trigger when exactly one reminder and one last notice sent
+        return data.remindersSent === 1 && data.lastNoticesSent === 1 && !requests.includes('expireRegistration');
     });
-    if (!due.length)
+    console.log('[expirePendingRegistrations] found due count=', due.length, 'ids=', due.map(d => d.id));
+    if (!due.length) {
+        console.log('[expirePendingRegistrations] no matching registrations to expire');
         return null;
+    }
     // enqueue action requests
     await Promise.all(due.map(d => {
         const actionType = 'expireRegistration';
@@ -64,6 +70,7 @@ exports.expirePendingRegistrations = functions.pubsub
         });
         return Promise.all([p1, p2]);
     }));
+    console.log('[expirePendingRegistrations] enqueued expireRegistration for ids=', due.map(d => d.id));
     // summary to admins
     const adminSnap = await db.collection('admins').get();
     const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
@@ -74,12 +81,19 @@ exports.expirePendingRegistrations = functions.pubsub
         type: 'admin_summary',
         createdAt: firestore_1.FieldValue.serverTimestamp()
     })));
+    // record run info for summary
+    const today = new Date().toISOString().slice(0, 10);
+    await db.collection('dailyJobLogs').doc(today)
+        .collection('expirePendingRegistrations')
+        .add({ count: due.length, ids: due.map(d => d.id), timestamp: firestore_1.FieldValue.serverTimestamp() });
     return null;
 });
 // Scheduled Cloud Function: send reminder for pending registrations older than 5 days and no reminders sent
 exports.reminderPendingRegistrations = functions.pubsub
-    .schedule('0 0 1 1 *') // once a year
+    .schedule('22 23 * * *') // daily at 22:52
+    .timeZone('Europe/Oslo')
     .onRun(async () => {
+    console.log('[reminderPendingRegistrations] triggered');
     const fiveDaysAgo = firestore_1.Timestamp.fromDate(new Date(Date.now() - 5 * 24 * 60 * 60 * 1000));
     const snap = await db.collection('registrations')
         .where('status', '==', 'pending')
@@ -92,8 +106,16 @@ exports.reminderPendingRegistrations = functions.pubsub
         const lastNotices = data.lastNoticesSent || 0;
         return reminders === 0 && lastNotices === 0 && !requests.includes('sendReminder');
     });
-    if (!due.length)
+    console.log('[reminderPendingRegistrations] snap size=', snap.size, 'due count=', due.length, 'ids=', due.map(d => d.id));
+    const today = new Date().toISOString().slice(0, 10);
+    await db.collection('dailyJobLogs').doc(today)
+        .collection('reminderPendingRegistrations')
+        .add({ count: due.length, ids: due.map(d => d.id), timestamp: firestore_1.FieldValue.serverTimestamp() });
+    console.log('[reminderPendingRegistrations] recorded run info');
+    if (!due.length) {
+        console.log('[reminderPendingRegistrations] no records to process');
         return null;
+    }
     await Promise.all(due.map(d => {
         const actionType = 'sendReminder';
         const p1 = db.collection('actionRequests').add({
@@ -109,6 +131,7 @@ exports.reminderPendingRegistrations = functions.pubsub
         });
         return Promise.all([p1, p2]);
     }));
+    console.log('[reminderPendingRegistrations] enqueued sendReminder for ids=', due.map(d => d.id));
     const adminSnap = await db.collection('admins').get();
     const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
     const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
@@ -122,8 +145,10 @@ exports.reminderPendingRegistrations = functions.pubsub
 });
 // Scheduled Cloud Function: last notice for pending registrations >=7 days & 1 reminder sent
 exports.lastNoticePendingRegistrations = functions.pubsub
-    .schedule('0 0 1 1 *') // once a year
+    .schedule('21 23 * * *') // daily at 22:51
+    .timeZone('Europe/Oslo')
     .onRun(async () => {
+    console.log('[lastNoticePendingRegistrations] triggered');
     const sevenDaysAgo = firestore_1.Timestamp.fromDate(new Date(Date.now() - 7 * 24 * 60 * 60 * 1000));
     const snap = await db.collection('registrations')
         .where('status', '==', 'pending')
@@ -136,8 +161,17 @@ exports.lastNoticePendingRegistrations = functions.pubsub
         const lastNotices = data.lastNoticesSent || 0;
         return reminders >= 1 && lastNotices === 0 && !requests.includes('sendLastNotice');
     });
-    if (!due.length)
+    console.log('[lastNoticePendingRegistrations] snap size=', snap.size, 'due count=', due.length, 'ids=', due.map(d => d.id));
+    // record run info for summary (even if none matched)
+    const today = new Date().toISOString().slice(0, 10);
+    await db.collection('dailyJobLogs').doc(today)
+        .collection('lastNoticePendingRegistrations')
+        .add({ count: due.length, ids: due.map(d => d.id), timestamp: firestore_1.FieldValue.serverTimestamp() });
+    console.log('[lastNoticePendingRegistrations] recorded run info');
+    if (!due.length) {
+        console.log('[lastNoticePendingRegistrations] no records to process');
         return null;
+    }
     await Promise.all(due.map(d => {
         const actionType = 'sendLastNotice';
         const p1 = db.collection('actionRequests').add({
@@ -153,6 +187,7 @@ exports.lastNoticePendingRegistrations = functions.pubsub
         });
         return Promise.all([p1, p2]);
     }));
+    console.log('[lastNoticePendingRegistrations] enqueued sendLastNotice for ids=', due.map(d => d.id));
     const adminSnap = await db.collection('admins').get();
     const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
     const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
@@ -162,5 +197,15 @@ exports.lastNoticePendingRegistrations = functions.pubsub
         type: 'admin_summary',
         createdAt: firestore_1.FieldValue.serverTimestamp()
     })));
+    console.log('[lastNoticePendingRegistrations] summary emails sent to count=', admins.length);
     return null;
 });
+// Scheduled Cloud Function: send daily summary to admins (moved to scheduled/sendDailySummary.ts)
+var sendDailySummary_1 = require("./scheduled/sendDailySummary");
+Object.defineProperty(exports, "sendDailySummary", { enumerable: true, get: function () { return sendDailySummary_1.sendDailySummary; } });
+// new scheduled expiration of waiting-list registrations
+var expiresWaitinglistRegistrations_1 = require("./scheduled/expiresWaitinglistRegistrations");
+Object.defineProperty(exports, "expiresWaitinglistRegistrations", { enumerable: true, get: function () { return expiresWaitinglistRegistrations_1.expiresWaitinglistRegistrations; } });
+// create admin refund tasks on status change
+var createRefundAdminTasks_1 = require("./triggers/createRefundAdminTasks");
+Object.defineProperty(exports, "createRefundTasks", { enumerable: true, get: function () { return createRefundAdminTasks_1.createRefundTasks; } });
