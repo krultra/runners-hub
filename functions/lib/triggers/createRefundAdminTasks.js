@@ -36,9 +36,9 @@ exports.createRefundTasks = functions.firestore
     const regId = context.params.registrationId;
     // proceed only when status changes to 'expired'
     if (before.status !== 'expired' && after.status === 'expired') {
-        const paymentsMade = after.paymentsMade || 0;
+        const paymentMade = after.paymentMade || 0;
         // only create a refund task if there's something to refund
-        if (paymentsMade > 0) {
+        if (paymentMade > 0) {
             const task = {
                 registrationId: regId,
                 type: 'refund',
@@ -50,7 +50,7 @@ exports.createRefundTasks = functions.firestore
                     registrationNumber: after.registrationNumber,
                     firstName: after.firstName,
                     lastName: after.lastName,
-                    paymentsMade,
+                    paymentsMade: paymentMade,
                     list: after.isOnWaitinglist ? 'waiting-list' : 'participant'
                 },
                 link: `/admin/registrations/${regId}`
