@@ -13,6 +13,11 @@ const scheduleKeys = [
 
 const SchedulesPanel: React.FC = () => {
   const [overrides, setOverrides] = useState<Record<string,string>>({});
+  const [savingKey, setSavingKey] = useState<string | null>(null);
+  const [savedKey, setSavedKey] = useState<string | null>(null);
+  const [deployNeeded, setDeployNeeded] = useState(false);
+  const [inputValues, setInputValues] = useState<Record<string,string>>({});
+  const [savedValues, setSavedValues] = useState<Record<string,string>>({});
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'functionSchedules'), snapshot => {
@@ -24,8 +29,15 @@ const SchedulesPanel: React.FC = () => {
   }, []);
 
   const saveOverride = async (key: string) => {
-    const value = overrides[key] || '';
+    setSavingKey(key);
+    const value = inputValues[key] || '';
     await setDoc(doc(db, 'functionSchedules', key), { override: value });
+    setSavingKey(null);
+    setSavedKey(key);
+    setSavedValues(prev => ({ ...prev, [key]: value }));
+    setInputValues(prev => ({ ...prev, [key]: '' }));
+    setDeployNeeded(true);
+    setTimeout(() => setSavedKey(prev => prev === key ? null : prev), 5000);
   };
 
   const ciCommand = `cd functions && npm install && npm run build && cd .. && firebase deploy --only functions --project ${process.env.REACT_APP_FIREBASE_PROJECT_ID}`;
@@ -33,25 +45,46 @@ const SchedulesPanel: React.FC = () => {
   return (
     <Box>
       <Typography variant="h4" gutterBottom>Function Schedules</Typography>
-      {scheduleKeys.map(s => (
+      {scheduleKeys.map(s => {
+        const saving = savingKey === s.key;
+        const saved = savedKey === s.key;
+        return (
         <Box key={s.key} sx={{ mb: 2 }}>
           <Typography variant="subtitle1">{s.label}</Typography>
-          <Typography>Current: {s.default}</Typography>
+          <Typography>
+            Current: {s.default}
+            {savedKey === s.key && savedValues[s.key] && (
+              <Typography component="span" color="primary">
+                {' '}New: {savedValues[s.key]}
+              </Typography>
+            )}
+          </Typography>
           <TextField
             label="Override"
-            value={overrides[s.key] || ''}
-            onChange={e => setOverrides(prev => ({ ...prev, [s.key]: e.target.value }))}
+            value={inputValues[s.key] || ''}
+            onChange={e => setInputValues(prev => ({ ...prev, [s.key]: e.target.value }))}
             size="small"
             sx={{ mr: 1, width: '250px' }}
           />
-          <Button variant="contained" onClick={() => saveOverride(s.key)}>Save</Button>
+          <Button
+            variant="contained"
+            onClick={() => saveOverride(s.key)}
+            disabled={saving}
+          >
+            {saving ? 'Saving...' : saved ? 'Saved' : 'Save'}
+          </Button>
         </Box>
-      ))}
-      <Divider sx={{ my: 2 }} />
-      <Typography variant="subtitle1">To apply these changes:</Typography>
-      <Typography component="pre" sx={{ backgroundColor: '#f5f5f5', p: 1 }}>{ciCommand}</Typography>
-      <Typography>Don’t forget to commit and push your changes:</Typography>
-      <Typography component="code">git add . && git commit -m "Update function schedules" && git push</Typography>
+        );
+      })}
+      {deployNeeded && (
+        <>
+        <Divider sx={{ my: 2 }} />
+        <Typography variant="subtitle1">To apply these changes:</Typography>
+        <Typography component="pre" sx={{ backgroundColor: '#f5f5f5', p: 1 }}>{ciCommand}</Typography>
+        <Typography>Don’t forget to commit and push your changes:</Typography>
+        <Typography component="code">git add . && git commit -m "Update function schedules" && git push</Typography>
+        </>
+      )}
     </Box>
   );
 };

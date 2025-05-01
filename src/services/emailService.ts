@@ -24,6 +24,7 @@ export enum EmailType {
   STATUS_CHANGED = 'status_changed',
   P_LIST2W_LIST = 'p-list2w-list',
   W_LIST2P_LIST_OFFER = 'w-list2p-list_offer',
+  REFUND = 'refund',
 }
 
 // Date formatting helper for Handlebars
@@ -127,6 +128,7 @@ const DEFAULT_SUBJECTS: Record<EmailType, string> = {
   [EmailType.STATUS_CHANGED]: 'Registration Status Changed',
   [EmailType.P_LIST2W_LIST]: 'Participant to Waiting-list Notification',
   [EmailType.W_LIST2P_LIST_OFFER]: 'Waiting-list to Participant Offer',
+  [EmailType.REFUND]: 'Refund Processed',
 };
 
 /**
@@ -145,7 +147,33 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
   };
   const subjTpl = tpl.subjectTemplate || DEFAULT_SUBJECTS[type];
   const subject = Handlebars.compile(subjTpl)(enrichedContext);
-  const html = Handlebars.compile(tpl.bodyTemplate || '')(enrichedContext);
+  // default HTML for refund emails if no template provided
+  const defaultRefundTemplate = `
+<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
+  <h2 style="color: #1976d2;">Dear {{firstName}},</h2>
+  <p>
+    We would like to inform you that your payment for <strong>{{eventName}} {{eventEdition}}</strong> has been refunded in accordance with the event’s cancellation and refund policy.
+  </p>
+  <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0;">
+    <h3 style="margin-top: 0; color: #2e7d32;">Refund Information</h3>
+    <p>Your refund has been processed and sent to the same payment method used for your original transaction.</p>
+    <p><strong>Reference:</strong> {{eventShortName}}-{{eventEdition}}-{{registrationNumber}}</p>
+  </div>
+  <p>
+    For most payment methods, such as Vipps, the refund should appear almost immediately. If you paid by bank transfer or another method, please allow a few business days for the transaction to be completed.
+  </p>
+  <p>
+    If you have any questions or believe something is incorrect, feel free to reply to this email.
+  </p>
+  <p>Best regards,<br />KrUltra</p>
+  <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eaeaea; font-size: 12px; color: #666; text-align: center;">
+    <p>This email was sent to {{email}} in connection with your registration for {{eventName}} {{eventEdition}}.</p>
+  </div>
+</div>`;
+  const bodyTpl = tpl.bodyTemplate && tpl.bodyTemplate.trim() !== ''
+    ? tpl.bodyTemplate
+    : (type === EmailType.REFUND ? defaultRefundTemplate : '');
+  const html = Handlebars.compile(bodyTpl)(enrichedContext);
   const mailRef = await addDoc(collection(db, 'mail'), {
     to,
     message: { subject, html },
