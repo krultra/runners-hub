@@ -146,7 +146,13 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     today: context.today || new Date().toLocaleDateString(),
   };
   const subjTpl = tpl.subjectTemplate || DEFAULT_SUBJECTS[type];
-  const subject = Handlebars.compile(subjTpl)(enrichedContext);
+  let subject: string;
+  try {
+    subject = subjTpl.includes('{{') ? Handlebars.compile(subjTpl)(enrichedContext) : subjTpl;
+  } catch (err) {
+    console.error(`Error compiling subject template for ${type}:`, err);
+    subject = DEFAULT_SUBJECTS[type];
+  }
   // default HTML for refund emails if no template provided
   const defaultRefundTemplate = `
 <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
@@ -173,7 +179,13 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
   const bodyTpl = tpl.bodyTemplate && tpl.bodyTemplate.trim() !== ''
     ? tpl.bodyTemplate
     : (type === EmailType.REFUND ? defaultRefundTemplate : '');
-  const html = Handlebars.compile(bodyTpl)(enrichedContext);
+  let html: string;
+  try {
+    html = bodyTpl.includes('{{') ? Handlebars.compile(bodyTpl)(enrichedContext) : bodyTpl;
+  } catch (err) {
+    console.error(`Error compiling body template for ${type}:`, err);
+    html = '';
+  }
   const mailRef = await addDoc(collection(db, 'mail'), {
     to,
     message: { subject, html },

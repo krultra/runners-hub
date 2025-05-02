@@ -142,6 +142,44 @@ For more details, see the Firebase Email Trigger Extension [docs](https://fireba
 
 ---
 
+## Backup & Restore Firestore
+
+We provide simple scripts to export and import your Firestore data locally without cost. Use these for low-volume backups or quick restores:
+
+### Backup
+
+1. Place your service account key as `serviceAccountKey.json` in project root.
+2. Run:
+```bash
+node scripts/backupFirestore.js
+```
+3. A timestamped JSON file (`firestore_backup_YYYYMMDD_HHMMSS.json`) will be created in `local_firestore_backup/`.
+
+### Restore
+
+1. Ensure you have your service account key in the project root.
+2. Run:
+```bash
+node scripts/restoreFirestore.js path/to/your/backup.json
+```
+3. All collections and documents from the backup will be written back to your Firestore project.
+
+#### Restore Scenarios
+- **Default Overwrite:** The script uses `doc().set()`, so:
+  - Matching IDs are overwritten with backup data.
+  - New docs in backup are created.
+  - Extra docs in Firestore (not in backup) remain untouched.
+- **Full Rollback:** To mirror the backup exactly, clean your database first:
+  - Use Firebase CLI: `firebase firestore:delete --recursive --all-collections` ( destructive)
+  - Or extend `restoreFirestore.js` to delete docs not in your JSON before restoring.
+- **Selective / Surgical Restore:** To restore only specific data:
+  - Open the JSON (e.g. with `jq`) and extract the target collection or doc.
+  - Use the Firestore Console or run a custom script/`node` snippet to set just that data.
+
+Keep backups off your repo or commit to a secure, private location. Always test restoration in a safe environment before using in production.
+
+---
+
 ## Available Scripts
 
 In the project directory, you can run:
