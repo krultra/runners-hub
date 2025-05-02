@@ -42,8 +42,6 @@ const AdminPage: React.FC = () => {
           open
           anchor="left"
           sx={{
-            width: drawerWidth,
-            flexShrink: 0,
             zIndex: theme.zIndex.appBar - 1,
             '& .MuiDrawer-paper': {
               width: drawerWidth,
@@ -98,8 +96,12 @@ const AdminPage: React.FC = () => {
         pt: 3,
         pr: 3,
         pb: 3,
-        pl: 0,
-        ml: !isMobile && drawerOpen ? `${drawerWidth}px` : 0
+        pl: 1,
+        ml: !isMobile
+          ? (drawerOpen
+              ? `${drawerWidth}px`
+              : 1)
+          : 0
       }}>
         <Toolbar />
         {active === 'invitations' && <InvitationsPanel />}

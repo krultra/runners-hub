@@ -28,7 +28,6 @@ import RaceDetailsForm from '../components/registration/RaceDetailsForm';
 import ReviewRegistration from '../components/registration/ReviewRegistration';
 import RegistrationStepper from '../components/registration/RegistrationStepper';
 import RegistrationSnackbar from '../components/registration/RegistrationSnackbar';
-import EmailVerificationGuide from '../components/auth/EmailVerificationGuide';
 import { initialFormData, validateForm } from '../utils/validation';
 
 const steps = ['Personal Information', 'Race Details', 'Review & Submit'];
@@ -246,7 +245,8 @@ const RegistrationPage: React.FC = () => {
       try {
         const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
         const openRegs = regs.filter(r => !r.isOnWaitinglist && (r.status === 'pending' || r.status === 'confirmed'));
-        setIsFull(openRegs.length >= RACE_DETAILS.maxParticipants);
+        const waitingRegs = regs.filter(r => r.isOnWaitinglist && (r.status === 'pending' || r.status === 'confirmed'));
+        setIsFull(openRegs.length >= RACE_DETAILS.maxParticipants || waitingRegs.length > 0);
       } catch (err) {
         console.error('Error checking registration count:', err);
       }

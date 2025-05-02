@@ -35,6 +35,17 @@ export const createRegistration = async (
     // Get the next sequential registration number
     const registrationNumber = await getNextSequentialNumber(`registrations-${registrationData.editionId}`);
     
+    // Enforce waiting-list if any active waiting-list entries
+    const wlSnapshot = await getDocs(
+      query(
+        collection(db, REGISTRATIONS_COLLECTION),
+        where('editionId', '==', registrationData.editionId),
+        where('status', 'in', ['pending','confirmed']),
+        where('isOnWaitinglist', '==', true)
+      )
+    );
+    const enforceOnWL = wlSnapshot.size > 0;
+
     // Prepare data for Firestore
     const registrationToSave = {
       ...registrationData,
@@ -43,8 +54,8 @@ export const createRegistration = async (
       paymentMade: registrationData.paymentMade ?? 0,
       // Convert Date object to Firestore Timestamp
       dateOfBirth: registrationData.dateOfBirth ? Timestamp.fromDate(registrationData.dateOfBirth) : null,
-      // Waiting list fields
-      isOnWaitinglist: registrationData.isOnWaitinglist ?? false,
+      // Waiting list fields (force join queue if active)
+      isOnWaitinglist: enforceOnWL ? true : registrationData.isOnWaitinglist ?? false,
       waitinglistExpires: registrationData.waitinglistExpires ? Timestamp.fromDate(registrationData.waitinglistExpires) : null,
       // Add metadata
       userId: userId || null,
@@ -123,7 +134,11 @@ export const getRegistrationById = async (registrationId: string): Promise<Regis
  */
 export const getRegistrationsByUserId = async (userId: string): Promise<Registration[]> => {
   try {
-    const q = query(collection(db, REGISTRATIONS_COLLECTION), where("userId", "==", userId));
+    const q = query(
+      collection(db, REGISTRATIONS_COLLECTION),
+      where("userId", "==", userId),
+      where("status", "in", ["pending", "confirmed"])
+    );
     const querySnapshot = await getDocs(q);
     
     return querySnapshot.docs.map(doc => {
@@ -261,6 +276,26 @@ export const countActiveParticipants = async (editionId: string): Promise<number
     }).length;
   } catch (error) {
     console.error('Error counting active participants:', error);
+    throw error;
+  }
+};
+
+/**
+ * Counts active waiting-list entries for an edition.
+ * Pending or confirmed registrations with isOnWaitinglist=true.
+ */
+export const countWaitingList = async (editionId: string): Promise<number> => {
+  try {
+    const q = query(
+      collection(db, REGISTRATIONS_COLLECTION),
+      where('editionId', '==', editionId),
+      where('status', 'in', ['pending','confirmed']),
+      where('isOnWaitinglist', '==', true)
+    );
+    const snap = await getDocs(q);
+    return snap.size;
+  } catch (error) {
+    console.error('Error counting waiting-list:', error);
     throw error;
   }
 };

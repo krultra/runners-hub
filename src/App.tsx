@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, useMediaQuery } from '@mui/material';
+import { ThemeProvider, CssBaseline, useMediaQuery, Toolbar } from '@mui/material';
 import { createRunnersHubTheme } from './config/theme';
 import Box from '@mui/material/Box';
 
@@ -30,6 +30,7 @@ function App() {
       <CssBaseline /> {/* Provides a consistent baseline CSS */}
       <Router>
         <AppHeader />
+        <Toolbar />
         <Routes>
           <Route path="/" element={<HomePage />} />
           <Route path="/newhome" element={<NewHomePage />} />

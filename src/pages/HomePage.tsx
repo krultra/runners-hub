@@ -16,7 +16,7 @@ import {
 } from '@mui/material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { RACE_DETAILS } from '../constants';
-import { countActiveParticipants, getRegistrationsByUserId } from '../services/registrationService';
+import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } from '../services/registrationService';
 import { useNavigate } from 'react-router-dom';
 import { Registration } from '../types';
 
@@ -32,6 +32,7 @@ const HomePage: React.FC = () => {
   // State for available spots
   const [availableSpots, setAvailableSpots] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [waitingListCount, setWaitingListCount] = useState<number>(0);
   
   // State for user authentication and registration
   const [user, setUser] = useState<any>(null);
@@ -82,18 +83,23 @@ const HomePage: React.FC = () => {
   // Fetch active participant count (pending/confirmed) and compute available spots
   useEffect(() => {
     setIsLoading(true);
-    const fetchActiveCount = async () => {
+    const fetchCounts = async () => {
       try {
-        const activeCount = await countActiveParticipants(EDITION_ID);
+        const [activeCount, wlCount] = await Promise.all([
+          countActiveParticipants(EDITION_ID),
+          countWaitingList(EDITION_ID)
+        ]);
+        setWaitingListCount(wlCount);
         setAvailableSpots(Math.max(0, RACE_DETAILS.maxParticipants - activeCount));
       } catch (error) {
-        console.error('Error fetching active participants count:', error);
+        console.error('Error fetching counts:', error);
         setAvailableSpots(null);
+        setWaitingListCount(0);
       } finally {
         setIsLoading(false);
       }
     };
-    fetchActiveCount();
+    fetchCounts();
   }, [location.key]);
   
   // Update countdown timer every second
@@ -122,6 +128,9 @@ const HomePage: React.FC = () => {
 
   // Determine if the existing registration is invalid
   const isRegistrationInvalid = userRegistration?.status === 'cancelled' || userRegistration?.status === 'expired';
+
+  // Determine if new registrations should go on waiting-list
+  const forceQueue = waitingListCount > 0;
 
   return (
     <Container maxWidth="lg">
@@ -292,7 +301,7 @@ const HomePage: React.FC = () => {
             )}
           </Box>
         ) : isRegistrationOpen ? (
-          availableSpots === 0 ? (
+          (availableSpots === 0 || forceQueue) ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
               <Alert severity="error" sx={{ mb: 2 }}>
                 This event is fully booked
@@ -446,7 +455,7 @@ const HomePage: React.FC = () => {
             </Typography>
             <Typography variant="body1" paragraph>
               <strong>Maximum Participants:</strong> {RACE_DETAILS.maxParticipants}
-              {!isLoading && availableSpots !== null && (
+              {!isLoading && availableSpots !== null && !forceQueue &&(
                 <> ({availableSpots} spots still available)</>  
               )}
             </Typography>

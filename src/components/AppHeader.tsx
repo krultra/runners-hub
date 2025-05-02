@@ -36,7 +36,7 @@ const AppHeader: React.FC = () => {
 
   return (
     <AppBar
-      position="static"
+      position="fixed"
       elevation={0}
       sx={{
         background: 'var(--color-header-bg)',
@@ -45,6 +45,7 @@ const AppHeader: React.FC = () => {
       }}
     >
       <Toolbar>
+        <Box component="img" src="/krultra-logo.png" alt="Logo" sx={{ height: 40, width: 'auto', mr: 1, cursor: 'pointer' }} onClick={() => navigate('/')} />
         <Typography
           variant="h6"
           sx={{ flexGrow: 1, cursor: 'pointer' }}
