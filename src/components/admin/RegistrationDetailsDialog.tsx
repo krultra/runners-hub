@@ -291,12 +291,22 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
     setSelectedMailDetails(null);
   };
 
+  const handleAddAdminComment = async () => {
+    if (!adminComment.trim()) return;
+    const regRef = doc(db, 'registrations', registration.id!);
+    await updateDoc(regRef, {
+      adminComments: arrayUnion({ text: adminComment.trim(), at: Timestamp.now() })
+    });
+    setAdminComment('');
+    await refreshReg();
+  };
+
   return (
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Registration #{registration.registrationNumber}</DialogTitle>
       <DialogContent>
         <Typography variant="subtitle1">
-          {registration.firstName} {registration.lastName}
+          {registration.firstName} {registration.lastName} ({registration.nationality})
         </Typography>
         <Typography variant="body2">
           Email: {registration.originalEmail || registration.email}
@@ -305,7 +315,53 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
         <Typography variant="body2">
           Payment Made: {registration.paymentMade}
         </Typography>
-
+        <Typography variant="body2">
+          Phone: {registration.phoneCountryCode} {registration.phoneNumber}
+        </Typography>
+        <Typography variant="body2">
+          Created: {registration.createdAt
+            ? registration.createdAt.toDate
+              ? registration.createdAt.toDate().toLocaleString()
+              : new Date(registration.createdAt).toLocaleString()
+            : 'N/A'}
+        </Typography>
+        <Typography variant="body2">
+          Updated: {registration.updatedAt
+            ? registration.updatedAt.toDate
+              ? registration.updatedAt.toDate().toLocaleString()
+              : new Date(registration.updatedAt).toLocaleString()
+            : 'N/A'}
+        </Typography>
+        {registration.waitinglistExpires && (
+          <Typography variant="body2">
+            Waitinglist Expires: {registration.waitinglistExpires.toDate
+              ? registration.waitinglistExpires.toDate().toLocaleString()
+              : new Date(registration.waitinglistExpires).toLocaleString()}
+          </Typography>
+        )}
+        <Typography variant="body2">
+          Notify Future Events: {registration.notifyFutureEvents ? 'Yes' : 'No'}
+        </Typography>
+        <Typography variant="body2">
+          Send Running Offers: {registration.sendRunningOffers ? 'Yes' : 'No'}
+        </Typography>
+        {registration.comments && (
+          <Typography variant="body2">Comments: {registration.comments}</Typography>
+        )}
+        <TextField
+          fullWidth
+          margin="normal"
+          label="Admin Comment"
+          value={adminComment}
+          onChange={(e) => setAdminComment(e.target.value)}
+          multiline
+          rows={2}
+        />
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end', mb: 2 }}>
+          <Button variant="contained" size="small" onClick={handleAddAdminComment}>
+            Add Comment
+          </Button>
+        </Box>
         <FormControl fullWidth margin="normal">
           <InputLabel>List</InputLabel>
           <Select

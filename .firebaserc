@@ -1,7 +1,8 @@
 {
   "projects": {
     "default": "runnershub-62442",
-    "test": "runnershubtest"
+    "test": "runnershubtest",
+    "prod": "runnershub-62442"
   },
   "targets": {},
   "etags": {}

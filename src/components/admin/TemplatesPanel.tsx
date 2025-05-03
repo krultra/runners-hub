@@ -70,7 +70,15 @@ const TemplatesPanel: React.FC = () => {
         comments: 'No comments',
         notifyFutureEvents: true,
         sendRunningOffers: false,
+        // add test expiration date for waiting list
+        waitinglistExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
       };
+      // format dates for preview as '1 Jan 1990'
+      const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      context.dateOfBirth = fmt(context.dateOfBirth);
+      context.waitinglistExpires = fmt(context.waitinglistExpires);
+      // include formatted 'today' in preview
+      context.today = fmt(new Date());
       try {
         const subjFn = Handlebars.compile(current.subjectTemplate);
         const subj = subjFn(context);

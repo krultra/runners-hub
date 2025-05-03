@@ -4,11 +4,36 @@ import { db } from '../../config/firebase';
 import { collection, doc, onSnapshot, setDoc } from 'firebase/firestore';
 
 const scheduleKeys = [
-  { key: 'expirePendingRegistrations', label: 'Expire Pending Registrations', default: '20 23 * * *' },
-  { key: 'reminderPendingRegistrations', label: 'Reminder Pending Registrations', default: '22 23 * * *' },
-  { key: 'lastNoticePendingRegistrations', label: 'Last Notice Pending Registrations', default: '21 23 * * *' },
-  { key: 'sendDailySummary', label: 'Send Daily Summary', default: '23 23 * * *' },
-  { key: 'expireWaitinglistRegistrations', label: 'Expire Waiting-list Registrations', default: '19 23 * * *' },
+  {
+    key: 'expireWaitinglistRegistrations',
+    label: 'Expire Waiting-list Registrations',
+    default: '19 23 * * *',
+    description: 'This function will look for waiting-list registrations whose expiration date has passed and expire them.'
+  },
+  {
+    key: 'expirePendingRegistrations',
+    label: 'Expire Pending Registrations',
+    default: '20 23 * * *',
+    description: 'This function will look for registrations with status "pending" that were registered more than 9 days ago, have received a reminder and a last notice, and then expire them.'
+  },
+  {
+    key: 'lastNoticePendingRegistrations',
+    label: 'Last Notice Pending Registrations',
+    default: '21 23 * * *',
+    description: 'This function will look for registrations with status "pending" that were registered more than 7 days ago, have received a reminder but no last notice, and then send a final notice.'
+  },
+  {
+    key: 'reminderPendingRegistrations',
+    label: 'Reminder Pending Registrations',
+    default: '22 23 * * *',
+    description: 'This function will look for registrations with status "pending" that were registered more than 5 days ago and have no previous reminders or last notices, and then send a reminder.'
+  },
+  {
+    key: 'sendDailySummary',
+    label: 'Send Daily Summary',
+    default: '23 23 * * *',
+    description: 'This function compiles today’s job results and registration statistics, then sends a summary email to admins.'
+  },
 ];
 
 const SchedulesPanel: React.FC = () => {
@@ -70,6 +95,7 @@ const SchedulesPanel: React.FC = () => {
         return (
         <Box key={s.key} sx={{ mb: 2 }}>
           <Typography variant="subtitle1">{s.label}</Typography>
+          <Typography variant="body2" color="textSecondary">{s.description}</Typography>
           <Typography>Schedule: {currentSchedules[s.key] || s.default}</Typography>
           <TextField
             label="New Cron"

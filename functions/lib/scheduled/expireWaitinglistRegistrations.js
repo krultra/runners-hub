@@ -25,19 +25,19 @@ var __importStar = (this && this.__importStar) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.expireWaitinglistRegistrations = void 0;
 const functions = __importStar(require("firebase-functions"));
-const admin = __importStar(require("firebase-admin"));
 const firestore_1 = require("firebase-admin/firestore");
-const db = admin.firestore();
+const admin_1 = require("../utils/admin");
+const schedules_1 = require("../config/schedules");
 /**
  * Scheduled Cloud Function: expires waiting-list registrations with waitinglistExpires <= now
  */
 exports.expireWaitinglistRegistrations = functions.pubsub
-    .schedule('19 23 * * *') // daily at 23:19
+    .schedule(schedules_1.CRON_EXPIRE_WAITINGLIST) // uses centralized schedule config
     .timeZone('Europe/Oslo')
     .onRun(async () => {
     console.log('[expireWaitinglistRegistrations] triggered');
     const now = firestore_1.Timestamp.now();
-    const snap = await db.collection('registrations')
+    const snap = await admin_1.db.collection('registrations')
         .where('isOnWaitinglist', '==', true)
         .where('waitinglistExpires', '<=', now)
         .get();
@@ -45,7 +45,7 @@ exports.expireWaitinglistRegistrations = functions.pubsub
     console.log('[expireWaitinglistRegistrations] found due count=', due.length, 'ids=', due.map(d => d.id));
     // record run info
     const today = new Date().toISOString().slice(0, 10);
-    await db.collection('dailyJobLogs').doc(today)
+    await admin_1.db.collection('dailyJobLogs').doc(today)
         .collection('expireWaitinglistRegistrations')
         .add({ count: due.length, ids: due.map(d => d.id), timestamp: firestore_1.FieldValue.serverTimestamp() });
     if (!due.length) {
@@ -55,9 +55,9 @@ exports.expireWaitinglistRegistrations = functions.pubsub
     // expire and notify each
     await Promise.all(due.map(async (d) => {
         const data = d.data();
-        await db.collection('registrations').doc(d.id).update({ status: 'expired' });
+        await admin_1.db.collection('registrations').doc(d.id).update({ status: 'expired' });
         // send expiration email
-        await db.collection('mail').add({
+        await admin_1.db.collection('mail').add({
             to: data.email,
             message: {
                 subject: 'Registration Expired',
@@ -69,10 +69,10 @@ exports.expireWaitinglistRegistrations = functions.pubsub
     }));
     console.log('[expireWaitinglistRegistrations] processed expirations');
     // summary email to admin users
-    const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();
+    const adminSnap = await admin_1.db.collection('users').where('isAdmin', '==', true).get();
     const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
     const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
-    await Promise.all(admins.map(email => db.collection('mail').add({
+    await Promise.all(admins.map(email => admin_1.db.collection('mail').add({
         to: email,
         message: { subject: `Waiting-list Expirations ${today}`, html: `<p>Expired waiting-list regs: ${summary}</p>` },
         type: 'admin_summary',

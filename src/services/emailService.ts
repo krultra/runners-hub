@@ -68,7 +68,7 @@ export const sendRegistrationUpdateEmail = async (registration: Registration): P
  * @param registration The registration data
  */
 export const sendPaymentConfirmationEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION, today: new Date().toLocaleDateString() };
+  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION, today: new Date() };
   return sendEmail(EmailType.PAYMENT_CONFIRMATION, registration.email, context);
 };
 
@@ -76,7 +76,7 @@ export const sendPaymentConfirmationEmail = async (registration: Registration): 
  * Sends waiting-list confirmation email
  */
 export const sendWaitingListEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION, today: new Date().toLocaleDateString() };
+  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION, today: new Date() };
   return sendEmail(EmailType.WAITING_LIST_CONFIRMATION, registration.email, context);
 };
 
@@ -143,8 +143,17 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     eventName: EVENT_NAME,
     eventShortName: EVENT_SHORT_NAME,
     eventEdition: EVENT_EDITION,
-    today: context.today || new Date().toLocaleDateString(),
+    // Provide raw Date for templating and formatting
+    today: context.today ? new Date(context.today) : new Date(),
   };
+  // Format dates to 'D Mmm YYYY' for dateOfBirth, waitinglistExpires, and today
+  ['dateOfBirth', 'waitinglistExpires', 'today'].forEach((field) => {
+    const ts = (enrichedContext as any)[field];
+    if (ts) {
+      const date = ts.toDate ? ts.toDate() : new Date(ts);
+      (enrichedContext as any)[field] = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    }
+  });
   const subjTpl = tpl.subjectTemplate || DEFAULT_SUBJECTS[type];
   let subject: string;
   try {

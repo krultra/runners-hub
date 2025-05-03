@@ -27,11 +27,12 @@ exports.reminderPendingRegistrations = void 0;
 const functions = __importStar(require("firebase-functions"));
 const firestore_1 = require("firebase-admin/firestore");
 const admin_1 = require("../utils/admin");
+const schedules_1 = require("../config/schedules");
 /**
  * Scheduled Cloud Function: send reminder for pending registrations older than 5 days and no reminders sent
  */
 exports.reminderPendingRegistrations = functions.pubsub
-    .schedule('22 23 * * *') // daily at 22:52
+    .schedule(schedules_1.CRON_REMINDER_PENDING) // uses centralized schedule config
     .timeZone('Europe/Oslo')
     .onRun(async () => {
     console.log('[reminderPendingRegistrations] triggered');
@@ -71,15 +72,6 @@ exports.reminderPendingRegistrations = functions.pubsub
         return Promise.all([p1, p2]);
     }));
     console.log('[reminderPendingRegistrations] enqueued sendReminder for ids=', due.map(d => d.id));
-    const adminSnap = await admin_1.db.collection('users').where('isAdmin', '==', true).get();
-    const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
-    const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
-    await Promise.all(admins.map(email => admin_1.db.collection('mail').add({
-        to: email,
-        message: { subject: 'Action Requests Summary', html: `<p>Send reminders: ${summary}</p>` },
-        type: 'admin_summary',
-        createdAt: firestore_1.FieldValue.serverTimestamp()
-    })));
     console.log('[reminderPendingRegistrations] completed');
     return null;
 });

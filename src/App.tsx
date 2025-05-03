@@ -31,22 +31,25 @@ function App() {
       <Router>
         <AppHeader />
         <Toolbar />
-        <Routes>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/newhome" element={<NewHomePage />} />
-          <Route path="/kutc-2025" element={<Kutc2025Page />} />
-          <Route path="/malvikingen-opp-2025" element={<MalvikingenOpp2025Page />} />
-          <Route path="/register" element={<RegistrationPage />} />
-          <Route path="/auth" element={<AuthTest />} />
-          <Route path="/email-test" element={<EmailTestPage />} />
-          <Route path="/participants" element={<PublicRegistrationsPage />} />
-          <Route path="/admin" element={
-            <RequireAdmin>
-              <AdminPage />
-            </RequireAdmin>
-          } />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+        {/* Ensure bottom content isn't hidden behind footer */}
+        <Box component="main" sx={{ pb: (theme) => theme.mixins.toolbar.minHeight }}>
+          <Routes>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/newhome" element={<NewHomePage />} />
+            <Route path="/kutc-2025" element={<Kutc2025Page />} />
+            <Route path="/malvikingen-opp-2025" element={<MalvikingenOpp2025Page />} />
+            <Route path="/register" element={<RegistrationPage />} />
+            <Route path="/auth" element={<AuthTest />} />
+            <Route path="/email-test" element={<EmailTestPage />} />
+            <Route path="/participants" element={<PublicRegistrationsPage />} />
+            <Route path="/admin" element={
+              <RequireAdmin>
+                <AdminPage />
+              </RequireAdmin>
+            } />
+            <Route path="*" element={<NotFoundPage />} />
+          </Routes>
+        </Box>
       </Router>
       {/* Version footer */}
       <Box
@@ -57,6 +60,11 @@ function App() {
         fontSize="0.75rem"
         color="text.secondary"
         p={1}
+        sx={{
+          backgroundColor: (theme) => theme.palette.background.paper,
+          borderTop: (theme) => `1.5px solid ${theme.palette.divider}`,
+          zIndex: (theme) => theme.zIndex.appBar,
+        }}
       >
         Made by KrUltra 2025 v{process.env.REACT_APP_VERSION || 'dev'}
       </Box>
