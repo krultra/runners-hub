@@ -1,12 +1,13 @@
 import * as functions from 'firebase-functions';
 import { Timestamp, FieldValue } from 'firebase-admin/firestore';
 import { db } from '../utils/admin';
+import { CRON_REMINDER_PENDING } from '../config/schedules';
 
 /**
  * Scheduled Cloud Function: send reminder for pending registrations older than 5 days and no reminders sent
  */
 export const reminderPendingRegistrations = functions.pubsub
-  .schedule('22 23 * * *') // daily at 22:52
+  .schedule(CRON_REMINDER_PENDING) // uses centralized schedule config
   .timeZone('Europe/Oslo')
   .onRun(async () => {
     console.log('[reminderPendingRegistrations] triggered');
@@ -22,7 +23,6 @@ export const reminderPendingRegistrations = functions.pubsub
       const lastNotices = data.lastNoticesSent || 0;
       return reminders === 0 && lastNotices === 0 && !requests.includes('sendReminder');
     });
-    console.log('[reminderPendingRegistrations] snap size=', snap.size, 'due count=', due.length, 'ids=', due.map(d => d.id));
     const today = new Date().toISOString().slice(0,10);
     await db.collection('dailyJobLogs').doc(today)
       .collection('reminderPendingRegistrations')
@@ -46,15 +46,6 @@ export const reminderPendingRegistrations = functions.pubsub
       return Promise.all([p1, p2]);
     }));
     console.log('[reminderPendingRegistrations] enqueued sendReminder for ids=', due.map(d => d.id));
-    const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();
-    const admins = adminSnap.docs.map(a => (a.data() as any).email).filter(Boolean);
-    const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
-    await Promise.all(admins.map(email => db.collection('mail').add({
-      to: email,
-      message: { subject: 'Action Requests Summary', html: `<p>Send reminders: ${summary}</p>` },
-      type: 'admin_summary',
-      createdAt: FieldValue.serverTimestamp()
-    })));
     console.log('[reminderPendingRegistrations] completed');
     return null;
   });

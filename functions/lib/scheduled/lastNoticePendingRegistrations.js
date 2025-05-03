@@ -27,11 +27,12 @@ exports.lastNoticePendingRegistrations = void 0;
 const functions = __importStar(require("firebase-functions"));
 const firestore_1 = require("firebase-admin/firestore");
 const admin_1 = require("../utils/admin");
+const schedules_1 = require("../config/schedules");
 /**
  * Scheduled Cloud Function: last notice for pending registrations >=7 days & 1 reminder sent
  */
 exports.lastNoticePendingRegistrations = functions.pubsub
-    .schedule('21 23 * * *') // daily at 22:51
+    .schedule(schedules_1.CRON_LAST_NOTICE) // uses centralized schedule config
     .timeZone('Europe/Oslo')
     .onRun(async () => {
     console.log('[lastNoticePendingRegistrations] triggered');

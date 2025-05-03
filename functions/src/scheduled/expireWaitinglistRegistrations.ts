@@ -1,14 +1,14 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { Timestamp, FieldValue } from 'firebase-admin/firestore';
-
-const db = admin.firestore();
+import { db } from '../utils/admin';
+import { CRON_EXPIRE_WAITINGLIST } from '../config/schedules';
 
 /**
  * Scheduled Cloud Function: expires waiting-list registrations with waitinglistExpires <= now
  */
 export const expireWaitinglistRegistrations = functions.pubsub
-  .schedule('19 23 * * *') // daily at 23:19
+  .schedule(CRON_EXPIRE_WAITINGLIST) // uses centralized schedule config
   .timeZone('Europe/Oslo')
   .onRun(async () => {
     console.log('[expireWaitinglistRegistrations] triggered');
@@ -18,7 +18,6 @@ export const expireWaitinglistRegistrations = functions.pubsub
       .where('waitinglistExpires', '<=', now)
       .get();
     const due = snap.docs;
-    console.log('[expireWaitinglistRegistrations] found due count=', due.length, 'ids=', due.map(d => d.id));
 
     // record run info
     const today = new Date().toISOString().slice(0,10);

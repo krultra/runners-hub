@@ -39,9 +39,10 @@ const AppHeader: React.FC = () => {
       position="fixed"
       elevation={0}
       sx={{
-        background: 'var(--color-header-bg)',
-        color: 'var(--color-text)',
-        borderBottom: '1.5px solid var(--color-header-border)'
+        backgroundColor: (theme) => theme.palette.background.paper,
+        color: (theme) => theme.palette.text.primary,
+        borderBottom: (theme) => `1.5px solid ${theme.palette.divider}`,
+        zIndex: (theme) => theme.zIndex.appBar,
       }}
     >
       <Toolbar>

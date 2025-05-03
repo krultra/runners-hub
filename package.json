@@ -38,7 +38,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "deploy": "npm run build && firebase deploy --only hosting --project runnershub-62442",
-    "build:test": "env-cmd -f .env.test npm run build",
+    "build:test": "env-cmd -f .env.test react-scripts build",
     "deploy:test": "npm run build:test && firebase deploy --only hosting --project runnershubtest",
     "lint": "eslint \"src/**/*.{ts,tsx}\"",
     "lint:fix": "eslint \"src/**/*.{ts,tsx}\" --fix",
