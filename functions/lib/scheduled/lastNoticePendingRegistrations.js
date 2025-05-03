@@ -48,7 +48,6 @@ exports.lastNoticePendingRegistrations = functions.pubsub
         const lastNotices = data.lastNoticesSent || 0;
         return reminders >= 1 && lastNotices === 0 && !requests.includes('sendLastNotice');
     });
-    console.log('[lastNoticePendingRegistrations] snap size=', snap.size, 'due count=', due.length, 'ids=', due.map(d => d.id));
     const today = new Date().toISOString().slice(0, 10);
     await admin_1.db.collection('dailyJobLogs').doc(today)
         .collection('lastNoticePendingRegistrations')
@@ -72,15 +71,6 @@ exports.lastNoticePendingRegistrations = functions.pubsub
         return Promise.all([p1, p2]);
     }));
     console.log('[lastNoticePendingRegistrations] enqueued sendLastNotice for ids=', due.map(d => d.id));
-    const adminSnap = await admin_1.db.collection('users').where('isAdmin', '==', true).get();
-    const admins = adminSnap.docs.map(a => a.data().email).filter(Boolean);
-    const summary = due.map(d => `${d.id} (${d.data().email})`).join(', ');
-    await Promise.all(admins.map(email => admin_1.db.collection('mail').add({
-        to: email,
-        message: { subject: 'Action Requests Summary', html: `<p>Last notices: ${summary}</p>` },
-        type: 'admin_summary',
-        createdAt: firestore_1.FieldValue.serverTimestamp()
-    })));
     console.log('[lastNoticePendingRegistrations] completed');
     return null;
 });

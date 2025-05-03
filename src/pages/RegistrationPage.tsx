@@ -64,7 +64,7 @@ const RegistrationPage: React.FC = () => {
                     ? (reg.waitinglistExpires as any).toDate()
                     : new Date(reg.waitinglistExpires))
                 : null,
-              termsAccepted: false // Always require explicit acceptance
+              termsAccepted: reg.termsAccepted || false
             });
             setIsEditingExisting(true);
             setExistingRegistrationId(reg.id ?? null);
@@ -360,8 +360,14 @@ const RegistrationPage: React.FC = () => {
     localStorage.setItem('registrationFormData', JSON.stringify(formData));
   }, [formData]);
   
-  // Load form data from localStorage on component mount
+  // Load form data from localStorage on component mount, ONLY if not editing existing
   useEffect(() => {
+    // If we are editing an existing registration, don't load from local storage
+    // as the fetchAndPrefill effect handles prefilling from the database.
+    if (isEditingExisting) {
+      return; // Skip loading from localStorage
+    }
+    
     const savedFormData = localStorage.getItem('registrationFormData');
     if (savedFormData) {
       try {
@@ -370,13 +376,19 @@ const RegistrationPage: React.FC = () => {
         if (parsedData.dateOfBirth) {
           parsedData.dateOfBirth = new Date(parsedData.dateOfBirth);
         }
+        // Convert waitinglistExpires string back to Date object if it exists
+        if (parsedData.waitinglistExpires) {
+          parsedData.waitinglistExpires = new Date(parsedData.waitinglistExpires);
+        }
         setFormData(parsedData);
       } catch (error) {
         console.error('Error parsing saved form data:', error);
+        // Clear potentially corrupted local storage
+        localStorage.removeItem('registrationFormData');
       }
     }
-  }, []);
-  
+  }, [isEditingExisting]); // Add isEditingExisting dependency
+ 
   // Effect to show appropriate validation errors when changing steps
   useEffect(() => {
     if (validationAttempted) {
@@ -395,8 +407,8 @@ const RegistrationPage: React.FC = () => {
     setValidationAttempted(true);
     const currentErrors = validateForm(formData, touchedFields, true, undefined, undefined);
     
-    // Require waiting-list agreement if event full
-    if (isFull) {
+    // Require waiting-list agreement if event full AND user is not already registered
+    if (isFull && !isEditingExisting) {
       if (!formData.isOnWaitinglist) {
         setErrors(prev => ({ ...prev, isOnWaitinglist: 'You must agree to join the waiting-list' }));
         setSnackbarMessage('Please agree to join the waiting-list before submitting');
@@ -420,7 +432,7 @@ const RegistrationPage: React.FC = () => {
       // First test the Firestore connection
       const isConnected = await testFirestoreConnection();
       if (!isConnected) {
-        setSnackbarMessage('Error connecting to the database. Please check your internet connection and try again.');
+        setSnackbarMessage('Error connecting to the database. Please check your internet connection.');
         setSnackbarSeverity('error');
         setSnackbarOpen(true);
         return;
@@ -628,7 +640,7 @@ const RegistrationPage: React.FC = () => {
                   isSubmitting ||
                   (activeStep === steps.length - 1 && (
                     !isFormValidForSubmission() ||
-                    (isFull && (!formData.isOnWaitinglist || !formData.waitinglistExpires))
+                    (isFull && !isEditingExisting && (!formData.isOnWaitinglist || !formData.waitinglistExpires))
                   ))
                 }
               >

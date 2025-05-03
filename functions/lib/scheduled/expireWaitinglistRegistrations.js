@@ -42,7 +42,6 @@ exports.expireWaitinglistRegistrations = functions.pubsub
         .where('waitinglistExpires', '<=', now)
         .get();
     const due = snap.docs;
-    console.log('[expireWaitinglistRegistrations] found due count=', due.length, 'ids=', due.map(d => d.id));
     // record run info
     const today = new Date().toISOString().slice(0, 10);
     await admin_1.db.collection('dailyJobLogs').doc(today)
