@@ -32,15 +32,14 @@ export const sendDailySummary = functions.pubsub
       return { label, count };
     }));
 
-    let html = `<h1>Daily Job Summary for ${today}</h1>`;
+    let html = `<h1>Daily Summary for ${today}</h1>`;
     console.log('[sendDailySummary] html=', html);
     results.forEach(r => { html += `<p>${r.label}: ${r.count}</p>` });
 
     // extra statistics
     const actionRequestsSnap = await db.collection('actionRequests').where('status', '==', 'pending').get();
-    const pendingRequests = actionRequestsSnap.size;
     const regSnap = await db.collection('registrations').get();
-    const regsData = regSnap.docs.map(d => d.data());
+    const regsData = regSnap.docs.map(d => ({ id: d.id, ...(d.data() as any) }));
     const participants = regsData.filter(r => !r.isOnWaitinglist);
     const participantsPending = participants.filter(r => r.status === 'pending').length;
     const participantsConfirmed = participants.filter(r => r.status === 'confirmed').length;
@@ -53,7 +52,17 @@ export const sendDailySummary = functions.pubsub
     const outstandingClaims = regsData.reduce((sum, r) => sum + Math.max(0, (r.paymentRequired || 0) - (r.paymentMade || 0)), 0);
     const pendingWithReminder = regsData.filter(r => (r.remindersSent || 0) > 0 && (r.lastNoticesSent || 0) === 0).length;
     const pendingWithLastNotice = regsData.filter(r => (r.lastNoticesSent || 0) > 0).length;
-    html += `<h2>Action Requests Pending</h2><p>${pendingRequests}</p>`;
+    html += '<h2>Action Requests Pending</h2>';
+    html += '<table border="1" cellpadding="4"><thead><tr><th>Created</th><th>Type</th><th>#</th><th>Name</th></tr></thead><tbody>';
+    actionRequestsSnap.docs.forEach(doc => {
+      const data = doc.data() as any;
+      const created = data.createdAt?.toDate().toLocaleDateString('en-GB', { day: '2-digit', month: 'short' });
+      const reg = regsData.find(r => r.id === data.registrationId);
+      const number = reg?.registrationNumber || data.registrationId;
+      const name = reg ? `${reg.firstName} ${reg.lastName}` : '';
+      html += `<tr><td>${created}</td><td>${data.type}</td><td>${number}</td><td>${name}</td></tr>`;
+    });
+    html += '</tbody></table>';
     html += `<h2>Registration Stats</h2>`;
     html += `<p>Participants - Pending: ${participantsPending}, Confirmed: ${participantsConfirmed}, Total: ${participants.length}</p>`;
     html += `<p>Waiting-list - Pending: ${waitingPending}, Confirmed: ${waitingConfirmed}, Total: ${waitingList.length}</p>`;
@@ -63,6 +72,7 @@ export const sendDailySummary = functions.pubsub
     html += `<h2>Reminder Status</h2>`;
     html += `<p>Reminder only (no last notice): ${pendingWithReminder}</p>`;
     html += `<p>With last notice: ${pendingWithLastNotice}</p>`;
+    html += '<p><a href="https://runnershub.krultra.no/admin">Admin Panel</a></p>';
 
     // fetch admin users from users collection
     const adminSnap = await db.collection('users').where('isAdmin', '==', true).get();

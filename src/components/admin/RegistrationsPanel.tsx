@@ -23,6 +23,8 @@ const RegistrationsPanel: React.FC = () => {
   const loadData = async () => {
     setRegLoading(true);
     const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
+    // sort by registrationNumber ascending
+    regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
     const sts = await listRegistrationStatuses();
     setRegistrations(regs);
     setStatuses(sts);
@@ -45,6 +47,8 @@ const RegistrationsPanel: React.FC = () => {
     setTestLoading(true);
     await generateTestRegistrations(CURRENT_EDITION_ID, testCount);
     const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
+    // sort by registrationNumber ascending
+    regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
     setRegistrations(regs);
     setTestLoading(false);
   };

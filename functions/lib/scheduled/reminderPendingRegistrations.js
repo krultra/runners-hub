@@ -48,7 +48,6 @@ exports.reminderPendingRegistrations = functions.pubsub
         const lastNotices = data.lastNoticesSent || 0;
         return reminders === 0 && lastNotices === 0 && !requests.includes('sendReminder');
     });
-    console.log('[reminderPendingRegistrations] snap size=', snap.size, 'due count=', due.length, 'ids=', due.map(d => d.id));
     const today = new Date().toISOString().slice(0, 10);
     await admin_1.db.collection('dailyJobLogs').doc(today)
         .collection('reminderPendingRegistrations')
