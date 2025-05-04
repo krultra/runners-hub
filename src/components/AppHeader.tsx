@@ -57,7 +57,7 @@ const AppHeader: React.FC = () => {
         {user ? (
           <Box display="flex" alignItems="center">
             {/* Admin drawer toggle on admin pages */}
-            {isAdmin && location.pathname.startsWith('/admin') && (
+            {isAdmin && location.pathname === '/admin' && (
               <Tooltip title="Toggle menu">
                 <IconButton color="inherit" onClick={() => window.dispatchEvent(new Event('toggleAdminDrawer'))} sx={{ mr: 1 }}>
                   <MenuIcon />

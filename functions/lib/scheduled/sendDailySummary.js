@@ -53,7 +53,7 @@ exports.sendDailySummary = functions.pubsub
         const count = snap.docs.reduce((sum, d) => sum + (d.data().count || 0), 0);
         return { label, count };
     }));
-    let html = `<h1>Daily Job Summary for ${today}</h1>`;
+    let html = `<h1>Daily Summary for ${today}</h1>`;
     console.log('[sendDailySummary] html=', html);
     results.forEach(r => { html += `<p>${r.label}: ${r.count}</p>`; });
     // extra statistics

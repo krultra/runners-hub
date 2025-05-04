@@ -10,3 +10,4 @@ export { sendDailySummary } from './scheduled/sendDailySummary';
 // Firestore triggers
 export { createRefundTasks } from './triggers/createRefundAdminTasks';
 export { manageScheduleOverride } from './triggers/updateScheduleOverride';
+export { calculateGradedTimes } from './triggers/calculateGradedTimes';

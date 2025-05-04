@@ -17,6 +17,8 @@ import AuthTest from './components/AuthTest';
 import AdminPage from './pages/AdminPage';
 import RequireAdmin from './components/RequireAdmin';
 import PublicRegistrationsPage from './pages/PublicRegistrationsPage';
+import ImportMalvikingenPage from './pages/admin/ImportMalvikingenPage';
+import ResultsPage from './pages/ResultsPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -47,6 +49,13 @@ function App() {
                 <AdminPage />
               </RequireAdmin>
             } />
+            {/* Add the new admin route for importing Malvikingen data */}
+            <Route path="/admin/import-malvikingen" element={
+              <RequireAdmin>
+                <ImportMalvikingenPage />
+              </RequireAdmin>
+            } />
+            <Route path="/results/mo-2025" element={<ResultsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Box>

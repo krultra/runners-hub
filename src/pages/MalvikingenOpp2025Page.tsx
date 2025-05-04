@@ -4,8 +4,8 @@ import { useNavigate } from 'react-router-dom';
 
 const LØPSDATO = new Date('2025-05-10T12:00:00+02:00'); // Lørdag 10. mai 2025, kl 12:00
 const PÅMELDINGSFRIST = new Date('2025-05-09T23:59:59+02:00'); // Sett frist til dagen før
-const MAKS_DELTAGERE = 200;
-const STARTKONTINGENT = 250; // Dummy pris
+const MAKS_DELTAGERE = 50;
+const STARTKONTINGENT = 200;
 
 function formatCountdown(target: Date) {
   const now = new Date();
@@ -43,7 +43,7 @@ const MalvikingenOpp2025Page: React.FC = () => {
           color="inherit"
           sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '1rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}
         >
-          Mer informasjon om Malvikingen Opp
+          Mer informasjon på hjemmesiden for Malvikingen Opp
         </Button>
         <Paper elevation={1} sx={{ borderRadius: 2, p: 3, mb: 4 }}>
           <Typography variant="h4">
@@ -52,7 +52,9 @@ const MalvikingenOpp2025Page: React.FC = () => {
             })}
           </Typography>
           <Typography variant="h6">
-            Start kl {LØPSDATO.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}
+            Start konkurranseklasser: {LØPSDATO.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}
+            <br />
+            Start turklasse: Fra kl. 10:00
           </Typography>
           <Box sx={{ mt: 2 }}>
             <Typography variant="h5">
@@ -60,31 +62,29 @@ const MalvikingenOpp2025Page: React.FC = () => {
             </Typography>
           </Box>
         </Paper>
-        {/* Dummy user/registration logic for demonstration */}
-        {/* Replace with real auth/registration logic later */}
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'center', gap: 2, mt: 2, mb: 4 }}>
-          {/* Set isUserRegistered to true/false to simulate */}
-          {false ? (
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ fontWeight: 700, minWidth: 220 }}
-              onClick={() => navigate('/malvikingen-opp-2025/registration')}
-            >
-              Se og rediger min påmelding
-            </Button>
-          ) : (
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ fontWeight: 700, minWidth: 220 }}
-              onClick={() => navigate('/malvikingen-opp-2025/registration')}
-            >
-              Påmelding turklasse
-            </Button>
-          )}
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSeqojnVfVkqryWy72dM98OuLNVQ53ZuFehY3UGWxWqHuJx0YA/viewform?usp=pp_url&entry.1833177596=Turklasse"
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ fontWeight: 700, minWidth: 220 }}
+          >
+            Påmelding turklasse
+          </Button>
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            href="https://signup.eqtiming.com/?Event=Malvik_IL&lang=norwegian"
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ fontWeight: 700, minWidth: 220 }}
+          >
+            Påmelding konkurranseklasser
+          </Button>
           <Button
             variant="outlined"
             color="inherit"
@@ -93,6 +93,15 @@ const MalvikingenOpp2025Page: React.FC = () => {
             onClick={() => navigate('/malvikingen-opp-2025/participants')}
           >
             Se deltakere
+          </Button>
+          <Button
+            variant="outlined"
+            color="inherit"
+            size="large"
+            sx={{ minWidth: 180 }}
+            onClick={() => navigate('/results/mo-2025')}
+          >
+            Resultater
           </Button>
         </Box>
 

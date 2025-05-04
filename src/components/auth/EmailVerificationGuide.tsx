@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Box, Typography, Button, Alert, Paper, CircularProgress } from '@mui/material';
-import { getAuth, sendSignInLinkToEmail } from 'firebase/auth';
+import { sendSignInLinkToEmail } from 'firebase/auth';
+import { auth } from '../../config/firebase';
 
 interface EmailVerificationGuideProps {
   email: string;
@@ -25,7 +26,6 @@ const EmailVerificationGuide: React.FC<EmailVerificationGuideProps> = ({
     setStatus('idle');
     
     try {
-      const auth = getAuth();
       // Preserve ?returnTo= param in the email link
       const params = new URLSearchParams(window.location.search);
       const returnTo = params.get('returnTo');
