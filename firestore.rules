@@ -96,13 +96,22 @@ service cloud.firestore {
         && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
-    // Rule for the Malvikingen collection
+    // Rule for the Malvikingen moRegistrations collection
     match /moRegistrations/{participantId} {
       allow read: if true; // Or adjust as needed for public reading
       allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-      // Or, more granularly:
-      // allow create, update: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
-      // allow delete: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true; // If deletion is needed
+   }
+
+    // Rule for the Malvikingen moTiming collection
+    match /moTiming/{timingId} {
+      allow read: if true; // Or adjust as needed for public reading
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+   }
+
+    // Rule for the Malvikingen timeGradingFactors collection
+    match /timeGradingFactors/{factorId} {
+      allow read: if true;
+      allow write: if true;
     }
 
     // Deny all other access by default

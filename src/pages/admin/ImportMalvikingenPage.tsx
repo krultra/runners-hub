@@ -50,6 +50,18 @@ interface TimingResult {
   updatedAt: string;
 }
 
+// Type for grading factor records
+interface TimeGradingFactor {
+  eventId: string;
+  age: number;
+  AG_F: number;
+  AG_M: number;
+  GG_F: number;
+  GG_M: number;
+  AGG_F: number;
+  AGG_M: number;
+}
+
 const ImportMalvikingenPage: React.FC = () => {
   const [rawData, setRawData] = useState<string>('');
   const [isImporting, setIsImporting] = useState<boolean>(false);
@@ -64,6 +76,11 @@ const ImportMalvikingenPage: React.FC = () => {
   const [isTimingImporting, setIsTimingImporting] = useState(false);
   const [timingImportSuccess, setTimingImportSuccess] = useState<boolean | null>(null);
   const [timingImportError, setTimingImportError] = useState<string | null>(null);
+
+  const [factorsFile, setFactorsFile] = useState<File | null>(null);
+  const [isFactorsImporting, setIsFactorsImporting] = useState(false);
+  const [factorsImportSuccess, setFactorsImportSuccess] = useState<boolean | null>(null);
+  const [factorsImportError, setFactorsImportError] = useState<string | null>(null);
 
   const handleImport = async () => {
     setIsImporting(true);
@@ -173,14 +190,17 @@ const ImportMalvikingenPage: React.FC = () => {
     try {
       for (const participant of importedData) {
         const docRef = doc(db, 'moRegistrations', participant.eqTimingId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          // Do not overwrite createdAt if it already exists
-          const { createdAt, ...updateData } = participant;
-          await setDoc(docRef, updateData, { merge: true });
-        } else {
-          await setDoc(docRef, { ...participant, createdAt: new Date().toISOString() });
-          successCount++;
+        try {
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            const { createdAt, ...updateData } = participant;
+            await setDoc(docRef, updateData, { merge: true });
+          } else {
+            await setDoc(docRef, { ...participant, createdAt: new Date().toISOString() });
+            successCount++;
+          }
+        } catch (err) {
+          throw err;
         }
       }
       setImportStatus({ message: `Successfully imported/updated ${successCount} participants.`, severity: 'success' });
@@ -243,13 +263,16 @@ const ImportMalvikingenPage: React.FC = () => {
                 const sanitizedTimestamp = record.timestamp.replace(/[^0-9]/g, '');
                 const docId = `mo-2025-google-${sanitizedTimestamp}`;
                 const docRef = doc(db, 'moRegistrations', docId);
-                const docSnap = await getDoc(docRef);
-                if (docSnap.exists()) {
-                  // Do not overwrite createdAt if it already exists
-                  const { createdAt, ...updateData } = record;
-                  await setDoc(docRef, updateData, { merge: true });
-                } else {
-                  await setDoc(docRef, { ...record, createdAt: new Date().toISOString() });
+                try {
+                  const docSnap = await getDoc(docRef);
+                  if (docSnap.exists()) {
+                    const { createdAt, ...updateData } = record;
+                    await setDoc(docRef, updateData, { merge: true });
+                  } else {
+                    await setDoc(docRef, { ...record, createdAt: new Date().toISOString() });
+                  }
+                } catch (err) {
+                  throw err;
                 }
               }
               setTurklasseImportSuccess(true);
@@ -291,10 +314,18 @@ const ImportMalvikingenPage: React.FC = () => {
           // 7: Split 1 Lap Time (for splitTimes: element1, element0 fixed as "0:00:00")
           const data = results.data as any[];
           const timingRecords = data.map((row, index) => {
-            // Skip header row if present: check if first row contains non-numeric in Final Position
-            if (index === 0 && isNaN(Number(row[0]))) return null;
+            // Skip if row is blank or only whitespace
+            if (!row || row.join('').trim() === '') return null;
+
+            // Skip header row if present: if first row contains non-numeric or row[0] equals 'DNF' (case-insensitive), skip
+            if (index === 0 && (isNaN(Number(row[0])) || String(row[0]).toUpperCase() === 'DNF')) return null;
+            // Also skip any row where first column is 'DNF'
+            if (String(row[0]).toUpperCase() === 'DNF') return null;
+            
             const importedFinalPosition = Number(row[0]);
             const bib = Number(row[1]);
+            // Skip rows with invalid bib (NaN or bib <= 0)
+            if (isNaN(bib) || bib <= 0) return null;
             const totalTime = row[5]?.trim() || '';
             const splitElapsedTime = row[6]?.trim() || '';
             const splitLapTime = row[7]?.trim() || '';
@@ -309,9 +340,9 @@ const ImportMalvikingenPage: React.FC = () => {
               updatedAt: new Date().toISOString()
             };
           }).filter((record): record is TimingResult => record !== null);
-          
+
           const db = getFirestore();
-          // For each timing record, create a document in 'moTiming' with custom ID: "mo-2025-xxx"
+          // For each timing record, create or update a document in 'moTiming' with custom ID: "mo-2025-xxx"
           for (const record of timingRecords) {
             const bibNum: number = record.bib;
             const bibPadded = padBib(bibNum);
@@ -329,6 +360,53 @@ const ImportMalvikingenPage: React.FC = () => {
       setTimingImportError(error.message);
     } finally {
       setIsTimingImporting(false);
+    }
+  };
+
+  const handleFactorsImport = async () => {
+    if (!factorsFile) return;
+    setIsFactorsImporting(true);
+    setFactorsImportSuccess(null);
+    setFactorsImportError(null);
+    try {
+      const fileText = await factorsFile.text();
+      Papa.parse(fileText, {
+        delimiter: ';',
+        header: false,
+        complete: async (results: Papa.ParseResult<any>) => {
+          const data = results.data as any[];
+          // Assume first row is header, so skip index 0
+          const factors = data.slice(1).map((row): TimeGradingFactor | null => {
+            // Skip blank rows
+            if (!row || row.join('').trim() === '') return null;
+            const age = Number(row[0]);
+            const AG_F = Number(String(row[1]).replace(/,/g, '.'));
+            const AG_M = Number(String(row[2]).replace(/,/g, '.'));
+            const GG_F = Number(String(row[3]).replace(/,/g, '.'));
+            const GG_M = Number(String(row[4]).replace(/,/g, '.'));
+            const AGG_F = Number(String(row[5]).replace(/,/g, '.'));
+            const AGG_M = Number(String(row[6]).replace(/,/g, '.'));
+            if (isNaN(age) || age < 5 || age > 100) return null;
+            return { eventId: 'mo', age, AG_F, AG_M, GG_F, GG_M, AGG_F, AGG_M };
+          }).filter((item): item is TimeGradingFactor => item !== null);
+
+          const db = getFirestore();
+          // For each factor, create or update a document in 'timeGradingFactors' with id `mo-<age>`
+          for (const factor of factors) {
+            const factorDocId = `mo-${factor.age}`;
+            const docRef = doc(db, 'timeGradingFactors', factorDocId);
+            await setDoc(docRef, factor, { merge: true });
+          }
+          setFactorsImportSuccess(true);
+        },
+        error: (err: Error) => {
+          setFactorsImportError('Error parsing CSV: ' + err.message);
+        }
+      });
+    } catch (error: any) {
+      setFactorsImportError(error.message);
+    } finally {
+      setIsFactorsImporting(false);
     }
   };
 
@@ -433,6 +511,31 @@ const ImportMalvikingenPage: React.FC = () => {
         </Button>
         {timingImportSuccess && <Alert severity="success" sx={{ mt: 2 }}>Timing results imported successfully!</Alert>}
         {timingImportError && <Alert severity="error" sx={{ mt: 2 }}>{timingImportError}</Alert>}
+      </Box>
+
+      <Box sx={{ mt: 4 }}>
+        <Typography variant="h6">Import Age & Gender Grading Factors</Typography>
+        <Typography variant="body2" sx={{ mb: 1 }}>Expected CSV format: Age;AG_F;AG_M;GG_F;GG_M;AGG_F;AGG_M (one row per age from 5 to 100)</Typography>
+        <input
+          type="file"
+          accept=".csv"
+          onChange={(e) => {
+            if (e.target.files && e.target.files.length > 0) {
+              setFactorsFile(e.target.files[0]);
+            }
+          }}
+        />
+        <Button
+          variant="contained"
+          color="primary"
+          sx={{ ml: 2 }}
+          onClick={handleFactorsImport}
+          disabled={isFactorsImporting || !factorsFile}
+        >
+          {isFactorsImporting ? 'Importing...' : 'Import Grading Factors'}
+        </Button>
+        {factorsImportSuccess && <Alert severity="success" sx={{ mt: 2 }}>Grading factors imported successfully!</Alert>}
+        {factorsImportError && <Alert severity="error" sx={{ mt: 2 }}>{factorsImportError}</Alert>}
       </Box>
     </Container>
   );
