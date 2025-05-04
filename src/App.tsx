@@ -17,6 +17,7 @@ import AuthTest from './components/AuthTest';
 import AdminPage from './pages/AdminPage';
 import RequireAdmin from './components/RequireAdmin';
 import PublicRegistrationsPage from './pages/PublicRegistrationsPage';
+import ImportMalvikingenPage from './pages/admin/ImportMalvikingenPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -45,6 +46,12 @@ function App() {
             <Route path="/admin" element={
               <RequireAdmin>
                 <AdminPage />
+              </RequireAdmin>
+            } />
+            {/* Add the new admin route for importing Malvikingen data */}
+            <Route path="/admin/import-malvikingen" element={
+              <RequireAdmin>
+                <ImportMalvikingenPage />
               </RequireAdmin>
             } />
             <Route path="*" element={<NotFoundPage />} />

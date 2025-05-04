@@ -63,6 +63,14 @@ const AdminPage: React.FC = () => {
                 <ListItemText primary={section.label} />
               </ListItem>
             ))}
+            {/* Add link to the new import page */}
+            <ListItem
+              component={Link}
+              to="/admin/import-malvikingen"
+              sx={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              <ListItemText primary="Import Malvikingen" />
+            </ListItem>
           </List>
         </Drawer>
       )}
@@ -87,6 +95,15 @@ const AdminPage: React.FC = () => {
                 <ListItemText primary={section.label} />
               </ListItem>
             ))}
+            {/* Add link to the new import page */}
+            <ListItem
+              component={Link}
+              to="/admin/import-malvikingen"
+              onClick={() => setDrawerOpen(false)}
+              sx={{ color: 'inherit', textDecoration: 'none' }}
+            >
+              <ListItemText primary="Import Malvikingen" />
+            </ListItem>
           </List>
         </Drawer>
       )}
