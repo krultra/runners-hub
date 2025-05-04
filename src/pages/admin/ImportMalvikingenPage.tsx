@@ -43,9 +43,9 @@ interface TimingResult {
   eventId: string;
   importedFinalPosition: number;
   bib: number;
-  totalTime: string;
-  splitElapsedTimes: string[];
-  splitTimes: string[];
+  totalTime: { display: string; seconds: number };
+  splitElapsedTimes: { display: string; seconds: number }[];
+  splitTimes: { display: string; seconds: number }[];
   createdAt: string;
   updatedAt: string;
 }
@@ -60,6 +60,20 @@ interface TimeGradingFactor {
   GG_M: number;
   AGG_F: number;
   AGG_M: number;
+}
+
+// Helper to parse time strings ("h:mm:ss.s" or "mm:ss.s") into seconds
+function parseTimeStr(timeStr: string): number {
+  const parts = timeStr.split(':').map(s => s.trim());
+  let sec = 0;
+  if (parts.length === 2) {
+    sec = Number(parts[0]) * 60 + Number(parts[1]);
+  } else if (parts.length === 3) {
+    sec = Number(parts[0]) * 3600 + Number(parts[1]) * 60 + Number(parts[2]);
+  } else {
+    sec = Number(timeStr);
+  }
+  return Math.round(sec * 10) / 10;
 }
 
 const ImportMalvikingenPage: React.FC = () => {
@@ -326,16 +340,25 @@ const ImportMalvikingenPage: React.FC = () => {
             const bib = Number(row[1]);
             // Skip rows with invalid bib (NaN or bib <= 0)
             if (isNaN(bib) || bib <= 0) return null;
-            const totalTime = row[5]?.trim() || '';
-            const splitElapsedTime = row[6]?.trim() || '';
-            const splitLapTime = row[7]?.trim() || '';
+            const totalStr = row[5]?.trim() || '';
+            const splitElapsedStr = row[6]?.trim() || '';
+            const splitLapStr = row[7]?.trim() || '';
+            const totalSec = parseTimeStr(totalStr);
+            const elapsedSec = parseTimeStr(splitElapsedStr);
+            const lapSec = parseTimeStr(splitLapStr);
             return {
               eventId: 'mo-2025',
               importedFinalPosition,
               bib,
-              totalTime,
-              splitElapsedTimes: ['12:00:00', splitElapsedTime],
-              splitTimes: ['0:00:00', splitLapTime],
+              totalTime: { display: totalStr, seconds: totalSec },
+              splitElapsedTimes: [
+                { display: '12:00:00', seconds: parseTimeStr('12:00:00') },
+                { display: splitElapsedStr, seconds: elapsedSec }
+              ],
+              splitTimes: [
+                { display: '0:00:00', seconds: parseTimeStr('0:00:00') },
+                { display: splitLapStr, seconds: lapSec }
+              ],
               createdAt: new Date().toISOString(),
               updatedAt: new Date().toISOString()
             };

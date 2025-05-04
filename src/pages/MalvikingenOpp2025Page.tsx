@@ -94,6 +94,15 @@ const MalvikingenOpp2025Page: React.FC = () => {
           >
             Se deltakere
           </Button>
+          <Button
+            variant="outlined"
+            color="inherit"
+            size="large"
+            sx={{ minWidth: 180 }}
+            onClick={() => navigate('/results/mo-2025')}
+          >
+            Resultater
+          </Button>
         </Box>
 
         <Box sx={{ flexGrow: 1, mb: 4 }}>

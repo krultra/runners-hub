@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.manageScheduleOverride = exports.createRefundTasks = exports.sendDailySummary = exports.reminderPendingRegistrations = exports.lastNoticePendingRegistrations = exports.expirePendingRegistrations = exports.expireWaitinglistRegistrations = void 0;
+exports.calculateGradedTimes = exports.manageScheduleOverride = exports.createRefundTasks = exports.sendDailySummary = exports.reminderPendingRegistrations = exports.lastNoticePendingRegistrations = exports.expirePendingRegistrations = exports.expireWaitinglistRegistrations = void 0;
 require("./utils/admin");
 // Scheduled functions
 var expireWaitinglistRegistrations_1 = require("./scheduled/expireWaitinglistRegistrations");
@@ -18,3 +18,5 @@ var createRefundAdminTasks_1 = require("./triggers/createRefundAdminTasks");
 Object.defineProperty(exports, "createRefundTasks", { enumerable: true, get: function () { return createRefundAdminTasks_1.createRefundTasks; } });
 var updateScheduleOverride_1 = require("./triggers/updateScheduleOverride");
 Object.defineProperty(exports, "manageScheduleOverride", { enumerable: true, get: function () { return updateScheduleOverride_1.manageScheduleOverride; } });
+var calculateGradedTimes_1 = require("./triggers/calculateGradedTimes");
+Object.defineProperty(exports, "calculateGradedTimes", { enumerable: true, get: function () { return calculateGradedTimes_1.calculateGradedTimes; } });

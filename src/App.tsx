@@ -18,6 +18,7 @@ import AdminPage from './pages/AdminPage';
 import RequireAdmin from './components/RequireAdmin';
 import PublicRegistrationsPage from './pages/PublicRegistrationsPage';
 import ImportMalvikingenPage from './pages/admin/ImportMalvikingenPage';
+import ResultsPage from './pages/ResultsPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -54,6 +55,7 @@ function App() {
                 <ImportMalvikingenPage />
               </RequireAdmin>
             } />
+            <Route path="/results/mo-2025" element={<ResultsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Box>
