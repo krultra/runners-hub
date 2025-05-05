@@ -4,16 +4,16 @@ import { useNavigate } from 'react-router-dom';
 
 const EVENTS = [
   {
+    key: 'mo-2025',
+    name: "Malvikingen Opp 2025",
+    description: "Vårens vakreste eventyr iMalvik!",
+    route: '/mo-2025', // Placeholder for future event page
+  },
+  {
     key: 'kutc-2025',
     name: "Kruke's Ultra-Trail Challenge 2025",
     description: "Challenge yourself on the trails to Solemsvåttan!",
-    route: '/', // For now, routes to the current HomePage
-  },
-  {
-    key: 'malvikingen-opp-2025',
-    name: "Malvikingen Opp 2025",
-    description: "Take on the vertical challenge in Malvik!",
-    route: '/malvikingen-opp-2025', // Placeholder for future event page
+    route: '/kutc-2025', // For now, routes to the current HomePage
   },
 ];
 
@@ -23,7 +23,7 @@ const NewHomePage: React.FC = () => {
   return (
     <Container maxWidth="md" sx={{ pt: 8 }}>
       <Typography variant="h3" align="center" gutterBottom>
-        Select an Event
+        Velg et arrangement
       </Typography>
       <Grid container spacing={4} justifyContent="center">
         {EVENTS.map(event => (
