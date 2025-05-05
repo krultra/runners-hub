@@ -18,7 +18,7 @@ function formatCountdown(target: Date) {
   return `${dager} dager ${timer} timer ${minutter} minutter ${sekunder} sekunder`;
 }
 
-const MalvikingenOpp2025Page: React.FC = () => {
+const MO2025Page: React.FC = () => {
   const navigate = useNavigate();
   const [nedtelling, setNedtelling] = useState<string>(formatCountdown(LØPSDATO));
   useEffect(() => {
@@ -67,7 +67,7 @@ const MalvikingenOpp2025Page: React.FC = () => {
             variant="contained"
             color="primary"
             size="large"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSeqojnVfVkqryWy72dM98OuLNVQ53ZuFehY3UGWxWqHuJx0YA/viewform?usp=pp_url&entry.1833177596=Turklasse"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSfUjLiF7JwKMiKA8kpplwlGjmxgGZ1slE_IWNmxZucqHSj95g/viewform"
             target="_blank"
             rel="noopener noreferrer"
             sx={{ fontWeight: 700, minWidth: 220 }}
@@ -88,9 +88,10 @@ const MalvikingenOpp2025Page: React.FC = () => {
           <Button
             variant="outlined"
             color="inherit"
-            size="large"
-            sx={{ minWidth: 180 }}
-            onClick={() => navigate('/malvikingen-opp-2025/participants')}
+            href="https://signup.eqtiming.com/participants?Event=malvik_il&uid=76727"
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ fontWeight: 700, minWidth: 220 }}
           >
             Se deltakere
           </Button>
@@ -133,7 +134,7 @@ const MalvikingenOpp2025Page: React.FC = () => {
                 <Typography><b>Deltakeravgift:</b></Typography>
                 <ul style={{ textAlign: 'left', marginTop: 4, marginBottom: 8 }}>
                   <li>200,- kroner for konkurranseklasser og trim med tidtaking <br /><span style={{ fontSize: '0.95em', color: '#555' }}>(+ evt. engangslisens 30,- for de som ikke har årslisens)</span></li>
-                  <li>50,- kroner for mosjonsklasse <span style={{ fontSize: '0.95em', color: '#555' }}>(ingen lisenskrav)</span></li>
+                  <li>50,- kroner for tur/mosjonsklasse <span style={{ fontSize: '0.95em', color: '#555' }}>(ingen lisenskrav)</span></li>
                 </ul>
                 <Typography sx={{ mt: 2 }}>
                   <b>Påmelding:</b>
@@ -150,13 +151,13 @@ const MalvikingenOpp2025Page: React.FC = () => {
                       sx={{ p: 0, minWidth: 0, fontSize: '1em', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}
                     >
                       EQ Timing
-                    </Button>
+                    </Button>.
                   </li>
                   <li>
-                    Påmelding for turklassen gjøres ved å klikke på knappen ovenfor.
+                    Påmelding for turklassen gjøres ved å klikke på knappen for påmelding turklasse ovenfor.
                   </li>
                 </ul>
-                <Typography><b>Betaling for turklassen:</b> Vipps til 913 51 909.</Typography>
+                <Typography><b>Betaling for turklassen:</b> Vipps 50,- kroner til 913 51 909.</Typography>
               </Paper>
             </Grid>
           </Grid>
@@ -166,4 +167,4 @@ const MalvikingenOpp2025Page: React.FC = () => {
   );
 };
 
-export default MalvikingenOpp2025Page;
+export default MO2025Page;

@@ -89,25 +89,29 @@ const ResultsPage: React.FC = () => {
     withPlacements.forEach((p, i) => { p.scratchPlace = i + 1; });
 
     // Gender places
-    const males = withPlacements.filter(p => p.gender === 'M');
-    const females = withPlacements.filter(p => p.gender === 'F');
+    // Now calculated within each gender group but without separate filtering in UI
+    const byGender = withPlacements.reduce((acc, p) => {
+      if (!acc[p.gender]) acc[p.gender] = [];
+      acc[p.gender].push(p);
+      return acc;
+    }, {} as Record<string, Participant[]>);
     
-    males.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
-    females.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
-    
-    males.forEach((p, i) => { p.genderPlace = i + 1; });
-    females.forEach((p, i) => { p.genderPlace = i + 1; });
+    // Sort and assign places within each gender group
+    Object.values(byGender).forEach(group => {
+      group.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
+      group.forEach((p, i) => { p.genderPlace = i + 1; });
+    });
 
-    // Age-graded places (if in resultTypes)
+    // Age-graded places (if in resultTypes) - consolidated for all participants
     if (resultTypes.includes('AG')) {
-      const malesAG = withPlacements.filter(p => p.gender === 'M' && p.totalAGTimeSeconds);
-      const femalesAG = withPlacements.filter(p => p.gender === 'F' && p.totalAGTimeSeconds);
+      // Get all participants with AG times
+      const withAGTimes = withPlacements.filter(p => p.totalAGTimeSeconds);
       
-      malesAG.sort((a, b) => (a.totalAGTimeSeconds || 999999) - (b.totalAGTimeSeconds || 999999));
-      femalesAG.sort((a, b) => (a.totalAGTimeSeconds || 999999) - (b.totalAGTimeSeconds || 999999));
+      // Sort by AG time
+      withAGTimes.sort((a, b) => (a.totalAGTimeSeconds || 999999) - (b.totalAGTimeSeconds || 999999));
       
-      malesAG.forEach((p, i) => { p.agPlace = i + 1; });
-      femalesAG.forEach((p, i) => { p.agPlace = i + 1; });
+      // Assign AG places
+      withAGTimes.forEach((p, i) => { p.agPlace = i + 1; });
     }
 
     // Age-and-gender-graded places (if in resultTypes)
@@ -238,48 +242,19 @@ const ResultsPage: React.FC = () => {
           ],
           sort: [{ field: 'scratchPlace', sort: 'asc' }]
         },
-        men: {
-          label: 'Menn',
-          columns: [
-            'scratchPlace', 'bib', 'firstName', 'lastName',
-            'club', 'age', 'totalTime'
-          ],
-          sort: [{ field: 'scratchPlace', sort: 'asc' }],
-          filter: { gender: 'M' }
-        },
-        women: {
-          label: 'Kvinner',
-          columns: [
-            'scratchPlace', 'bib', 'firstName', 'lastName',
-            'club', 'age', 'totalTime'
-          ],
-          sort: [{ field: 'scratchPlace', sort: 'asc' }],
-          filter: { gender: 'F' }
-        }
+        // Gender-specific presets removed
       };
 
       // If AG is available
       if (edData.resultTypes?.includes('AG')) {
-        // AG Men preset
-        presets.agMen = {
-          label: 'AG Menn',
+        // Single AG preset that includes all participants
+        presets.ag = {
+          label: 'Aldersgradert',
           columns: [
-            'agPlace', 'bib', 'firstName', 'lastName',
+            'agPlace', 'bib', 'firstName', 'lastName', 'gender',
             'age', 'club', 'totalTime', 'totalAGTime'
           ],
-          sort: [{ field: 'agPlace', sort: 'asc' }],
-          filter: { gender: 'M' }
-        };
-        
-        // AG Women preset
-        presets.agWomen = {
-          label: 'AG Kvinner',
-          columns: [
-            'agPlace', 'bib', 'firstName', 'lastName',
-            'age', 'club', 'totalTime', 'totalAGTime'
-          ],
-          sort: [{ field: 'agPlace', sort: 'asc' }],
-          filter: { gender: 'F' }
+          sort: [{ field: 'agPlace', sort: 'asc' }]
         };
       }
       
@@ -452,6 +427,9 @@ const ResultsPage: React.FC = () => {
   const handlePreset = (p: string) => () => {
     if (!presetConfig[p]) return;
     
+    // Make sure we're not in the same state - this prevents double-clicking issues
+    if (preset === p) return;
+    
     setPreset(p);
     
     // Apply column visibility
@@ -462,12 +440,20 @@ const ResultsPage: React.FC = () => {
     
     // Apply filtering if any
     if (presetConfig[p].filter) {
-      setFilterModel({ items: Object.entries(presetConfig[p].filter).map(([field, value]) => ({
-        field,
-        operator: 'equals',
-        value
-      }))});
+      // Create proper filter model structure that DataGrid expects
+      const newFilterModel = {
+        items: Object.entries(presetConfig[p].filter).map(([field, value]) => ({
+          id: Math.random().toString(36).substring(2, 9), // Generate unique ID
+          field,
+          operator: 'equals',
+          value
+        }))
+      };
+      
+      // Set the filter model with correct structure
+      setFilterModel(newFilterModel);
     } else {
+      // Clear filters
       setFilterModel({ items: [] });
     }
   };
@@ -562,13 +548,9 @@ const ResultsPage: React.FC = () => {
         
         <Box sx={{ mb: 1, display: 'flex', flexWrap: 'wrap', gap: 1 }}>
           <Button variant={preset==='default'?'contained':'outlined'} onClick={handlePreset('default')}>Standard visning</Button>
-          <Button variant={preset==='men'?'contained':'outlined'} onClick={handlePreset('men')}>Menn</Button>
-          <Button variant={preset==='women'?'contained':'outlined'} onClick={handlePreset('women')}>Kvinner</Button>
+          {/* Gender-specific buttons removed */}
           {resultTypes.includes('AG') && (
-            <>
-              <Button variant={preset==='agMen'?'contained':'outlined'} onClick={handlePreset('agMen')}>AG Menn</Button>
-              <Button variant={preset==='agWomen'?'contained':'outlined'} onClick={handlePreset('agWomen')}>AG Kvinner</Button>
-            </>
+            <Button variant={preset==='ag'?'contained':'outlined'} onClick={handlePreset('ag')}>Aldersgradert</Button>
           )}
           {resultTypes.includes('AGG') && (
             <Button variant={preset==='agg'?'contained':'outlined'} onClick={handlePreset('agg')}>Alle-mot-alle</Button>
@@ -589,8 +571,36 @@ const ResultsPage: React.FC = () => {
               )}
               filterModel={filterModel}
               onFilterModelChange={(model) => {
+                // Always update the filter model
                 setFilterModel(model);
-                setPreset(''); // Deselect preset buttons when filters change
+                
+                // Check if we need to deselect the preset
+                if (preset) {
+                  const presetFilter = presetConfig[preset]?.filter;
+                  
+                  if (presetFilter) {
+                    // Get all current filter values as a map
+                    const currentFilterValues: Record<string, any> = {};
+                    model.items.forEach((item: any) => {
+                      if (item.field && item.value !== undefined) {
+                        currentFilterValues[item.field] = item.value;
+                      }
+                    });
+                    
+                    // Check if current filters match preset filters
+                    const filtersMatch = Object.entries(presetFilter).every(
+                      ([field, value]) => currentFilterValues[field] === value
+                    );
+                    
+                    // Only if filters don't match, reset the preset
+                    if (!filtersMatch) {
+                      setPreset('');
+                    }
+                  } else if (model.items.length > 0) {
+                    // If preset has no filter but user added filters, deselect preset
+                    setPreset('');
+                  }
+                }
               }}
               sortModel={sortModel}
               onSortModelChange={(model) => {
@@ -603,7 +613,37 @@ const ResultsPage: React.FC = () => {
                   .map(([field]) => field));
                 setPreset(''); // Deselect preset buttons when columns change
               }}
-              components={{ Toolbar: GridToolbar }}
+              // Using the standard toolbar component
+              components={{ 
+                Toolbar: () => {
+                  return (
+                    <div style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0' }}>
+                      <GridToolbar />
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                        <Button 
+                          size="small"
+                          onClick={() => {
+                            // Select all columns
+                            const allColumns = columns.map(col => col.field as string);
+                            setVisibleColumns(allColumns);
+                          }}
+                        >
+                          Vis alle kolonner
+                        </Button>
+                        <Button 
+                          size="small"
+                          onClick={() => {
+                            // Hide all except essential columns
+                            setVisibleColumns(['bib', 'firstName', 'lastName']);
+                          }}
+                        >
+                          Skjul fleste kolonner
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                }
+              }}
               pageSize={25}
               rowsPerPageOptions={[25, 50, 100]}
               disableSelectionOnClick
