@@ -16,7 +16,8 @@ import {
   CircularProgress, 
   Paper,
   Tooltip,
-  IconButton
+  IconButton,
+  Alert
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import CloseIcon from '@mui/icons-material/Close';
@@ -45,9 +46,11 @@ interface Participant {
 }
 
 enum Status {
+  notStarted = 'notStarted',
   incomplete = 'incomplete',
   preliminary = 'preliminary',
-  final = 'final'
+  final = 'final',
+  cancelled = 'cancelled'
 }
 
 const ResultsPage: React.FC = () => {
@@ -419,8 +422,12 @@ const ResultsPage: React.FC = () => {
         return 'Resultatene er uoffisielle og kan bli gjenstand for endringer';
       case Status.final:
         return 'Resultatene er ferdige. Vennligst meld fra hvis du ser noe som er galt.';
+      case Status.notStarted:
+        return 'Løpet er ikke startet ennå.';
+      case Status.cancelled:
+        return 'Løpet er kansellert.';
       default:
-        return '';
+        return 'Manglende resultater kan bety at løpet ikke er gjennomført, eller at arrangøren ikke har fått registrert resultatene ennå. Hvis du ser noe du mener er galt, vennligst meld fra.';
     }
   };
 
@@ -534,13 +541,9 @@ const ResultsPage: React.FC = () => {
       <Typography variant="h4" gutterBottom>{eventName}</Typography>
       
       <Paper elevation={1} sx={{ p: 2, mb: 2 }}>
-        <Typography 
-          variant="h6" 
-          color={status === Status.final ? 'primary' : status === Status.incomplete ? 'error' : 'info'} 
-          gutterBottom
-        >
+        <Alert severity={status === Status.final ? 'success' : status === Status.preliminary ? 'warning' : status === Status.incomplete ? 'warning' : status === Status.notStarted ? 'info' : status === Status.cancelled ? 'error' : 'warning'} sx={{ mb: 2 }}>
           {getStatusMessage()}
-        </Typography>
+        </Alert>
         
         <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
           Velg en forhåndsdefinert visning eller tilpass filtrering, kolonner og sortering selv.
@@ -669,8 +672,8 @@ const ResultsPage: React.FC = () => {
                 columnsPanelTextFieldLabel: "Finn kolonne",
                 columnsPanelTextFieldPlaceholder: "Søk...",
                 columnsPanelDragIconLabel: "Endre rekkefølge",
-                columnsPanelShowAllButton: "Vis alle",
-                columnsPanelHideAllButton: "Skjul alle"
+                // columnsPanelShowAllButton: "Vis alle",
+                // columnsPanelHideAllButton: "Skjul alle"
               }}
             />
           </Paper>

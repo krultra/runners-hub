@@ -6,14 +6,14 @@ const EVENTS = [
   {
     key: 'mo-2025',
     name: "Malvikingen Opp 2025",
-    description: "Vårens vakreste eventyr iMalvik!",
-    route: '/mo-2025', // Placeholder for future event page
+    description: "Få med deg vårens vakreste eventyr i Malvik! Lørdag 10. mai 2025 fra Vikhammerløkka til Solemsvåttan.",
+    route: '/mo-2025',
   },
   {
     key: 'kutc-2025',
     name: "Kruke's Ultra-Trail Challenge 2025",
-    description: "Challenge yourself on the trails to Solemsvåttan!",
-    route: '/kutc-2025', // For now, routes to the current HomePage
+    description: "Challenge yourself on the trails to Solemsvåttan! Saturday 10th of October 2025.",
+    route: '/kutc-2025',
   },
 ];
 
