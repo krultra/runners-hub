@@ -4,6 +4,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, CssBaseline, useMediaQuery, Toolbar } from '@mui/material';
 import { createRunnersHubTheme } from './config/theme';
 import Box from '@mui/material/Box';
+import Alert from '@mui/material/Alert';
 
 // Import pages
 import HomePage from './pages/HomePage';
@@ -25,10 +26,16 @@ function App() {
   // Detect system/browser dark mode
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
   const theme = createRunnersHubTheme(prefersDarkMode ? 'dark' : 'light');
+  const stage = process.env.REACT_APP_STAGE || 'local';
 
   return (
     <ThemeProvider theme={theme}>
-      <CssBaseline /> {/* Provides a consistent baseline CSS */}
+      <CssBaseline />
+      {stage !== 'production' && (
+        <Alert severity="warning" variant="filled" sx={{ width: '100%', textAlign: 'center' }}>
+          {`Mode: ${stage.toUpperCase()}`}
+        </Alert>
+      )}
       <Router>
         <AppHeader />
         <Toolbar />

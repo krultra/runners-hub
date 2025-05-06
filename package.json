@@ -50,7 +50,11 @@
     "clean:functions:images": "gcloud artifacts docker images list europe-west1-docker.pkg.dev/runnershub-62442/gcf-artifacts --project runnershub-62442 --format='value(IMAGE,DIGEST)' | while IFS= read -r line; do image=$(echo \"$line\" | cut -f1); digest=$(echo \"$line\" | cut -f2); gcloud artifacts docker images delete \"${image}@${digest}\" --delete-tags --quiet --project runnershub-62442; done",
     "clean:functions:images:test": "gcloud artifacts docker images list us-central1-docker.pkg.dev/runnershubtest/gcf-artifacts --project runnershubtest --format='value(IMAGE,DIGEST)' | while IFS= read -r line; do image=$(echo \"$line\" | cut -f1); digest=$(echo \"$line\" | cut -f2); gcloud artifacts docker images delete \"${image}@${digest}\" --delete-tags --quiet --project runnershubtest; done",
     "deploy:functions:test": "npm run clean:functions:images:test && firebase deploy --only functions --project runnershubtest",
-    "deploy:functions": "npm run clean:functions:images && firebase deploy --only functions --project runnershub-62442"
+    "deploy:functions": "npm run clean:functions:images && firebase deploy --only functions --project runnershub-62442",
+    "deploy:rules": "firebase deploy --only firestore:rules --project runnershub-62442",
+    "deploy:rules:test": "firebase deploy --only firestore:rules --project runnershubtest",
+    "deploy:indexes": "firebase deploy --only firestore:indexes --project runnershub-62442",
+    "deploy:indexes:test": "firebase deploy --only firestore:indexes --project runnershubtest"
   },
   "eslintConfig": {
     "extends": [
