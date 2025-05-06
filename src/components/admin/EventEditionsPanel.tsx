@@ -52,6 +52,10 @@ const EventEditionsPanel: React.FC = () => {
   const [resultsStatus, setResultsStatus] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [registrationDeadline, setRegistrationDeadline] = useState<Date | null>(null);
+  const [maxParticipants, setMaxParticipants] = useState<number>(0);
+  const [loopDistance, setLoopDistance] = useState<number>(0);
+  const [fees, setFees] = useState<{ participation: number; baseCamp: number; deposit: number; total: number }>({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
   const [dirty, setDirty] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [newRtSelect, setNewRtSelect] = useState<string>('');
@@ -92,6 +96,10 @@ const EventEditionsPanel: React.FC = () => {
       setResultsStatus(data.resultsStatus || '');
       setStartDate(data.startTime.toDate());
       setEndDate(data.endTime.toDate());
+      setRegistrationDeadline(data.registrationDeadline?.toDate() || null);
+      setMaxParticipants(data.maxParticipants || 0);
+      setLoopDistance(data.loopDistance || 0);
+      setFees(data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 });
       setLoadingData(false);
       setDirty(false);
     })();
@@ -108,7 +116,11 @@ const EventEditionsPanel: React.FC = () => {
       resultTypes: [],
       resultsStatus: '',
       startTime: Timestamp.fromDate(new Date()),
-      endTime: Timestamp.fromDate(new Date())
+      endTime: Timestamp.fromDate(new Date()),
+      registrationDeadline: Timestamp.fromDate(new Date()),
+      maxParticipants: 0,
+      loopDistance: 0,
+      fees: { participation: 0, baseCamp: 0, deposit: 0, total: 0 }
     };
     const id = await addEventEdition(payload);
     setSelectedId(id);
@@ -131,7 +143,11 @@ const EventEditionsPanel: React.FC = () => {
       resultTypes,
       resultsStatus,
       startTime: Timestamp.fromDate(startDate),
-      endTime: Timestamp.fromDate(endDate)
+      endTime: Timestamp.fromDate(endDate),
+      registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
+      maxParticipants,
+      loopDistance,
+      fees
     });
     const data = await listEventEditions();
     setSummaries(data);
@@ -160,14 +176,18 @@ const EventEditionsPanel: React.FC = () => {
     if (summaries.some(s => s.eventId === eventId && s.edition === newEdition)) { window.alert('An edition with this Event ID and edition number already exists'); return; }
     const payload = {
       eventId,
-      edition: editionNum + 1,
+      edition: newEdition,
       eventShortName,
       eventName,
       status,
       resultTypes,
       resultsStatus,
       startTime: Timestamp.fromDate(d1),
-      endTime: Timestamp.fromDate(d2)
+      endTime: Timestamp.fromDate(d2),
+      registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : Timestamp.fromDate(new Date()),
+      maxParticipants,
+      loopDistance,
+      fees
     };
     const newId = await addEventEdition(payload);
     const summariesData = await listEventEditions();
@@ -290,6 +310,57 @@ const EventEditionsPanel: React.FC = () => {
                 inputFormat="dd.MM.yyyy HH:mm"
                 renderInput={params => <TextField {...params} size="small" />}
               />
+              <DateTimePicker
+                label="Registration Deadline"
+                value={registrationDeadline}
+                onChange={val => { setRegistrationDeadline(val); setDirty(true); }}
+                inputFormat="dd.MM.yyyy HH:mm"
+                renderInput={params => <TextField {...params} size="small" />}
+              />
+              <TextField
+                label="Max Participants"
+                type="number"
+                size="small"
+                value={maxParticipants}
+                onChange={e => { setMaxParticipants(Number(e.target.value)); setDirty(true); }}
+              />
+              <TextField
+                label="Loop Distance (km)"
+                type="number"
+                size="small"
+                value={loopDistance}
+                onChange={e => { setLoopDistance(Number(e.target.value)); setDirty(true); }}
+              />
+              <Box display="flex" gap={1}>
+                <TextField
+                  label="Fee: Participation"
+                  type="number"
+                  size="small"
+                  value={fees.participation}
+                  onChange={e => { setFees(prev => ({ ...prev, participation: Number(e.target.value) })); setDirty(true); }}
+                />
+                <TextField
+                  label="Fee: Base Camp"
+                  type="number"
+                  size="small"
+                  value={fees.baseCamp}
+                  onChange={e => { setFees(prev => ({ ...prev, baseCamp: Number(e.target.value) })); setDirty(true); }}
+                />
+                <TextField
+                  label="Fee: Deposit"
+                  type="number"
+                  size="small"
+                  value={fees.deposit}
+                  onChange={e => { setFees(prev => ({ ...prev, deposit: Number(e.target.value) })); setDirty(true); }}
+                />
+                <TextField
+                  label="Fee: Total"
+                  type="number"
+                  size="small"
+                  value={fees.total}
+                  onChange={e => { setFees(prev => ({ ...prev, total: Number(e.target.value) })); setDirty(true); }}
+                />
+              </Box>
               <Box display="flex" gap={1}>
                 <Button variant="contained" size="small" onClick={handleSave} disabled={!dirty}>Save Changes</Button>
                 <Button variant="outlined" size="small" color="error" onClick={handleDelete}>Delete</Button>

@@ -23,6 +23,15 @@ export interface EventEdition {
   resultsStatus: string;
   startTime: Timestamp;
   endTime: Timestamp;
+  registrationDeadline?: Timestamp;
+  maxParticipants?: number;
+  loopDistance?: number;
+  fees?: {
+    participation: number;
+    baseCamp: number;
+    deposit: number;
+    total: number;
+  };
 }
 
 export interface EventEditionSummary {
@@ -58,7 +67,11 @@ export const getEventEdition = async (id: string): Promise<EventEdition> => {
     resultTypes: data.resultTypes || [],
     resultsStatus: data.resultsStatus || '',
     startTime: data.startTime,
-    endTime: data.endTime
+    endTime: data.endTime,
+    registrationDeadline: data.registrationDeadline,
+    maxParticipants: data.maxParticipants,
+    loopDistance: data.loopDistance,
+    fees: data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 }
   } as EventEdition;
 };
 
