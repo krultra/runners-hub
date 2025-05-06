@@ -23,6 +23,23 @@
         { "fieldPath": "isOnWaitinglist", "order": "ASCENDING" },
         { "fieldPath": "waitinglistExpires", "order": "ASCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "codeLists",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "type", "order": "ASCENDING" },
+        { "fieldPath": "object", "order": "ASCENDING" },
+        { "fieldPath": "sortOrder", "order": "ASCENDING" }
+      ]
+    },
+    {
+      "collectionGroup": "eventEditions",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "eventId", "order": "ASCENDING" },
+        { "fieldPath": "edition", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []
