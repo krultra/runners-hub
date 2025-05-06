@@ -1,0 +1,164 @@
+Coding Practices for Document-Editor Pages
+
+These pages follow a consistent UI/UX pattern to select, view, create, copy, edit, and delete domain objects.
+
+1. Selector & Navigation
+
+- Use a <Select> to choose an existing item by its key or label.
+- Provide "New" and "Copy" buttons next to the selector.
+- On change, if form is dirty, prompt:
+  ```js
+  if (dirty && !confirm('Discard unsaved changes?')) return;
+  setSelectedId(newId);
+  ```
+- For New/Copy actions, similar guard:
+  ```js
+  if (dirty && !confirm('Discard unsaved changes?')) return;
+  // then add or clone
+  ```
+
+2. Form Layout & Fields
+
+- Wrap fields in a container (e.g. <Box display="flex" flexDirection="column" gap={2}>).
+- Use <TextField> for strings/numbers:
+  ```tsx
+  <TextField
+    label="Name"
+    value={name}
+    onChange={e => { setName(e.target.value); setDirty(true); }}
+  />
+  ```
+- Handle arrays with a small add/remove UI:
+  ```tsx
+  <Box>
+    <TextField
+      label="Add Tag"
+      size="small"
+      value={newTag}
+      onChange={e => { setNewTag(e.target.value); setDirty(true); }}
+    />
+    <Button onClick={addTag}>Add</Button>
+    <List dense>{tags.map(t => (
+      <ListItem key={t} secondaryAction={
+        <IconButton onClick={() => removeTag(t)} />
+      }>{t}</ListItem>
+    ))}</List>
+  </Box>
+  ```
+- Date/time fields: use MUI DateTimePicker:
+  ```tsx
+  <LocalizationProvider dateAdapter={AdapterDateFns} locale={nbLocale}>
+    <DateTimePicker
+      label="Start"
+      value={startDate}
+      onChange={d => { setStartDate(d); setDirty(true); }}
+      inputFormat="dd.MM.yyyy HH:mm"
+      renderInput={params => <TextField {...params} />}
+    />
+  </LocalizationProvider>
+  ```
+
+3. Validation & Save
+
+- Validate required fields and logical constraints on save:
+  ```js
+  if (!startDate || !endDate) alert('Set both dates');
+  else if (startDate > endDate) alert('Start must be before end');
+  else if (!dirty) return;
+  else save();
+  ```
+- Prevent duplicates by checking existing keys before save.
+- On success, show a <Snackbar>:
+  ```tsx
+  <Snackbar open={open} autoHideDuration={3000}>
+    <Alert severity="success">Saved!</Alert>
+  </Snackbar>
+  ```
+- Reset dirty flag after save.
+
+4. Buttons & Behavior
+
+- **Save**: disabled when `!dirty`. Enabled on any field change.
+- **Delete**: always visible; confirm before delete:
+  ```js
+  if (confirm('Delete this item?')) deleteItem();
+  ```
+- **New**: clears form to default payload, sets dirty=false after load.
+- **Copy**: duplicates current data with modifications, then select new item.
+
+5. Design Guidelines
+
+- Keep labels clear and consistent.
+- Group related fields with spacing.
+- Use full-width alerts or snackbars for feedback.
+- Localize date/time formatting via `date-fns` or similar.
+- Manage loading states with spinners (<CircularProgress>).
+
+6. Localization & Date/Time Formats
+
+- GUI formats:
+  - Date: dd.MM.yyyy (e.g. 06.05.2025)
+  - DateTime: dd.MM.yyyy HH:mm (e.g. 06.05.2025 14:09)
+  - Time: HH:mm:ss.S (e.g. 14:09:27.0)
+- Use date-fns-tz with nb locale and timezone Europe/Oslo:
+  ```ts
+  import { format, utcToZonedTime } from 'date-fns-tz';
+  const zone = 'Europe/Oslo';
+  const zonedDate = utcToZonedTime(date, zone);
+  format(zonedDate, 'dd.MM.yyyy HH:mm', { locale: nbLocale, timeZone: zone });
+  ```
+
+7. Button Styles
+
+- Primary: <Button variant="contained" color="primary">
+- Secondary: <Button variant="outlined">
+- Danger: <Button variant="outlined" color="error">
+- Inline: use size="small"
+
+8. Notifications & Error Handling
+
+- Wrap async operations in try/catch and show Snackbar on error:
+  ```tsx
+  try {
+    await saveItem();
+    setSnackbar({ open:true, severity:'success', message:'Saved successfully' });
+  } catch (err) {
+    console.error(err);
+    setSnackbar({ open:true, severity:'error', message: err.message || 'Save failed' });
+  }
+  ```
+  ```tsx
+  <Snackbar open={snackbar.open} autoHideDuration={3000} onClose={()=>setSnackbar({...snackbar,open:false})}>
+    <Alert severity={snackbar.severity}>{snackbar.message}</Alert>
+  </Snackbar>
+  ```
+
+9. Table Overviews & Selection
+
+- Use <TableContainer component={Paper}><Table stickyHeader size="small"> for large lists.
+- Include an Actions column with small buttons:
+  ```tsx
+  <TableRow key={item.id}>
+    <TableCell>{item.id}</TableCell>
+    <TableCell>{item.name}</TableCell>
+    <TableCell>
+      <Button size="small" onClick={()=>onSelect(item)}>Edit</Button>
+    </TableCell>
+  </TableRow>
+  ```
+
+10. Detail Dialogs
+
+- Use MUI <Dialog> for item details:
+  ```tsx
+  <Dialog open={open} onClose={handleClose}>
+    <DialogTitle>Details for {item.name}</DialogTitle>
+    <DialogContent>/* form fields */</DialogContent>
+    <DialogActions>
+      <Button onClick={handleClose}>Cancel</Button>
+      <Button variant="contained" onClick={handleSave}>Save</Button>
+    </DialogActions>
+  </Dialog>
+  ```
+
+Follow these patterns to maintain uniformity across admin pages and ease future development by both humans and AI assistants.
