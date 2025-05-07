@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme, Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 import RegistrationDetailsDialog from './RegistrationDetailsDialog';
 import { getRegistrationsByEdition, generateTestRegistrations } from '../../services/registrationService';
 import { listRegistrationStatuses, RegistrationStatus } from '../../services/statusService';
 import { Registration } from '../../types';
-import { CURRENT_EDITION_ID } from '../../constants/events';
+import { listEventEditions } from '../../services/eventEditionService';
 
 const RegistrationsPanel: React.FC = () => {
+  const [currentEditionId, setCurrentEditionId] = useState<string>('');
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [statuses, setStatuses] = useState<RegistrationStatus[]>([]);
   const [regLoading, setRegLoading] = useState(false);
@@ -20,17 +21,26 @@ const RegistrationsPanel: React.FC = () => {
   const [selectedReg, setSelectedReg] = useState<Registration | null>(null);
 
   // Load registrations and statuses
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
+    if (!currentEditionId) return;
     setRegLoading(true);
-    const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
+    const regs = await getRegistrationsByEdition(currentEditionId);
     // sort by registrationNumber ascending
     regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
     const sts = await listRegistrationStatuses();
     setRegistrations(regs);
     setStatuses(sts);
     setRegLoading(false);
-  };
-  useEffect(() => { loadData(); }, []);
+  }, [currentEditionId]);
+
+  // Fetch release editions and then load data
+  useEffect(() => {
+    (async () => {
+      const editions = await listEventEditions();
+      if (editions.length > 0) setCurrentEditionId(editions[editions.length - 1].id);
+    })();
+  }, []);
+  useEffect(() => { if (currentEditionId) loadData(); }, [loadData, currentEditionId]);
 
   // Handlers for details dialog
   const openDetails = (reg: Registration) => {
@@ -44,9 +54,10 @@ const RegistrationsPanel: React.FC = () => {
   const handleUpdate = () => { loadData(); };
 
   const handleGenerateTest = async () => {
+    if (!currentEditionId) return;
     setTestLoading(true);
-    await generateTestRegistrations(CURRENT_EDITION_ID, testCount);
-    const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
+    await generateTestRegistrations(currentEditionId, testCount);
+    const regs = await getRegistrationsByEdition(currentEditionId);
     // sort by registrationNumber ascending
     regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
     setRegistrations(regs);
@@ -57,11 +68,9 @@ const RegistrationsPanel: React.FC = () => {
   const participants = registrations.filter(r => !r.isOnWaitinglist);
   const participantsPending = participants.filter(r => r.status === 'pending').length;
   const participantsConfirmed = participants.filter(r => r.status === 'confirmed').length;
-  const participantsTotal = participants.length;
   const waitingList = registrations.filter(r => r.isOnWaitinglist);
   const waitingPending = waitingList.filter(r => r.status === 'pending').length;
   const waitingConfirmed = waitingList.filter(r => r.status === 'confirmed').length;
-  const waitingTotal = waitingList.length;
   const cancelledCount = registrations.filter(r => r.status === 'cancelled').length;
   const expiredCount = registrations.filter(r => r.status === 'expired').length;
 

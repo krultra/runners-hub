@@ -3,7 +3,7 @@ import { Box, Typography, TextField, Button, CircularProgress, TableContainer, P
 import { fetchInvitations, addInvitation, updateInvitationSent, setResendFlag, Invitation } from '../../utils/invitationUtils';
 import InviteSummaryDialog from '../InviteSummaryDialog';
 import { sendInvitationEmail } from '../../services/emailService';
-import { CURRENT_EDITION_ID } from '../../constants/events';
+import { listEventEditions } from '../../services/eventEditionService';
 
 const InvitationsPanel: React.FC = () => {
   const [invitees, setInvitees] = useState<Invitation[]>([]);
@@ -13,24 +13,34 @@ const InvitationsPanel: React.FC = () => {
   const [addName, setAddName] = useState('');
   const [addLoading, setAddLoading] = useState(false);
   const [numToSend, setNumToSend] = useState(0);
+  const [currentEditionId, setCurrentEditionId] = useState<string>('');
 
+  // load current edition id
   useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      const data = await fetchInvitations(CURRENT_EDITION_ID);
-      setInvitees(data);
-      setLoading(false);
-    };
-    fetchData();
+    (async () => {
+      const editions = await listEventEditions();
+      if (editions.length > 0) setCurrentEditionId(editions[editions.length - 1].id);
+    })();
   }, []);
 
+  // fetch invitations when edition id is available
+  useEffect(() => {
+    if (!currentEditionId) return;
+    (async () => {
+      setLoading(true);
+      const data = await fetchInvitations(currentEditionId);
+      setInvitees(data);
+      setLoading(false);
+    })();
+  }, [currentEditionId]);
+
   const handleAddInvitee = async () => {
-    if (!addEmail || !addName) return;
+    if (!addEmail || !addName || !currentEditionId) return;
     setAddLoading(true);
-    await addInvitation({ email: addEmail, name: addName, editionId: CURRENT_EDITION_ID });
+    await addInvitation({ email: addEmail, name: addName, editionId: currentEditionId });
     setAddEmail('');
     setAddName('');
-    const data = await fetchInvitations(CURRENT_EDITION_ID);
+    const data = await fetchInvitations(currentEditionId);
     setInvitees(data);
     setAddLoading(false);
   };
@@ -61,7 +71,7 @@ const InvitationsPanel: React.FC = () => {
     }
     setLoading(false);
     alert(`Sent ${successCount} invitations.${errorCount > 0 ? ` Failed: ${errorCount}` : ''}`);
-    const data = await fetchInvitations(CURRENT_EDITION_ID);
+    const data = await fetchInvitations(currentEditionId);
     setInvitees(data);
   };
 
@@ -77,7 +87,7 @@ const InvitationsPanel: React.FC = () => {
       <Box display="flex" gap={2} alignItems="center" mt={2}>
         <TextField label="Email" value={addEmail} size="small" onChange={e => setAddEmail(e.target.value)} />
         <TextField label="Name" value={addName} size="small" onChange={e => setAddName(e.target.value)} />
-        <Button variant="contained" color="primary" onClick={handleAddInvitee} disabled={addLoading || !addEmail || !addName}>
+        <Button variant="contained" color="primary" onClick={handleAddInvitee} disabled={addLoading || !addEmail || !addName || !currentEditionId}>
           {addLoading ? <CircularProgress size={20} /> : 'Add'}
         </Button>
       </Box>

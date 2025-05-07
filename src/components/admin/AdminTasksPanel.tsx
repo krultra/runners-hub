@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, TextField, Checkbox, FormControlLabel, Link as MuiLink, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, TextField, Checkbox, FormControlLabel, Button } from '@mui/material';
 import RegistrationDetailsDialog from './RegistrationDetailsDialog';
 import { getRegistrationById } from '../../services/registrationService';
 import { listRegistrationStatuses, RegistrationStatus } from '../../services/statusService';
@@ -50,7 +50,7 @@ const AdminTasksPanel: React.FC = () => {
   }, []);
 
   const parseDateNb = (s: string): Date | null => {
-    const [d, m, y] = s.split(/[.\/]/).map(n => parseInt(n, 10));
+    const [d, m, y] = s.split(/[./]/).map(n => parseInt(n, 10));
     return isNaN(d)||isNaN(m)||isNaN(y) ? null : new Date(y, m-1, d);
   };
 

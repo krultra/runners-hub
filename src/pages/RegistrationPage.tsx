@@ -1,38 +1,30 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
-import { getAuth, onAuthStateChanged, isSignInWithEmailLink, signInWithEmailLink } from 'firebase/auth';
-import { ERROR_MESSAGES } from '../constants/messages';
-import { createRegistration, getRegistrationsByEdition, getRegistrationsByUserId } from '../services/registrationService';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getRegistrationsByEdition } from '../services/registrationService';
 import { testFirestoreConnection } from '../services/testFirestore';
 import {
   Container,
   Typography,
   Box,
   Paper,
-  Stepper,
-  Step,
-  StepLabel,
   Button,
   Grid,
-  Link,
-  Snackbar,
   Alert,
-  List,
-  ListItem,
-  ListItemText
+  CircularProgress
 } from '@mui/material';
-import { RACE_DETAILS, CURRENT_EDITION_ID } from '../constants';
-
+import { initialFormData, validateForm } from '../utils/validation';
+import { useEventEdition, CurrentEvent } from '../contexts/EventEditionContext';
 import PersonalInfoForm from '../components/registration/PersonalInfoForm';
 import RaceDetailsForm from '../components/registration/RaceDetailsForm';
 import ReviewRegistration from '../components/registration/ReviewRegistration';
 import RegistrationStepper from '../components/registration/RegistrationStepper';
 import RegistrationSnackbar from '../components/registration/RegistrationSnackbar';
-import { initialFormData, validateForm } from '../utils/validation';
 
 const steps = ['Personal Information', 'Race Details', 'Review & Submit'];
 
-const RegistrationPage: React.FC = () => {
+// Inner component containing all hooks and logic, now receiving event as prop
+const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const navigate = useNavigate();
   // Firebase Auth state
   const [user, setUser] = useState<any>(null);
@@ -148,14 +140,9 @@ const RegistrationPage: React.FC = () => {
 
   // Check if registration is still open
   const now = new Date();
-  const isRegistrationOpen = now < RACE_DETAILS.registrationDeadline;
+  const isRegistrationOpen = event.registrationDeadline ? now < event.registrationDeadline : false;
 
-  // Check if final review step is valid
-  const isFinalStepValid = () => {
-    const currentErrors = validateForm(formData, touchedFields, true, true, undefined);
-    // Check all fields for the final step
-    return Object.keys(currentErrors).length === 0;
-  };
+  // Check if the form is valid for final submission (including terms)
   
   // Clear all validation errors
   const clearAllErrors = () => {
@@ -163,7 +150,7 @@ const RegistrationPage: React.FC = () => {
   };
   
   // Show only errors for the current step
-  const showCurrentStepErrors = () => {
+  const showCurrentStepErrors = useCallback(() => {
     // Run full validation to get all errors
     const currentErrors = validateForm(formData, touchedFields, true, true, undefined);
     const newErrors: Record<string, string> = {};
@@ -199,7 +186,7 @@ const RegistrationPage: React.FC = () => {
       newTouchedFields[field] = true;
     });
     setTouchedFields(newTouchedFields);
-  };
+  }, [activeStep, formData, touchedFields]);
 
   // Track if validation has been attempted
   const [validationAttempted, setValidationAttempted] = useState(false);
@@ -241,25 +228,26 @@ const RegistrationPage: React.FC = () => {
 
   // Check if event is full
   useEffect(() => {
+    if (!event) return;
     const loadCount = async () => {
       try {
-        const regs = await getRegistrationsByEdition(CURRENT_EDITION_ID);
+        const regs = await getRegistrationsByEdition(event.id);
         const openRegs = regs.filter(r => !r.isOnWaitinglist && (r.status === 'pending' || r.status === 'confirmed'));
         const waitingRegs = regs.filter(r => r.isOnWaitinglist && (r.status === 'pending' || r.status === 'confirmed'));
-        setIsFull(openRegs.length >= RACE_DETAILS.maxParticipants || waitingRegs.length > 0);
+        setIsFull(openRegs.length >= (event.maxParticipants ?? 0) || waitingRegs.length > 0);
       } catch (err) {
         console.error('Error checking registration count:', err);
       }
     };
     loadCount();
-  }, []);
+  }, [event]);
 
-  // Default waiting-list expiration to event date
   useEffect(() => {
-    if (isFull && (formData.waitinglistExpires === null || formData.waitinglistExpires === undefined)) {
-      setFormData(prev => ({ ...prev, waitinglistExpires: RACE_DETAILS.date }));
+    if (!event) return;
+    if (isFull && formData.waitinglistExpires == null) {
+      setFormData(prev => ({ ...prev, waitinglistExpires: event.startTime }));
     }
-  }, [isFull, formData.waitinglistExpires]);
+  }, [isFull, formData.waitinglistExpires, event.startTime, event]);
 
   const handleNext = () => {
     // For final step (from Race Details to Review), check all fields except terms
@@ -398,7 +386,7 @@ const RegistrationPage: React.FC = () => {
       // Otherwise, clear all errors
       clearAllErrors();
     }
-  }, [activeStep, validationAttempted]);
+  }, [activeStep, validationAttempted, showCurrentStepErrors]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -457,7 +445,7 @@ const RegistrationPage: React.FC = () => {
           notifyFutureEvents: formData.notifyFutureEvents ?? false,
           sendRunningOffers: formData.sendRunningOffers ?? false,
           // Include edition ID
-          editionId: formData.editionId || CURRENT_EDITION_ID,
+          editionId: formData.editionId || event.id,
           // Waiting list info
           isOnWaitinglist: formData.isOnWaitinglist,
           waitinglistExpires: formData.waitinglistExpires,
@@ -663,6 +651,26 @@ const RegistrationPage: React.FC = () => {
           </Grid>
     </Container>
   );
+};
+
+// Wrapper to handle loading and error before rendering inner component
+const RegistrationPage: React.FC = () => {
+  const { event, loading, error } = useEventEdition();
+  if (loading) return (
+    <Container>
+      <Box textAlign="center" mt={4}>
+        <CircularProgress />
+      </Box>
+    </Container>
+  );
+  if (error || !event) return (
+    <Container>
+      <Alert severity="error" sx={{ mt: 4 }}>
+        Error loading event: {error?.message || 'Unknown error'}
+      </Alert>
+    </Container>
+  );
+  return <RegistrationPageInner event={event} />;
 };
 
 export default RegistrationPage;

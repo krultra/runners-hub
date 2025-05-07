@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 import {
   Box,
   TextField,
@@ -28,19 +28,16 @@ import {
   getEventEdition,
   updateEventEdition,
   deleteEventEdition,
-  EventEditionSummary,
-  EventEdition
+  EventEditionSummary
 } from '../../services/eventEditionService';
 import { listCodeList } from '../../services/codeListService';
 
-const EventEditionsPanel: React.FC = () => {
+const EventEditionsPanel: FC = () => {
   const [summaries, setSummaries] = useState<EventEditionSummary[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
-  const [editionData, setEditionData] = useState<EventEdition | null>(null);
   const [loadingSummaries, setLoadingSummaries] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
-  const [availableResultTypes, setAvailableResultTypes] = useState<string[]>([]);
   const [availableStatuses, setAvailableStatuses] = useState<string[]>([]);
 
   const [eventId, setEventId] = useState<string>('');
@@ -70,9 +67,6 @@ const EventEditionsPanel: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    listCodeList('resultType', 'results').then(data =>
-      setAvailableResultTypes(data.map(d => d.code))
-    );
     listCodeList('status', 'results').then(data =>
       setAvailableStatuses(data.map(d => d.code))
     );
@@ -80,13 +74,11 @@ const EventEditionsPanel: React.FC = () => {
 
   useEffect(() => {
     if (!selectedId) {
-      setEditionData(null);
       return;
     }
     (async () => {
       setLoadingData(true);
       const data = await getEventEdition(selectedId);
-      setEditionData(data);
       setEventId(data.eventId);
       setEditionNum(data.edition);
       setEventShortName(data.eventShortName);

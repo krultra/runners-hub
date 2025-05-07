@@ -4,7 +4,7 @@ import { Registration } from '../types';
 import { logSentEmail } from './emailLogService';
 import Handlebars from 'handlebars';
 import { getEmailTemplate } from './templateService';
-import { EVENT_NAME, EVENT_SHORT_NAME, EVENT_EDITION } from '../config/event';
+import { listEventEditions, getEventEdition } from './eventEditionService';
 
 /**
  * Email types supported by the application
@@ -41,7 +41,7 @@ Handlebars.registerHelper('formatDate', (ts: any, locale = 'no-NO') => {
  * Sends an invitation email to a single invitee
  */
 export const sendInvitationEmail = async (email: string, name: string): Promise<DocumentReference<any>> => {
-  const context = { name, firstName: name, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const context = { name, firstName: name };
   return sendEmail(EmailType.INVITATION, email, context);
 };
 
@@ -50,7 +50,7 @@ export const sendInvitationEmail = async (email: string, name: string): Promise<
  * @param registration The registration data
  */
 export const sendWelcomeEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const context = { ...registration };
   return sendEmail(EmailType.WELCOME, registration.email, context);
 };
 
@@ -59,7 +59,7 @@ export const sendWelcomeEmail = async (registration: Registration): Promise<Docu
  * @param registration The updated registration data
  */
 export const sendRegistrationUpdateEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const context = { ...registration };
   return sendEmail(EmailType.REGISTRATION_UPDATE, registration.email, context);
 };
 
@@ -68,7 +68,7 @@ export const sendRegistrationUpdateEmail = async (registration: Registration): P
  * @param registration The registration data
  */
 export const sendPaymentConfirmationEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION, today: new Date() };
+  const context = { ...registration, today: new Date() };
   return sendEmail(EmailType.PAYMENT_CONFIRMATION, registration.email, context);
 };
 
@@ -76,7 +76,7 @@ export const sendPaymentConfirmationEmail = async (registration: Registration): 
  * Sends waiting-list confirmation email
  */
 export const sendWaitingListEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION, today: new Date() };
+  const context = { ...registration, today: new Date() };
   return sendEmail(EmailType.WAITING_LIST_CONFIRMATION, registration.email, context);
 };
 
@@ -84,7 +84,7 @@ export const sendWaitingListEmail = async (registration: Registration): Promise<
  * Sends an initial waiting-list registration email to a user.
  */
 export const sendWaitingListRegistrationEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const context = { ...registration };
   return sendEmail(EmailType.WAITING_LIST_REGISTRATION, registration.email, context);
 };
 
@@ -92,7 +92,7 @@ export const sendWaitingListRegistrationEmail = async (registration: Registratio
  * Sends registration cancellation email
  */
 export const sendRegistrationCancellationEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const context = { ...registration };
   return sendEmail(EmailType.CANCELLATION, registration.email, context);
 };
 
@@ -100,7 +100,7 @@ export const sendRegistrationCancellationEmail = async (registration: Registrati
  * Sends registration expiration email
  */
 export const sendRegistrationExpirationEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const context = { ...registration };
   return sendEmail(EmailType.EXPIRATION, registration.email, context);
 };
 
@@ -108,7 +108,7 @@ export const sendRegistrationExpirationEmail = async (registration: Registration
  * Sends status-changed email
  */
 export const sendStatusChangedEmail = async (registration: Registration): Promise<DocumentReference<any>> => {
-  const context = { ...registration, eventName: EVENT_NAME, eventShortName: EVENT_SHORT_NAME, eventEdition: EVENT_EDITION };
+  const context = { ...registration };
   return sendEmail(EmailType.STATUS_CHANGED, registration.email, context);
 };
 
@@ -135,14 +135,19 @@ const DEFAULT_SUBJECTS: Record<EmailType, string> = {
  * Generic email sender using templates and fallback defaults
  */
 async function sendEmail(type: EmailType, to: string, context: any): Promise<DocumentReference<any>> {
+  // Fetch latest event edition details dynamically
+  const summaries = await listEventEditions();
+  if (!summaries.length) throw new Error('No event editions found');
+  const latestEdition = await getEventEdition(summaries[summaries.length - 1].id);
+  const { eventName, eventShortName, edition: eventEdition } = latestEdition;
   const db = getFirestore();
   const tpl = await getEmailTemplate(type, 'en');
   // enrich context for subject/body templates
   const enrichedContext = {
     ...context,
-    eventName: EVENT_NAME,
-    eventShortName: EVENT_SHORT_NAME,
-    eventEdition: EVENT_EDITION,
+    eventName,
+    eventShortName,
+    eventEdition,
     // Provide raw Date for templating and formatting
     today: context.today ? new Date(context.today) : new Date(),
   };

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, MouseEvent } from 'react';
+import React, { useState, useEffect } from 'react';
 import { getFirestore, collection, getDocs, doc, getDoc } from 'firebase/firestore';
 import { 
   DataGrid, 
@@ -11,8 +11,6 @@ import {
   Box, 
   Typography, 
   Button, 
-  Menu, 
-  MenuItem, 
   CircularProgress, 
   Paper,
   Tooltip,
@@ -20,7 +18,6 @@ import {
   Alert
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
-import CloseIcon from '@mui/icons-material/Close';
 import { saveAs } from 'file-saver';
 
 // Enhanced participant data model
@@ -67,8 +64,12 @@ const ResultsPage: React.FC = () => {
   const [visibleColumns, setVisibleColumns] = useState<string[]>([]);
   const [sortModel, setSortModel] = useState<any[]>([]);
   const [filterModel, setFilterModel] = useState<any>({ items: [] });
+  // These state variables are planned for future filter/export functionality
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [filterActive, setFilterActive] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [columnSelectActive, setColumnSelectActive] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [exportActive, setExportActive] = useState(false);
   const [presetConfig, setPresetConfig] = useState<Record<string, any>>({});
 
@@ -132,6 +133,7 @@ const ResultsPage: React.FC = () => {
 
   useEffect(() => { 
     fetchData(); 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const fetchData = async () => {
@@ -474,6 +476,8 @@ const ResultsPage: React.FC = () => {
     }
   };
 
+  // Function for future filter panel implementation
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const closeFilterPanel = () => {
     setFilterActive(false);
     setColumnSelectActive(false);

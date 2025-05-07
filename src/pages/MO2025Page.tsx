@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 const LØPSDATO = new Date('2025-05-10T12:00:00+02:00'); // Lørdag 10. mai 2025, kl 12:00
 const PÅMELDINGSFRIST = new Date('2025-05-09T23:59:59+02:00'); // Sett frist til dagen før
-const MAKS_DELTAGERE = 50;
-const STARTKONTINGENT = 200;
 
 function formatCountdown(target: Date) {
   const now = new Date();

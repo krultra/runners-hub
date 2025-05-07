@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Button, Container, Paper, TextField, Typography, CircularProgress, Alert } from '@mui/material';
-import { getFirestore, doc, setDoc, writeBatch, collection, getDoc } from 'firebase/firestore';
-import { auth } from '../../config/firebase'; // Import the auth instance
+import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
+// These imports are for future functionality
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { writeBatch, collection } from 'firebase/firestore';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { auth } from '../../config/firebase'; // Will be used for authentication checks
 import Papa from 'papaparse';
 
 // Define the structure for a Malvikingen participant

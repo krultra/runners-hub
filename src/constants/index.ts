@@ -1,5 +1,4 @@
 export * from './countries';
-export * from './raceDistances';
-export * from './raceDetails';
+export * from './messages';
 export * from './phoneCodes';
 export * from './events';
