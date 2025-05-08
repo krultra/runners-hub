@@ -13,7 +13,7 @@ interface MalvikingenParticipant {
   firstName: string;
   lastName: string;
   className: string;
-  gender: 'M' | 'K' | null;
+  gender: 'M' | 'K' | '*' | null;
   representing: string | null;
   eqTimingId: string; // Use the numeric ID as string
   registrationType: 'competition' | 'recreational';
@@ -152,9 +152,21 @@ const ImportMalvikingenPage: React.FC = () => {
         if (!eqTimingIdMatch || !eqTimingIdMatch[1]) throw new Error('Could not parse EQ Timing ID number.');
         const eqTimingId = eqTimingIdMatch[1];
 
-        const genderChar = className.charAt(0).toUpperCase();
-        if (genderChar !== 'M' && genderChar !== 'K') throw new Error('Could not determine gender from class name.');
-        const gender = genderChar as 'M' | 'K';
+        // Determine gender based on class name
+        let gender: 'M' | 'K' | '*' | null = null;
+        
+        // Handle standard competition classes (Menn/Kvinner)
+        if (className.startsWith('Menn') || className.toLowerCase().includes('menn')) {
+          gender = 'M';
+        } else if (className.startsWith('Kvinner') || className.toLowerCase().includes('kvinner')) {
+          gender = 'K';
+        } 
+        // Handle recreational classes like "Trim m/tidtaking" with gender-neutral '*'
+        else if (className.startsWith('Trim')) {
+          gender = '*';
+        } else {
+          throw new Error('Could not determine gender from class name: ' + className);
+        }
 
         const timestamp = columns[5]?.trim() || '';
         const email = columns[6]?.trim() || '';

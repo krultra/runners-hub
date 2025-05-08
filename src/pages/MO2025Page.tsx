@@ -65,7 +65,7 @@ const MO2025Page: React.FC = () => {
             variant="contained"
             color="primary"
             size="large"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSfUjLiF7JwKMiKA8kpplwlGjmxgGZ1slE_IWNmxZucqHSj95g/viewform"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSfUjLiF7JwKMiKA8kpplwlGjmxgGZ1slE_IWNmxZucqHSj95g/viewform?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
             sx={{ fontWeight: 700, minWidth: 220 }}

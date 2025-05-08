@@ -3,20 +3,21 @@ import {
   Box,
   TextField,
   Button,
-  FormControl,
-  InputLabel,
   Select,
   MenuItem,
+  FormControl,
+  InputLabel,
+  Checkbox,
+  FormControlLabel,
   CircularProgress,
+  Typography,
+  Tabs,
+  Tab,
+  IconButton,
   List,
   ListItem,
-  IconButton,
   Snackbar,
   Alert,
-  Dialog,
-  DialogTitle,
-  DialogContent,
-  DialogActions
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -34,7 +35,7 @@ import {
   deleteEventEdition,
   EventEditionSummary
 } from '../../services/eventEditionService';
-import { listCodeList, addCodeListItem, deleteCodeListItem, CodeListItem } from '../../services/codeListService';
+import { listCodeList } from '../../services/codeListService';
 
 const EventEditionsPanel: FC = () => {
   const [summaries, setSummaries] = useState<EventEditionSummary[]>([]);
@@ -370,66 +371,6 @@ const EventEditionsPanel: FC = () => {
         <Snackbar open={snackbarOpen} autoHideDuration={3000} onClose={() => setSnackbarOpen(false)}>
           <Alert severity="success" onClose={() => setSnackbarOpen(false)}>Saved successfully</Alert>
         </Snackbar>
-        {/* Edit Objects Dialog */}
-        <Dialog open={objectsDialogOpen} onClose={closeObjectsDialog} fullWidth maxWidth="sm">
-          <DialogTitle>Edit Objects</DialogTitle>
-          <DialogContent>
-            {loadingObjectsDialog ? <CircularProgress /> : (
-              <>
-                <Box display="flex" gap={1} mb={2}>
-                  <TextField label="Code" value={newObjectCode} onChange={e => setNewObjectCode(e.target.value)} size="small" />
-                  <TextField label="Verbose" value={newObjectVerbose} onChange={e => setNewObjectVerbose(e.target.value)} size="small" />
-                  <TextField label="Order" type="number" value={newObjectOrder} onChange={e => setNewObjectOrder(Number(e.target.value))} size="small" />
-                  <Button onClick={handleAddObject} variant="contained" size="small">Add</Button>
-                </Box>
-                <List dense>
-                  {objectsList.map(o => (
-                    <ListItem key={o.id} secondaryAction={<IconButton edge="end" onClick={() => handleDeleteObject(o.id)}><DeleteIcon /></IconButton>}>
-                      {o.sortOrder!=null && `[${o.sortOrder}] `}<strong>{o.code}</strong> – {o.verboseName}
-                    </ListItem>
-                  ))}
-                </List>
-              </>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeObjectsDialog}>Close</Button>
-          </DialogActions>
-        </Dialog>
-        {/* Edit Types Dialog */}
-        <Dialog open={typesDialogOpen} onClose={closeTypesDialog} fullWidth maxWidth="sm">
-          <DialogTitle>Edit Types</DialogTitle>
-          <DialogContent>
-            {loadingTypesDialog ? <CircularProgress /> : (
-              <>
-                <FormControl fullWidth sx={{ mb:2 }}>
-                  <InputLabel id="dlg-object-label">Object</InputLabel>
-                  <Select labelId="dlg-object-label" value={selectedObjectForType} label="Object" onChange={e => handleObjectForTypeChange(e.target.value)}>
-                    {objectsList.map(o => <MenuItem key={o.id} value={o.code}>{o.code}</MenuItem>)}
-                  </Select>
-                </FormControl>
-                {selectedObjectForType && (
-                  <Box display="flex" gap={1} mb={2}>
-                    <TextField label="Code" value={newTypeCode} onChange={e => setNewTypeCode(e.target.value)} size="small" />
-                    <TextField label="Verbose" value={newTypeVerbose} onChange={e => setNewTypeVerbose(e.target.value)} size="small" />
-                    <TextField label="Order" type="number" value={newTypeOrder} onChange={e => setNewTypeOrder(Number(e.target.value))} size="small" />
-                    <Button onClick={handleAddType} variant="contained" size="small">Add</Button>
-                  </Box>
-                )}
-                <List dense>
-                  {typesListDialog.map(t => (
-                    <ListItem key={t.id} secondaryAction={<IconButton edge="end" onClick={() => handleDeleteType(t.id)}><DeleteIcon /></IconButton>}>
-                      {t.sortOrder!=null && `[${t.sortOrder}] `}<strong>{t.code}</strong> – {t.verboseName}
-                    </ListItem>
-                  ))}
-                </List>
-              </>
-            )}
-          </DialogContent>
-          <DialogActions>
-            <Button onClick={closeTypesDialog}>Close</Button>
-          </DialogActions>
-        </Dialog>
       </Box>
     </LocalizationProvider>
   );

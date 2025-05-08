@@ -162,3 +162,62 @@ These pages follow a consistent UI/UX pattern to select, view, create, copy, edi
   ```
 
 Follow these patterns to maintain uniformity across admin pages and ease future development by both humans and AI assistants.
+
+7. Code Lists Implementation
+
+- Code lists provide a standardized way to manage categorization data like statuses, types, and objects.
+
+- All code lists are stored in the `codeLists` Firestore collection with the following structure:
+  ```typescript
+  interface CodeListItem {
+    id: string;        // Firestore document ID
+    code: string;      // Unique identifier within type+object scope
+    verboseName: string; // Human-readable display name
+    type: string;      // Category type (e.g., 'status', 'type', 'object')
+    object: string;    // Domain object (e.g., 'registrations', 'events')
+    sortOrder?: number; // Optional ordering value
+  }
+  ```
+
+- To fetch code list items, use the `listCodeList` function:
+  ```typescript
+  import { listCodeList } from '../services/codeListService';
+  
+  // Example: Get all registration statuses
+  const statuses = await listCodeList('status', 'registrations');
+  ```
+
+- To add a new code list item:
+  ```typescript
+  import { addCodeListItem } from '../services/codeListService';
+  
+  await addCodeListItem({
+    type: 'status',
+    object: 'registrations',
+    code: 'approved',
+    verboseName: 'Approved',
+    sortOrder: 10
+  });
+  ```
+
+- To delete a code list item:
+  ```typescript
+  import { deleteCodeListItem } from '../services/codeListService';
+  
+  await deleteCodeListItem(documentId);
+  ```
+
+- Admin UI: The `CodeListPanel` component provides a UI for managing code lists:
+  1. First select an object (domain entity)
+  2. Then select a type for that object
+  3. View/add/delete items for that combination
+
+- When defining new object categories in the system, prefer using the code list structure rather than creating specialized collections.
+
+- For validation against allowed values, query the appropriate code list rather than using hardcoded values.
+
+- Naming conventions:
+  - `object`: Use plural form of the domain entity (e.g., 'registrations', 'events')
+  - `type`: Use singular descriptive term (e.g., 'status', 'category')
+  - `code`: Short identifier, lowercase with no spaces (e.g., 'approved', 'pending')
+  - `verboseName`: User-friendly display text (e.g., 'Approved', 'Pending Review')

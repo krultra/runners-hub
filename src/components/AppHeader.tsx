@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Button } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Button, Chip } from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
@@ -7,6 +7,11 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createOrUpdateUser } from '../utils/userUtils';
 import { isAdminUser } from '../utils/adminUtils';
+
+// Get environment variables
+const APP_VERSION = process.env.REACT_APP_VERSION || 'unknown';
+const APP_STAGE = process.env.REACT_APP_STAGE || 'production';
+const IS_TEST_ENV = APP_STAGE === 'test';
 
 const AppHeader: React.FC = () => {
   const [user, setUser] = useState<any>(null);
@@ -53,6 +58,23 @@ const AppHeader: React.FC = () => {
           onClick={() => navigate('/')}
         >
           RunnersHub
+          {IS_TEST_ENV && (
+            <Chip 
+              label={`TEST v${APP_VERSION}`}
+              color="warning"
+              size="small"
+              sx={{ 
+                ml: 2, 
+                fontWeight: 'bold', 
+                animation: 'pulse 2s infinite',
+                '@keyframes pulse': {
+                  '0%': { opacity: 0.7 },
+                  '50%': { opacity: 1 },
+                  '100%': { opacity: 0.7 }
+                }
+              }}
+            />
+          )}
         </Typography>
         {user ? (
           <Box display="flex" alignItems="center">

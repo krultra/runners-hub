@@ -2,9 +2,15 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme, Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
 import RegistrationDetailsDialog from './RegistrationDetailsDialog';
 import { getRegistrationsByEdition, generateTestRegistrations } from '../../services/registrationService';
-import { listRegistrationStatuses, RegistrationStatus } from '../../services/statusService';
+import { listCodeList } from '../../services/codeListService';
 import { Registration } from '../../types';
 import { listEventEditions } from '../../services/eventEditionService';
+
+// Replacement for the deleted statusService
+interface RegistrationStatus {
+  id: string;
+  label: string;
+}
 
 const RegistrationsPanel: React.FC = () => {
   const [currentEditionId, setCurrentEditionId] = useState<string>('');
@@ -27,7 +33,13 @@ const RegistrationsPanel: React.FC = () => {
     const regs = await getRegistrationsByEdition(currentEditionId);
     // sort by registrationNumber ascending
     regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
-    const sts = await listRegistrationStatuses();
+    // Get statuses from codeLists collection
+    const codeListItems = await listCodeList('status', 'registrations');
+    // Map to the expected RegistrationStatus interface
+    const sts = codeListItems.map(item => ({
+      id: item.id,
+      label: item.code
+    }));
     setRegistrations(regs);
     setStatuses(sts);
     setRegLoading(false);
