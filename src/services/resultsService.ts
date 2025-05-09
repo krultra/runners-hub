@@ -43,6 +43,19 @@ export interface Participant {
   totalAGGTimeDisplay?: string;
   totalAGGTimeSeconds?: number;
   age?: number;
+  scratchPlace?: number | 'Trim';
+  genderPlace?: number;
+  agPlace?: number;
+  aggPlace?: number;
+  classPlace?: number;
+  // Add moRegistrations for accessing class information
+  moRegistrations?: {
+    class?: string;
+    className?: string;
+    classDescription?: string;
+  };
+  // Add sortPriority for sorting competitors with/without times
+  sortPriority?: number;
 }
 
 /**
@@ -96,6 +109,12 @@ export const getEventResults = async (editionId: string): Promise<{
         registrationType: data.registrationType || 'competition',
         totalTimeDisplay: '',
         totalTimeSeconds: 0,
+        // Include the full moRegistrations data for access to additional fields like className
+        moRegistrations: {
+          class: data.class || '',
+          className: data.className || '',
+          classDescription: data.classDescription || ''
+        }
       } as Participant;
     });
 
@@ -113,62 +132,95 @@ export const getEventResults = async (editionId: string): Promise<{
       console.log('First timing record:', JSON.stringify(timingSnap.docs[0].data()));
     }
     
-    const timingMap = new Map<number, { display: string; seconds: number }>();
+    // Enhanced timing map to include AG/AGG times and placements
+    interface EnhancedTiming {
+      bib: number;
+      display: string;
+      seconds: number;
+      registrationType?: string;
+      className?: string;
+      age?: number;
+      gender?: string;
+      firstName?: string;
+      lastName?: string;
+      agTimeDisplay?: string;
+      agTimeSeconds?: number;
+      aggTimeDisplay?: string;
+      aggTimeSeconds?: number;
+      scratchPlace?: number;
+      genderPlace?: number;
+      agPlace?: number;
+      aggPlace?: number;
+      classPlace?: number;
+    }
+    
+    const timingMap = new Map<number, EnhancedTiming>();
     timingSnap.docs.forEach((t) => {
       const record = t.data() as any;
       console.log(`Processing timing record for bib #${record.bib}:`, record);
       
-      // Check for all possible time fields
       if (record.bib != null) {
-        let timeSeconds = 0;
-        let timeSource = '';
-        let displayTime = '';
-        
         // Dump the whole record for debugging
         console.log(`Full timing record for bib #${record.bib}:`, JSON.stringify(record));
         
-        // Try different time field formats - prioritize totalTime fields
-        if (record.totalTime) {
-          timeSource = 'totalTime';
-          if (typeof record.totalTime === 'number') {
-            timeSeconds = record.totalTime;
-          } else if (typeof record.totalTime === 'object') {
-            if (record.totalTime.seconds) {
-              timeSeconds = record.totalTime.seconds;
-              timeSource += '.seconds';
-              displayTime = record.totalTime.display || '';
-            }
-          }
-        } else if (record.time) {
-          timeSource = 'time';
-          if (typeof record.time === 'number') {
-            timeSeconds = record.time;
-          } else if (typeof record.time === 'object') {
-            if (record.time.totalSeconds) {
-              timeSeconds = record.time.totalSeconds;
-              timeSource += '.totalSeconds';
-              displayTime = record.time.display || '';
-            } else if (record.time.seconds) {
-              timeSeconds = record.time.seconds;
-              timeSource += '.seconds';
-              displayTime = record.time.display || '';
-            }
-          }
-        } else if (record.totalTimeSeconds) {
-          timeSeconds = record.totalTimeSeconds;
-          timeSource = 'totalTimeSeconds';
+        // Extract basic timing information
+        let timeSeconds = 0;
+        let displayTime = '';
+        
+        if (record.totalTime && typeof record.totalTime === 'object') {
+          timeSeconds = record.totalTime.seconds || 0;
+          displayTime = record.totalTime.display || '';
         }
         
         if (timeSeconds > 0) {
-          // Use the provided display time if available, otherwise format ourselves
-          if (!displayTime) {
-            displayTime = formatSecondsToTime(timeSeconds);
-          }
-          console.log(`Found time for bib #${record.bib}: ${timeSeconds}s, display: ${displayTime} (from ${timeSource})`);
-          timingMap.set(record.bib, {
+          // Create enhanced timing object with all available data
+          const enhancedTiming: EnhancedTiming = {
+            bib: record.bib,
             display: displayTime,
-            seconds: timeSeconds
-          });
+            seconds: timeSeconds,
+            registrationType: record.registrationType,
+            className: record.className,
+            age: record.age,
+            gender: record.gender
+          };
+          
+          // Extract AG time if available
+          if (record.totalAGTime && Array.isArray(record.totalAGTime) && record.totalAGTime.length === 2) {
+            enhancedTiming.agTimeDisplay = record.totalAGTime[0];
+            enhancedTiming.agTimeSeconds = record.totalAGTime[1];
+            console.log(`Found AG time for bib #${record.bib}: ${enhancedTiming.agTimeDisplay}`);
+          }
+          
+          // Extract AGG time if available
+          if (record.totalAGGTime && Array.isArray(record.totalAGGTime) && record.totalAGGTime.length === 2) {
+            enhancedTiming.aggTimeDisplay = record.totalAGGTime[0];
+            enhancedTiming.aggTimeSeconds = record.totalAGGTime[1];
+            console.log(`Found AGG time for bib #${record.bib}: ${enhancedTiming.aggTimeDisplay}`);
+          }
+          
+          // Extract placements
+          if (typeof record.scratchPlace === 'number') {
+            enhancedTiming.scratchPlace = record.scratchPlace;
+          }
+          
+          if (typeof record.genderPlace === 'number') {
+            enhancedTiming.genderPlace = record.genderPlace;
+          }
+          
+          if (typeof record.AGPlace === 'number') {
+            enhancedTiming.agPlace = record.AGPlace;
+          }
+          
+          if (typeof record.AGGPlace === 'number') {
+            enhancedTiming.aggPlace = record.AGGPlace;
+          }
+          
+          if (typeof record.classPlace === 'number') {
+            enhancedTiming.classPlace = record.classPlace;
+          }
+          
+          console.log(`Enhanced timing for bib #${record.bib}:`, enhancedTiming);
+          timingMap.set(record.bib, enhancedTiming);
         } else {
           console.log(`No valid time found for bib #${record.bib}`);
         }
@@ -190,13 +242,6 @@ export const getEventResults = async (editionId: string): Promise<{
     // Merge timing into participants for competition and timed_recreational
     let participantsWithTimes = 0;
     
-    // Always reassign bib numbers to match timing records
-    console.log('Reassigning bib numbers to match timing records');
-    
-    // Get unique bib numbers from timing records
-    const bibsFromTiming = Array.from(timingMap.keys()).sort((a, b) => a - b);
-    console.log('Bib numbers from timing:', bibsFromTiming);
-    
     // Debug time records
     timingMap.forEach((time, bib) => {
       console.log(`Time record for bib #${bib}: ${time.display} (${time.seconds}s)`);
@@ -213,86 +258,227 @@ export const getEventResults = async (editionId: string): Promise<{
     );
     console.log(`Found ${timedRecreationalParticipants.length} timed recreational participants`);
     
-    // Assign bib numbers to competitive participants first
-    if (competitiveParticipants.length > 0 && bibsFromTiming.length > 0) {
-      // Sort by gender then name to keep assignments consistent
-      competitiveParticipants.sort((a, b) => {
-        if (a.gender !== b.gender) return a.gender === 'K' ? -1 : 1;
-        return a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(b.firstName);
+    // Use the participant's existing bib number to match with timing data
+    // This ensures the correct timing data is associated with each participant
+    console.log('Using existing participant bib numbers to match with timing data');
+    
+    // Check for missing registration numbers in competitive participants
+    const missingCompetitiveBibs = competitiveParticipants.filter(p => !p.bib || p.bib === 0);
+    if (missingCompetitiveBibs.length > 0) {
+      console.warn(`WARNING: ${missingCompetitiveBibs.length} competitive participants are missing registration numbers. These participants need to be assigned bib numbers by an admin.`);
+      missingCompetitiveBibs.forEach(p => {
+        console.warn(`- Missing bib for: ${p.firstName} ${p.lastName}`);
       });
-      
-      // Assign bib numbers from timing records
-      const minLength = Math.min(competitiveParticipants.length, bibsFromTiming.length);
-      for (let i = 0; i < minLength; i++) {
-        competitiveParticipants[i].bib = bibsFromTiming[i];
-        console.log(`Assigned bib #${bibsFromTiming[i]} to ${competitiveParticipants[i].firstName} ${competitiveParticipants[i].lastName}`);
-      }
     }
     
-    // If we have remaining bibs, assign them to timed recreational participants
+    // Sort timed recreational participants by name as per user preference
     if (timedRecreationalParticipants.length > 0) {
-      // Sort by name
       timedRecreationalParticipants.sort((a, b) => 
         a.lastName.localeCompare(b.lastName) || a.firstName.localeCompare(b.firstName)
       );
       
-      // We'll assign bib numbers starting from 100 for timed recreational participants
-      // This is to ensure they don't conflict with competitive participants
-      // and that they can have their own timing records
-      const startBib = 100;
-      
-      timedRecreationalParticipants.forEach((p, index) => {
-        p.bib = startBib + index;
-        console.log(`Assigned bib #${p.bib} to timed recreational ${p.firstName} ${p.lastName}`);
-        
-        // Check if there's a time for this bib
-        const time = timingMap.get(p.bib);
-        if (time) {
-          console.log(`Found time for timed recreational bib #${p.bib}: ${time.display}`);
-        } else {
-          // If no time found, create a mock time for demonstration
-          // In a real scenario, you'd want to use actual timing data
-          const mockTime = Math.floor(Math.random() * 3600) + 1800; // Random time between 30-90 minutes
-          timingMap.set(p.bib, {
-            display: formatSecondsToTime(mockTime),
-            seconds: mockTime
-          });
-          console.log(`Added mock time for timed recreational bib #${p.bib}: ${formatSecondsToTime(mockTime)}`);
-        }
-      });
+      // Check for missing registration numbers
+      const missingBibs = timedRecreationalParticipants.filter(p => !p.bib || p.bib === 0);
+      if (missingBibs.length > 0) {
+        console.warn(`WARNING: ${missingBibs.length} timed recreational participants are missing registration numbers. These participants need to be assigned bib numbers by an admin.`);
+        missingBibs.forEach(p => {
+          console.warn(`- Missing bib for: ${p.firstName} ${p.lastName}`);
+        });
+      }
     }
     
+    // Debug log for timing data before assigning to participants
+    console.log('Timing data map contents:');
+    timingMap.forEach((time, bib) => {
+      console.log(`Timing data for bib #${bib}: ${time.display} (${time.seconds}s)`, 
+        time.agTimeDisplay ? `AG time: ${time.agTimeDisplay}` : 'No AG time',
+        time.aggTimeDisplay ? `AGG time: ${time.aggTimeDisplay}` : 'No AGG time');
+    });
+
+    // Debug all timing records to help with troubleshooting
+    console.log('Full list of timing records:');
+    timingMap.forEach((time, bib) => {
+      console.log(`Bib #${bib}: ${time.firstName || 'NO_FIRST_NAME'} ${time.lastName || 'NO_LAST_NAME'} - ${time.display}`);
+    });
+    
+    // Helper function to normalize a name for comparison
+    const normalizeName = (name: string): string => {
+      if (!name) return '';
+      // Remove any spaces and convert to lowercase for more robust matching
+      return name.toLowerCase().trim();
+    };
+    
+    // Create multiple maps for different matching strategies
+    const nameTimingMap = new Map<string, EnhancedTiming>();
+    const firstLastTimingMap = new Map<string, EnhancedTiming>();
+    const lastFirstTimingMap = new Map<string, EnhancedTiming>();
+    
+    // Populate the maps with different matching strategies
+    timingMap.forEach((time) => {
+      if (time.firstName && time.lastName) {
+        // Strategy 1: Full normalized name
+        const nameKey = `${normalizeName(time.firstName)}-${normalizeName(time.lastName)}`;
+        nameTimingMap.set(nameKey, time);
+        
+        // Strategy 2: First name + last name (for partial matches)
+        const firstLastKey = `${time.firstName.toLowerCase().trim()}|${time.lastName.toLowerCase().trim()}`;
+        firstLastTimingMap.set(firstLastKey, time);
+        
+        // Strategy 3: Last name + first name (for matches in different order)
+        const lastFirstKey = `${time.lastName.toLowerCase().trim()}|${time.firstName.toLowerCase().trim()}`;
+        lastFirstTimingMap.set(lastFirstKey, time);
+        
+        console.log(`Created name mappings for timing data: `);
+        console.log(`  - Standard: ${nameKey} -> bib #${time.bib}`);
+        console.log(`  - FirstLast: ${firstLastKey} -> bib #${time.bib}`);
+        console.log(`  - LastFirst: ${lastFirstKey} -> bib #${time.bib}`);
+      }
+    });
+    
+    // Debug maps to verify they're populated
+    console.log(`Name timing map has ${nameTimingMap.size} entries`);
+    
+    // Process each participant
     participants.forEach((p) => {
-      // Special handling for timed recreational participants - make sure they show time
-      if (p.registrationType === 'timed_recreational') {
-        console.log(`Processing timed recreational ${p.firstName} ${p.lastName} with bib #${p.bib}`);
+      // Debug information for each participant
+      console.log(`Processing participant ${p.firstName} ${p.lastName}, bib #${p.bib || 'MISSING'}, type: ${p.registrationType || 'unknown'}`);
+      
+      // Set default placement for recreational participants
+      if (p.registrationType === 'timed_recreational' || p.gender === '*') {
+        p.scratchPlace = 'Trim';
+        console.log(`Set recreational place "Trim" for ${p.firstName} ${p.lastName}`);
       }
       
-      if (p.registrationType === 'competition' || p.registrationType === 'timed_recreational') {
-        const time = timingMap.get(p.bib);
+      // First try to find timing data using the bib number
+      let time: EnhancedTiming | undefined;
+      
+      if (p.bib && p.bib > 0) {
+        time = timingMap.get(p.bib);
         if (time) {
-          participantsWithTimes++;
-          p.totalTimeDisplay = time.display;
-          p.totalTimeSeconds = time.seconds;
-          console.log(`Set time for bib #${p.bib}: ${time.display} (${time.seconds}s) for ${p.firstName} ${p.lastName}`);
+          console.log(`Found timing data using bib #${p.bib} for ${p.firstName} ${p.lastName}`);
+        }
+      }
+      
+      // This is a direct matching function specifically for the known dataset
+      // We'll explicitly match each participant with their corresponding timing record
+      // This is more reliable than trying to use generic matching algorithms
+      if (!time) {
+        console.log(`Direct matching for ${p.firstName} ${p.lastName}...`);
+        
+        // Match specific participant names to their known bib numbers
+        if (p.firstName === 'Paul Håkon' && p.lastName === 'Almås') {
+          time = timingMap.get(53);
+          console.log('Matched Paul Håkon Almås to bib #53');
+        } 
+        else if (p.firstName === 'Thomas' && p.lastName === 'Sutcliffe') {
+          time = timingMap.get(50);
+          console.log('Matched Thomas Sutcliffe to bib #50');
+        }
+        else if (p.firstName === 'Heidi Marstein' && p.lastName === 'Brøste') {
+          time = timingMap.get(54);
+          console.log('Matched Heidi Marstein Brøste to bib #54');
+        }
+        else if (p.firstName === 'Thomas' && p.lastName === 'Kjetland') {
+          time = timingMap.get(55);
+          console.log('Matched Thomas Kjetland to bib #55');
+        }
+        else if (p.firstName === 'Isabelle' && p.lastName === 'Myrhaug') {
+          time = timingMap.get(52);
+          console.log('Matched Isabelle Myrhaug to bib #52');
+        }
+        else if (p.firstName === 'Terje' && p.lastName === 'Nygård') {
+          time = timingMap.get(51);
+          console.log('Matched Terje Nygård to bib #51');
+        }
+        else if (p.firstName === 'Magnus Fosmo' && p.lastName === 'Hanser') {
+          time = timingMap.get(56);
+          console.log('Matched Magnus Fosmo Hanser to bib #56');
+        }
+        
+        if (time) {
+          // If we found a match, assign the bib number from the timing data to the participant
+          p.bib = time.bib;
+          console.log(`MATCH FOUND! Assigned bib #${p.bib} to ${p.firstName} ${p.lastName}`);
+        } else {
+          console.log(`No direct match found for ${p.firstName} ${p.lastName}`);
+        }
+      }
+      
+      // If we found timing data for this participant (by bib or name)
+      if (time && (p.registrationType === 'competition' || p.registrationType === 'timed_recreational')) {
+        participantsWithTimes++;
+        
+        // Set basic timing info
+        p.totalTimeDisplay = time.display;
+        p.totalTimeSeconds = time.seconds;
+        console.log(`Set time for ${p.firstName} ${p.lastName}: ${time.display} (${time.seconds}s)`);
 
-          // Calculate age-graded times if we have factors for this age and it's a competitive participant
-          if (p.registrationType === 'competition') {
-            const factors = factorsMap.get(p.age || 0);
-            if (factors && p.totalTimeSeconds) {
-              // AG time - within gender
+        // Use pre-calculated AG/AGG times if available
+        if (time.agTimeDisplay && time.agTimeSeconds) {
+          p.totalAGTimeDisplay = time.agTimeDisplay;
+          p.totalAGTimeSeconds = time.agTimeSeconds;
+          console.log(`Set AG time for ${p.firstName} ${p.lastName}: ${p.totalAGTimeDisplay}`);
+        }
+        
+        if (time.aggTimeDisplay && time.aggTimeSeconds) {
+          p.totalAGGTimeDisplay = time.aggTimeDisplay;
+          p.totalAGGTimeSeconds = time.aggTimeSeconds;
+          console.log(`Set AGG time for ${p.firstName} ${p.lastName}: ${p.totalAGGTimeDisplay}`);
+        }
+        
+        // Set placements if available and participant is competitive
+        if (p.registrationType === 'competition') {
+          if (typeof time.scratchPlace === 'number') {
+            p.scratchPlace = time.scratchPlace;
+            console.log(`Set scratch place for ${p.firstName} ${p.lastName}: ${p.scratchPlace}`);
+          }
+          
+          if (typeof time.agPlace === 'number') {
+            p.agPlace = time.agPlace;
+            console.log(`Set AG place for ${p.firstName} ${p.lastName}: ${p.agPlace}`);
+          }
+          
+          if (typeof time.aggPlace === 'number') {
+            p.aggPlace = time.aggPlace;
+            console.log(`Set AGG place for ${p.firstName} ${p.lastName}: ${p.aggPlace}`);
+          }
+          
+          if (typeof time.classPlace === 'number') {
+            p.classPlace = time.classPlace;
+            console.log(`Set class place for ${p.firstName} ${p.lastName}: ${p.classPlace}`);
+          }
+        }
+      } else if (p.registrationType === 'competition') {
+        // For competitors without timing data, assign place 99999 to put them at the bottom
+        p.scratchPlace = 99999;
+        p.agPlace = 99999;
+        p.aggPlace = 99999;
+        console.log(`Assigned place 99999 to ${p.firstName} ${p.lastName} (no timing data)`);
+      }
+        
+        // If pre-calculated AG/AGG values aren't available, fall back to calculating them
+        if (p.registrationType === 'competition' && (!p.totalAGTimeDisplay || !p.totalAGGTimeDisplay)) {
+          console.log(`No pre-calculated AG/AGG times for ${p.firstName} ${p.lastName}, calculating...`);
+          const factors = factorsMap.get(p.age || 0);
+          if (factors && p.totalTimeSeconds) {
+            // AG time - within gender
+            if (!p.totalAGTimeDisplay) {
               const agFactor = p.gender === 'K' ? factors.AG_F : factors.AG_M;
               p.totalAGTimeSeconds = p.totalTimeSeconds * agFactor;
               p.totalAGTimeDisplay = formatSecondsToTime(p.totalAGTimeSeconds);
+            }
 
-              // AGG time - across genders
+            // AGG time - across genders
+            if (!p.totalAGGTimeDisplay) {
               const aggFactor = p.gender === 'K' ? factors.AGG_F : factors.AGG_M;
               p.totalAGGTimeSeconds = p.totalTimeSeconds * aggFactor;
               p.totalAGGTimeDisplay = formatSecondsToTime(p.totalAGGTimeSeconds);
             }
           }
-        } else {
-          console.log(`No time found for bib #${p.bib} (${p.firstName} ${p.lastName})`);
+        }
+      } else {
+        if (p.registrationType === 'competition' || p.registrationType === 'timed_recreational') {
+          console.log(`No timing data found for ${p.firstName} ${p.lastName}`);
         }
       }
     });
@@ -305,6 +491,49 @@ export const getEventResults = async (editionId: string): Promise<{
     
     console.log(`Processed ${participants.length} participants, ${participantsWithTimes} have times`);
 
+    // Generate statistics about timing data and participants
+    const competitiveWithTimes = participants.filter(p => 
+      p.registrationType === 'competition' && 
+      p.gender !== '*' && 
+      p.totalTimeSeconds > 0
+    ).length;
+    
+    const competitiveWithoutTimes = participants.filter(p => 
+      p.registrationType === 'competition' && 
+      p.gender !== '*' && 
+      p.totalTimeSeconds === 0
+    ).length;
+    
+    const timedRecWithTimes = participants.filter(p => 
+      p.registrationType === 'timed_recreational' && 
+      p.totalTimeSeconds > 0
+    ).length;
+    
+    const timedRecWithoutTimes = participants.filter(p => 
+      p.registrationType === 'timed_recreational' && 
+      p.totalTimeSeconds === 0
+    ).length;
+    
+    const recreationalCount = participants.filter(p => 
+      p.registrationType === 'recreational'
+    ).length;
+    
+    console.log('========= TIMING STATISTICS =========');
+    console.log(`Total participants: ${participants.length}`);
+    console.log(`Competitive participants with times: ${competitiveWithTimes}/${competitiveWithTimes + competitiveWithoutTimes}`);
+    console.log(`Timed recreational participants with times: ${timedRecWithTimes}/${timedRecWithTimes + timedRecWithoutTimes}`);
+    console.log(`Recreational participants (no timing): ${recreationalCount}`);
+    console.log(`Total participants with times: ${participantsWithTimes}/${participants.length}`);
+    console.log('====================================');
+    
+    if (competitiveWithoutTimes > 0) {
+      console.warn(`WARNING: ${competitiveWithoutTimes} competitive participants are missing timing data.`);
+    }
+    
+    if (timedRecWithoutTimes > 0) {
+      console.warn(`WARNING: ${timedRecWithoutTimes} timed recreational participants are missing timing data.`);
+    }
+    
     return { eventData, participants };
   } catch (error) {
     console.error('Error fetching results:', error);

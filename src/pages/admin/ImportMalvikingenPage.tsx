@@ -1,12 +1,9 @@
 import React, { useState } from 'react';
 import { Box, Button, Container, Paper, TextField, Typography, CircularProgress, Alert } from '@mui/material';
-import { getFirestore, doc, setDoc, getDoc } from 'firebase/firestore';
-// These imports are for future functionality
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-import { writeBatch, collection } from 'firebase/firestore';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { auth } from '../../config/firebase'; // Will be used for authentication checks
 import Papa from 'papaparse';
+import { format } from 'date-fns';
 
 // Define the structure for a Malvikingen participant
 interface MalvikingenParticipant {
@@ -16,7 +13,7 @@ interface MalvikingenParticipant {
   gender: 'M' | 'K' | '*' | null;
   representing: string | null;
   eqTimingId: string; // Use the numeric ID as string
-  registrationType: 'competition' | 'recreational';
+  registrationType: 'competition' | 'recreational' | 'timed_recreational';
   timestamp: string;
   email: string;
   phone: string;
@@ -48,10 +45,25 @@ interface TimingResult {
   importedFinalPosition: number;
   bib: number;
   totalTime: { display: string; seconds: number };
+  totalAGTime?: [string, number]; // [display, seconds]
+  totalAGGTime?: [string, number]; // [display, seconds]
   splitElapsedTimes: { display: string; seconds: number }[];
   splitTimes: { display: string; seconds: number }[];
   createdAt: string;
   updatedAt: string;
+  scratchPlace?: number;
+  genderPlace?: number;
+  AGPlace?: number;
+  AGGPlace?: number;
+  classPlace?: number;
+  registrationType?: string;
+  className?: string;
+  gender?: string;
+  representing?: string;
+  firstName?: string;
+  lastName?: string;
+  dateOfBirth?: string;
+  age?: number;
 }
 
 // Type for grading factor records
@@ -154,6 +166,8 @@ const ImportMalvikingenPage: React.FC = () => {
 
         // Determine gender based on class name
         let gender: 'M' | 'K' | '*' | null = null;
+        // Determine registration type - default to competition
+        let registrationType: 'competition' | 'timed_recreational' | 'recreational' = 'competition';
         
         // Handle standard competition classes (Menn/Kvinner)
         if (className.startsWith('Menn') || className.toLowerCase().includes('menn')) {
@@ -164,6 +178,7 @@ const ImportMalvikingenPage: React.FC = () => {
         // Handle recreational classes like "Trim m/tidtaking" with gender-neutral '*'
         else if (className.startsWith('Trim')) {
           gender = '*';
+          registrationType = 'timed_recreational';
         } else {
           throw new Error('Could not determine gender from class name: ' + className);
         }
@@ -188,7 +203,7 @@ const ImportMalvikingenPage: React.FC = () => {
           comments: comment,
           confirmedPayment: true,
           eqTimingId,
-          registrationType: 'competition',
+          registrationType,
           className,
           gender,
           editionId: 'mo-2025',
@@ -219,15 +234,52 @@ const ImportMalvikingenPage: React.FC = () => {
 
     try {
       for (const participant of importedData) {
-        const docRef = doc(db, 'moRegistrations', participant.eqTimingId);
+        // Create a composite key using eqTimingId, firstName, lastName, and birth year
+        // This ensures uniqueness even if multiple participants share the same EQ Timing ID
+        const birthYear = participant.dateOfBirth ? participant.dateOfBirth.split('/')[2] : '';
+        const compositeKey = `mo-2025-eq-${participant.eqTimingId}-${participant.firstName.toLowerCase()}-${participant.lastName.toLowerCase()}-${birthYear}`;
+        
+        // Sanitize the key to remove any characters that could cause issues in document IDs
+        const sanitizedKey = compositeKey
+          .replace(/\s+/g, '-')  // Replace spaces with hyphens
+          .replace(/[^a-z0-9-]/g, '')  // Remove any non-alphanumeric characters except hyphens
+          .replace(/-+/g, '-');  // Replace multiple consecutive hyphens with a single one
+        
+        console.log(`Generated composite key for ${participant.firstName} ${participant.lastName}: ${sanitizedKey}`);
+        
+        // Use the composite key as the document ID
+        const docRef = doc(db, 'moRegistrations', sanitizedKey);
+        
         try {
-          const docSnap = await getDoc(docRef);
-          if (docSnap.exists()) {
+          // Check if a document with the same EQ Timing ID and name already exists
+          const existingDocsQuery = query(
+            collection(db, 'moRegistrations'), 
+            where('eqTimingId', '==', participant.eqTimingId),
+            where('firstName', '==', participant.firstName),
+            where('lastName', '==', participant.lastName)
+          );
+          
+          const existingDocs = await getDocs(existingDocsQuery);
+          
+          if (!existingDocs.empty) {
+            // Update the existing document
+            const existingDoc = existingDocs.docs[0];
             const { createdAt, ...updateData } = participant;
-            await setDoc(docRef, updateData, { merge: true });
+            await setDoc(doc(db, 'moRegistrations', existingDoc.id), updateData, { merge: true });
+            console.log(`Updated existing registration for ${participant.firstName} ${participant.lastName} with ID ${existingDoc.id}`);
           } else {
-            await setDoc(docRef, { ...participant, createdAt: new Date().toISOString() });
-            successCount++;
+            // Check if the document with the composite key exists
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists()) {
+              const { createdAt, ...updateData } = participant;
+              await setDoc(docRef, updateData, { merge: true });
+              console.log(`Updated registration with composite key for ${participant.firstName} ${participant.lastName}`);
+            } else {
+              // Create a new document with the composite key
+              await setDoc(docRef, { ...participant, createdAt: new Date().toISOString() });
+              console.log(`Created new registration for ${participant.firstName} ${participant.lastName} with key ${sanitizedKey}`);
+              successCount++;
+            }
           }
         } catch (err) {
           throw err;
@@ -261,8 +313,9 @@ const ImportMalvikingenPage: React.FC = () => {
             lastName: row['Etternavn'],
             phone: row['Mobiltelefon'],
             dateOfBirth: row['Fødselsdato'],
-            // Force classDescription to 'Turklasse'
-            classDescription: 'Turklasse',
+            // Assign className instead of classDescription for Turklasse
+            className: 'Turklasse',
+            classDescription: '', // Empty string instead of 'Turklasse'
             representing: row['Klubb'],
             comments: row['Plass til å kommentere eller skrive beskjeder til arrangøren'],
             registrationType: 'recreational',
@@ -322,85 +375,420 @@ const ImportMalvikingenPage: React.FC = () => {
 
   const padBib = (bib: number): string => bib.toString().padStart(3, '0');
 
-  const handleTimingImport = async () => {
-    if (!timingFile) return;
-    setIsTimingImporting(true);
-    setTimingImportSuccess(null);
-    setTimingImportError(null);
-    try {
-      const fileText = await timingFile.text();
-      Papa.parse(fileText, {
-        header: false,
-        complete: async (results: Papa.ParseResult<any>) => {
-          // Each row corresponds to a timing result
-          // Expected columns:
-          // 0: Final Position (importedFinalPosition)
-          // 1: Bib Number (bib)
-          // 2: Last Name (ignored)
-          // 3: First Name (ignored)
-          // 4: Team (ignored)
-          // 5: Total Elapsed Time (totalTime)
-          // 6: Split 1 Elapsed Time (for splitElapsedTimes: element1, element0 fixed as "12:00:00")
-          // 7: Split 1 Lap Time (for splitTimes: element1, element0 fixed as "0:00:00")
-          const data = results.data as any[];
-          const timingRecords = data.map((row, index) => {
-            // Skip if row is blank or only whitespace
-            if (!row || row.join('').trim() === '') return null;
+  // Helper function to format time in seconds to a human-readable format
+const formatTime = (seconds: number): string => {
+  if (isNaN(seconds) || seconds <= 0) return '';
+  
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const secs = seconds % 60;
+  
+  // Format as hh:mm:ss or mm:ss.s depending on whether hours > 0
+  if (hours > 0) {
+    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toFixed(1).padStart(4, '0')}`;
+  } else {
+    return `${minutes.toString().padStart(2, '0')}:${secs.toFixed(1).padStart(4, '0')}`;
+  }
+};
 
-            // Skip header row if present: if first row contains non-numeric or row[0] equals 'DNF' (case-insensitive), skip
-            if (index === 0 && (isNaN(Number(row[0])) || String(row[0]).toUpperCase() === 'DNF')) return null;
-            // Also skip any row where first column is 'DNF'
-            if (String(row[0]).toUpperCase() === 'DNF') return null;
-            
-            const importedFinalPosition = Number(row[0]);
-            const bib = Number(row[1]);
-            // Skip rows with invalid bib (NaN or bib <= 0)
-            if (isNaN(bib) || bib <= 0) return null;
-            const totalStr = row[5]?.trim() || '';
-            const splitElapsedStr = row[6]?.trim() || '';
-            const splitLapStr = row[7]?.trim() || '';
-            const totalSec = parseTimeStr(totalStr);
-            const elapsedSec = parseTimeStr(splitElapsedStr);
-            const lapSec = parseTimeStr(splitLapStr);
-            return {
-              eventId: 'mo-2025',
-              importedFinalPosition,
-              bib,
-              totalTime: { display: totalStr, seconds: totalSec },
-              splitElapsedTimes: [
-                { display: '12:00:00', seconds: parseTimeStr('12:00:00') },
-                { display: splitElapsedStr, seconds: elapsedSec }
-              ],
-              splitTimes: [
-                { display: '0:00:00', seconds: parseTimeStr('0:00:00') },
-                { display: splitLapStr, seconds: lapSec }
-              ],
-              createdAt: new Date().toISOString(),
-              updatedAt: new Date().toISOString()
-            };
-          }).filter((record): record is TimingResult => record !== null);
+// Helper function to calculate AG and AGG times
+const calculateGradedTimes = (
+  totalSeconds: number, 
+  age: number, 
+  gender: string | undefined, 
+  gradingFactors: Map<number, TimeGradingFactor>
+): { AGTime: [string, number], AGGTime: [string, number] } => {
+  // Default to no adjustment
+  let AGFactor = 1.0;
+  let AGGFactor = 1.0;
 
-          const db = getFirestore();
-          // For each timing record, create or update a document in 'moTiming' with custom ID: "mo-2025-xxx"
+  // Find the closest age factor
+  const factor = gradingFactors.get(age);
+  
+  if (factor && gender) {
+    if (gender === 'M') {
+      AGFactor = factor.AG_M;
+      AGGFactor = factor.AGG_M;
+    } else if (gender === 'K' || gender === 'F') {
+      AGFactor = factor.AG_F;
+      AGGFactor = factor.AGG_F;
+    }
+  }
+  
+  // Calculate adjusted times
+  const AGSeconds = totalSeconds * AGFactor;
+  const AGGSeconds = totalSeconds * AGGFactor;
+  
+  return {
+    AGTime: [formatTime(AGSeconds), AGSeconds],
+    AGGTime: [formatTime(AGGSeconds), AGGSeconds]
+  };
+};
+
+// Calculate placements for all competitive participants
+const calculatePlacements = async (timingResults: TimingResult[]): Promise<TimingResult[]> => {
+  // Filter competitive participants
+  const competitive = timingResults.filter(p => p.registrationType === 'competition');
+  
+  if (competitive.length === 0) {
+    console.info('No competitive participants found for placement calculation');
+    return timingResults;
+  }
+  
+  // 1. Calculate scratch placements based on total time
+  const scratchSorted = [...competitive].sort((a, b) => a.totalTime.seconds - b.totalTime.seconds);
+  let currentPlace = 1;
+  let lastTime = -1;
+  
+  for (let i = 0; i < scratchSorted.length; i++) {
+    const participant = scratchSorted[i];
+    if (i > 0 && participant.totalTime.seconds !== lastTime) {
+      currentPlace = i + 1;
+    }
+    lastTime = participant.totalTime.seconds;
+    // Find this participant in the original array and update it
+    const originalIndex = timingResults.findIndex(p => 
+      p.bib === participant.bib && p.eventId === participant.eventId
+    );
+    if (originalIndex >= 0) {
+      timingResults[originalIndex].scratchPlace = currentPlace;
+    }
+  }
+  
+  // 2. Calculate gender placements
+  const maleParticipants = competitive.filter(p => p.gender === 'M');
+  const femaleParticipants = competitive.filter(p => p.gender === 'K' || p.gender === 'F');
+  
+  // Male placements
+  const maleSorted = [...maleParticipants].sort((a, b) => a.totalTime.seconds - b.totalTime.seconds);
+  currentPlace = 1;
+  lastTime = -1;
+  
+  for (let i = 0; i < maleSorted.length; i++) {
+    const participant = maleSorted[i];
+    if (i > 0 && participant.totalTime.seconds !== lastTime) {
+      currentPlace = i + 1;
+    }
+    lastTime = participant.totalTime.seconds;
+    const originalIndex = timingResults.findIndex(p => 
+      p.bib === participant.bib && p.eventId === participant.eventId
+    );
+    if (originalIndex >= 0) {
+      timingResults[originalIndex].genderPlace = currentPlace;
+    }
+  }
+  
+  // Female placements
+  const femaleSorted = [...femaleParticipants].sort((a, b) => a.totalTime.seconds - b.totalTime.seconds);
+  currentPlace = 1;
+  lastTime = -1;
+  
+  for (let i = 0; i < femaleSorted.length; i++) {
+    const participant = femaleSorted[i];
+    if (i > 0 && participant.totalTime.seconds !== lastTime) {
+      currentPlace = i + 1;
+    }
+    lastTime = participant.totalTime.seconds;
+    const originalIndex = timingResults.findIndex(p => 
+      p.bib === participant.bib && p.eventId === participant.eventId
+    );
+    if (originalIndex >= 0) {
+      timingResults[originalIndex].genderPlace = currentPlace;
+    }
+  }
+  
+  // 3. Calculate AG placements by gender
+  // Male AG placements
+  const maleAGSorted = [...maleParticipants]
+    .filter(p => p.totalAGTime && p.totalAGTime[1] > 0)
+    .sort((a, b) => (a.totalAGTime?.[1] || 0) - (b.totalAGTime?.[1] || 0));
+  
+  currentPlace = 1;
+  lastTime = -1;
+  
+  for (let i = 0; i < maleAGSorted.length; i++) {
+    const participant = maleAGSorted[i];
+    if (i > 0 && participant.totalAGTime?.[1] !== lastTime) {
+      currentPlace = i + 1;
+    }
+    lastTime = participant.totalAGTime?.[1] || 0;
+    const originalIndex = timingResults.findIndex(p => 
+      p.bib === participant.bib && p.eventId === participant.eventId
+    );
+    if (originalIndex >= 0) {
+      timingResults[originalIndex].AGPlace = currentPlace;
+    }
+  }
+  
+  // Female AG placements
+  const femaleAGSorted = [...femaleParticipants]
+    .filter(p => p.totalAGTime && p.totalAGTime[1] > 0)
+    .sort((a, b) => (a.totalAGTime?.[1] || 0) - (b.totalAGTime?.[1] || 0));
+  
+  currentPlace = 1;
+  lastTime = -1;
+  
+  for (let i = 0; i < femaleAGSorted.length; i++) {
+    const participant = femaleAGSorted[i];
+    if (i > 0 && participant.totalAGTime?.[1] !== lastTime) {
+      currentPlace = i + 1;
+    }
+    lastTime = participant.totalAGTime?.[1] || 0;
+    const originalIndex = timingResults.findIndex(p => 
+      p.bib === participant.bib && p.eventId === participant.eventId
+    );
+    if (originalIndex >= 0) {
+      timingResults[originalIndex].AGPlace = currentPlace;
+    }
+  }
+  
+  // 4. Calculate AGG placements (all competitors together)
+  const AGGSorted = [...competitive]
+    .filter(p => p.totalAGGTime && p.totalAGGTime[1] > 0)
+    .sort((a, b) => (a.totalAGGTime?.[1] || 0) - (b.totalAGGTime?.[1] || 0));
+  
+  currentPlace = 1;
+  lastTime = -1;
+  
+  for (let i = 0; i < AGGSorted.length; i++) {
+    const participant = AGGSorted[i];
+    if (i > 0 && participant.totalAGGTime?.[1] !== lastTime) {
+      currentPlace = i + 1;
+    }
+    lastTime = participant.totalAGGTime?.[1] || 0;
+    const originalIndex = timingResults.findIndex(p => 
+      p.bib === participant.bib && p.eventId === participant.eventId
+    );
+    if (originalIndex >= 0) {
+      timingResults[originalIndex].AGGPlace = currentPlace;
+    }
+  }
+  
+  // 5. Calculate class placements
+  // Group participants by class
+  const classSeparated = new Map<string, TimingResult[]>();
+  competitive.forEach(participant => {
+    if (!participant.className) return;
+    
+    if (!classSeparated.has(participant.className)) {
+      classSeparated.set(participant.className, []);
+    }
+    classSeparated.get(participant.className)?.push(participant);
+  });
+  
+  // Calculate placements within each class
+  classSeparated.forEach(classParticipants => {
+    const classSorted = [...classParticipants].sort((a, b) => a.totalTime.seconds - b.totalTime.seconds);
+    let currentClassPlace = 1;
+    let lastClassTime = -1;
+    
+    for (let i = 0; i < classSorted.length; i++) {
+      const participant = classSorted[i];
+      if (i > 0 && participant.totalTime.seconds !== lastClassTime) {
+        currentClassPlace = i + 1;
+      }
+      lastClassTime = participant.totalTime.seconds;
+      const originalIndex = timingResults.findIndex(p => 
+        p.bib === participant.bib && p.eventId === participant.eventId
+      );
+      if (originalIndex >= 0) {
+        timingResults[originalIndex].classPlace = currentClassPlace;
+      }
+    }
+  });
+  
+  return timingResults;
+};
+
+// Helper to calculate age from birth date
+const calculateAge = (dateOfBirth: string, targetYear: number): number => {
+  try {
+    // Try to parse date of birth in format MM/DD/YYYY
+    const dob = new Date(dateOfBirth);
+    if (isNaN(dob.getTime())) {
+      // If parsing failed, try to extract the year directly
+      const yearMatch = dateOfBirth.match(/\d{4}/);
+      if (yearMatch) {
+        return targetYear - parseInt(yearMatch[0]);
+      }
+      return 0;
+    }
+    return targetYear - dob.getFullYear();
+  } catch (error) {
+    console.error('Error calculating age:', error);
+    return 0;
+  }
+};
+
+const handleTimingImport = async () => {
+  if (!timingFile) return;
+  setIsTimingImporting(true);
+  setTimingImportSuccess(null);
+  setTimingImportError(null);
+  
+  try {
+    const fileText = await timingFile.text();
+    Papa.parse(fileText, {
+      header: false,
+      complete: async (results: Papa.ParseResult<any>) => {
+        // Process raw timing data
+        const data = results.data as any[];
+        const timingRecords = data.map((row, index) => {
+          // Skip if row is blank or only whitespace
+          if (!row || row.join('').trim() === '') return null;
+
+          // Skip header row if present
+          if (index === 0 && (isNaN(Number(row[0])) || String(row[0]).toUpperCase() === 'DNF')) return null;
+          // Also skip any row where first column is 'DNF'
+          if (String(row[0]).toUpperCase() === 'DNF') return null;
+          
+          const importedFinalPosition = Number(row[0]);
+          const bib = Number(row[1]);
+          // Skip rows with invalid bib
+          if (isNaN(bib) || bib <= 0) return null;
+          const totalStr = row[5]?.trim() || '';
+          const splitElapsedStr = row[6]?.trim() || '';
+          const splitLapStr = row[7]?.trim() || '';
+          const totalSec = parseTimeStr(totalStr);
+          const elapsedSec = parseTimeStr(splitElapsedStr);
+          const lapSec = parseTimeStr(splitLapStr);
+          
+          return {
+            eventId: 'mo-2025',
+            importedFinalPosition,
+            bib,
+            totalTime: { display: totalStr, seconds: totalSec },
+            splitElapsedTimes: [
+              { display: '12:00:00', seconds: parseTimeStr('12:00:00') },
+              { display: splitElapsedStr, seconds: elapsedSec }
+            ],
+            splitTimes: [
+              { display: '0:00:00', seconds: parseTimeStr('0:00:00') },
+              { display: splitLapStr, seconds: lapSec }
+            ],
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+          };
+        }).filter((record): record is TimingResult => record !== null);
+
+        const db = getFirestore();
+        
+        // Create a debug log array to store information about the processing
+        const debugLog: string[] = [];
+        debugLog.push(`Processing ${timingRecords.length} timing records`);
+        
+        try {
+          // 1. Fetch all timeGradingFactors for the event
+          debugLog.push('Fetching time grading factors...');
+          const gradingFactorsMap = new Map<number, TimeGradingFactor>();
+          const factorsQuery = query(collection(db, 'timeGradingFactors'), where('eventId', '==', 'mo'));
+          const factorsSnapshot = await getDocs(factorsQuery);
+          
+          factorsSnapshot.forEach(doc => {
+            const factorData = doc.data() as TimeGradingFactor;
+            gradingFactorsMap.set(factorData.age, factorData);
+          });
+          
+          debugLog.push(`Loaded ${gradingFactorsMap.size} time grading factors`);
+          
+          // 2. Fetch all moRegistrations to get participant details
+          debugLog.push('Fetching participant registrations...');
+          const registrationsQuery = query(collection(db, 'moRegistrations'), where('editionId', '==', 'mo-2025'));
+          const registrationsSnapshot = await getDocs(registrationsQuery);
+          
+          // Create a map of registrations by bib number for quick lookup
+          const registrationsByBib = new Map<number, any>();
+          registrationsSnapshot.forEach(doc => {
+            const registrationData = doc.data();
+            if (registrationData.registrationNumber) {
+              registrationsByBib.set(registrationData.registrationNumber, registrationData);
+            }
+          });
+          
+          debugLog.push(`Loaded ${registrationsByBib.size} participant registrations`);
+          
+          // 3. Enrich timing records with participant information
+          debugLog.push('Enriching timing records with participant information...');
           for (const record of timingRecords) {
+            const registration = registrationsByBib.get(record.bib);
+            
+            if (registration) {
+              // Add participant details to timing record
+              record.registrationType = registration.registrationType || 'recreational';
+              record.className = registration.className || '';
+              record.gender = registration.gender || '*';
+              record.representing = registration.representing || '';
+              record.firstName = registration.firstName || '';
+              record.lastName = registration.lastName || '';
+              record.dateOfBirth = registration.dateOfBirth || '';
+              
+              // Calculate participant age (as of the end of the year)
+              record.age = calculateAge(registration.dateOfBirth, 2025);
+              
+              // Calculate age-graded and age-gender-graded times for valid times
+              if (record.totalTime.seconds > 0 && record.age > 0) {
+                const gradedTimes = calculateGradedTimes(
+                  record.totalTime.seconds,
+                  record.age,
+                  record.gender,
+                  gradingFactorsMap
+                );
+                record.totalAGTime = gradedTimes.AGTime;
+                record.totalAGGTime = gradedTimes.AGGTime;
+              }
+            } else {
+              debugLog.push(`Warning: No registration found for bib ${record.bib}`);
+            }
+          }
+          
+          // 4. Calculate placements
+          debugLog.push('Calculating placements...');
+          const processedTimingRecords = await calculatePlacements(timingRecords);
+          
+          // 5. Save all records to moTiming collection
+          debugLog.push('Saving results to database...');
+          const batch = writeBatch(db);
+          let batchCount = 0;
+          const maxBatchSize = 500;
+          
+          for (const record of processedTimingRecords) {
             const bibNum: number = record.bib;
             const bibPadded = padBib(bibNum);
             const docId = `mo-2025-${bibPadded}`;
             const docRef = doc(db, 'moTiming', docId);
-            await setDoc(docRef, record);
+            
+            batch.set(docRef, record);
+            
+            batchCount++;
+            if (batchCount >= maxBatchSize) {
+              await batch.commit();
+              batchCount = 0;
+            }
           }
+          
+          if (batchCount > 0) {
+            await batch.commit();
+          }
+          
+          debugLog.push(`Successfully processed and saved ${processedTimingRecords.length} timing records`);
+          console.log('Debug log:', debugLog.join('\n'));
           setTimingImportSuccess(true);
-        },
-        error: (err: Error) => {
-          setTimingImportError('Error parsing CSV: ' + err.message);
+        } catch (error: any) {
+          console.error('Error in processing timing data:', error);
+          debugLog.push(`Error in processing: ${error.message}`);
+          setTimingImportError(`Error processing timing data: ${error.message}\n\nDebug log:\n${debugLog.join('\n')}`);
         }
-      });
-    } catch (error: any) {
-      setTimingImportError(error.message);
-    } finally {
-      setIsTimingImporting(false);
-    }
-  };
+      },
+      error: (err: Error) => {
+        setTimingImportError('Error parsing CSV: ' + err.message);
+      }
+    });
+  } catch (error: any) {
+    setTimingImportError(error.message);
+  } finally {
+    setIsTimingImporting(false);
+  }
+};
 
   const handleFactorsImport = async () => {
     if (!factorsFile) return;

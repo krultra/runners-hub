@@ -121,14 +121,17 @@ const ResultsPage = () => {
   const [status, setStatus] = useState<Status>(Status.notStarted);
   
   // Participants state
-  const [allParticipants, setAllParticipants] = useState<Participant[]>([]);
   const [competitiveParticipants, setCompetitiveParticipants] = useState<Participant[]>([]);
+  const [timedRecreationalParticipants, setTimedRecreationalParticipants] = useState<Participant[]>([]);
   const [recreationalParticipants, setRecreationalParticipants] = useState<Participant[]>([]);
   
   // DataGrid state
   const [competitiveColumnVisibility, setCompetitiveColumnVisibility] = useState<GridColumnVisibilityModel>({});
+  const [timedRecreationalColumnVisibility, setTimedRecreationalColumnVisibility] = useState<GridColumnVisibilityModel>({});
   const [recreationalColumnVisibility, setRecreationalColumnVisibility] = useState<GridColumnVisibilityModel>({});
+  
   const [competitiveSortModel, setCompetitiveSortModel] = useState<GridSortModel>([]);
+  const [timedRecreationalSortModel, setTimedRecreationalSortModel] = useState<GridSortModel>([]);
   const [recreationalSortModel, setRecreationalSortModel] = useState<GridSortModel>([]);
   
   // Tab state
@@ -139,138 +142,55 @@ const ResultsPage = () => {
     setTabValue(newValue);
   };
 
-  // Calculate age from date of birth
-  const getAge = (dob: string): number => {
-    if (!dob) return 0;
-    const yearMatch = dob.match(/(\d{4})/);
-    if (!yearMatch) return 0;
-    return new Date().getFullYear() - Number(yearMatch[1]);
-  };
-
   // Format time for Excel (using comma as decimal separator)
   const formatExcelTime = (timeStr: string): string => {
     if (!timeStr) return '';
     return timeStr.replace('.', ',');
   };
 
-  // Process participants and separate into competitive and recreational
-  const processParticipants = (participants: Participant[]): void => {
-    // Create a copy to avoid mutating the original
-    const processedParticipants = [...participants];
+  // Categorize participants into competitive, timed recreational, and non-timed recreational
+  const categorizeParticipants = (participants: Participant[]): void => {
+    if (!participants || participants.length === 0) return;
     
-    // Add age to all participants
-    processedParticipants.forEach(p => {
-      p.age = getAge(p.dateOfBirth);
+    // Competitive participants (has registrationType === 'competition')
+    const competitive = participants.filter(p => p.registrationType === 'competition');
+    
+    // Timed recreational participants (has registrationType === 'timed_recreational')
+    const timedRec = participants.filter(p => p.registrationType === 'timed_recreational');
+    
+    // Recreational participants without timing (has registrationType === 'recreational')
+    const recreational = participants.filter(p => p.registrationType === 'recreational');
+    
+    // Sort competitive participants by their pre-calculated placements
+    // Participants with times first, sorted by placement, followed by those without times
+    competitive.sort((a, b) => {
+      // Check if participants have timing data (times)
+      const aHasTime = a.totalTimeDisplay && a.totalTimeDisplay.length > 0;
+      const bHasTime = b.totalTimeDisplay && b.totalTimeDisplay.length > 0;
+      
+      // If one has time and the other doesn't, the one with time comes first
+      if (aHasTime && !bHasTime) return -1;
+      if (!aHasTime && bHasTime) return 1;
+      
+      // If both have times or both don't have times, sort by placement
+      const aPlace = typeof a.scratchPlace === 'number' ? a.scratchPlace : Number.MAX_SAFE_INTEGER;
+      const bPlace = typeof b.scratchPlace === 'number' ? b.scratchPlace : Number.MAX_SAFE_INTEGER;
+      return aPlace - bPlace;
     });
     
-    // Separate competitive from recreational participants using both registrationType and gender
-    // for backward compatibility
-    const recreational = processedParticipants.filter(p => 
-      p.registrationType === 'timed_recreational' || p.gender === '*'
-    );
-    
-    const competitive = processedParticipants.filter(p => 
-      p.registrationType !== 'timed_recreational' && p.gender !== '*'
-    );
-    
-    // Process competitive participants
-    processCompetitiveParticipants(competitive, eventEditionData.resultTypes || []);
-    
-    // Process recreational participants separately
-    processRecreationalParticipants(recreational);
-    
-    // Store all participant groups
-    setAllParticipants(processedParticipants);
-    setCompetitiveParticipants(competitive);
-    setRecreationalParticipants(recreational);
-  };
-  
-  // Process only competitive participants
-  const processCompetitiveParticipants = (participants: Participant[], resultTypes: string[]): void => {
-    // Sort by finish time first (ascending)
-    participants.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
-    
-    // Calculate overall scratch places
-    let scratchPlace = 1;
-    participants.forEach(p => {
-      p.scratchPlace = scratchPlace++;
-    });
-    
-    // Calculate gender places if needed
-    if (resultTypes.includes('gender')) {
-      const maleParticipants = participants.filter(p => p.gender === 'M');
-      const femaleParticipants = participants.filter(p => p.gender === 'K');
-      
-      // Sort by time and assign gender places
-      maleParticipants.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
-      femaleParticipants.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
-      
-      let malePlace = 1;
-      let femalePlace = 1;
-      
-      maleParticipants.forEach(p => {
-        p.genderPlace = malePlace++;
-      });
-      
-      femaleParticipants.forEach(p => {
-        p.genderPlace = femalePlace++;
-      });
-    }
-    
-    // Calculate age-graded places if needed
-    if (resultTypes.includes('AG') && participants.some(p => p.totalAGTimeSeconds)) {
-      participants.sort((a, b) => {
-        const aTime = a.totalAGTimeSeconds || Number.MAX_VALUE;
-        const bTime = b.totalAGTimeSeconds || Number.MAX_VALUE;
-        return aTime - bTime;
-      });
-      
-      let agPlace = 1;
-      participants.forEach(p => {
-        if (p.totalAGTimeSeconds) {
-          p.agPlace = agPlace++;
-        }
-      });
-    }
-    
-    // Calculate age-and-gender-graded places if needed
-    if (resultTypes.includes('AGG') && participants.some(p => p.totalAGGTimeSeconds)) {
-      participants.sort((a, b) => {
-        const aTime = a.totalAGGTimeSeconds || Number.MAX_VALUE;
-        const bTime = b.totalAGGTimeSeconds || Number.MAX_VALUE;
-        return aTime - bTime;
-      });
-      
-      let aggPlace = 1;
-      participants.forEach(p => {
-        if (p.totalAGGTimeSeconds) {
-          p.aggPlace = aggPlace++;
-        }
-      });
-    }
-    
-    // Restore original sort by finish time
-    participants.sort((a, b) => a.totalTimeSeconds - b.totalTimeSeconds);
-  };
-  
-  // Process recreational participants
-  const processRecreationalParticipants = (participants: Participant[]): void => {
-    // For recreational participants, set "Trim" for placement
-    participants.forEach(p => {
-      p.scratchPlace = 'Trim';
-      p.genderPlace = undefined;
-      p.agPlace = undefined;
-      p.aggPlace = undefined;
-    });
-    
-    // Sort recreational participants alphabetically by last name, then first name
-    participants.sort((a, b) => {
+    // Sort recreational participants alphabetically
+    const sortAlphabetically = (a: Participant, b: Participant) => {
       const lastNameComp = a.lastName.localeCompare(b.lastName);
-      if (lastNameComp !== 0) return lastNameComp;
-      
-      // If last names are the same, sort by first name
-      return a.firstName.localeCompare(b.firstName);
-    });
+      return lastNameComp !== 0 ? lastNameComp : a.firstName.localeCompare(b.firstName);
+    };
+    
+    timedRec.sort(sortAlphabetically);
+    recreational.sort(sortAlphabetically);
+    
+    // Update state
+    setCompetitiveParticipants(competitive);
+    setTimedRecreationalParticipants(timedRec);
+    setRecreationalParticipants(recreational);
   };
 
   // Fetch data from the results service
@@ -316,8 +236,8 @@ const ResultsPage = () => {
           return; // No error, just no participants yet
         }
         
-        // Process participants and calculate placements
-        processParticipants(participants);
+        // Categorize participants
+        categorizeParticipants(participants);
         
         // Set up default column visibility for competitive participants
         setCompetitiveColumnVisibility({
@@ -325,11 +245,24 @@ const ResultsPage = () => {
           scratchPlace: true,
           firstName: true,
           lastName: true,
-          gender: true,
+          genderDisplay: true, // Updated from gender to genderDisplay
+          age: true,
           club: true,
+          class: true,
           totalTimeDisplay: true,
           ...(eventData.resultTypes?.includes('AG') ? { totalAGTimeDisplay: true, agPlace: true } : {}),
           ...(eventData.resultTypes?.includes('AGG') ? { totalAGGTimeDisplay: true, aggPlace: true } : {})
+        });
+        
+        // Set up default column visibility for timed recreational participants
+        setTimedRecreationalColumnVisibility({
+          bib: true,
+          firstName: true,
+          lastName: true,
+          age: true,
+          club: true,
+          class: true,
+          totalTimeDisplay: true
         });
         
         // Set up default column visibility for recreational participants
@@ -338,13 +271,27 @@ const ResultsPage = () => {
           firstName: true,
           lastName: true,
           club: true,
-          totalTimeDisplay: true
+          class: true
         });
         
-        // Set default sort model for competitive participants
-        setCompetitiveSortModel([{ field: 'scratchPlace', sort: 'asc' }]);
+        // A simple approach to sort competitors with times to the top and those without to the bottom
+        // Process participants directly when categorizing them
+        const competitiveWithPlacement = participants.filter(p => p.registrationType === 'competition').map(p => ({
+          ...p,
+          // If no time display, set placement to 99999 to push to bottom of sort
+          scratchPlace: (!p.totalTimeDisplay || p.totalTimeDisplay.length === 0) && p.scratchPlace !== 'Trim' ? 99999 : p.scratchPlace
+        }));
+        
+        // Update state with our sorted competitors
+        setCompetitiveParticipants(competitiveWithPlacement);
+        
+        // Use simple placement-based sorting
+        setCompetitiveSortModel([
+          { field: 'scratchPlace', sort: 'asc' }
+        ]);
         
         // Set default sort model for recreational participants
+        setTimedRecreationalSortModel([{ field: 'lastName', sort: 'asc' }]);
         setRecreationalSortModel([{ field: 'lastName', sort: 'asc' }]);
         
         setLoading(false);
@@ -361,24 +308,55 @@ const ResultsPage = () => {
 
   // Export data to CSV
   const exportCsv = (participants: Participant[], fileName: string) => {
-    // Headers for CSV
-    const headers = [
-      'Startnummer', 'Fornavn', 'Etternavn', 'Fødselsdato', 'Kjønn', 
-      'Klubb', 'Klasse', 'Tid', 'Plassering'
+    // Base headers for CSV
+    let headers = [
+      'Startnummer', 'Fornavn', 'Etternavn', 'Fødselsdato', 'Klubb', 'Klasse'
     ];
     
-    // Format data rows
-    const csvRows = participants.map(p => [
-      String(p.bib),
-      p.firstName,
-      p.lastName,
-      p.dateOfBirth,
-      p.gender === '*' ? '' : p.gender,
-      p.club || '',
-      p.class || '',
-      formatExcelTime(p.totalTimeDisplay),
-      p.scratchPlace === 'Trim' ? 'Trim' : String(p.scratchPlace || '')
-    ]);
+    // Add type-specific headers
+    if (fileName.includes('_konkurranse')) {
+      headers = [
+        ...headers,
+        'Kjønn', 'Tid', 'Plassering',
+        ...(eventEditionData.resultTypes?.includes('AG') ? ['AG Tid', 'AG Plassering'] : []),
+        ...(eventEditionData.resultTypes?.includes('AGG') ? ['AGG Tid', 'AGG Plassering'] : [])
+      ];
+    } else if (fileName.includes('_trim')) {
+      headers = [...headers, 'Tid'];
+    }
+    
+    // Format data rows based on participant type
+    const csvRows = participants.map(p => {
+      // Base fields for all participant types
+      const baseFields = [
+        String(p.bib),
+        p.firstName,
+        p.lastName,
+        p.dateOfBirth,
+        p.club || '',
+        p.class || ''
+      ];
+      
+      // Add type-specific fields
+      if (fileName.includes('_konkurranse')) {
+        return [
+          ...baseFields,
+          p.gender || '',
+          formatExcelTime(p.totalTimeDisplay || ''),
+          typeof p.scratchPlace === 'number' ? String(p.scratchPlace) : '',
+          ...(eventEditionData.resultTypes?.includes('AG') ? [formatExcelTime(p.totalAGTimeDisplay || ''), String(p.agPlace || '')] : []),
+          ...(eventEditionData.resultTypes?.includes('AGG') ? [formatExcelTime(p.totalAGGTimeDisplay || ''), String(p.aggPlace || '')] : [])
+        ];
+      } else if (fileName.includes('_trim')) {
+        return [
+          ...baseFields,
+          formatExcelTime(p.totalTimeDisplay || '')
+        ];
+      } else {
+        // For tur participants (non-timed)
+        return baseFields;
+      }
+    });
     
     // Add headers
     csvRows.unshift(headers);
@@ -386,7 +364,7 @@ const ResultsPage = () => {
     // Convert to CSV format
     const csvContent = csvRows.map(row => row.map(cell => {
       // Escape quotes and wrap in quotes if the cell contains a comma
-      const escapedCell = String(cell).replace(/"/g, '""');
+      const escapedCell = String(cell || '').replace(/"/g, '""');
       return cell && String(cell).includes(',') ? `"${escapedCell}"` : escapedCell;
     }).join(',')).join('\n');
     
@@ -448,17 +426,34 @@ const ResultsPage = () => {
       headerName: 'Etternavn', 
       width: 120 
     },
+    // Use a computed column for display to handle gender filtering properly
     { 
-      field: 'gender', 
+      field: 'genderDisplay', 
       headerName: 'Kjønn', 
       width: 70,
       headerAlign: 'center',
       align: 'center',
-      valueFormatter: (params: GridValueFormatterParams) => {
-        if (params.value === 'M') return 'Mann';
-        if (params.value === 'K') return 'Kvinne';
+      valueGetter: (params) => {
+        if (params.row.gender === 'M') return 'Mann';
+        if (params.row.gender === 'K') return 'Kvinne';
         return '';
-      }
+      },
+      // Override the filtering logic to filter on the original gender field
+      filterOperators: [
+        {
+          label: 'er',
+          value: 'equals',
+          getApplyFilterFn: (filterItem) => {
+            if (!filterItem.value) return null;
+            
+            // Map the filter value back to M/K
+            let genderCode = filterItem.value === 'Mann' ? 'M' : 
+                            filterItem.value === 'Kvinne' ? 'K' : filterItem.value;
+                            
+            return (params) => params.row.gender === genderCode;
+          }
+        }
+      ]
     },
     { 
       field: 'age', 
@@ -483,16 +478,6 @@ const ResultsPage = () => {
       width: 100,
       headerAlign: 'center',
       align: 'center'
-    },
-    { 
-      field: 'genderPlace', 
-      headerName: 'Kjønnsplassering', 
-      width: 140,
-      headerAlign: 'center',
-      align: 'center',
-      valueFormatter: (params: GridValueFormatterParams) => {
-        return params.value ? `${params.value}.` : '';
-      }
     }
   ];
 
@@ -545,18 +530,48 @@ const ResultsPage = () => {
     );
   }
 
-  // Define columns for recreational participants
-  const recreationalColumns: GridColDef[] = [
+  // Define columns for timed recreational participants
+  const timedRecreationalColumns: GridColDef[] = [
     { 
-      field: 'scratchPlace', 
-      headerName: 'Type', 
-      width: 80,
+      field: 'bib', 
+      headerName: 'Snr', 
+      width: 70,
       headerAlign: 'center',
-      align: 'center',
-      valueFormatter: (params: GridValueFormatterParams) => {
-        return params.value === 'Trim' ? 'Trim' : '';
-      }
+      align: 'center'
     },
+    { 
+      field: 'firstName', 
+      headerName: 'Fornavn', 
+      width: 120 
+    },
+    { 
+      field: 'lastName', 
+      headerName: 'Etternavn', 
+      width: 120 
+    },
+    // Removed age column as requested
+    { 
+      field: 'club', 
+      headerName: 'Klubb', 
+      width: 150 
+    },
+    { 
+      field: 'class', 
+      headerName: 'Klasse', 
+      width: 100,
+      valueGetter: (params) => params.row.moRegistrations?.class || params.row.class || ''
+    },
+    { 
+      field: 'totalTimeDisplay', 
+      headerName: 'Tid', 
+      width: 100,
+      headerAlign: 'center',
+      align: 'center'
+    }
+  ];
+
+  // Define columns for non-timed recreational participants
+  const recreationalColumns: GridColDef[] = [
     { 
       field: 'bib', 
       headerName: 'Snr', 
@@ -580,11 +595,10 @@ const ResultsPage = () => {
       width: 150 
     },
     { 
-      field: 'totalTimeDisplay', 
-      headerName: 'Tid', 
+      field: 'class', 
+      headerName: 'Klasse', 
       width: 100,
-      headerAlign: 'center',
-      align: 'center'
+      valueGetter: (params) => params.row.moRegistrations?.className || params.row.moRegistrations?.class || params.row.class || ''
     }
   ];
 
@@ -675,6 +689,7 @@ const ResultsPage = () => {
             <Tabs value={tabValue} onChange={handleTabChange} aria-label="results tabs">
               <Tab label="Konkurranse" {...a11yProps(0)} />
               <Tab label="Trim" {...a11yProps(1)} />
+              <Tab label="Tur" {...a11yProps(2)} />
             </Tabs>
           </Box>
           
@@ -723,14 +738,59 @@ const ResultsPage = () => {
             </Stack>
           </TabPanel>
           
-          {/* Recreational Results Tab */}
+          {/* Timed Recreational Results Tab (Trim) */}
           <TabPanel value={tabValue} index={1}>
             <Stack spacing={2}>
               <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
                 <Button 
                   variant="outlined" 
                   size="small" 
-                  onClick={() => exportCsv(recreationalParticipants, `${eventEditionData.name || 'resultater'}_trim`)}
+                  onClick={() => exportCsv(timedRecreationalParticipants, `${eventEditionData.name || 'resultater'}_trim`)}
+                >
+                  Last ned CSV
+                </Button>
+              </Box>
+              
+              <Paper elevation={1} sx={{ height: 'calc(100vh - 350px)', minHeight: 400 }}>
+                <DataGrid
+                  rows={timedRecreationalParticipants}
+                  columns={timedRecreationalColumns}
+                  disableSelectionOnClick
+                  pageSize={25}
+                  rowsPerPageOptions={[25, 50, 100]}
+                  components={{ Toolbar: GridToolbar }}
+                  sortModel={timedRecreationalSortModel}
+                  onSortModelChange={setTimedRecreationalSortModel}
+                  columnVisibilityModel={timedRecreationalColumnVisibility}
+                  onColumnVisibilityModelChange={setTimedRecreationalColumnVisibility}
+                  disableColumnSelector={false}
+                  localeText={{
+                    toolbarDensity: "Tetthet",
+                    toolbarExport: "Eksport",
+                    toolbarExportLabel: "Eksport",
+                    toolbarExportCSV: "Last ned CSV",
+                    toolbarExportPrint: "Skriv ut",
+                    toolbarColumns: "Kolonner",
+                    toolbarFilters: "Filtre",
+                    columnsPanelTextFieldLabel: "Finn kolonne",
+                    columnsPanelTextFieldPlaceholder: "Søk...",
+                    columnsPanelDragIconLabel: "Endre rekkefølge",
+                    columnsPanelShowAllButton: "Vis alle",
+                    columnsPanelHideAllButton: "Skjul alle"
+                  }}
+                />
+              </Paper>
+            </Stack>
+          </TabPanel>
+
+          {/* Non-timed Recreational Results Tab (Tur) */}
+          <TabPanel value={tabValue} index={2}>
+            <Stack spacing={2}>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 1 }}>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  onClick={() => exportCsv(recreationalParticipants, `${eventEditionData.name || 'resultater'}_tur`)}
                 >
                   Last ned CSV
                 </Button>
