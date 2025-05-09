@@ -454,44 +454,46 @@ export const getEventResults = async (editionId: string): Promise<{
         p.agPlace = 99999;
         p.aggPlace = 99999;
         console.log(`Assigned place 99999 to ${p.firstName} ${p.lastName} (no timing data)`);
-      }
-        
-        // If pre-calculated AG/AGG values aren't available, fall back to calculating them
-        if (p.registrationType === 'competition' && (!p.totalAGTimeDisplay || !p.totalAGGTimeDisplay)) {
-          console.log(`No pre-calculated AG/AGG times for ${p.firstName} ${p.lastName}, calculating...`);
-          const factors = factorsMap.get(p.age || 0);
-          if (factors && p.totalTimeSeconds) {
-            // AG time - within gender
-            if (!p.totalAGTimeDisplay) {
-              const agFactor = p.gender === 'K' ? factors.AG_F : factors.AG_M;
-              p.totalAGTimeSeconds = p.totalTimeSeconds * agFactor;
-              p.totalAGTimeDisplay = formatSecondsToTime(p.totalAGTimeSeconds);
-            }
-
-            // AGG time - across genders
-            if (!p.totalAGGTimeDisplay) {
-              const aggFactor = p.gender === 'K' ? factors.AGG_F : factors.AGG_M;
-              p.totalAGGTimeSeconds = p.totalTimeSeconds * aggFactor;
-              p.totalAGGTimeDisplay = formatSecondsToTime(p.totalAGGTimeSeconds);
-            }
-          }
-        }
       } else {
-        if (p.registrationType === 'competition' || p.registrationType === 'timed_recreational') {
+        // For non-competitive participants or those without timing data
+        if (p.registrationType === 'timed_recreational') {
           console.log(`No timing data found for ${p.firstName} ${p.lastName}`);
+        }
+      }
+      
+      // If pre-calculated AG/AGG values aren't available, fall back to calculating them
+      if (p.registrationType === 'competition' && p.totalTimeSeconds && (!p.totalAGTimeDisplay || !p.totalAGGTimeDisplay)) {
+        console.log(`No pre-calculated AG/AGG times for ${p.firstName} ${p.lastName}, calculating...`);
+        const factors = factorsMap.get(p.age || 0);
+        if (factors) {
+          // AG time - within gender
+          if (!p.totalAGTimeDisplay) {
+            const agFactor = p.gender === 'K' ? factors.AG_F : factors.AG_M;
+            p.totalAGTimeSeconds = p.totalTimeSeconds * agFactor;
+            p.totalAGTimeDisplay = formatSecondsToTime(p.totalAGTimeSeconds);
+          }
+
+          // AGG time - across genders
+          if (!p.totalAGGTimeDisplay) {
+            const aggFactor = p.gender === 'K' ? factors.AGG_F : factors.AGG_M;
+            p.totalAGGTimeSeconds = p.totalTimeSeconds * aggFactor;
+            p.totalAGGTimeDisplay = formatSecondsToTime(p.totalAGGTimeSeconds);
+          }
         }
       }
     });
     
-    // Debug timing map
+    // Debug timing map statistics
     console.log('Timing map contents:');
     timingMap.forEach((time, bib) => {
       console.log(`Bib #${bib}: ${time.display} (${time.seconds}s)`);
     });
     
-    console.log(`Processed ${participants.length} participants, ${participantsWithTimes} have times`);
-
-    // Generate statistics about timing data and participants
+    // Calculate participant statistics
+    const totalParticipantsWithTimes = participants.filter(p => p.totalTimeSeconds > 0).length;
+    console.log(`Processed ${participants.length} participants, ${totalParticipantsWithTimes} have times`);
+    
+    // Count participants by registration type and timing status
     const competitiveWithTimes = participants.filter(p => 
       p.registrationType === 'competition' && 
       p.gender !== '*' && 
