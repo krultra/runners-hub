@@ -27,16 +27,51 @@ interface EventContextValue {
   event: CurrentEvent | null;
   loading: boolean;
   error: Error | null;
+  setEvent: (event: Partial<CurrentEvent>) => void;
 }
 
 const EventEditionContext = createContext<EventContextValue>({
   event: null,
   loading: true,
   error: null,
+  setEvent: () => {}, // Default no-op function
 });
 
 export const EventEditionProvider = ({ children }: { children: React.ReactNode }) => {
-  const [event, setEvent] = useState<CurrentEvent | null>(null);
+  const [event, setEventState] = useState<CurrentEvent | null>(null);
+  
+  // Wrapper function to handle partial updates
+  const setEvent = async (eventData: Partial<CurrentEvent>) => {
+    if (eventData.id) {
+      try {
+        setLoading(true);
+        // If we only have an ID, fetch the full event data
+        if (Object.keys(eventData).length === 1) {
+          const data = await getEventEdition(eventData.id);
+          const { startTime, endTime, registrationDeadline, fees, ...rest } = data;
+          setEventState({
+            ...rest,
+            startTime: startTime.toDate(),
+            endTime: endTime.toDate(),
+            registrationDeadline: registrationDeadline ? registrationDeadline.toDate() : null,
+            fees: fees ?? { participation: 0, baseCamp: 0, deposit: 0, total: 0 },
+          });
+        } else {
+          // If we have more data, just update the state
+          setEventState(prev => {
+            if (prev === null) {
+              return eventData as CurrentEvent;
+            }
+            return { ...prev, ...eventData } as CurrentEvent;
+          });
+        }
+      } catch (err: any) {
+        setError(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+  };
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
@@ -71,7 +106,7 @@ export const EventEditionProvider = ({ children }: { children: React.ReactNode }
   }, []);
 
   return (
-    <EventEditionContext.Provider value={{ event, loading, error }}>
+    <EventEditionContext.Provider value={{ event, loading, error, setEvent }}>
       {children}
     </EventEditionContext.Provider>
   );
