@@ -9,8 +9,7 @@ import {
   Typography,
   Box,
   FormLabel,
-  FormHelperText,
-  Link
+  FormHelperText
 } from '@mui/material';
 import { RACE_DISTANCES } from '../../constants';
 

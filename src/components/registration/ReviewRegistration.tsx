@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Typography,
   Box,
@@ -16,7 +16,7 @@ import {
   Button,
   TextField
 } from '@mui/material';
-import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS, PHONE_CODES } from '../../constants';
+import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS } from '../../constants';
 import TermsAndConditions from './TermsAndConditions';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';

@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, FC } from 'react';
 import {
   Box,
   TextField,
   Button,
-  FormControl,
-  InputLabel,
   Select,
   MenuItem,
+  FormControl,
+  InputLabel,
   CircularProgress,
+  IconButton,
   List,
   ListItem,
-  IconButton,
   Snackbar,
-  Alert
+  Alert,
 } from '@mui/material';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
@@ -28,19 +28,16 @@ import {
   getEventEdition,
   updateEventEdition,
   deleteEventEdition,
-  EventEditionSummary,
-  EventEdition
+  EventEditionSummary
 } from '../../services/eventEditionService';
 import { listCodeList } from '../../services/codeListService';
 
-const EventEditionsPanel: React.FC = () => {
+const EventEditionsPanel: FC = () => {
   const [summaries, setSummaries] = useState<EventEditionSummary[]>([]);
   const [selectedId, setSelectedId] = useState<string>('');
-  const [editionData, setEditionData] = useState<EventEdition | null>(null);
   const [loadingSummaries, setLoadingSummaries] = useState(false);
   const [loadingData, setLoadingData] = useState(false);
 
-  const [availableResultTypes, setAvailableResultTypes] = useState<string[]>([]);
   const [availableStatuses, setAvailableStatuses] = useState<string[]>([]);
 
   const [eventId, setEventId] = useState<string>('');
@@ -52,9 +49,14 @@ const EventEditionsPanel: React.FC = () => {
   const [resultsStatus, setResultsStatus] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
+  const [registrationDeadline, setRegistrationDeadline] = useState<Date | null>(null);
+  const [maxParticipants, setMaxParticipants] = useState<number>(0);
+  const [loopDistance, setLoopDistance] = useState<number>(0);
+  const [fees, setFees] = useState<{ participation: number; baseCamp: number; deposit: number; total: number }>({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
   const [dirty, setDirty] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [newRtSelect, setNewRtSelect] = useState<string>('');
+
 
   useEffect(() => {
     (async () => {
@@ -66,9 +68,6 @@ const EventEditionsPanel: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    listCodeList('resultType', 'results').then(data =>
-      setAvailableResultTypes(data.map(d => d.code))
-    );
     listCodeList('status', 'results').then(data =>
       setAvailableStatuses(data.map(d => d.code))
     );
@@ -76,13 +75,11 @@ const EventEditionsPanel: React.FC = () => {
 
   useEffect(() => {
     if (!selectedId) {
-      setEditionData(null);
       return;
     }
     (async () => {
       setLoadingData(true);
       const data = await getEventEdition(selectedId);
-      setEditionData(data);
       setEventId(data.eventId);
       setEditionNum(data.edition);
       setEventShortName(data.eventShortName);
@@ -92,38 +89,81 @@ const EventEditionsPanel: React.FC = () => {
       setResultsStatus(data.resultsStatus || '');
       setStartDate(data.startTime.toDate());
       setEndDate(data.endTime.toDate());
+      setRegistrationDeadline(data.registrationDeadline?.toDate() || null);
+      setMaxParticipants(data.maxParticipants || 0);
+      setLoopDistance(data.loopDistance || 0);
+      setFees(data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 });
       setLoadingData(false);
       setDirty(false);
     })();
   }, [selectedId]);
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     if (dirty && !window.confirm('Discard unsaved changes and create a new edition?')) return;
-    const payload = {
-      eventId: '',
-      edition: 1,
-      eventShortName: '',
-      eventName: '',
-      status: '',
-      resultTypes: [],
-      resultsStatus: '',
-      startTime: Timestamp.fromDate(new Date()),
-      endTime: Timestamp.fromDate(new Date())
-    };
-    const id = await addEventEdition(payload);
-    setSelectedId(id);
-    const data = await listEventEditions();
-    setSummaries(data);
+    
+    // Clear the selected ID to indicate we're creating a new event
+    // that hasn't been saved to the database yet
+    setSelectedId('');
+    
+    // Initialize form with empty values
+    setEventId('');
+    setEditionNum(1);
+    setEventShortName('');
+    setEventName('');
+    setStatus('');
+    setResultTypes([]);
+    setResultsStatus('');
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setRegistrationDeadline(new Date());
+    setMaxParticipants(0);
+    setLoopDistance(0);
+    setFees({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
+    
+    // Set dirty to true to indicate we have unsaved changes
+    setDirty(true);
+    
+    console.log('New event edition form initialized - not yet saved to database');
   };
 
   const handleSave = async () => {
-    if (!selectedId) return;
-    if (!startDate || !endDate) { window.alert('Please set both dates'); return; }
-    if (startDate > endDate) { window.alert('Start time must be before end time'); return; }
+    // Validate required fields regardless of create/update
+    if (!eventId || eventId.trim() === '') {
+      window.alert('Event ID is required. Please enter a valid ID like "mo" for Malvikingen Opp.');
+      return;
+    }
+    
+    if (typeof editionNum !== 'number' || isNaN(editionNum) || editionNum <= 0) {
+      window.alert('Edition must be a positive number, like 2025 for the year of the event.');
+      return;
+    }
+    
+    if (!startDate || !endDate) { 
+      window.alert('Please set both start and end dates'); 
+      return; 
+    }
+    
+    if (startDate > endDate) { 
+      window.alert('Start time must be before end time'); 
+      return; 
+    }
+    
     if (!dirty) return;
-    if (summaries.some(s => s.eventId === eventId && s.edition === editionNum && s.id !== selectedId)) { window.alert('An edition with this Event ID and edition number already exists'); return; }
-    await updateEventEdition(selectedId, {
-      eventId,
+    
+    // Check for duplicate event editions
+    const safeEventId = eventId.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    const documentId = `${safeEventId}-${editionNum}`;
+    
+    // Only check for duplicates that aren't the current document
+    if (summaries.some(s => s.eventId === eventId && s.edition === editionNum && 
+                          (!selectedId || s.id !== selectedId))) { 
+      window.alert('An edition with this Event ID and edition number already exists'); 
+      return; 
+    }
+    
+    // Prepare the payload for both create and update
+    const payload = {
+      eventId: eventId.trim(),
       edition: editionNum,
       eventShortName,
       eventName,
@@ -131,12 +171,39 @@ const EventEditionsPanel: React.FC = () => {
       resultTypes,
       resultsStatus,
       startTime: Timestamp.fromDate(startDate),
-      endTime: Timestamp.fromDate(endDate)
-    });
-    const data = await listEventEditions();
-    setSummaries(data);
-    setSnackbarOpen(true);
-    setDirty(false);
+      endTime: Timestamp.fromDate(endDate),
+      registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
+      maxParticipants,
+      loopDistance,
+      fees
+    };
+    
+    try {
+      let newId = selectedId;
+      
+      // Creating a new document
+      if (!selectedId) {
+        console.log(`Creating new event edition with ID: ${documentId}, eventId: ${eventId}, edition: ${editionNum}`);
+        newId = await addEventEdition(payload);
+        console.log(`New event edition created with ID: ${newId}`);
+      } 
+      // Updating an existing document
+      else {
+        console.log(`Updating event edition with ID: ${selectedId}, eventId: ${eventId}, edition: ${editionNum}`);
+        await updateEventEdition(selectedId, payload);
+        console.log('Event edition updated successfully');
+      }
+      
+      // Refresh the list and select the newly created or updated item
+      const data = await listEventEditions();
+      setSummaries(data);
+      setSelectedId(newId);
+      setSnackbarOpen(true);
+      setDirty(false);
+    } catch (error) {
+      console.error('Error saving event edition:', error);
+      window.alert(`Error saving event: ${error instanceof Error ? error.message : String(error)}`);
+    }
   };
 
   const handleDelete = async () => {
@@ -160,14 +227,18 @@ const EventEditionsPanel: React.FC = () => {
     if (summaries.some(s => s.eventId === eventId && s.edition === newEdition)) { window.alert('An edition with this Event ID and edition number already exists'); return; }
     const payload = {
       eventId,
-      edition: editionNum + 1,
+      edition: newEdition,
       eventShortName,
       eventName,
       status,
       resultTypes,
       resultsStatus,
       startTime: Timestamp.fromDate(d1),
-      endTime: Timestamp.fromDate(d2)
+      endTime: Timestamp.fromDate(d2),
+      registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : Timestamp.fromDate(new Date()),
+      maxParticipants,
+      loopDistance,
+      fees
     };
     const newId = await addEventEdition(payload);
     const summariesData = await listEventEditions();
@@ -187,6 +258,7 @@ const EventEditionsPanel: React.FC = () => {
     setResultTypes(prev => prev.filter(item => item !== rt));
     setDirty(true);
   };
+
 
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={nbLocale}>
@@ -214,6 +286,7 @@ const EventEditionsPanel: React.FC = () => {
           </FormControl>
           <Button variant="contained" onClick={handleCreate}>New Edition</Button>
           <Button variant="contained" onClick={handleCopy} disabled={!selectedId}>Copy</Button>
+
         </Box>
 
         {loadingData ? (
@@ -290,6 +363,57 @@ const EventEditionsPanel: React.FC = () => {
                 inputFormat="dd.MM.yyyy HH:mm"
                 renderInput={params => <TextField {...params} size="small" />}
               />
+              <DateTimePicker
+                label="Registration Deadline"
+                value={registrationDeadline}
+                onChange={val => { setRegistrationDeadline(val); setDirty(true); }}
+                inputFormat="dd.MM.yyyy HH:mm"
+                renderInput={params => <TextField {...params} size="small" />}
+              />
+              <TextField
+                label="Max Participants"
+                type="number"
+                size="small"
+                value={maxParticipants}
+                onChange={e => { setMaxParticipants(Number(e.target.value)); setDirty(true); }}
+              />
+              <TextField
+                label="Loop Distance (km)"
+                type="number"
+                size="small"
+                value={loopDistance}
+                onChange={e => { setLoopDistance(Number(e.target.value)); setDirty(true); }}
+              />
+              <Box display="flex" gap={1}>
+                <TextField
+                  label="Fee: Participation"
+                  type="number"
+                  size="small"
+                  value={fees.participation}
+                  onChange={e => { setFees(prev => ({ ...prev, participation: Number(e.target.value) })); setDirty(true); }}
+                />
+                <TextField
+                  label="Fee: Base Camp"
+                  type="number"
+                  size="small"
+                  value={fees.baseCamp}
+                  onChange={e => { setFees(prev => ({ ...prev, baseCamp: Number(e.target.value) })); setDirty(true); }}
+                />
+                <TextField
+                  label="Fee: Deposit"
+                  type="number"
+                  size="small"
+                  value={fees.deposit}
+                  onChange={e => { setFees(prev => ({ ...prev, deposit: Number(e.target.value) })); setDirty(true); }}
+                />
+                <TextField
+                  label="Fee: Total"
+                  type="number"
+                  size="small"
+                  value={fees.total}
+                  onChange={e => { setFees(prev => ({ ...prev, total: Number(e.target.value) })); setDirty(true); }}
+                />
+              </Box>
               <Box display="flex" gap={1}>
                 <Button variant="contained" size="small" onClick={handleSave} disabled={!dirty}>Save Changes</Button>
                 <Button variant="outlined" size="small" color="error" onClick={handleDelete}>Delete</Button>

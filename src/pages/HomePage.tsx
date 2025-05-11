@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Container, Typography, Grid, Card, CardActionArea, CardContent } from '@mui/material';
+import { Container, Typography, Grid, Card, CardActionArea, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 
 const EVENTS = [

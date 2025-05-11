@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import InvitationsPanel from '../components/admin/InvitationsPanel';
 import RegistrationsPanel from '../components/admin/RegistrationsPanel';
 import TemplatesPanel from '../components/admin/TemplatesPanel';
-import StatusesPanel from '../components/admin/StatusesPanel';
 import EventEditionsPanel from '../components/admin/EventEditionsPanel';
 import CodeListPanel from '../components/admin/CodeListPanel';
 import ActionRequestsPanel from '../components/admin/ActionRequestsPanel';
@@ -15,7 +14,7 @@ const sections = [
   { key: 'invitations', label: 'Invitations' },
   { key: 'registrations', label: 'Registrations' },
   { key: 'templates', label: 'Email Templates' },
-  { key: 'statuses', label: 'Statuses' },
+  { key: 'codelists', label: 'Code Lists' },
   { key: 'editions', label: 'Event Editions' },
   { key: 'actions', label: 'Action Requests' },
   { key: 'tasks', label: 'Admin Tasks' },
@@ -127,12 +126,7 @@ const AdminPage: React.FC = () => {
         {active === 'invitations' && <InvitationsPanel />}
         {active === 'registrations' && <RegistrationsPanel />}
         {active === 'templates' && <TemplatesPanel />}
-        {active === 'statuses' && (
-          <>
-            <StatusesPanel />
-            <CodeListPanel />
-          </>
-        )}
+        {active === 'codelists' && <CodeListPanel />}
         {active === 'editions' && <EventEditionsPanel />}
         {active === 'actions' && <ActionRequestsPanel />}
         {active === 'tasks' && <AdminTasksPanel />}

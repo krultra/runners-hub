@@ -6,21 +6,20 @@ import {
   Typography, 
   Box, 
   Button, 
-  Card, 
-  CardContent, 
   Grid,
   Paper,
   Divider,
-  Link,
   Alert
 } from '@mui/material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { RACE_DETAILS } from '../constants';
-import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } from '../services/registrationService';
 import { useNavigate } from 'react-router-dom';
 import { Registration } from '../types';
+import { useEventEdition, CurrentEvent } from '../contexts/EventEditionContext';
+import { CircularProgress } from '@mui/material';
+import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } from '../services/registrationService';
 
-const KUTC2025Page: React.FC = () => {
+// Inner component with full hooks/logic, receives guaranteed `event`
+const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   // State for countdown timer
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
@@ -42,11 +41,11 @@ const KUTC2025Page: React.FC = () => {
   
   // Calculate time remaining until the race
   const now = new Date();
-  const raceDate = RACE_DETAILS.date;
+  const raceDate = event.startTime;
   // const timeRemaining = raceDate.getTime() - now.getTime();
   
   // Check if registration is still open
-  const isRegistrationOpen = now < RACE_DETAILS.registrationDeadline;
+  const isRegistrationOpen = event.registrationDeadline ? now < event.registrationDeadline : false;
   
   // Check if user is authenticated and has a registration (re-run on location change)
   const location = useLocation();
@@ -77,8 +76,7 @@ const KUTC2025Page: React.FC = () => {
     return () => unsubscribe();
   }, [location.key]);
   
-  // Edition ID constant
-  const EDITION_ID = 'kutc-2025';
+  const editionId = event.id;
   
   // Fetch active participant count (pending/confirmed) and compute available spots
   useEffect(() => {
@@ -86,11 +84,11 @@ const KUTC2025Page: React.FC = () => {
     const fetchCounts = async () => {
       try {
         const [activeCount, wlCount] = await Promise.all([
-          countActiveParticipants(EDITION_ID),
-          countWaitingList(EDITION_ID)
+          countActiveParticipants(editionId),
+          countWaitingList(editionId)
         ]);
         setWaitingListCount(wlCount);
-        setAvailableSpots(Math.max(0, RACE_DETAILS.maxParticipants - activeCount));
+        setAvailableSpots(Math.max(0, (event.maxParticipants ?? 0) - activeCount));
       } catch (error) {
         console.error('Error fetching counts:', error);
         setAvailableSpots(null);
@@ -100,7 +98,7 @@ const KUTC2025Page: React.FC = () => {
       }
     };
     fetchCounts();
-  }, [location.key]);
+  }, [location.key, editionId, event.maxParticipants]);
   
   // Update countdown timer every second
   useEffect(() => {
@@ -451,16 +449,16 @@ const KUTC2025Page: React.FC = () => {
               <strong>Date:</strong> {raceDate.toLocaleDateString()}
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Registration Deadline:</strong> {RACE_DETAILS.registrationDeadline.toLocaleDateString()}
+              <strong>Registration Deadline:</strong> {event.registrationDeadline?.toLocaleDateString()}
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Maximum Participants:</strong> {RACE_DETAILS.maxParticipants}
+              <strong>Maximum Participants:</strong> {event.maxParticipants ?? 0}
               {!isLoading && availableSpots !== null && !forceQueue &&(
                 <> ({availableSpots} spots still available)</>  
               )}
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Each loop:</strong> {RACE_DETAILS.loopDistance} km, 369 meter ascent/descent
+              <strong>Each loop:</strong> {event.loopDistance} km, 369 meter ascent/descent
             </Typography>
             <Typography variant="body1">
               <strong>Available Distances:</strong>
@@ -495,18 +493,18 @@ const KUTC2025Page: React.FC = () => {
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Typography variant="body1" paragraph>
-              <strong>Participation Fee:</strong> {RACE_DETAILS.fees.participation} NOK
+              <strong>Participation Fee:</strong> {event.fees.participation} NOK
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Base Camp Services:</strong> {RACE_DETAILS.fees.baseCamp} NOK
+              <strong>Base Camp Services:</strong> {event.fees.baseCamp} NOK
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Refundable Deposit:</strong> {RACE_DETAILS.fees.deposit} NOK
+              <strong>Refundable Deposit:</strong> {event.fees.deposit} NOK
               <br />
               <em>(Returned to all participants who show up for the race)</em>
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Total:</strong> {RACE_DETAILS.fees.total} NOK
+              <strong>Total:</strong> {event.fees.total} NOK
             </Typography>
             <Typography variant="h6" sx={{ mt: 2 }}>
               Payment Methods
@@ -527,6 +525,24 @@ const KUTC2025Page: React.FC = () => {
       </Grid>
     </Container>
   );
+};
+
+// Wrapper component handles loading/error and injects `event` into inner
+const KUTC2025Page: React.FC = () => {
+  const { event, loading, error } = useEventEdition();
+  if (loading) return (
+    <Container>
+      <Box textAlign="center" mt={4}><CircularProgress /></Box>
+    </Container>
+  );
+  if (error || !event) return (
+    <Container>
+      <Alert severity="error" sx={{ mt:4 }}>
+        Error loading event: {error?.message || 'Unknown error'}
+      </Alert>
+    </Container>
+  );
+  return <KUTC2025PageInner event={event} />;
 };
 
 export default KUTC2025Page;

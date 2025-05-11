@@ -1,4 +1,4 @@
-import { createTheme, ThemeOptions } from '@mui/material/styles';
+import { createTheme } from '@mui/material/styles';
 import { PaletteMode } from '@mui/material';
 
 // Create a theme based on mode

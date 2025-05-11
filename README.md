@@ -1,6 +1,6 @@
 # Runners Hub
 
-Runners Hub is an evolving platform designed to be a complete resource for runners—offering race information, registration, results, statistics, and eventually AI-assisted services. The current version is focused on registration for the KUTC 2025 event, but this is just the beginning. The codebase and documentation will grow as new features are added.
+Runners Hub is an evolving platform designed to be a complete resource for runners — offering race information, registration, results, statistics, and eventually AI-assisted services. The current version is focused on registration for the KUTC 2025 event, but this is just the beginning. The codebase and documentation will grow as new features are added.
 
 ---
 
@@ -22,6 +22,7 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
 - Public participant listing
 - Email notifications/testing
 - Firestore (Firebase) backend
+- Backup & Restore Firestore
 - Modern, user-friendly React UI
 
 ---
@@ -31,6 +32,7 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
 ### Prerequisites
 - Node.js v16 or v18
 - Firebase CLI (`npm install -g firebase-tools`)
+- Service Account Key for Firestore Backup
 
 ### Installation
 1. Clone the repository:
@@ -48,8 +50,23 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
 - The `.env` file configures Firebase connection and app behavior. Key parameters include:
   - `REACT_APP_FIRESTORE_EMULATOR`: When set to `true`, the app connects to the local Firestore emulator instead of the production Firestore database. Use this for safe local development and testing.
   - `REACT_APP_FIREBASE_API_KEY`, `REACT_APP_FIREBASE_AUTH_DOMAIN`, `REACT_APP_FIREBASE_PROJECT_ID`, etc.: Standard Firebase configuration values. These can be dummy values when using the emulator.
+  - `FIRESTORE_SERVICE_ACCOUNT_KEY`: Path to your service account key for Firestore backup.
+  - CRON expressions for scheduled functions
+    - `CRON_EXPIRE_WAITINGLIST`: CRON expression for waiting list expiration function.
+    - `CRON_EXPIRE_PENDING`: CRON expression for pending expiration function.
+    - `CRON_LAST_NOTICE`: CRON expression for last notice function.
+    - `CRON_REMINDER_PENDING`: CRON expression for reminder pending function.
+    - `CRON_SEND_DAILY`: CRON expression for daily send function.
 
 ### Local Development
+- Build and deploy to test:
+  ```bash
+  npm run deploy:test
+  ```
+- Build and deploy to production:
+  ```bash
+  npm run deploy
+  ```
 - Start Firestore Emulator:
   ```bash
   firebase emulators:start --only firestore

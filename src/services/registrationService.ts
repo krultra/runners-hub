@@ -14,9 +14,11 @@ import {
 } from 'firebase/firestore';
 import { db } from '../config/firebase';
 import { Registration, Payment } from '../types';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { sendWelcomeEmail, sendRegistrationUpdateEmail, sendWaitingListEmail, sendWaitingListRegistrationEmail } from './emailService';
 import { getNextSequentialNumber } from './counterService';
-import { RACE_DETAILS, RACE_DISTANCES } from '../constants';
+
+// Removed obsolete imports of RACE_DETAILS and RACE_DISTANCES; using dynamic eventEditionService for event info
 
 // Collection reference
 const REGISTRATIONS_COLLECTION = 'registrations';
@@ -377,18 +379,14 @@ export const getRegistrationsByEdition = async (editionId: string): Promise<Regi
  * @returns Promise that resolves when all registrations are created
  */
 export const generateTestRegistrations = async (editionId: string, count: number): Promise<void> => {
-  const distances = RACE_DISTANCES.map(d => d.id);
-  const totalFee = RACE_DETAILS.fees.total;
   const collectionRef = collection(db, REGISTRATIONS_COLLECTION);
   const counterName = `registrations-${editionId}`;
   for (let i = 0; i < count; i++) {
     const registrationNumber = await getNextSequentialNumber(counterName);
-    const randomDistance = distances[Math.floor(Math.random() * distances.length)];
     const email = `test${registrationNumber}@example.com`;
     const regToSave = {
       editionId,
       email,
-      raceDistance: randomDistance,
       firstName: `Test${registrationNumber}`,
       lastName: 'User',
       dateOfBirth: Timestamp.fromDate(new Date(1990, 0, 1)),
@@ -399,7 +397,7 @@ export const generateTestRegistrations = async (editionId: string, count: number
       comments: 'Generated test data',
       notifyFutureEvents: false,
       sendRunningOffers: false,
-      paymentRequired: totalFee,
+      paymentRequired: 300,
       paymentMade: 0,
       status: 'pending',
       registrationNumber,

@@ -44,8 +44,13 @@ import {
   sendEmail,
   EmailType,
 } from '../../services/emailService';
-import { RegistrationStatus } from '../../services/statusService';
 import { listEmailTemplates, EmailTemplate } from '../../services/templateService';
+
+// Local definition to replace the deleted statusService
+interface RegistrationStatus {
+  id: string;
+  label: string;
+}
 
 interface Props {
   open: boolean;

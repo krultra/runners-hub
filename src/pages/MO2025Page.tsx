@@ -4,8 +4,6 @@ import { useNavigate } from 'react-router-dom';
 
 const LØPSDATO = new Date('2025-05-10T12:00:00+02:00'); // Lørdag 10. mai 2025, kl 12:00
 const PÅMELDINGSFRIST = new Date('2025-05-09T23:59:59+02:00'); // Sett frist til dagen før
-const MAKS_DELTAGERE = 50;
-const STARTKONTINGENT = 200;
 
 function formatCountdown(target: Date) {
   const now = new Date();
@@ -67,7 +65,7 @@ const MO2025Page: React.FC = () => {
             variant="contained"
             color="primary"
             size="large"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSfUjLiF7JwKMiKA8kpplwlGjmxgGZ1slE_IWNmxZucqHSj95g/viewform"
+            href="https://docs.google.com/forms/d/e/1FAIpQLSfUjLiF7JwKMiKA8kpplwlGjmxgGZ1slE_IWNmxZucqHSj95g/viewform?usp=sharing"
             target="_blank"
             rel="noopener noreferrer"
             sx={{ fontWeight: 700, minWidth: 220 }}
@@ -98,11 +96,14 @@ const MO2025Page: React.FC = () => {
           <Button
             variant="outlined"
             color="inherit"
+            href="https://www.facebook.com/download/1718681152388411/Resultater%20Malvikingen%20Opp%202025.xlsx?av=595602135&eav=AfbwfpHqvI3hzavKGm2cjekFwaqwCJzPU2g55Uzd0GWjqg1zZu7H1cxBuyFpGyihbmk&paipv=0&ext=1747503216&hash=AcrFcZvBncq_x69HiQI&__cft__[0]=AZVfJPtX04bk8RjC0u3lNePyh1AHCj5BLtP2LeSXaTVKw9T_3QScCO4p-Xt1iPXlmO_rNZE6waWSHCFGjD0PsQvlhsxSitrkWgPFZXb1bhN_NTWG130Gm4VY0sv-SkPIAwBDuTzGSES4hNyoHxxxzw6Cxyn3FwaFHD7tZIqQjshL0h12yN3X3yBbY3EUO5l3VMPDXsmQH3xY1dWLBBvLpxXj&__tn__=H-R"
+            target="_blank"
+            rel="noopener noreferrer"
             size="large"
             sx={{ minWidth: 180 }}
-            onClick={() => navigate('/results/mo-2025')}
+            //onClick={() => navigate('/results/mo-2025')}
           >
-            Resultater
+            Last ned resultater
           </Button>
         </Box>
 

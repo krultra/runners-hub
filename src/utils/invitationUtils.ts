@@ -1,4 +1,4 @@
-import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, doc, Timestamp, setDoc } from 'firebase/firestore';
+import { getFirestore, collection, query, where, getDocs, addDoc, updateDoc, doc, Timestamp } from 'firebase/firestore';
 
 export interface Invitation {
   email: string;

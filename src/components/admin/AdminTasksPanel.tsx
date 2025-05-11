@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from 'react';
 import { collection, onSnapshot } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, TextField, Checkbox, FormControlLabel, Link as MuiLink, Button } from '@mui/material';
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Box, TextField, Checkbox, FormControlLabel, Button } from '@mui/material';
 import RegistrationDetailsDialog from './RegistrationDetailsDialog';
 import { getRegistrationById } from '../../services/registrationService';
-import { listRegistrationStatuses, RegistrationStatus } from '../../services/statusService';
+import { listCodeList } from '../../services/codeListService';
 import { Registration } from '../../types';
+
+// Local definition to replace the deleted statusService
+interface RegistrationStatus {
+  id: string;
+  label: string;
+}
 
 interface AdminTask {
   registrationId: string;
@@ -46,11 +52,21 @@ const AdminTasksPanel: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    listRegistrationStatuses().then(setStatuses).catch(console.error);
+    // Get registration statuses from codeLists collection
+    listCodeList('status', 'registrations')
+      .then(items => {
+        // Map to the expected RegistrationStatus interface
+        const statuses = items.map(item => ({
+          id: item.id,
+          label: item.code
+        }));
+        setStatuses(statuses);
+      })
+      .catch(console.error);
   }, []);
 
   const parseDateNb = (s: string): Date | null => {
-    const [d, m, y] = s.split(/[.\/]/).map(n => parseInt(n, 10));
+    const [d, m, y] = s.split(/[./]/).map(n => parseInt(n, 10));
     return isNaN(d)||isNaN(m)||isNaN(y) ? null : new Date(y, m-1, d);
   };
 

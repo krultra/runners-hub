@@ -1,4 +1,4 @@
-import { collection, getDocs, getFirestore } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 /**
@@ -7,6 +7,7 @@ import { db } from '../config/firebase';
 export const testFirestoreConnection = async (): Promise<boolean> => {
   try {
     // Try to get a list of collections
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const snapshot = await getDocs(collection(db, 'registrations'));
     return true;
   } catch (error) {

@@ -12,13 +12,14 @@ import KUTC2025Page from './pages/KUTC2025Page';
 import MO2025Page from './pages/MO2025Page';
 import RegistrationPage from './pages/RegistrationPage';
 import NotFoundPage from './pages/NotFoundPage';
-import EmailTestPage from './pages/EmailTestPage';
 import AuthTest from './components/AuthTest';
 import AdminPage from './pages/AdminPage';
 import RequireAdmin from './components/RequireAdmin';
 import PublicRegistrationsPage from './pages/PublicRegistrationsPage';
 import ImportMalvikingenPage from './pages/admin/ImportMalvikingenPage';
+import EQImportPage from './pages/admin/EQImportPage';
 import ResultsPage from './pages/ResultsPage';
+import GeneralResultsPage from './pages/GeneralResultsPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -47,7 +48,6 @@ function App() {
             <Route path="/mo-2025" element={<MO2025Page />} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/auth" element={<AuthTest />} />
-            <Route path="/email-test" element={<EmailTestPage />} />
             <Route path="/participants" element={<PublicRegistrationsPage />} />
             <Route path="/admin" element={
               <RequireAdmin>
@@ -60,6 +60,13 @@ function App() {
                 <ImportMalvikingenPage />
               </RequireAdmin>
             } />
+            {/* Add new admin route for EQ Timing CSV import */}
+            <Route path="/admin/eqimport" element={
+              <RequireAdmin>
+                <EQImportPage />
+              </RequireAdmin>
+            } />
+            <Route path="/results" element={<GeneralResultsPage />} />
             <Route path="/results/mo-2025" element={<ResultsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
