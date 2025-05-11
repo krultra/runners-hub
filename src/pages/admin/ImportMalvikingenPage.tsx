@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Box, Button, Container, Paper, TextField, Typography, CircularProgress, Alert } from '@mui/material';
+import { Box, Button, Container, Paper, TextField, Typography, CircularProgress, Alert, Link } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
 import { auth } from '../../config/firebase'; // Will be used for authentication checks
 import Papa from 'papaparse';
@@ -415,7 +416,8 @@ const calculateGradedTimes = (
     }
   }
   
-  // Calculate adjusted times
+  // Calculate adjusted times - multiply by the factors to get age-graded times
+  // Factors are <= 1.0, with smaller values giving more adjustment
   const AGSeconds = totalSeconds * AGFactor;
   const AGGSeconds = totalSeconds * AGGFactor;
   
@@ -681,15 +683,35 @@ const handleTimingImport = async () => {
           // 1. Fetch all timeGradingFactors for the event
           debugLog.push('Fetching time grading factors...');
           const gradingFactorsMap = new Map<number, TimeGradingFactor>();
-          const factorsQuery = query(collection(db, 'timeGradingFactors'), where('eventId', '==', 'mo'));
+          
+          // Get all time grading factors without filtering
+          const factorsQuery = query(collection(db, 'timeGradingFactors'));
           const factorsSnapshot = await getDocs(factorsQuery);
+          
+          // Debug: Log all retrieved documents
+          debugLog.push(`Retrieved ${factorsSnapshot.docs.length} total factor documents`);
+          let factorDebugSample: string[] = [];
           
           factorsSnapshot.forEach(doc => {
             const factorData = doc.data() as TimeGradingFactor;
-            gradingFactorsMap.set(factorData.age, factorData);
+            debugLog.push(`Factor document: ${doc.id}, eventId: ${factorData.eventId}, age: ${factorData.age}`);
+            
+            // Only include factors for this event ('mo-2025')
+            if (factorData.eventId === 'mo-2025') {
+              gradingFactorsMap.set(factorData.age, factorData);
+              
+              // Add a sample of factors to the debug log
+              if (factorDebugSample.length < 5) {
+                factorDebugSample.push(
+                  `Age ${factorData.age}: M(AG=${factorData.AG_M.toFixed(3)}, AGG=${factorData.AGG_M.toFixed(3)}), ` +
+                  `F(AG=${factorData.AG_F.toFixed(3)}, AGG=${factorData.AGG_F.toFixed(3)})`
+                );
+              }
+            }
           });
           
-          debugLog.push(`Loaded ${gradingFactorsMap.size} time grading factors`);
+          debugLog.push(`Loaded ${gradingFactorsMap.size} time grading factors for eventId='mo-2025'`);
+          debugLog.push(`Sample factors: ${factorDebugSample.join(' | ')}`);
           
           // 2. Fetch all moRegistrations to get participant details
           debugLog.push('Fetching participant registrations...');
@@ -727,12 +749,36 @@ const handleTimingImport = async () => {
               
               // Calculate age-graded and age-gender-graded times for valid times
               if (record.totalTime.seconds > 0 && record.age > 0) {
+                // Add debugging for this record
+                const hasFactor = gradingFactorsMap.has(record.age);
+                const factor = gradingFactorsMap.get(record.age);
+                
+                // Log detailed information for a few records to help diagnose the issue
+                if (record.bib % 50 === 0) {
+                  debugLog.push(
+                    `Bib ${record.bib}: Age=${record.age}, Gender=${record.gender}, ` +
+                    `Raw time=${record.totalTime.display} (${record.totalTime.seconds.toFixed(1)}s), ` +
+                    `Has factor: ${hasFactor}, ` +
+                    `Factor data: ${factor ? JSON.stringify(factor) : 'None'}`
+                  );
+                }
+                
                 const gradedTimes = calculateGradedTimes(
                   record.totalTime.seconds,
                   record.age,
                   record.gender,
                   gradingFactorsMap
                 );
+                
+                // Log timing calculations for a sample of records
+                if (record.bib % 50 === 0) {
+                  debugLog.push(
+                    `Bib ${record.bib} calculations: ` +
+                    `AG: ${gradedTimes.AGTime[0]} (${gradedTimes.AGTime[1].toFixed(1)}s), ` +
+                    `AGG: ${gradedTimes.AGGTime[0]} (${gradedTimes.AGGTime[1].toFixed(1)}s)`
+                  );
+                }
+                
                 record.totalAGTime = gradedTimes.AGTime;
                 record.totalAGGTime = gradedTimes.AGGTime;
               }
@@ -914,6 +960,21 @@ const handleTimingImport = async () => {
             Import successful!
           </Typography>
         )}
+      </Box>
+
+      <Box sx={{ mt: 4, mb: 2 }}>
+        <Typography variant="h6" gutterBottom>EQ Timing Import</Typography>
+        <Button 
+          component={RouterLink} 
+          to="/admin/eqimport" 
+          variant="contained" 
+          color="secondary"
+        >
+          Go to EQ Timing Import Page
+        </Button>
+        <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
+          The dedicated EQ Timing import page provides a streamlined interface for importing participant data from EQ Timing CSV files.
+        </Typography>
       </Box>
 
       <Box sx={{ mt: 4 }}>

@@ -17,7 +17,9 @@ import AdminPage from './pages/AdminPage';
 import RequireAdmin from './components/RequireAdmin';
 import PublicRegistrationsPage from './pages/PublicRegistrationsPage';
 import ImportMalvikingenPage from './pages/admin/ImportMalvikingenPage';
+import EQImportPage from './pages/admin/EQImportPage';
 import ResultsPage from './pages/ResultsPage';
+import GeneralResultsPage from './pages/GeneralResultsPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -58,6 +60,13 @@ function App() {
                 <ImportMalvikingenPage />
               </RequireAdmin>
             } />
+            {/* Add new admin route for EQ Timing CSV import */}
+            <Route path="/admin/eqimport" element={
+              <RequireAdmin>
+                <EQImportPage />
+              </RequireAdmin>
+            } />
+            <Route path="/results" element={<GeneralResultsPage />} />
             <Route path="/results/mo-2025" element={<ResultsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>

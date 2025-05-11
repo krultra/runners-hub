@@ -32,7 +32,7 @@ export interface Participant {
   firstName: string;
   lastName: string;
   dateOfBirth: string;
-  gender: 'M' | 'K' | '*' | string;
+  gender: 'M' | 'K' | '*';
   club?: string;
   class?: string;
   registrationType?: 'competition' | 'recreational' | 'timed_recreational';
@@ -53,6 +53,8 @@ export interface Participant {
     class?: string;
     className?: string;
     classDescription?: string;
+    representing?: string;
+    age?: number;
   };
   // Add sortPriority for sorting competitors with/without times
   sortPriority?: number;
@@ -68,35 +70,138 @@ export const getEventResults = async (editionId: string): Promise<{
   try {
     console.log('getEventResults called with editionId:', editionId);
     
-    // Fetch event edition data
-    const eventRef = doc(db, 'eventEditions', editionId);
-    const eventSnap = await getDoc(eventRef);
-    const eventData = eventSnap.data();
+    // Parse editionId to identify event and edition (typically in format 'eventId-edition')
+    // For example: 'mo-2025' -> eventId: 'mo', edition: 2025 (as number)
+    // But we need to handle both document ID format and parsed format
+    let eventId, edition, editionNumber;
+    const originalEditionId = editionId; // Keep track of the original ID
+    
+    // If it looks like eventId-edition format (e.g., mo-2025)
+    const parts = editionId.split('-');
+    if (parts.length >= 2) {
+      eventId = parts[0];
+      edition = parts.slice(1).join('-');
+      editionNumber = parseInt(edition, 10); // Try to parse as number
+      console.log(`Parsed from ID: eventId='${eventId}', edition='${edition}', editionNumber=${editionNumber}`);
+    } else {
+      // If it doesn't have a hyphen, it might be a raw document ID
+      eventId = editionId;
+      edition = '';
+      editionNumber = NaN;
+      console.log(`Using raw ID: '${eventId}'`);
+    }
+    
+    // First try direct lookup by document ID (covers both the formatted ID case and legacy IDs)
+    let eventRef = doc(db, 'eventEditions', editionId);
+    let eventSnap = await getDoc(eventRef);
+    let eventData = eventSnap.data();
+    
+    // If not found, and it looks like a properly formatted ID (mo-2025), 
+    // try to find by eventId and edition fields
+    if ((!eventSnap.exists() || !eventData) && !isNaN(editionNumber)) {
+      console.log(`Event not found by ID '${editionId}', searching by fields: eventId='${eventId}', edition=${editionNumber}`);
+      const eventsQuery = query(
+        collection(db, 'eventEditions'),
+        where('eventId', '==', eventId),
+        where('edition', '==', editionNumber)
+      );
+      
+      const querySnap = await getDocs(eventsQuery);
+      
+      if (!querySnap.empty) {
+        eventSnap = querySnap.docs[0];
+        eventData = eventSnap.data();
+        console.log(`Found event by attributes: ${eventSnap.id}`);
+        // Update editionId to use the found document's ID for subsequent queries
+        editionId = eventSnap.id;
+      }
+    }
+    
+    // Check if we were able to find the event
     console.log('Event data fetched:', eventData ? 'Found' : 'Not found');
 
     // Fetch participants from both registrations and moRegistrations
     console.log('Fetching from both registrations and moRegistrations');
     
-    // Get regular registrations
-    const regSnap = await getDocs(
-      query(collection(db, 'registrations'), where('editionId', '==', editionId))
-    );
-    console.log(`Found ${regSnap.docs.length} registrations in 'registrations'`);
+    // Get document ID of the found event (may be different from the input editionId) 
+    const eventDocId = eventSnap.exists() ? eventSnap.id : null;
     
-    // Get MO registrations
+    // Query by both original editionId and document ID to ensure we catch all registrations
+    // Some may use the document ID format, others may use the 'eventId-edition' format
+    const queryIds = [editionId];
+    if (eventDocId && eventDocId !== editionId) {
+      queryIds.push(eventDocId);
+    }
+    
+    const debugMessages: string[] = [];
+    let allRegDocs: any[] = [];
+    
+    // Get regular registrations (from all possible edition IDs)
+    for (const id of queryIds) {
+      const regSnap = await getDocs(
+        query(collection(db, 'registrations'), where('editionId', '==', id))
+      );
+      allRegDocs = [...allRegDocs, ...regSnap.docs];
+      debugMessages.push(`Found ${regSnap.docs.length} registrations in 'registrations' with editionId='${id}'`);
+      console.log(`Found ${regSnap.docs.length} registrations in 'registrations' with editionId='${id}'`);
+    }
+    
+    // Get MO registrations (from all possible edition IDs)
     const moRegSnap = await getDocs(
-      query(collection(db, 'moRegistrations'), where('editionId', '==', editionId))
+      query(collection(db, 'moRegistrations'), where('editionId', 'in', queryIds))
     );
     console.log(`Found ${moRegSnap.docs.length} registrations in 'moRegistrations'`);
+    debugMessages.forEach(msg => console.log(msg));
     
     // Combine both registration types
-    const allDocs = [...regSnap.docs, ...moRegSnap.docs];
+    const allDocs = [...allRegDocs, ...moRegSnap.docs];
     console.log(`Combined total: ${allDocs.length} registrations`);
+    
+    // Now fetch timing data to merge with registrations
+    console.log(`Fetching timing data for queryIds: ${queryIds.join(', ')}`);
+    
+    // Track timing results retrieved
+    let timingResults: any[] = [];
+    let timingFoundByBib = new Map<number, boolean>();
+    
+    // Try to fetch from moTiming collection
+    for (const id of queryIds) {
+      console.log(`Searching for timing data with eventId='${id}'`);
+      // Try direct query with the ID format
+      const timingQuery = query(collection(db, 'moTiming'), where('eventId', '==', id));
+      const timingSnap = await getDocs(timingQuery);
+      console.log(`Found ${timingSnap.docs.length} timing records with eventId='${id}'`);
+      
+      if (timingSnap.docs.length > 0) {
+        timingResults = [...timingResults, ...timingSnap.docs];
+        // Log sample timing data
+        if (timingSnap.docs.length > 0) {
+          const sampleData = timingSnap.docs[0].data();
+          console.log(`Sample timing data: bib=${sampleData.bib}, totalTime=${JSON.stringify(sampleData.totalTime)}`);
+        }
+      }
+    }
+    
+    // Create a map of timing data by bib number
+    const timingByBib = new Map();
+    timingResults.forEach(doc => {
+      const data = doc.data();
+      if (data.bib) {
+        timingByBib.set(data.bib, data);
+        timingFoundByBib.set(data.bib, true);
+      }
+    });
+    
+    console.log(`Found timing data for ${timingByBib.size} participants`);
     
     const participants: Participant[] = allDocs.map((d) => {
       const data = d.data();
-      // Log each participant with their bib number
-      console.log(`Participant ${data.firstName} ${data.lastName}, bib=${data.bib}, regType=${data.registrationType}`);
+      const participantBib = data.registrationNumber || data.bib;
+      // Get timing data for this participant
+      const timing = timingByBib.get(participantBib);
+      
+      // Log each participant with their bib number and timing status
+      console.log(`Participant ${data.firstName} ${data.lastName}, bib=${participantBib}, regType=${data.registrationType}, hasTimingData=${!!timing}`);
       return {
         id: d.id,
         bib: data.bib,
@@ -107,13 +212,19 @@ export const getEventResults = async (editionId: string): Promise<{
         club: data.club || '',
         class: data.class || '',
         registrationType: data.registrationType || 'competition',
-        totalTimeDisplay: '',
-        totalTimeSeconds: 0,
+        totalTimeDisplay: timing?.totalTime?.display || '',
+        totalTimeSeconds: timing?.totalTime?.seconds || 0,
+        totalAGTimeDisplay: timing?.totalAGTime?.[0] || '',
+        totalAGTimeSeconds: timing?.totalAGTime?.[1] || 0,
+        totalAGGTimeDisplay: timing?.totalAGGTime?.[0] || '',
+        totalAGGTimeSeconds: timing?.totalAGGTime?.[1] || 0,
         // Include the full moRegistrations data for access to additional fields like className
         moRegistrations: {
           class: data.class || '',
           className: data.className || '',
-          classDescription: data.classDescription || ''
+          classDescription: data.classDescription || '',
+          representing: data.representing || '',
+          age: data.age || 0
         }
       } as Participant;
     });
@@ -236,6 +347,12 @@ export const getEventResults = async (editionId: string): Promise<{
     const factorsMap = new Map<number, TimeGradingFactor>();
     factorsSnap.docs.forEach((d) => {
       const factor = d.data() as TimeGradingFactor;
+      console.log(`Loading factors for age ${factor.age}:`, {
+        AG_F: factor.AG_F,
+        AG_M: factor.AG_M,
+        GG_F: factor.GG_F,
+        GG_M: factor.GG_M
+      });
       factorsMap.set(factor.age, factor);
     });
 
@@ -433,6 +550,11 @@ export const getEventResults = async (editionId: string): Promise<{
             console.log(`Set scratch place for ${p.firstName} ${p.lastName}: ${p.scratchPlace}`);
           }
           
+          if (typeof time.genderPlace === 'number') {
+            p.genderPlace = time.genderPlace;
+            console.log(`Set gender place for ${p.firstName} ${p.lastName}: ${p.genderPlace}`);
+          }
+          
           if (typeof time.agPlace === 'number') {
             p.agPlace = time.agPlace;
             console.log(`Set AG place for ${p.firstName} ${p.lastName}: ${p.agPlace}`);
@@ -463,21 +585,39 @@ export const getEventResults = async (editionId: string): Promise<{
       
       // If pre-calculated AG/AGG values aren't available, fall back to calculating them
       if (p.registrationType === 'competition' && p.totalTimeSeconds && (!p.totalAGTimeDisplay || !p.totalAGGTimeDisplay)) {
-        console.log(`No pre-calculated AG/AGG times for ${p.firstName} ${p.lastName}, calculating...`);
+        console.log(`No pre-calculated AG/AGG times for ${p.firstName} ${p.lastName}:`, {
+          registrationType: p.registrationType,
+          gender: p.gender,
+          age: p.age,
+          moRegistrationsAge: p.moRegistrations?.age,
+          totalTimeSeconds: p.totalTimeSeconds
+        });
         const factors = factorsMap.get(p.age || 0);
         if (factors) {
           // AG time - within gender
           if (!p.totalAGTimeDisplay) {
             const agFactor = p.gender === 'K' ? factors.AG_F : factors.AG_M;
+            console.log(`AG factor for ${p.firstName} ${p.lastName} (age ${p.age}, gender ${p.gender}):`, {
+              AG_F: factors.AG_F,
+              AG_M: factors.AG_M,
+              selected: agFactor
+            });
             p.totalAGTimeSeconds = p.totalTimeSeconds * agFactor;
             p.totalAGTimeDisplay = formatSecondsToTime(p.totalAGTimeSeconds);
+            console.log(`Calculated AG time: ${p.totalTimeSeconds} * ${agFactor} = ${p.totalAGTimeSeconds}`);
           }
 
           // AGG time - across genders
           if (!p.totalAGGTimeDisplay) {
             const aggFactor = p.gender === 'K' ? factors.AGG_F : factors.AGG_M;
+            console.log(`AGG factor for ${p.firstName} ${p.lastName} (age ${p.age}, gender ${p.gender}):`, {
+              AGG_F: factors.AGG_F,
+              AGG_M: factors.AGG_M,
+              selected: aggFactor
+            });
             p.totalAGGTimeSeconds = p.totalTimeSeconds * aggFactor;
             p.totalAGGTimeDisplay = formatSecondsToTime(p.totalAGGTimeSeconds);
+            console.log(`Calculated AGG time: ${p.totalTimeSeconds} * ${aggFactor} = ${p.totalAGGTimeSeconds}`);
           }
         }
       }
@@ -536,7 +676,22 @@ export const getEventResults = async (editionId: string): Promise<{
       console.warn(`WARNING: ${timedRecWithoutTimes} timed recreational participants are missing timing data.`);
     }
     
-    return { eventData, participants };
+    // Log final statistics
+    const finalWithTimingCount = participants.filter(p => p.totalTimeSeconds > 0).length;
+    const finalCompetitiveCount = participants.filter(p => p.registrationType === 'competition').length;
+    const finalRecreationalCount = participants.filter(p => p.registrationType === 'recreational' || p.registrationType === 'timed_recreational').length;
+    
+    console.log('Final participant statistics:');
+    console.log(` - Total participants: ${participants.length}`);
+    console.log(` - With timing data: ${finalWithTimingCount}`);
+    console.log(` - Competitive participants: ${finalCompetitiveCount}`);
+    console.log(` - Recreational participants: ${finalRecreationalCount}`);
+    
+    // Finally, return the combined results
+    return {
+      eventData,
+      participants
+    };
   } catch (error) {
     console.error('Error fetching results:', error);
     throw error;

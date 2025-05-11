@@ -199,13 +199,33 @@ const ResultsPage = () => {
       try {
         setLoading(true);
         
-        // Get event edition ID from URL or context
-        const urlParams = new URLSearchParams(window.location.search);
-        let editionId = urlParams.get('id');
+        // Get event edition ID from URL path, query parameters, or context
+        let editionId;
         
-        // If no ID in URL, try to use the one from context
+        // First check if the ID is in the URL path (e.g., /results/mo-2025)
+        const pathParts = window.location.pathname.split('/');
+        if (pathParts.length > 0) {
+          const lastPathSegment = pathParts[pathParts.length - 1];
+          // If the last segment looks like an event ID (contains letters and possibly a hyphen)
+          if (lastPathSegment && /^[a-zA-Z0-9]+-\d+$/.test(lastPathSegment)) {
+            editionId = lastPathSegment;
+            console.log(`Found event ID in URL path: ${editionId}`);
+          }
+        }
+        
+        // If not found in the path, check query parameters
+        if (!editionId) {
+          const urlParams = new URLSearchParams(window.location.search);
+          editionId = urlParams.get('id');
+          if (editionId) {
+            console.log(`Found event ID in query parameter: ${editionId}`);
+          }
+        }
+        
+        // If still not found, try context
         if (!editionId && contextEvent) {
           editionId = contextEvent.id;
+          console.log(`Using event ID from context: ${editionId}`);
         }
         
         if (!editionId) {
@@ -274,13 +294,13 @@ const ResultsPage = () => {
           class: true
         });
         
-        // A simple approach to sort competitors with times to the top and those without to the bottom
-        // Process participants directly when categorizing them
-        const competitiveWithPlacement = participants.filter(p => p.registrationType === 'competition').map(p => ({
-          ...p,
-          // If no time display, set placement to 99999 to push to bottom of sort
-          scratchPlace: (!p.totalTimeDisplay || p.totalTimeDisplay.length === 0) && p.scratchPlace !== 'Trim' ? 99999 : p.scratchPlace
-        }));
+        // Only include competitors that have timing data
+        // Filter out participants without timing data entirely
+        const competitiveWithPlacement = participants.filter(p => 
+          p.registrationType === 'competition' && 
+          p.totalTimeDisplay && 
+          p.totalTimeDisplay.length > 0
+        );
         
         // Update state with our sorted competitors
         setCompetitiveParticipants(competitiveWithPlacement);
@@ -460,7 +480,15 @@ const ResultsPage = () => {
       headerName: 'Alder', 
       width: 70,
       headerAlign: 'center',
-      align: 'center'
+      align: 'center',
+      valueGetter: (params) => {
+        // First try to get age from moRegistrations.age
+        if (params.row.moRegistrations?.age) return params.row.moRegistrations.age;
+        // Fall back to the participant's age field if available
+        if (params.row.age) return params.row.age;
+        // Otherwise return empty string
+        return '';
+      }
     },
     { 
       field: 'club', 
@@ -549,17 +577,31 @@ const ResultsPage = () => {
       headerName: 'Etternavn', 
       width: 120 
     },
-    // Removed age column as requested
+    // Age column (calculated from dateOfBirth)
+    { 
+      field: 'age', 
+      headerName: 'Alder', 
+      width: 80,
+      headerAlign: 'center',
+      align: 'center',
+      valueGetter: (params) => {
+        // First try to get age from moRegistrations.age
+        if (params.row.moRegistrations?.age) return params.row.moRegistrations.age;
+        // Otherwise return empty string
+        return '';
+      }
+    },
     { 
       field: 'club', 
       headerName: 'Klubb', 
-      width: 150 
+      width: 150,
+      valueGetter: (params) => params.row.moRegistrations?.representing || params.row.club || ''
     },
     { 
       field: 'class', 
       headerName: 'Klasse', 
       width: 100,
-      valueGetter: (params) => params.row.moRegistrations?.class || params.row.class || ''
+      valueGetter: (params) => params.row.moRegistrations?.className || params.row.moRegistrations?.class || params.row.class || ''
     },
     { 
       field: 'totalTimeDisplay', 
@@ -589,10 +631,25 @@ const ResultsPage = () => {
       headerName: 'Etternavn', 
       width: 120 
     },
+    // Age column (calculated from dateOfBirth)
+    { 
+      field: 'age', 
+      headerName: 'Alder', 
+      width: 80,
+      headerAlign: 'center',
+      align: 'center',
+      valueGetter: (params) => {
+        // First try to get age from moRegistrations.age
+        if (params.row.moRegistrations?.age) return params.row.moRegistrations.age;
+        // Otherwise return empty string
+        return '';
+      }
+    },
     { 
       field: 'club', 
       headerName: 'Klubb', 
-      width: 150 
+      width: 150,
+      valueGetter: (params) => params.row.moRegistrations?.representing || params.row.club || ''
     },
     { 
       field: 'class', 

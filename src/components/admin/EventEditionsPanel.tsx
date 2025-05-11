@@ -98,37 +98,72 @@ const EventEditionsPanel: FC = () => {
     })();
   }, [selectedId]);
 
-  const handleCreate = async () => {
+  const handleCreate = () => {
     if (dirty && !window.confirm('Discard unsaved changes and create a new edition?')) return;
-    const payload = {
-      eventId: '',
-      edition: 1,
-      eventShortName: '',
-      eventName: '',
-      status: '',
-      resultTypes: [],
-      resultsStatus: '',
-      startTime: Timestamp.fromDate(new Date()),
-      endTime: Timestamp.fromDate(new Date()),
-      registrationDeadline: Timestamp.fromDate(new Date()),
-      maxParticipants: 0,
-      loopDistance: 0,
-      fees: { participation: 0, baseCamp: 0, deposit: 0, total: 0 }
-    };
-    const id = await addEventEdition(payload);
-    setSelectedId(id);
-    const data = await listEventEditions();
-    setSummaries(data);
+    
+    // Clear the selected ID to indicate we're creating a new event
+    // that hasn't been saved to the database yet
+    setSelectedId('');
+    
+    // Initialize form with empty values
+    setEventId('');
+    setEditionNum(1);
+    setEventShortName('');
+    setEventName('');
+    setStatus('');
+    setResultTypes([]);
+    setResultsStatus('');
+    setStartDate(new Date());
+    setEndDate(new Date());
+    setRegistrationDeadline(new Date());
+    setMaxParticipants(0);
+    setLoopDistance(0);
+    setFees({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
+    
+    // Set dirty to true to indicate we have unsaved changes
+    setDirty(true);
+    
+    console.log('New event edition form initialized - not yet saved to database');
   };
 
   const handleSave = async () => {
-    if (!selectedId) return;
-    if (!startDate || !endDate) { window.alert('Please set both dates'); return; }
-    if (startDate > endDate) { window.alert('Start time must be before end time'); return; }
+    // Validate required fields regardless of create/update
+    if (!eventId || eventId.trim() === '') {
+      window.alert('Event ID is required. Please enter a valid ID like "mo" for Malvikingen Opp.');
+      return;
+    }
+    
+    if (typeof editionNum !== 'number' || isNaN(editionNum) || editionNum <= 0) {
+      window.alert('Edition must be a positive number, like 2025 for the year of the event.');
+      return;
+    }
+    
+    if (!startDate || !endDate) { 
+      window.alert('Please set both start and end dates'); 
+      return; 
+    }
+    
+    if (startDate > endDate) { 
+      window.alert('Start time must be before end time'); 
+      return; 
+    }
+    
     if (!dirty) return;
-    if (summaries.some(s => s.eventId === eventId && s.edition === editionNum && s.id !== selectedId)) { window.alert('An edition with this Event ID and edition number already exists'); return; }
-    await updateEventEdition(selectedId, {
-      eventId,
+    
+    // Check for duplicate event editions
+    const safeEventId = eventId.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    const documentId = `${safeEventId}-${editionNum}`;
+    
+    // Only check for duplicates that aren't the current document
+    if (summaries.some(s => s.eventId === eventId && s.edition === editionNum && 
+                          (!selectedId || s.id !== selectedId))) { 
+      window.alert('An edition with this Event ID and edition number already exists'); 
+      return; 
+    }
+    
+    // Prepare the payload for both create and update
+    const payload = {
+      eventId: eventId.trim(),
       edition: editionNum,
       eventShortName,
       eventName,
@@ -141,11 +176,34 @@ const EventEditionsPanel: FC = () => {
       maxParticipants,
       loopDistance,
       fees
-    });
-    const data = await listEventEditions();
-    setSummaries(data);
-    setSnackbarOpen(true);
-    setDirty(false);
+    };
+    
+    try {
+      let newId = selectedId;
+      
+      // Creating a new document
+      if (!selectedId) {
+        console.log(`Creating new event edition with ID: ${documentId}, eventId: ${eventId}, edition: ${editionNum}`);
+        newId = await addEventEdition(payload);
+        console.log(`New event edition created with ID: ${newId}`);
+      } 
+      // Updating an existing document
+      else {
+        console.log(`Updating event edition with ID: ${selectedId}, eventId: ${eventId}, edition: ${editionNum}`);
+        await updateEventEdition(selectedId, payload);
+        console.log('Event edition updated successfully');
+      }
+      
+      // Refresh the list and select the newly created or updated item
+      const data = await listEventEditions();
+      setSummaries(data);
+      setSelectedId(newId);
+      setSnackbarOpen(true);
+      setDirty(false);
+    } catch (error) {
+      console.error('Error saving event edition:', error);
+      window.alert(`Error saving event: ${error instanceof Error ? error.message : String(error)}`);
+    }
   };
 
   const handleDelete = async () => {
