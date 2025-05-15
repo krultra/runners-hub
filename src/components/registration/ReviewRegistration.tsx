@@ -161,7 +161,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
             <ListItem disablePadding>
               <ListItemText
                 primary="Race Distance"
-                secondary={selectedDistance ? selectedDistance.displayName : 'Not selected'}
+                secondary={selectedDistance?.displayName || formData.raceDistance}
               />
             </ListItem>
           </Grid>
@@ -200,25 +200,17 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
         </Typography>
         <List disablePadding>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Participation Fee" />
-            <Typography variant="body2">{RACE_DETAILS.fees.participation} NOK</Typography>
+            <ListItemText primary="Entry Fee" secondary={`${RACE_DETAILS.fees.participation} kr`} />
           </ListItem>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Base Camp Services" />
-            <Typography variant="body2">{RACE_DETAILS.fees.baseCamp} NOK</Typography>
+            <ListItemText primary="Base Camp Fee" secondary={`${RACE_DETAILS.fees.baseCamp} kr`} />
           </ListItem>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Refundable Deposit" secondary="Returned if you show up for the race" />
-            <Typography variant="body2">{RACE_DETAILS.fees.deposit} NOK</Typography>
+            <ListItemText primary="Deposit" secondary={`${RACE_DETAILS.fees.deposit} kr`} />
           </ListItem>
-          <Divider />
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Total" />
-            <Typography variant="subtitle1" sx={{ fontWeight: 700 }}>
-              {RACE_DETAILS.fees.total} NOK
-            </Typography>
+            <ListItemText primary="Total Fee" secondary={`${RACE_DETAILS.fees.total} kr`} />
           </ListItem>
-          
           {isEditingExisting && (
             <>
               <ListItem sx={{ py: 1, px: 0 }}>

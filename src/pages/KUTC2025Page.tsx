@@ -529,7 +529,17 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
 
 // Wrapper component handles loading/error and injects `event` into inner
 const KUTC2025Page: React.FC = () => {
-  const { event, loading, error } = useEventEdition();
+  const { event, loading, error, setEvent } = useEventEdition();
+
+  // Set the correct event edition when component mounts or if wrong event is loaded
+  useEffect(() => {
+    // Only set the event if we don't have one yet or if it's the wrong one
+    if (!loading && (!event || event.id !== 'kutc-2025')) {
+      setEvent({
+        id: 'kutc-2025'
+      });
+    }
+  }, [event, loading, setEvent]);
   if (loading) return (
     <Container>
       <Box textAlign="center" mt={4}><CircularProgress /></Box>

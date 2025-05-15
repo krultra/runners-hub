@@ -55,7 +55,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
                 <FormControlLabel
                   key={distance.id}
                   value={distance.id}
-                  control={<Radio autoFocus={idx === 0} />}
+                  control={<Radio />}
                   label={distance.displayName}
                 />
               ))}
@@ -76,8 +76,8 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
             variant="outlined"
             value={formData.travelRequired}
             onChange={(e) => onChange('travelRequired', e.target.value)}
-            inputProps={{ maxLength: 200 }}
             onBlur={() => onBlur && onBlur('travelRequired')}
+            inputProps={{ maxLength: 200 }}
             error={!!errors.travelRequired}
             helperText={errors.travelRequired || 'Please describe your travel plans to help us minimize our carbon footprint'}
             inputRef={fieldRefs.travelRequired as any}

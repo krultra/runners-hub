@@ -291,6 +291,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => 
       let stepValid = true;
       if (activeStep === 0 && hasPersonalInfoErrors()) stepValid = false;
       if (activeStep === 1 && hasRaceDetailsErrors()) stepValid = false;
+
       if (stepValid) {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         window.scrollTo(0, 0);
@@ -379,14 +380,22 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => 
  
   // Effect to show appropriate validation errors when changing steps
   useEffect(() => {
-    if (validationAttempted) {
-      // If validation has been attempted, show errors for the current step
-      showCurrentStepErrors();
-    } else {
-      // Otherwise, clear all errors
+    if (validationAttempted && activeStep === 1) {
+      // Only show errors for step 2 (race details) if we're on that step
+      const errors = validateForm(formData, touchedFields, true, true, undefined);
+      const raceDetailsFields = ['raceDistance', 'travelRequired'];
+      const stepErrors: Record<string, string> = {};
+      raceDetailsFields.forEach(field => {
+        if (field in errors) {
+          stepErrors[field] = errors[field];
+        }
+      });
+      setErrors(stepErrors);
+    } else if (!validationAttempted) {
+      // Clear errors if validation hasn't been attempted
       clearAllErrors();
     }
-  }, [activeStep, validationAttempted, showCurrentStepErrors]);
+  }, [activeStep, validationAttempted, formData, touchedFields]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 

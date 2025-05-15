@@ -105,6 +105,7 @@ export const EventEditionProvider = ({ children }: { children: React.ReactNode }
     return () => { mounted = false; };
   }, []);
 
+
   return (
     <EventEditionContext.Provider value={{ event, loading, error, setEvent }}>
       {children}

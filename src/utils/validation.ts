@@ -45,7 +45,7 @@ export const validateForm = (
   setErrors?: (errors: Record<string, string>) => void
 ) => {
   const newErrors: Record<string, string> = {};
-
+  
   // Personal info validation
   // First name validation (with length check)
   if ((touchedFields.firstName || showAllErrors) && formData.firstName.trim() === '') {
@@ -110,11 +110,12 @@ export const validateForm = (
   }
 
   // Race details
-  if ((touchedFields.raceDistance || showAllErrors) && formData.raceDistance.trim() === '') {
+  if ((touchedFields.raceDistance || showAllErrors) && (!formData.raceDistance || formData.raceDistance === '')) {
     newErrors.raceDistance = ERROR_MESSAGES.raceDistance;
   }
+  
   // Travel requirements validation with length check
-  if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim() === '') {
+  if ((touchedFields.travelRequired || showAllErrors) && (!formData.travelRequired || formData.travelRequired.trim() === '')) {
     newErrors.travelRequired = ERROR_MESSAGES.travelRequired;
   } else if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim().length > 200) {
     newErrors.travelRequired = 'Travel requirements cannot exceed 200 characters';
@@ -130,8 +131,8 @@ export const validateForm = (
     newErrors.comments = 'Comments cannot exceed 500 characters';
   }
 
-  // Waiting list expiration date validation
-  if ((touchedFields.waitinglistExpires || showAllErrors) && formData.waitinglistExpires !== null) {
+  // Waiting list expiration date validation - only if this is a waiting list registration
+  if (formData.isOnWaitinglist && (touchedFields.waitinglistExpires || showAllErrors) && formData.waitinglistExpires !== null) {
     const expirationYear = formData.waitinglistExpires.getFullYear();
     const eventYear = 2025; // Year of the event
     const expirationDate = formData.waitinglistExpires.getTime();
@@ -146,8 +147,10 @@ export const validateForm = (
     }
   }
 
-  if (setErrors && !silentValidation) {
+  if (!silentValidation && setErrors) {
     setErrors(newErrors);
   }
+  
+
   return newErrors;
 };
