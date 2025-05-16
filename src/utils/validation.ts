@@ -1,6 +1,4 @@
 import { ERROR_MESSAGES } from '../constants/messages';
-import { CURRENT_EDITION_ID } from '../constants';
-import { RACE_DETAILS } from '../constants';
 
 export const initialFormData = {
   firstName: '',
@@ -19,13 +17,10 @@ export const initialFormData = {
   notifyFutureEvents: false,
   sendRunningOffers: false,
   // Event edition ID
-  editionId: CURRENT_EDITION_ID,
+  editionId: '',
   status: 'pending', // Default status
   paymentRequired: 300,
-  paymentMade: 0,
-  // Waiting list fields
-  isOnWaitinglist: false,   // Join waiting list flag
-  waitinglistExpires: null as Date | null,   // Expiration date
+  paymentMade: 0
 };
 
 /**
@@ -142,8 +137,6 @@ export const validateForm = (
       newErrors.waitinglistExpires = 'Waiting list expiration date must be in the year of the event or later';
     } else if (expirationDate < today) {
       newErrors.waitinglistExpires = 'Waiting list expiration date must be in the future';
-    } else if (expirationDate > RACE_DETAILS.date.getTime()) {
-      newErrors.waitinglistExpires = 'Waiting list expiration date must be on or before the race date';
     }
   }
 

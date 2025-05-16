@@ -27,15 +27,7 @@ export enum EmailType {
   REFUND = 'refund',
 }
 
-// Date formatting helper for Handlebars
-Handlebars.registerHelper('formatDate', (ts: any, locale = 'no-NO') => {
-  try {
-    const date = ts?.toDate ? ts.toDate() : new Date(ts);
-    return date.toLocaleDateString(locale, { day: 'numeric', month: 'long', year: 'numeric' });
-  } catch {
-    return '';
-  }
-});
+
 
 /**
  * Sends an invitation email to a single invitee
@@ -135,28 +127,44 @@ const DEFAULT_SUBJECTS: Record<EmailType, string> = {
  * Generic email sender using templates and fallback defaults
  */
 async function sendEmail(type: EmailType, to: string, context: any): Promise<DocumentReference<any>> {
-  // Fetch latest event edition details dynamically
-  const summaries = await listEventEditions();
-  if (!summaries.length) throw new Error('No event editions found');
-  const latestEdition = await getEventEdition(summaries[summaries.length - 1].id);
-  const { eventName, eventShortName, edition: eventEdition } = latestEdition;
   const db = getFirestore();
+  // Get the event edition from the registration context
+  const eventEditionId = (context as any).editionId || (context as any).eventEditionId;
+  if (!eventEditionId) throw new Error('No event edition ID found in registration data');
+  const eventEdition = await getEventEdition(eventEditionId);
+  const { eventName, eventShortName, edition } = eventEdition;
   const tpl = await getEmailTemplate(type, 'en');
   // enrich context for subject/body templates
   const enrichedContext = {
     ...context,
     eventName,
     eventShortName,
-    eventEdition,
+    eventEdition: edition,
     // Provide raw Date for templating and formatting
     today: context.today ? new Date(context.today) : new Date(),
   };
-  // Format dates to 'D Mmm YYYY' for dateOfBirth, waitinglistExpires, and today
-  ['dateOfBirth', 'waitinglistExpires', 'today'].forEach((field) => {
+  // Format dates to Norwegian format
+  const formatOptions: Record<string, any> = {
+    dateOfBirth: { day: '2-digit', month: '2-digit', year: 'numeric' },
+    waitinglistExpires: { day: '2-digit', month: '2-digit', year: 'numeric' },
+    today: { day: '2-digit', month: '2-digit', year: 'numeric' },
+    updatedAt: { 
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    }
+  };
+
+  // Format each date field with its specific format
+  ['dateOfBirth', 'waitinglistExpires', 'today', 'updatedAt'].forEach((field) => {
     const ts = (enrichedContext as any)[field];
     if (ts) {
       const date = ts.toDate ? ts.toDate() : new Date(ts);
-      (enrichedContext as any)[field] = date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+      const options = formatOptions[field];
+      (enrichedContext as any)[field] = date.toLocaleString('no-NO', options);
     }
   });
   const subjTpl = tpl.subjectTemplate || DEFAULT_SUBJECTS[type];

@@ -11,7 +11,7 @@ import {
   FormLabel,
   FormHelperText
 } from '@mui/material';
-import { RACE_DISTANCES } from '../../constants';
+import { CurrentEvent } from '../../contexts/EventEditionContext';
 
 interface RaceDetailsFormProps {
   formData: {
@@ -23,13 +23,16 @@ interface RaceDetailsFormProps {
   errors: Record<string, string>;
   fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
   onBlur?: (field: string) => void;
+  event: CurrentEvent;
 }
 
-const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur }) => {
+const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, event }) => {
   // Effect to scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+    console.log('RaceDetailsForm - event:', event);
+    console.log('RaceDetailsForm - race distances:', event.raceDistances);
+  }, [event]);
   return (
     <Box sx={{ mt: 2, mb: 4 }}>
       <Typography variant="h6" gutterBottom>
@@ -51,12 +54,12 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
               onBlur={() => onBlur && onBlur('raceDistance')}
               ref={fieldRefs.raceDistance as any}
             >
-              {RACE_DISTANCES.map((distance, idx) => (
+              {(event.raceDistances || []).map((distance, idx) => (
                 <FormControlLabel
                   key={distance.id}
                   value={distance.id}
                   control={<Radio />}
-                  label={distance.displayName}
+                  label={distance.displayName || distance.id}
                 />
               ))}
             </RadioGroup>

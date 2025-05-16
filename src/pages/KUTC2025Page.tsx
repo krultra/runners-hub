@@ -531,27 +531,36 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
 const KUTC2025Page: React.FC = () => {
   const { event, loading, error, setEvent } = useEventEdition();
 
-  // Set the correct event edition when component mounts or if wrong event is loaded
+  // Load the KUTC-2025 event when the component mounts
   useEffect(() => {
-    // Only set the event if we don't have one yet or if it's the wrong one
-    if (!loading && (!event || event.id !== 'kutc-2025')) {
-      setEvent({
-        id: 'kutc-2025'
-      });
-    }
-  }, [event, loading, setEvent]);
-  if (loading) return (
-    <Container>
-      <Box textAlign="center" mt={4}><CircularProgress /></Box>
-    </Container>
-  );
-  if (error || !event) return (
-    <Container>
-      <Alert severity="error" sx={{ mt:4 }}>
-        Error loading event: {error?.message || 'Unknown error'}
-      </Alert>
-    </Container>
-  );
+    setEvent('kutc-2025');
+  }, [setEvent]);
+
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+
+  if (error) {
+    return (
+      <Box p={3}>
+        <Alert severity="error">Error loading event: {error.message}</Alert>
+      </Box>
+    );
+  }
+
+  if (!event) {
+    return (
+      <Box p={3}>
+        <Alert severity="warning">No event data available. Please try again later.</Alert>
+      </Box>
+    );
+  }
+
   return <KUTC2025PageInner event={event} />;
 };
 

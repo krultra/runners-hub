@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Paper, Divider, Button, Grid } from '@mui/material';
+import { Container, Typography, Box, Paper, Divider, Button, Grid, CircularProgress } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useEventEdition } from '../contexts/EventEditionContext';
+import { Link } from 'react-router-dom';
 
 const LØPSDATO = new Date('2025-05-10T12:00:00+02:00'); // Lørdag 10. mai 2025, kl 12:00
 const PÅMELDINGSFRIST = new Date('2025-05-09T23:59:59+02:00'); // Sett frist til dagen før
@@ -18,17 +20,48 @@ function formatCountdown(target: Date) {
 
 const MO2025Page: React.FC = () => {
   const navigate = useNavigate();
+  const { event, loading, error, setEvent } = useEventEdition();
   const [nedtelling, setNedtelling] = useState<string>(formatCountdown(LØPSDATO));
+  
+  // Load the MO-2025 event when the component mounts
+  useEffect(() => {
+    setEvent('mo-2025');
+  }, [setEvent]);
+
   useEffect(() => {
     const timer = setInterval(() => setNedtelling(formatCountdown(LØPSDATO)), 1000);
     return () => clearInterval(timer);
   }, []);
 
+  if (loading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (error) {
+    return (
+      <Box p={3}>
+        <Typography color="error">Error loading event: {error.message}</Typography>
+      </Box>
+    );
+  }
+
+  if (!event) {
+    return (
+      <Box p={3}>
+        <Typography>No event data available. <Link to="/">Go back to home</Link></Typography>
+      </Box>
+    );
+  }
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4, textAlign: 'center' }}>
         <Typography variant="h2" component="h1" gutterBottom>
-          Malvikingen Opp 2025
+          {event.eventName || 'Malvikingen Opp 2025'}
         </Typography>
         <Typography variant="h5" color="text.secondary" paragraph>
           Malviks eldste motbakkeløp

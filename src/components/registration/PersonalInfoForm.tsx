@@ -29,6 +29,8 @@ interface PersonalInfoFormProps {
   errors: Record<string, string>;
   fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
   onBlur?: (field: string) => void;
+  isEditingExisting?: boolean;
+  isFull?: boolean;
   isEmailReadOnly?: boolean;
 }
 

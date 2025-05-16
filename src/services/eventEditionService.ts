@@ -13,6 +13,14 @@ import {
 } from 'firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 
+export interface RaceDistance {
+  id: string;
+  displayName: string;
+  length: number;
+  ascent: number;
+  descent: number;
+}
+
 export interface EventEdition {
   id: string;
   eventId: string;
@@ -27,6 +35,7 @@ export interface EventEdition {
   registrationDeadline?: Timestamp;
   maxParticipants?: number;
   loopDistance?: number;
+  raceDistances?: RaceDistance[];
   fees?: {
     participation: number;
     baseCamp: number;
@@ -55,10 +64,11 @@ export const listEventEditions = async (): Promise<EventEditionSummary[]> => {
 
 export const getEventEdition = async (id: string): Promise<EventEdition> => {
   const ref = doc(db, COLL, id);
+  console.log('eventEditionService - fetching event with id:', id);
   const snap = await getDoc(ref);
   const data = snap.data();
   if (!data) throw new Error('EventEdition not found');
-  return {
+  const eventEdition = {
     id: snap.id,
     eventId: data.eventId,
     edition: data.edition,
@@ -72,8 +82,11 @@ export const getEventEdition = async (id: string): Promise<EventEdition> => {
     registrationDeadline: data.registrationDeadline,
     maxParticipants: data.maxParticipants,
     loopDistance: data.loopDistance,
+    raceDistances: data.raceDistances || [],
     fees: data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 }
   } as EventEdition;
+  console.log('eventEditionService - constructed event edition:', eventEdition);
+  return eventEdition;
 };
 
 export const addEventEdition = async (
@@ -117,8 +130,16 @@ export const updateEventEdition = async (
   id: string,
   payload: Partial<Omit<EventEdition, 'id'>>
 ): Promise<void> => {
+  console.log('updateEventEdition - updating event with id:', id);
+  console.log('updateEventEdition - payload:', payload);
   const ref = doc(db, COLL, id);
-  await updateDoc(ref, payload as any);
+  try {
+    await updateDoc(ref, payload as any);
+    console.log('updateEventEdition - update successful');
+  } catch (error) {
+    console.error('updateEventEdition - error updating event:', error);
+    throw error;
+  }
 };
 
 export const deleteEventEdition = async (id: string): Promise<void> => {

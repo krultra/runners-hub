@@ -16,7 +16,8 @@ import {
   Button,
   TextField
 } from '@mui/material';
-import { RACE_DISTANCES, COUNTRIES, RACE_DETAILS } from '../../constants';
+import { COUNTRIES } from '../../constants';
+import { CurrentEvent } from '../../contexts/EventEditionContext';
 import TermsAndConditions from './TermsAndConditions';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -25,8 +26,9 @@ import { nb } from 'date-fns/locale';
 // We use an interface to ensure the type safety of the props passed to the ReviewRegistration component
 // The interface is used as a type for the props object
 // It contains the fields that are expected to be passed as props to the ReviewRegistration component
-// The fields are: formData, errors, fieldRefs, onChange, onBlur, isEditingExisting and isFull
+// The fields are: event, formData, errors, fieldRefs, onChange, onBlur, isEditingExisting and isFull
 interface ReviewRegistrationProps {
+  event: CurrentEvent;
   formData: {
     firstName: string;
     lastName: string;
@@ -55,12 +57,12 @@ interface ReviewRegistrationProps {
   isFull?: boolean;
 }
 
-const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, errors, fieldRefs, onChange, onBlur, isEditingExisting = false, isFull = false }) => {
+const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData, errors, fieldRefs, onChange, onBlur, isEditingExisting = false, isFull = false }) => {
   // State for terms and conditions dialog
   const [termsDialogOpen, setTermsDialogOpen] = useState(false);
 
   // Find the selected race distance
-  const selectedDistance = RACE_DISTANCES.find(
+  const selectedDistance = event.raceDistances?.find(
     (distance) => distance.id === formData.raceDistance
   );
 
@@ -200,16 +202,16 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
         </Typography>
         <List disablePadding>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Entry Fee" secondary={`${RACE_DETAILS.fees.participation} kr`} />
+            <ListItemText primary="Entry Fee" secondary={`${event.fees.participation} kr`} />
           </ListItem>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Base Camp Fee" secondary={`${RACE_DETAILS.fees.baseCamp} kr`} />
+            <ListItemText primary="Base Camp Fee" secondary={`${event.fees.baseCamp} kr`} />
           </ListItem>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Deposit" secondary={`${RACE_DETAILS.fees.deposit} kr`} />
+            <ListItemText primary="Deposit" secondary={`${event.fees.deposit} kr`} />
           </ListItem>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Total Fee" secondary={`${RACE_DETAILS.fees.total} kr`} />
+            <ListItemText primary="Total Fee" secondary={`${event.fees.total} kr`} />
           </ListItem>
           {isEditingExisting && (
             <>
@@ -333,57 +335,32 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ formData, error
         </Box>
 
         { (formData.isOnWaitinglist || (isFull && !isEditingExisting)) && (
-          <>
-            <Box sx={{ mb: 2, display: 'flex', alignItems: 'center' }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    checked={formData.isOnWaitinglist}
-                    name="isOnWaitinglist"
-                    color="primary"
-                    onChange={(e) => onChange('isOnWaitinglist', e.target.checked)}
-                    inputRef={fieldRefs.isOnWaitinglist as any}
+          <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
+            <Typography variant="body2">
+              I want my spot on the waiting-list to expire if I'm not promoted to the participants list before the following date:
+            </Typography>
+            <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={nb}>
+              <DatePicker
+                value={formData.waitinglistExpires}
+                onChange={(date) => onChange('waitinglistExpires', date)}
+                onClose={() => onBlur && onBlur('waitinglistExpires')}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    error={!!errors.waitinglistExpires}
+                    helperText={errors.waitinglistExpires || ''}
+                    inputRef={fieldRefs.waitinglistExpires as any}
+                    sx={{
+                      width: { xs: '100%', sm: '50%' },
+                      '& .MuiInputBase-input': {
+                        color: 'text.primary',
+                      },
+                    }}
                   />
-                }
-                label={
-                  <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                    I want to join the waiting-list, and am aware that this does not secure me a place in the race.<span style={{ color: 'grey' }}> *</span>
-                  </Typography>
-                }
-                ref={fieldRefs.isOnWaitinglist}
+                )}
               />
-            </Box>
-            <FormHelperText error={!!errors.isOnWaitinglist}>
-              {errors.isOnWaitinglist || ''}
-            </FormHelperText>
-
-            <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
-              <Typography variant="body2">
-                I want my spot on the waiting-list to expire if I'm not promoted to the participants list before the following date:
-              </Typography>
-              <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={nb}>
-                <DatePicker
-                  value={formData.waitinglistExpires}
-                  onChange={(date) => onChange('waitinglistExpires', date)}
-                  onClose={() => onBlur && onBlur('waitinglistExpires')}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      error={!!errors.waitinglistExpires}
-                      helperText={errors.waitinglistExpires || ''}
-                      inputRef={fieldRefs.waitinglistExpires as any}
-                      sx={{
-                        width: { xs: '100%', sm: '50%' },
-                        '& .MuiInputBase-input': {
-                          color: 'text.primary',
-                        },
-                      }}
-                    />
-                  )}
-                />
-              </LocalizationProvider>
-            </Box>
-          </>
+            </LocalizationProvider>
+          </Box>
         )}
         
       </Box>

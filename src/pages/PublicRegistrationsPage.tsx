@@ -1,23 +1,94 @@
 import React, { useEffect, useState } from 'react';
 import { fetchPublicRegistrations, PublicRegistration } from '../utils/publicRegistrations';
 import StatusIndicator from '../components/StatusIndicator';
-import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Alert, Switch, FormControlLabel } from '@mui/material';
+import { Container, Typography, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, CircularProgress, Box, Alert, Switch, FormControlLabel, Button } from '@mui/material';
+import { useEventEdition } from '../contexts/EventEditionContext';
+import { useNavigate } from 'react-router-dom';
 
 interface PublicRegistrationsPageProps {
+  /** 
+   * The event edition ID in the format '{eventId}-{edition}[-suffix]' 
+   * Example: 'mo-2025' or 'kutc-2025-turklasse'
+   * - eventId: The stable, unique identifier for the event (e.g., 'mo' for Malvikingen Opp)
+   * - edition: The year or edition identifier (e.g., '2025')
+   * - suffix: Optional suffix for specific registration classes (e.g., 'turklasse')
+   */
   editionId?: string;
 }
 
-const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editionId = 'kutc-2025' }) => {
+const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editionId }) => {
+  const { event, loading: eventLoading, error: eventError } = useEventEdition();
+  const navigate = useNavigate();
   const [registrations, setRegistrations] = useState<PublicRegistration[] | null>(null);
   const [loading, setLoading] = useState(true);
   const [showCancelled, setShowCancelled] = useState(false);
 
+  // If no event is loaded but we have an editionId, use it to fetch the event
   useEffect(() => {
-    fetchPublicRegistrations(editionId).then(data => {
-      setRegistrations(data);
-      setLoading(false);
-    });
-  }, [editionId]);
+    if (editionId && !eventLoading && !event) {
+      // The editionId is in the format: {eventId}-{edition}[-suffix]
+      // For example: 'mo-2025-turklasse' or 'kutc-2025'
+      const [eventId, edition] = editionId.split('-');
+      
+      if (!eventId || !edition) {
+        console.error('Invalid editionId format. Expected format: {eventId}-{edition}[-suffix]');
+        navigate('/');
+        return;
+      }
+      
+      console.log(`Loading event with ID: ${eventId}, edition: ${edition}`);
+      // Here you would typically fetch the event using the eventId and edition
+      // For example: fetchEventByIdAndEdition(eventId, edition);
+      
+    } else if (!editionId && !eventLoading && !event) {
+      // No editionId provided and no event in context
+      navigate('/');
+    }
+  }, [editionId, event, eventLoading, navigate]);
+
+  // Load registrations when event is available or when editionId changes
+  useEffect(() => {
+    const loadRegistrations = async (id: string) => {
+      setLoading(true);
+      try {
+        const data = await fetchPublicRegistrations(id);
+        setRegistrations(data);
+      } catch (error) {
+        console.error('Error loading registrations:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    if (event?.id) {
+      loadRegistrations(event.id);
+    } else if (editionId) {
+      // If we have an editionId but no event, use it directly
+      // This assumes fetchPublicRegistrations can handle the editionId format
+      loadRegistrations(editionId);
+    }
+  }, [event?.id, editionId]);
+
+  if (eventLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (eventError || !event) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+        <Alert severity="error">
+          {eventError ? `Error loading event: ${eventError.message}` : 'No event selected'}
+        </Alert>
+        <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>
+          Back to Home
+        </Button>
+      </Container>
+    );
+  }
 
   const regsList = registrations || [];
   const filteredRegs = regsList.filter(r => showCancelled || ['pending','confirmed'].includes(r.status));
@@ -30,7 +101,7 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-        {hasWaitingList ? 'Participants and Waiting-list' : 'Registered Participants'}
+        {event.eventName} - {hasWaitingList ? 'Participants and Waiting-list' : 'Registered Participants'}
       </Typography>
       <Alert severity="info" sx={{ mb: 3 }}>
         {hasWaitingList

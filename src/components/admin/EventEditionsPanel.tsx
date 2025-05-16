@@ -53,6 +53,8 @@ const EventEditionsPanel: FC = () => {
   const [maxParticipants, setMaxParticipants] = useState<number>(0);
   const [loopDistance, setLoopDistance] = useState<number>(0);
   const [fees, setFees] = useState<{ participation: number; baseCamp: number; deposit: number; total: number }>({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
+  const [raceDistances, setRaceDistances] = useState<Array<{ id: string; displayName: string; length: number; ascent: number; descent: number }>>([]);
+  const [newDistance, setNewDistance] = useState<{ id: string; displayName: string; length: number; ascent: number; descent: number }>({ id: '', displayName: '', length: 0, ascent: 0, descent: 0 });
   const [dirty, setDirty] = useState(false);
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [newRtSelect, setNewRtSelect] = useState<string>('');
@@ -93,6 +95,7 @@ const EventEditionsPanel: FC = () => {
       setMaxParticipants(data.maxParticipants || 0);
       setLoopDistance(data.loopDistance || 0);
       setFees(data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 });
+      setRaceDistances(data.raceDistances || []);
       setLoadingData(false);
       setDirty(false);
     })();
@@ -119,6 +122,8 @@ const EventEditionsPanel: FC = () => {
     setMaxParticipants(0);
     setLoopDistance(0);
     setFees({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
+    setRaceDistances([]);
+    setNewDistance({ id: '', displayName: '', length: 0, ascent: 0, descent: 0 });
     
     // Set dirty to true to indicate we have unsaved changes
     setDirty(true);
@@ -175,7 +180,8 @@ const EventEditionsPanel: FC = () => {
       registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
       maxParticipants,
       loopDistance,
-      fees
+      fees,
+      raceDistances
     };
     
     try {
@@ -414,8 +420,137 @@ const EventEditionsPanel: FC = () => {
                   onChange={e => { setFees(prev => ({ ...prev, total: Number(e.target.value) })); setDirty(true); }}
                 />
               </Box>
+              <Box sx={{ mt: 4, mb: 2 }}>
+                <h3>Race Distances</h3>
+                <List>
+                  {raceDistances.map((distance, index) => (
+                    <ListItem key={index} sx={{ display: 'flex', gap: 2 }}>
+                      <TextField
+                        label="ID"
+                        value={distance.id}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, id: e.target.value };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <TextField
+                        label="Display Name"
+                        value={distance.displayName}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, displayName: e.target.value };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <TextField
+                        label="Length (km)"
+                        type="number"
+                        value={distance.length}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, length: Number(e.target.value) };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <TextField
+                        label="Ascent (m)"
+                        type="number"
+                        value={distance.ascent}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, ascent: Number(e.target.value) };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <TextField
+                        label="Descent (m)"
+                        type="number"
+                        value={distance.descent}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, descent: Number(e.target.value) };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <IconButton
+                        onClick={() => {
+                          const newDistances = raceDistances.filter((_, i) => i !== index);
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItem>
+                  ))}
+                </List>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 4 }}>
+                  <TextField
+                    label="ID"
+                    value={newDistance.id}
+                    onChange={(e) => setNewDistance({ ...newDistance, id: e.target.value })}
+                    size="small"
+                  />
+                  <TextField
+                    label="Display Name"
+                    value={newDistance.displayName}
+                    onChange={(e) => setNewDistance({ ...newDistance, displayName: e.target.value })}
+                    size="small"
+                  />
+                  <TextField
+                    label="Length (km)"
+                    type="number"
+                    value={newDistance.length}
+                    onChange={(e) => setNewDistance({ ...newDistance, length: Number(e.target.value) })}
+                    size="small"
+                  />
+                  <TextField
+                    label="Ascent (m)"
+                    type="number"
+                    value={newDistance.ascent}
+                    onChange={(e) => setNewDistance({ ...newDistance, ascent: Number(e.target.value) })}
+                    size="small"
+                  />
+                  <TextField
+                    label="Descent (m)"
+                    type="number"
+                    value={newDistance.descent}
+                    onChange={(e) => setNewDistance({ ...newDistance, descent: Number(e.target.value) })}
+                    size="small"
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      if (!newDistance.id || !newDistance.displayName) {
+                        window.alert('ID and Display Name are required for race distances');
+                        return;
+                      }
+                      setRaceDistances([...raceDistances, newDistance]);
+                      setNewDistance({ id: '', displayName: '', length: 0, ascent: 0, descent: 0 });
+                      setDirty(true);
+                    }}
+                  >
+                    Add Distance
+                  </Button>
+                </Box>
+                <Box sx={{ mt: 2 }}>
+                  <Button variant="contained" color="primary" onClick={handleSave} disabled={!dirty}>
+                    Save
+                  </Button>
+                </Box>
+              </Box>
               <Box display="flex" gap={1}>
-                <Button variant="contained" size="small" onClick={handleSave} disabled={!dirty}>Save Changes</Button>
                 <Button variant="outlined" size="small" color="error" onClick={handleDelete}>Delete</Button>
               </Box>
             </Box>
