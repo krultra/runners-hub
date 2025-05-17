@@ -62,6 +62,15 @@ export const listEventEditions = async (): Promise<EventEditionSummary[]> => {
   } as EventEditionSummary));
 };
 
+export const getFullEventEditions = async (): Promise<EventEdition[]> => {
+  const q = query(collection(db, COLL), orderBy('eventId'), orderBy('edition'));
+  const snap = await getDocs(q);
+  return snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  } as unknown as EventEdition));
+};
+
 export const getEventEdition = async (id: string): Promise<EventEdition> => {
   const ref = doc(db, COLL, id);
   console.log('eventEditionService - fetching event with id:', id);

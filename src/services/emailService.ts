@@ -6,26 +6,6 @@ import Handlebars from 'handlebars';
 import { getEmailTemplate } from './templateService';
 import { listEventEditions, getEventEdition } from './eventEditionService';
 
-// Register formatDate helper
-Handlebars.registerHelper('formatDate', function(date, format) {
-  if (!date) return '';
-  const d = date.toDate ? date.toDate() : new Date(date);
-  
-  // Default format if none provided
-  if (!format) {
-    return d.toLocaleDateString('no-NO');
-  }
-  
-  // Simple formatting
-  return format
-    .replace('yyyy', d.getFullYear())
-    .replace('MM', String(d.getMonth() + 1).padStart(2, '0'))
-    .replace('dd', String(d.getDate()).padStart(2, '0'))
-    .replace('HH', String(d.getHours()).padStart(2, '0'))
-    .replace('mm', String(d.getMinutes()).padStart(2, '0'))
-    .replace('ss', String(d.getSeconds()).padStart(2, '0'));
-});
-
 /**
  * Email types supported by the application
  */
@@ -184,9 +164,7 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     if (ts) {
       const date = ts.toDate ? ts.toDate() : new Date(ts);
       const options = formatOptions[field];
-      (enrichedContext as any)[`${field}Formatted`] = date.toLocaleString('no-NO', options);
-      // Keep the original date object for the formatDate helper
-      (enrichedContext as any)[field] = date;
+      (enrichedContext as any)[field] = date.toLocaleString('no-NO', options);
     }
   });
   const subjTpl = tpl.subjectTemplate || DEFAULT_SUBJECTS[type];

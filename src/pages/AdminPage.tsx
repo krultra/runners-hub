@@ -1,5 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { Drawer, List, ListItem, ListItemText, Box, Toolbar, useTheme, useMediaQuery } from '@mui/material';
+import { 
+  Drawer, 
+  List, 
+  ListItem, 
+  ListItemText, 
+  Box, 
+  Toolbar, 
+  useTheme, 
+  useMediaQuery,
+  Typography
+} from '@mui/material';
+import { useEventEdition } from '../contexts/EventEditionContext';
 import { Link } from 'react-router-dom';
 import InvitationsPanel from '../components/admin/InvitationsPanel';
 import RegistrationsPanel from '../components/admin/RegistrationsPanel';
@@ -9,6 +20,7 @@ import CodeListPanel from '../components/admin/CodeListPanel';
 import ActionRequestsPanel from '../components/admin/ActionRequestsPanel';
 import SchedulesPanel from '../components/admin/SchedulesPanel';
 import AdminTasksPanel from '../components/admin/AdminTasksPanel';
+import EventEditionSelector from '../components/EventEditionSelector';
 
 const sections = [
   { key: 'invitations', label: 'Invitations' },
@@ -22,11 +34,13 @@ const sections = [
 ] as const;
 type SectionKey = typeof sections[number]['key'];
 
+
 const AdminPage: React.FC = () => {
+  const { event } = useEventEdition();
   const [active, setActive] = useState<SectionKey>('invitations');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [drawerOpen, setDrawerOpen] = useState(true);
+  const [drawerOpen, setDrawerOpen] = useState(!isMobile);
   const drawerWidth = 180; // width for drawer
 
   useEffect(() => {
@@ -37,100 +51,67 @@ const AdminPage: React.FC = () => {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      {/* Desktop persistent drawer */}
-      {!isMobile && drawerOpen && (
-        <Drawer
-          variant="persistent"
-          open
-          anchor="left"
-          sx={{
-            zIndex: theme.zIndex.appBar - 1,
-            '& .MuiDrawer-paper': {
-              width: drawerWidth,
-              boxSizing: 'border-box',
-              top: '64px',
-              height: 'calc(100% - 64px)',
-            },
-          }}
-        >
-          <Toolbar />
-          <List>
-            {sections.map((section) => (
-              <ListItem
-                button
-                key={section.key}
-                selected={active === section.key}
-                onClick={() => setActive(section.key)}
-              >
-                <ListItemText primary={section.label} />
-              </ListItem>
-            ))}
-            {/* Add link to the new import page */}
-            <ListItem
-              component={Link}
-              to="/admin/import-malvikingen"
-              sx={{ color: 'inherit', textDecoration: 'none' }}
-            >
-              <ListItemText primary="Import Malvikingen" />
-            </ListItem>
-          </List>
-        </Drawer>
-      )}
-      {/* Mobile temporary drawer */}
-      {isMobile && (
-        <Drawer
-          variant="temporary"
-          open={drawerOpen}
-          onClose={() => setDrawerOpen(false)}
-          ModalProps={{ keepMounted: true }}
-          sx={{ '& .MuiDrawer-paper': { width: drawerWidth } }}
-        >
-          <Toolbar />
-          <List>
-            {sections.map((section) => (
-              <ListItem
-                button
-                key={section.key}
-                selected={active === section.key}
-                onClick={() => { setActive(section.key); setDrawerOpen(false); }}
-              >
-                <ListItemText primary={section.label} />
-              </ListItem>
-            ))}
-            {/* Add link to the new import page */}
-            <ListItem
-              component={Link}
-              to="/admin/import-malvikingen"
-              onClick={() => setDrawerOpen(false)}
-              sx={{ color: 'inherit', textDecoration: 'none' }}
-            >
-              <ListItemText primary="Import Malvikingen" />
-            </ListItem>
-          </List>
-        </Drawer>
-      )}
-
-      <Box component="main" sx={{
-        flexGrow: 1,
-        pt: 3,
-        pr: 3,
-        pb: 3,
-        pl: 1,
-        ml: !isMobile
-          ? (drawerOpen
-              ? `${drawerWidth}px`
-              : 1)
-          : 0
-      }}>
+      <Drawer
+        variant={isMobile ? 'temporary' : 'permanent'}
+        open={!isMobile || drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        sx={{
+          width: drawerWidth,
+          flexShrink: 0,
+          '& .MuiDrawer-paper': {
+            width: drawerWidth,
+            boxSizing: 'border-box',
+            backgroundColor: theme.palette.background.paper,
+            position: 'relative',
+          },
+        }}
+      >
         <Toolbar />
-        {active === 'invitations' && <InvitationsPanel />}
-        {active === 'registrations' && <RegistrationsPanel />}
-        {active === 'templates' && <TemplatesPanel />}
-        {active === 'codelists' && <CodeListPanel />}
-        {active === 'editions' && <EventEditionsPanel />}
-        {active === 'actions' && <ActionRequestsPanel />}
-        {active === 'tasks' && <AdminTasksPanel />}
-        {active === 'schedules' && <SchedulesPanel />}
+        <List>
+          {sections.map((section) => (
+            <ListItem
+              button
+              key={section.key}
+              selected={active === section.key}
+              onClick={() => setActive(section.key)}
+            >
+              <ListItemText primary={section.label} />
+            </ListItem>
+          ))}
+          <ListItem
+            component={Link}
+            to="/admin/import-malvikingen"
+            onClick={() => isMobile && setDrawerOpen(false)}
+            sx={{ color: 'inherit', textDecoration: 'none' }}
+          >
+            <ListItemText primary="Import Malvikingen" />
+          </ListItem>
+        </List>
+      </Drawer>
+
+      <Box 
+        component="main"
+        sx={{
+          flexGrow: 1,
+          p: 3,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+        }}
+      >
+        <Toolbar />
+        <Box sx={{ p: 3 }}>
+          <EventEditionSelector />
+          <Box sx={{ mt: 3 }}>
+            {active === 'invitations' && <InvitationsPanel />}
+            {active === 'registrations' && <RegistrationsPanel />}
+            {active === 'templates' && <TemplatesPanel />}
+            {active === 'codelists' && <CodeListPanel />}
+            {active === 'editions' && <EventEditionsPanel />}
+            {active === 'actions' && <ActionRequestsPanel />}
+            {active === 'tasks' && <AdminTasksPanel />}
+            {active === 'schedules' && <SchedulesPanel />}
+          </Box>
+        </Box>
       </Box>
     </Box>
   );
