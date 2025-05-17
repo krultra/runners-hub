@@ -30,8 +30,6 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
   // Effect to scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-    console.log('RaceDetailsForm - event:', event);
-    console.log('RaceDetailsForm - race distances:', event.raceDistances);
   }, [event]);
   return (
     <Box sx={{ mt: 2, mb: 4 }}>

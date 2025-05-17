@@ -30,7 +30,7 @@ describe('registrationService duplicate prevention', () => {
 
   beforeAll(async () => {
     // Clean up any existing registration for this user
-    const existing = await getRegistrationsByUserId(userId);
+    const existing = await getRegistrationsByUserId(userId, '2025');
     for (const reg of existing) {
       if (reg.id) {
         await deleteDoc(doc(db, testCollection, reg.id));
@@ -53,12 +53,12 @@ describe('registrationService duplicate prevention', () => {
   it('should allow the first registration for a user', async () => {
     const regId = await createRegistration({ ...registration }, userId);
     createdDocIds.push(regId);
-    const regs = await getRegistrationsByUserId(userId);
+    const regs = await getRegistrationsByUserId(userId, '2025');
     expect(regs.length).toBe(1);
   });
 
   it('should block duplicate registrations for the same userId', async () => {
-    const regsBefore = await getRegistrationsByUserId(userId);
+    const regsBefore = await getRegistrationsByUserId(userId, '2025');
     expect(regsBefore.length).toBe(1);
   });
 });

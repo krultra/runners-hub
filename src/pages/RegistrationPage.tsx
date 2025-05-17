@@ -149,7 +149,10 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           const { getRegistrationsByUserId } = await import(
             "../services/registrationService"
           );
-          const registrations = await getRegistrationsByUserId(user.uid);
+          const registrations = await getRegistrationsByUserId(
+            user.uid,
+            event.id
+          );
           if (registrations && registrations.length > 0) {
             // Use the first registration (should only be one per user)
             const reg = registrations[0];
@@ -507,7 +510,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             "../services/registrationService"
           );
           // Check for existing registration for this user
-          const existingRegs = await getRegistrationsByUserId(user?.uid);
+          const existingRegs = await getRegistrationsByUserId(user.uid, event.id);
           if (existingRegs && existingRegs.length > 0) {
             setSnackbarMessage(
               "You have already submitted a registration. Duplicate entries are not allowed.",

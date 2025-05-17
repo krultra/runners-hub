@@ -57,7 +57,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
       
       if (currentUser) {
         try {
-          const regs = await getRegistrationsByUserId(currentUser.uid);
+          const regs = await getRegistrationsByUserId(currentUser.uid, event.id);
           const reg = regs.length > 0 ? regs[0] : null;
           setIsUserRegistered(!!reg);
           setUserRegistration(reg);
