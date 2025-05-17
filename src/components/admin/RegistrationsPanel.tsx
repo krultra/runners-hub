@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTheme, Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { useTheme, Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Alert } from '@mui/material';
 import RegistrationDetailsDialog from './RegistrationDetailsDialog';
 import { getRegistrationsByEdition, generateTestRegistrations } from '../../services/registrationService';
 import { listCodeList } from '../../services/codeListService';
 import { Registration } from '../../types';
-import { listEventEditions } from '../../services/eventEditionService';
+import { useEventEdition } from '../../contexts/EventEditionContext';
 
 // Replacement for the deleted statusService
 interface RegistrationStatus {
@@ -13,7 +13,7 @@ interface RegistrationStatus {
 }
 
 const RegistrationsPanel: React.FC = () => {
-  const [currentEditionId, setCurrentEditionId] = useState<string>('');
+  const { event: selectedEvent } = useEventEdition();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [statuses, setStatuses] = useState<RegistrationStatus[]>([]);
   const [regLoading, setRegLoading] = useState(false);
@@ -28,31 +28,32 @@ const RegistrationsPanel: React.FC = () => {
 
   // Load registrations and statuses
   const loadData = useCallback(async () => {
-    if (!currentEditionId) return;
+    if (!selectedEvent?.id) return;
     setRegLoading(true);
-    const regs = await getRegistrationsByEdition(currentEditionId);
-    // sort by registrationNumber ascending
-    regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
-    // Get statuses from codeLists collection
-    const codeListItems = await listCodeList('status', 'registrations');
-    // Map to the expected RegistrationStatus interface
-    const sts = codeListItems.map(item => ({
-      id: item.id,
-      label: item.code
-    }));
-    setRegistrations(regs);
-    setStatuses(sts);
-    setRegLoading(false);
-  }, [currentEditionId]);
+    try {
+      const regs = await getRegistrationsByEdition(selectedEvent.id);
+      // sort by registrationNumber ascending
+      regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
+      // Get statuses from codeLists collection
+      const codeListItems = await listCodeList('status', 'registrations');
+      // Map to the expected RegistrationStatus interface
+      const sts = codeListItems.map(item => ({
+        id: item.id,
+        label: item.code
+      }));
+      setRegistrations(regs);
+      setStatuses(sts);
+    } catch (error) {
+      console.error('Error loading registrations:', error);
+    } finally {
+      setRegLoading(false);
+    }
+  }, [selectedEvent?.id]);
 
-  // Fetch release editions and then load data
+  // Load data when selected event changes
   useEffect(() => {
-    (async () => {
-      const editions = await listEventEditions();
-      if (editions.length > 0) setCurrentEditionId(editions[editions.length - 1].id);
-    })();
-  }, []);
-  useEffect(() => { if (currentEditionId) loadData(); }, [loadData, currentEditionId]);
+    loadData();
+  }, [loadData]);
 
   // Handlers for details dialog
   const openDetails = (reg: Registration) => {
@@ -66,14 +67,19 @@ const RegistrationsPanel: React.FC = () => {
   const handleUpdate = () => { loadData(); };
 
   const handleGenerateTest = async () => {
-    if (!currentEditionId) return;
+    if (!selectedEvent?.id) return;
     setTestLoading(true);
-    await generateTestRegistrations(currentEditionId, testCount);
-    const regs = await getRegistrationsByEdition(currentEditionId);
-    // sort by registrationNumber ascending
-    regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
-    setRegistrations(regs);
-    setTestLoading(false);
+    try {
+      await generateTestRegistrations(selectedEvent.id, testCount);
+      const regs = await getRegistrationsByEdition(selectedEvent.id);
+      // sort by registrationNumber ascending
+      regs.sort((a, b) => Number(a.registrationNumber) - Number(b.registrationNumber));
+      setRegistrations(regs);
+    } catch (error) {
+      console.error('Error generating test data:', error);
+    } finally {
+      setTestLoading(false);
+    }
   };
 
   // registration summary counts
@@ -86,9 +92,22 @@ const RegistrationsPanel: React.FC = () => {
   const cancelledCount = registrations.filter(r => r.status === 'cancelled').length;
   const expiredCount = registrations.filter(r => r.status === 'expired').length;
 
+  if (!selectedEvent) {
+    return (
+      <Box p={3}>
+        <Alert severity="info">Please select an event edition to view registrations.</Alert>
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      <Typography variant="h5">Registrations & Payment Status</Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h5">Registrations & Payment Status</Typography>
+        <Typography variant="subtitle1" color="textSecondary">
+          {selectedEvent.eventName} {selectedEvent.edition}
+        </Typography>
+      </Box>
       <TableContainer component={Paper} sx={{ mt: 2, mb: 2 }}>
         <Table size="small">
           <TableHead>
@@ -133,8 +152,16 @@ const RegistrationsPanel: React.FC = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      <Box display="flex" gap={2} alignItems="center" mt={2}>
-        <TextField label="Test Count" type="number" size="small" value={testCount} onChange={e => setTestCount(Number(e.target.value))} />
+      <Box display="flex" alignItems="center" gap={2} mb={2}>
+        <TextField
+          type="number"
+          label="Number of test registrations"
+          value={testCount}
+          onChange={(e) => setTestCount(parseInt(e.target.value) || 0)}
+          size="small"
+          sx={{ width: 250 }}
+          disabled={!selectedEvent.id}
+        />
         <Button variant="contained" onClick={handleGenerateTest} disabled={!testCount || testLoading}>
           {testLoading ? <CircularProgress size={20} /> : 'Generate Test Registrations'}
         </Button>

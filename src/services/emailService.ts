@@ -29,12 +29,30 @@ export enum EmailType {
 
 
 
+interface InvitationContext {
+  name: string;
+  firstName: string;
+  editionId?: string;
+  [key: string]: any;
+}
+
 /**
  * Sends an invitation email to a single invitee
+ * @param email Recipient email address
+ * @param name Recipient name
+ * @param context Additional context for the email template
  */
-export const sendInvitationEmail = async (email: string, name: string): Promise<DocumentReference<any>> => {
-  const context = { name, firstName: name };
-  return sendEmail(EmailType.INVITATION, email, context);
+export const sendInvitationEmail = async (
+  email: string, 
+  name: string, 
+  context?: Partial<InvitationContext>
+): Promise<DocumentReference<any>> => {
+  const emailContext: InvitationContext = {
+    name,
+    firstName: name.split(' ')[0],
+    ...context
+  };
+  return sendEmail(EmailType.INVITATION, email, emailContext);
 };
 
 /**

@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Checkbox } from '@mui/material';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Checkbox, Alert } from '@mui/material';
 import { fetchInvitations, addInvitation, updateInvitationSent, setResendFlag, Invitation } from '../../utils/invitationUtils';
 import InviteSummaryDialog from '../InviteSummaryDialog';
 import { sendInvitationEmail } from '../../services/emailService';
-import { listEventEditions } from '../../services/eventEditionService';
+import { useEventEdition } from '../../contexts/EventEditionContext';
 
 const InvitationsPanel: React.FC = () => {
+  const { event: selectedEvent } = useEventEdition();
   const [invitees, setInvitees] = useState<Invitation[]>([]);
   const [loading, setLoading] = useState(false);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -13,36 +14,38 @@ const InvitationsPanel: React.FC = () => {
   const [addName, setAddName] = useState('');
   const [addLoading, setAddLoading] = useState(false);
   const [numToSend, setNumToSend] = useState(0);
-  const [currentEditionId, setCurrentEditionId] = useState<string>('');
 
-  // load current edition id
-  useEffect(() => {
-    (async () => {
-      const editions = await listEventEditions();
-      if (editions.length > 0) setCurrentEditionId(editions[editions.length - 1].id);
-    })();
-  }, []);
-
-  // fetch invitations when edition id is available
-  useEffect(() => {
-    if (!currentEditionId) return;
-    (async () => {
-      setLoading(true);
-      const data = await fetchInvitations(currentEditionId);
+  // fetch invitations when selected event changes
+  const loadInvitations = useCallback(async () => {
+    if (!selectedEvent?.id) return;
+    setLoading(true);
+    try {
+      const data = await fetchInvitations(selectedEvent.id);
       setInvitees(data);
+    } catch (error) {
+      console.error('Error loading invitations:', error);
+    } finally {
       setLoading(false);
-    })();
-  }, [currentEditionId]);
+    }
+  }, [selectedEvent?.id]);
+
+  useEffect(() => {
+    loadInvitations();
+  }, [loadInvitations]);
 
   const handleAddInvitee = async () => {
-    if (!addEmail || !addName || !currentEditionId) return;
+    if (!addEmail || !addName || !selectedEvent?.id) return;
     setAddLoading(true);
-    await addInvitation({ email: addEmail, name: addName, editionId: currentEditionId });
-    setAddEmail('');
-    setAddName('');
-    const data = await fetchInvitations(currentEditionId);
-    setInvitees(data);
-    setAddLoading(false);
+    try {
+      await addInvitation({ email: addEmail, name: addName, editionId: selectedEvent.id });
+      setAddEmail('');
+      setAddName('');
+      await loadInvitations();
+    } catch (error) {
+      console.error('Error adding invitee:', error);
+    } finally {
+      setAddLoading(false);
+    }
   };
 
   const eligibleInvitees = invitees.filter(inv => inv.numSent === 0 || inv.resendFlag);
@@ -55,13 +58,17 @@ const InvitationsPanel: React.FC = () => {
   const handleDialogClose = () => setDialogOpen(false);
 
   const handleRun = async () => {
+    if (!selectedEvent?.id) return;
+    
     setDialogOpen(false);
     setLoading(true);
     let successCount = 0;
     let errorCount = 0;
+    
     for (const invite of eligibleInvitees) {
       try {
-        await sendInvitationEmail(invite.email, invite.name);
+        // Include the event edition ID in the context
+        await sendInvitationEmail(invite.email, invite.name, { editionId: selectedEvent.id });
         await updateInvitationSent(invite.id!, invite.resendFlag);
         successCount++;
       } catch (error) {
@@ -69,10 +76,10 @@ const InvitationsPanel: React.FC = () => {
         errorCount++;
       }
     }
+    
     setLoading(false);
     alert(`Sent ${successCount} invitations.${errorCount > 0 ? ` Failed: ${errorCount}` : ''}`);
-    const data = await fetchInvitations(currentEditionId);
-    setInvitees(data);
+    await loadInvitations();
   };
 
   // Toggle resend flag for an invitation
@@ -81,13 +88,26 @@ const InvitationsPanel: React.FC = () => {
     setInvitees(prev => prev.map(inv => inv.id === id ? { ...inv, resendFlag: checked } : inv));
   };
 
+  if (!selectedEvent) {
+    return (
+      <Box p={3}>
+        <Alert severity="info">Please select an event edition to manage invitations.</Alert>
+      </Box>
+    );
+  }
+
   return (
     <Box>
-      <Typography variant="h5">Invitations</Typography>
+      <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+        <Typography variant="h5">Invitations</Typography>
+        <Typography variant="subtitle1" color="textSecondary">
+          {selectedEvent.eventName} {selectedEvent.edition}
+        </Typography>
+      </Box>
       <Box display="flex" gap={2} alignItems="center" mt={2}>
         <TextField label="Email" value={addEmail} size="small" onChange={e => setAddEmail(e.target.value)} />
         <TextField label="Name" value={addName} size="small" onChange={e => setAddName(e.target.value)} />
-        <Button variant="contained" color="primary" onClick={handleAddInvitee} disabled={addLoading || !addEmail || !addName || !currentEditionId}>
+        <Button variant="contained" color="primary" onClick={handleAddInvitee} disabled={addLoading || !addEmail || !addName || !selectedEvent?.id}>
           {addLoading ? <CircularProgress size={20} /> : 'Add'}
         </Button>
       </Box>
