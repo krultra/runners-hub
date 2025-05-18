@@ -11,7 +11,7 @@ import {
   FormLabel,
   FormHelperText
 } from '@mui/material';
-import { RACE_DISTANCES } from '../../constants';
+import { CurrentEvent } from '../../contexts/EventEditionContext';
 
 interface RaceDetailsFormProps {
   formData: {
@@ -23,13 +23,14 @@ interface RaceDetailsFormProps {
   errors: Record<string, string>;
   fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
   onBlur?: (field: string) => void;
+  event: CurrentEvent;
 }
 
-const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur }) => {
+const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, event }) => {
   // Effect to scroll to top when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, []);
+  }, [event]);
   return (
     <Box sx={{ mt: 2, mb: 4 }}>
       <Typography variant="h6" gutterBottom>
@@ -51,12 +52,12 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
               onBlur={() => onBlur && onBlur('raceDistance')}
               ref={fieldRefs.raceDistance as any}
             >
-              {RACE_DISTANCES.map((distance, idx) => (
+              {(event.raceDistances || []).map((distance, idx) => (
                 <FormControlLabel
                   key={distance.id}
                   value={distance.id}
-                  control={<Radio autoFocus={idx === 0} />}
-                  label={distance.displayName}
+                  control={<Radio />}
+                  label={distance.displayName || distance.id}
                 />
               ))}
             </RadioGroup>
@@ -76,8 +77,8 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
             variant="outlined"
             value={formData.travelRequired}
             onChange={(e) => onChange('travelRequired', e.target.value)}
-            inputProps={{ maxLength: 200 }}
             onBlur={() => onBlur && onBlur('travelRequired')}
+            inputProps={{ maxLength: 200 }}
             error={!!errors.travelRequired}
             helperText={errors.travelRequired || 'Please describe your travel plans to help us minimize our carbon footprint'}
             inputRef={fieldRefs.travelRequired as any}

@@ -1,5 +1,13 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { listEventEditions, getEventEdition } from '../services/eventEditionService';
+
+export interface RaceDistance {
+  id: string;
+  displayName: string;
+  length: number;
+  ascent: number;
+  descent: number;
+}
 
 export interface CurrentEvent {
   id: string;
@@ -15,6 +23,7 @@ export interface CurrentEvent {
   registrationDeadline: Date | null;
   maxParticipants?: number;
   loopDistance?: number;
+  raceDistances?: RaceDistance[];
   fees: {
     participation: number;
     baseCamp: number;
@@ -27,83 +36,55 @@ interface EventContextValue {
   event: CurrentEvent | null;
   loading: boolean;
   error: Error | null;
-  setEvent: (event: Partial<CurrentEvent>) => void;
+  setEvent: (event: Partial<CurrentEvent> | string | null) => Promise<void>;
 }
 
 const EventEditionContext = createContext<EventContextValue>({
   event: null,
   loading: true,
   error: null,
-  setEvent: () => {}, // Default no-op function
+  setEvent: async () => { return; } // Default no-op async function
 });
 
 export const EventEditionProvider = ({ children }: { children: React.ReactNode }) => {
   const [event, setEventState] = useState<CurrentEvent | null>(null);
   
-  // Wrapper function to handle partial updates
-  const setEvent = async (eventData: Partial<CurrentEvent>) => {
-    if (eventData.id) {
-      try {
-        setLoading(true);
-        // If we only have an ID, fetch the full event data
-        if (Object.keys(eventData).length === 1) {
-          const data = await getEventEdition(eventData.id);
-          const { startTime, endTime, registrationDeadline, fees, ...rest } = data;
-          setEventState({
-            ...rest,
-            startTime: startTime.toDate(),
-            endTime: endTime.toDate(),
-            registrationDeadline: registrationDeadline ? registrationDeadline.toDate() : null,
-            fees: fees ?? { participation: 0, baseCamp: 0, deposit: 0, total: 0 },
-          });
-        } else {
-          // If we have more data, just update the state
-          setEventState(prev => {
-            if (prev === null) {
-              return eventData as CurrentEvent;
-            }
-            return { ...prev, ...eventData } as CurrentEvent;
-          });
-        }
-      } catch (err: any) {
-        setError(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-  };
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  useEffect(() => {
-    let mounted = true;
-    (async () => {
-      try {
-        const summaries = await listEventEditions();
-        if (!mounted) return;
-        if (summaries.length === 0) throw new Error('No event editions found');
-        // pick the last (latest) edition
-        const latest = summaries[summaries.length - 1];
-        const data = await getEventEdition(latest.id);
-        if (!mounted) return;
-        const { startTime, endTime, registrationDeadline, fees, ...rest } = data;
-        setEvent({
-          ...rest,
-          startTime: startTime.toDate(),
-          endTime: endTime.toDate(),
-          registrationDeadline: registrationDeadline ? registrationDeadline.toDate() : null,
-          fees: fees ?? { participation: 0, baseCamp: 0, deposit: 0, total: 0 },
+  const setEvent = useCallback(async (eventData: Partial<CurrentEvent> | string | null) => {
+    if (eventData === null) {
+      setEventState(null);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      if (typeof eventData === 'string') {
+        // If a string is passed, treat it as an event ID
+        const data = await getEventEdition(eventData);
+        setEventState({
+          ...data,
+          startTime: data.startTime.toDate(),
+          endTime: data.endTime.toDate(),
+          registrationDeadline: data.registrationDeadline?.toDate() || null,
+          raceDistances: data.raceDistances || [],
+          fees: data.fees ?? { participation: 0, baseCamp: 0, deposit: 0, total: 0 },
         });
-      } catch (err: any) {
-        if (!mounted) return;
-        setError(err);
-      } finally {
-        if (!mounted) return;
-        setLoading(false);
+      } else {
+        // If an object is passed, update the event state
+        setEventState(prev => prev ? { ...prev, ...eventData } as CurrentEvent : eventData as CurrentEvent);
       }
-    })();
-    return () => { mounted = false; };
+    } catch (err) {
+      setError(err as Error);
+      throw err; // Re-throw to allow components to handle the error
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
 
   return (
     <EventEditionContext.Provider value={{ event, loading, error, setEvent }}>

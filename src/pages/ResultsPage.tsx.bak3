@@ -139,6 +139,93 @@ const ResultsPage = () => {
   // Tab state
   const [tabValue, setTabValue] = useState(0);
 
+  // Fetch data from the results service
+  const fetchData = useCallback(async () => {
+    if (!contextEvent?.id) return;
+    
+    try {
+      setLoading(true);
+      setError(null);
+      
+      // Get event results
+      const results = await getEventResults(contextEvent.id);
+      
+      // Update state with results
+      setEventEditionData(results.eventData || {});
+      // Set status from eventData if available, otherwise use default
+      const eventStatus = results.eventData?.status as Status || Status.notStarted;
+      setStatus(eventStatus);
+      
+      // Categorize participants
+      categorizeParticipants(results.participants || []);
+      
+    } catch (err) {
+      console.error('Error fetching results:', err);
+      setError('Failed to load results. Please try again later.');
+    } finally {
+      setLoading(false);
+    }
+  }, [contextEvent?.id]);
+
+  // Effect to load data when contextEvent changes
+  useEffect(() => {
+    if (contextEvent?.id) {
+      fetchData();
+    } else {
+      setLoading(false);
+    }
+  }, [contextEvent?.id, fetchData]);
+  
+  // Handle tab change
+  const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
+  if (contextLoading) {
+    return (
+      <Box display="flex" justifyContent="center" alignItems="center" minHeight="200px">
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  if (contextError || !contextEvent) {
+    return (
+      <Box component={Paper} sx={{ maxWidth: 'md', mx: 'auto', mt: 4, mb: 4, p: 3 }}>
+        <Alert severity="error" sx={{ mb: 2 }}>
+          {contextError ? `Error loading event: ${contextError.message}` : 'No event selected'}
+        </Alert>
+        <Button variant="contained" onClick={() => navigate('/')}>
+          Back to Home
+        </Button>
+      </Box>
+    );
+  }
+  const [eventEditionData, setEventEditionData] = useState<EventEditionData>({});
+  const [status, setStatus] = useState<Status>(Status.notStarted);
+  
+  // Participants state
+  const [competitiveParticipants, setCompetitiveParticipants] = useState<Participant[]>([]);
+  const [timedRecreationalParticipants, setTimedRecreationalParticipants] = useState<Participant[]>([]);
+  const [recreationalParticipants, setRecreationalParticipants] = useState<Participant[]>([]);
+  
+  // DataGrid state
+  const [competitiveColumnVisibility, setCompetitiveColumnVisibility] = useState<GridColumnVisibilityModel>({});
+  const [timedRecreationalColumnVisibility, setTimedRecreationalColumnVisibility] = useState<GridColumnVisibilityModel>({});
+  const [recreationalColumnVisibility, setRecreationalColumnVisibility] = useState<GridColumnVisibilityModel>({});
+  
+  const [competitiveSortModel, setCompetitiveSortModel] = useState<GridSortModel>([]);
+  const [timedRecreationalSortModel, setTimedRecreationalSortModel] = useState<GridSortModel>([]);
+  const [recreationalSortModel, setRecreationalSortModel] = useState<GridSortModel>([]);
+  
+  // Tab state
+  const [tabValue, setTabValue] = useState(0);
+
+  // Handle tab change
+  const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
+    setTabValue(newValue);
+  };
+
   // Format time for Excel (using comma as decimal separator)
   const formatExcelTime = (timeStr: string): string => {
     if (!timeStr) return '';
@@ -146,7 +233,7 @@ const ResultsPage = () => {
   };
 
   // Categorize participants into competitive, timed recreational, and non-timed recreational
-  const categorizeParticipants = useCallback((participants: Participant[]): void => {
+  const categorizeParticipants = (participants: Participant[]): void => {
     if (!participants || participants.length === 0) return;
     
     // Competitive participants (has registrationType === 'competition')
@@ -188,14 +275,9 @@ const ResultsPage = () => {
     setCompetitiveParticipants(competitive);
     setTimedRecreationalParticipants(timedRec);
     setRecreationalParticipants(recreational);
-  }, [setCompetitiveParticipants, setTimedRecreationalParticipants, setRecreationalParticipants]);
-  
-  // Handle tab change
-  const handleTabChange = (_event: SyntheticEvent, newValue: number) => {
-    setTabValue(newValue);
   };
 
-  // Main effect for data fetching
+  // Fetch data from the results service
   useEffect(() => {
     const fetchData = async () => {
       try {

@@ -1,4 +1,10 @@
-import React, { useState, useEffect, FC } from 'react';
+// React & Hooks
+import React, { useState, useEffect, FC, useCallback } from 'react';
+
+// Firebase
+import { Timestamp } from 'firebase/firestore';
+
+// MUI Components
 import {
   Box,
   TextField,
@@ -14,14 +20,18 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+
+// Date Pickers
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import nbLocale from 'date-fns/locale/nb';
-import DeleteIcon from '@mui/icons-material/Delete';
-import {
-  Timestamp
-} from 'firebase/firestore';
+
+// Context
+import { useEventEdition, RaceDistance } from '../../contexts/EventEditionContext';
+
+// Services
 import {
   listEventEditions,
   addEventEdition,
@@ -32,40 +42,132 @@ import {
 } from '../../services/eventEditionService';
 import { listCodeList } from '../../services/codeListService';
 
+// Components
+import EventEditionSelector from '../EventEditionSelector';
+
+// Types
+interface SnackbarState {
+  open: boolean;
+  message: string;
+  severity: 'success' | 'error' | 'info' | 'warning';
+}
+
+interface RaceDistanceForm {
+  id: string;               // Required to match RaceDistance
+  name: string;             // Required identifier
+  distance: number;         // Distance in meters
+  displayName: string;      // Display name (required to match RaceDistance)
+  length: number;           // Actual length in meters (required to match RaceDistance)
+  ascent: number;           // Total ascent in meters (required to match RaceDistance)
+  descent: number;          // Total descent in meters (required to match RaceDistance)
+}
+
+// Helper function to convert RaceDistanceForm to RaceDistance
+const toRaceDistance = (form: RaceDistanceForm): RaceDistance => {
+  return {
+    id: form.id,
+    displayName: form.displayName,
+    length: form.length,
+    ascent: form.ascent,
+    descent: form.descent
+  };
+};
+
+// Helper function to convert RaceDistance to RaceDistanceForm
+const toRaceDistanceForm = (distance: RaceDistance): RaceDistanceForm => {
+  return {
+    id: distance.id,
+    name: distance.displayName, // Use displayName as name
+    distance: distance.length, // Use length as distance
+    displayName: distance.displayName,
+    length: distance.length,
+    ascent: distance.ascent,
+    descent: distance.descent
+  };
+};
+
+interface FeesForm {
+  participation: number;
+  baseCamp: number;
+  deposit: number;
+  total: number;
+}
+
 const EventEditionsPanel: FC = () => {
-  const [summaries, setSummaries] = useState<EventEditionSummary[]>([]);
-  const [selectedId, setSelectedId] = useState<string>('');
-  const [loadingSummaries, setLoadingSummaries] = useState(false);
-  const [loadingData, setLoadingData] = useState(false);
-
-  const [availableStatuses, setAvailableStatuses] = useState<string[]>([]);
-
+  // Loading states
+  const [loadingData, setLoadingData] = useState<boolean>(false);
+  
+  // Form state
+  const [dirty, setDirty] = useState<boolean>(false);
   const [eventId, setEventId] = useState<string>('');
   const [editionNum, setEditionNum] = useState<number>(1);
   const [eventShortName, setEventShortName] = useState<string>('');
   const [eventName, setEventName] = useState<string>('');
-  const [status, setStatus] = useState<string>('');
+  const [status, setStatus] = useState<string>('draft');
   const [resultTypes, setResultTypes] = useState<string[]>([]);
   const [resultsStatus, setResultsStatus] = useState<string>('');
-  const [startDate, setStartDate] = useState<Date | null>(null);
-  const [endDate, setEndDate] = useState<Date | null>(null);
+  const [startDate, setStartDate] = useState<Date | null>(new Date());
+  const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [registrationDeadline, setRegistrationDeadline] = useState<Date | null>(null);
   const [maxParticipants, setMaxParticipants] = useState<number>(0);
   const [loopDistance, setLoopDistance] = useState<number>(0);
-  const [fees, setFees] = useState<{ participation: number; baseCamp: number; deposit: number; total: number }>({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
-  const [dirty, setDirty] = useState(false);
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [newRtSelect, setNewRtSelect] = useState<string>('');
-
-
+  
+  // Complex state objects
+  const [fees, setFees] = useState<FeesForm>({ 
+    participation: 0, 
+    baseCamp: 0, 
+    deposit: 0, 
+    total: 0 
+  });
+  
+  const [raceDistances, setRaceDistances] = useState<RaceDistance[]>([]);
+  const [newDistance, setNewDistance] = useState<RaceDistanceForm>({ 
+    id: '', 
+    name: '', 
+    distance: 0, 
+    displayName: '', 
+    length: 0, 
+    ascent: 0, 
+    descent: 0 
+  });
+  
+  // UI state
+  const [snackbar, setSnackbar] = useState<SnackbarState>({ 
+    open: false, 
+    message: '', 
+    severity: 'success' 
+  });
+  
+  const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
+  const [availableStatuses, setAvailableStatuses] = useState<string[]>([]);
+  
+  // Context
+  const { 
+    event: selectedEvent, 
+    setEvent, 
+    loading: eventLoading, 
+    error: eventError 
+  } = useEventEdition();
+  
+  // Log context values for debugging
   useEffect(() => {
-    (async () => {
-      setLoadingSummaries(true);
-      const data = await listEventEditions();
-      setSummaries(data);
-      setLoadingSummaries(false);
-    })();
-  }, []);
+    console.log('Selected Event:', selectedEvent);
+    console.log('Event Loading:', eventLoading);
+    if (eventError) {
+      console.error('Event Error:', eventError);
+    }
+  }, [selectedEvent, eventLoading, eventError]);
+  
+  // Load data when selected event changes in context
+  useEffect(() => {
+    if (selectedEvent?.id) {
+      loadEventData(selectedEvent.id);
+    } else {
+      // Clear form when no event is selected
+      resetForm();
+    }
+  }, [selectedEvent?.id]);
 
   useEffect(() => {
     listCodeList('status', 'results').then(data =>
@@ -73,13 +175,13 @@ const EventEditionsPanel: FC = () => {
     );
   }, []);
 
-  useEffect(() => {
-    if (!selectedId) {
-      return;
-    }
-    (async () => {
-      setLoadingData(true);
-      const data = await getEventEdition(selectedId);
+  // Load event data from Firestore by ID
+  const loadEventData = async (eventId: string) => {
+    if (!eventId) return;
+    
+    setLoadingData(true);
+    try {
+      const data = await getEventEdition(eventId);
       setEventId(data.eventId);
       setEditionNum(data.edition);
       setEventShortName(data.eventShortName);
@@ -93,24 +195,31 @@ const EventEditionsPanel: FC = () => {
       setMaxParticipants(data.maxParticipants || 0);
       setLoopDistance(data.loopDistance || 0);
       setFees(data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 });
+      // Convert RaceDistance array from Firestore to RaceDistanceForm array for our component
+      setRaceDistances((data.raceDistances || []).map(dist => toRaceDistanceForm(dist)));
+      // Convert Firestore Timestamps to Dates for the context
+      const contextEvent = {
+        ...data,
+        startTime: data.startTime.toDate(),
+        endTime: data.endTime.toDate(),
+        registrationDeadline: data.registrationDeadline?.toDate() || null,
+      };
+      await setEvent(contextEvent);
+    } catch (error) {
+      console.error('Error loading event data:', error);
+    } finally {
       setLoadingData(false);
       setDirty(false);
-    })();
-  }, [selectedId]);
-
-  const handleCreate = () => {
-    if (dirty && !window.confirm('Discard unsaved changes and create a new edition?')) return;
-    
-    // Clear the selected ID to indicate we're creating a new event
-    // that hasn't been saved to the database yet
-    setSelectedId('');
-    
-    // Initialize form with empty values
+    }
+  };
+  
+  // Reset form to initial state
+  const resetForm = () => {
     setEventId('');
     setEditionNum(1);
     setEventShortName('');
     setEventName('');
-    setStatus('');
+    setStatus('draft');
     setResultTypes([]);
     setResultsStatus('');
     setStartDate(new Date());
@@ -119,6 +228,19 @@ const EventEditionsPanel: FC = () => {
     setMaxParticipants(0);
     setLoopDistance(0);
     setFees({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
+    setRaceDistances([]);
+    setNewDistance({ id: '', name: '', distance: 0, displayName: '', length: 0, ascent: 0, descent: 0 });
+    setDirty(false);
+  };
+  
+  const handleCreate = () => {
+    if (dirty && !window.confirm('Discard unsaved changes and create a new edition?')) return;
+    
+    // Clear the context to indicate we're creating a new event edition
+    setEvent(null);
+    
+    // Reset form to initial state
+    resetForm();
     
     // Set dirty to true to indicate we have unsaved changes
     setDirty(true);
@@ -129,102 +251,169 @@ const EventEditionsPanel: FC = () => {
   const handleSave = async () => {
     // Validate required fields regardless of create/update
     if (!eventId || eventId.trim() === '') {
-      window.alert('Event ID is required. Please enter a valid ID like "mo" for Malvikingen Opp.');
+      setSnackbar({
+        open: true,
+        message: 'Event ID is required. Please enter a valid ID like "mo" for Malvikingen Opp.',
+        severity: 'error'
+      });
       return;
     }
     
-    if (typeof editionNum !== 'number' || isNaN(editionNum) || editionNum <= 0) {
-      window.alert('Edition must be a positive number, like 2025 for the year of the event.');
+    if (editionNum < 1) {
+      setSnackbar({
+        open: true,
+        message: 'Edition number must be at least 1',
+        severity: 'error'
+      });
       return;
     }
     
-    if (!startDate || !endDate) { 
-      window.alert('Please set both start and end dates'); 
-      return; 
-    }
-    
-    if (startDate > endDate) { 
-      window.alert('Start time must be before end time'); 
-      return; 
-    }
-    
-    if (!dirty) return;
-    
-    // Check for duplicate event editions
-    const safeEventId = eventId.trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+    // Remove spaces, special chars from eventId to make a 'safe' version for the document ID
+    const safeEventId = eventId.toLowerCase().replace(/[^a-z0-9]/g, '');
     const documentId = `${safeEventId}-${editionNum}`;
     
-    // Only check for duplicates that aren't the current document
-    if (summaries.some(s => s.eventId === eventId && s.edition === editionNum && 
-                          (!selectedId || s.id !== selectedId))) { 
-      window.alert('An edition with this Event ID and edition number already exists'); 
-      return; 
+    // Validate that we're not overwriting an existing event with a different ID
+    if (selectedEvent?.id && selectedEvent.id !== documentId) {
+      const confirmChange = window.confirm(`Changing the eventId or edition will create a new document with ID ${documentId}.\n\nThe original document ${selectedEvent.id} will remain unchanged.\n\nAre you sure you want to continue?`);
+      if (!confirmChange) return;
     }
-    
-    // Prepare the payload for both create and update
+
+    // Prepare dates for Firestore (convert to Timestamp)
+    const d1 = startDate || new Date();
+    const d2 = endDate || new Date();
+
+    // Build the payload
     const payload = {
-      eventId: eventId.trim(),
+      eventId,
       edition: editionNum,
       eventShortName,
       eventName,
       status,
       resultTypes,
       resultsStatus,
-      startTime: Timestamp.fromDate(startDate),
-      endTime: Timestamp.fromDate(endDate),
+      startTime: Timestamp.fromDate(d1),
+      endTime: Timestamp.fromDate(d2),
       registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
       maxParticipants,
       loopDistance,
-      fees
+      fees,
+      // Convert RaceDistanceForm array to RaceDistance array for Firestore
+      raceDistances: raceDistances.map(form => ({
+        id: form.id,
+        displayName: form.displayName,
+        length: form.length,
+        ascent: form.ascent,
+        descent: form.descent
+      })) as RaceDistance[],
     };
     
     try {
-      let newId = selectedId;
+      let newId = selectedEvent?.id || '';
       
       // Creating a new document
-      if (!selectedId) {
+      if (!selectedEvent?.id) {
         console.log(`Creating new event edition with ID: ${documentId}, eventId: ${eventId}, edition: ${editionNum}`);
         newId = await addEventEdition(payload);
         console.log(`New event edition created with ID: ${newId}`);
       } 
       // Updating an existing document
       else {
-        console.log(`Updating event edition with ID: ${selectedId}, eventId: ${eventId}, edition: ${editionNum}`);
-        await updateEventEdition(selectedId, payload);
+        console.log(`Updating event edition with ID: ${selectedEvent.id}, eventId: ${eventId}, edition: ${editionNum}`);
+        await updateEventEdition(selectedEvent.id, payload);
         console.log('Event edition updated successfully');
       }
       
-      // Refresh the list and select the newly created or updated item
-      const data = await listEventEditions();
-      setSummaries(data);
-      setSelectedId(newId);
-      setSnackbarOpen(true);
+      // Get the full event data with proper Date objects for the context
+      const updatedEvent = await getEventEdition(newId);
+      const contextEvent = {
+        ...updatedEvent,
+        startTime: updatedEvent.startTime.toDate(),
+        endTime: updatedEvent.endTime.toDate(),
+        registrationDeadline: updatedEvent.registrationDeadline?.toDate() || null,
+      };
+      
+      // Update the context with the latest data
+      await setEvent(contextEvent);
+      
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: selectedEvent?.id ? 'Event edition updated successfully' : 'New event edition created successfully',
+        severity: 'success'
+      });
+      
       setDirty(false);
     } catch (error) {
       console.error('Error saving event edition:', error);
-      window.alert(`Error saving event: ${error instanceof Error ? error.message : String(error)}`);
+      setSnackbar({
+        open: true,
+        message: `Error saving event: ${error instanceof Error ? error.message : String(error)}`,
+        severity: 'error'
+      });
     }
   };
 
   const handleDelete = async () => {
-    if (!selectedId) return;
+    if (!selectedEvent?.id) return;
     const ok = window.confirm('Delete this event edition? This cannot be undone.');
     if (!ok) return;
-    await deleteEventEdition(selectedId);
-    setSelectedId('');
-    const data = await listEventEditions();
-    setSummaries(data);
+    
+    try {
+      await deleteEventEdition(selectedEvent.id);
+      
+      // Clear context
+      setEvent(null);
+      
+      // Reset form fields
+      resetForm();
+      
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: 'Event edition successfully deleted',
+        severity: 'success'
+      });
+    } catch (error) {
+      console.error('Error deleting event:', error);
+      setSnackbar({
+        open: true,
+        message: `Error deleting event: ${error instanceof Error ? error.message : String(error)}`,
+        severity: 'error'
+      });
+    }
   };
 
   const handleCopy = async () => {
+    if (!selectedEvent?.id) return;
     if (dirty && !window.confirm('Discard unsaved changes and copy edition?')) return;
-    if (!startDate || !endDate) { window.alert('Please set both dates'); return; }
+    if (!startDate || !endDate) { 
+      setSnackbar({
+        open: true,
+        message: 'Please set both start and end dates',
+        severity: 'error'
+      });
+      return; 
+    }
+    
+    // Create dates for the next year
     const d1 = new Date(startDate);
     d1.setFullYear(d1.getFullYear() + 1);
     const d2 = new Date(endDate);
     d2.setFullYear(d2.getFullYear() + 1);
     const newEdition = editionNum + 1;
-    if (summaries.some(s => s.eventId === eventId && s.edition === newEdition)) { window.alert('An edition with this Event ID and edition number already exists'); return; }
+    
+    // Check if an edition with this ID and number already exists
+    const allEditions = await listEventEditions();
+    if (allEditions.some(e => e.eventId === eventId && e.edition === newEdition)) { 
+      setSnackbar({
+        open: true,
+        message: 'An edition with this Event ID and edition number already exists',
+        severity: 'error'
+      });
+      return; 
+    }
+    
+    // Build payload for the new edition
     const payload = {
       eventId,
       edition: newEdition,
@@ -235,16 +424,52 @@ const EventEditionsPanel: FC = () => {
       resultsStatus,
       startTime: Timestamp.fromDate(d1),
       endTime: Timestamp.fromDate(d2),
-      registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : Timestamp.fromDate(new Date()),
+      registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
       maxParticipants,
       loopDistance,
-      fees
+      fees,
+      // Copy race distances if any
+      raceDistances: raceDistances.map(form => ({
+        id: form.id,
+        displayName: form.displayName,
+        length: form.length,
+        ascent: form.ascent,
+        descent: form.descent
+      })) as RaceDistance[],
     };
-    const newId = await addEventEdition(payload);
-    const summariesData = await listEventEditions();
-    setSummaries(summariesData);
-    setSelectedId(newId);
-    setDirty(false);
+    
+    try {
+      // Create new event edition
+      const newId = await addEventEdition(payload);
+      
+      // Load the newly created event into the context
+      const updatedEvent = await getEventEdition(newId);
+      const contextEvent = {
+        ...updatedEvent,
+        startTime: updatedEvent.startTime.toDate(),
+        endTime: updatedEvent.endTime.toDate(),
+        registrationDeadline: updatedEvent.registrationDeadline?.toDate() || null,
+      };
+      
+      // Update the context with the new event
+      await setEvent(contextEvent);
+      
+      // Show success message
+      setSnackbar({
+        open: true,
+        message: 'Event edition successfully copied with next year dates',
+        severity: 'success'
+      });
+      
+      setDirty(false);
+    } catch (error) {
+      console.error('Error copying event edition:', error);
+      setSnackbar({
+        open: true,
+        message: `Error copying event: ${error instanceof Error ? error.message : String(error)}`,
+        severity: 'error'
+      });
+    }
   };
 
   const handleAddResultType = () => {
@@ -259,40 +484,21 @@ const EventEditionsPanel: FC = () => {
     setDirty(true);
   };
 
-
   return (
     <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={nbLocale}>
       <Box p={2} mb={2} border={1} borderColor="divider" borderRadius={1}>
-        <Box mb={2} fontWeight="bold">Event Editions</Box>
-        <Box display="flex" gap={2} mb={2} alignItems="center">
-          <FormControl sx={{ minWidth: 250 }}>
-            <InputLabel id="edition-select-label">Select Edition</InputLabel>
-            <Select
-              labelId="edition-select-label"
-              value={selectedId}
-              label="Select Edition"
-              onChange={e => {
-                if (dirty && !window.confirm('Discard unsaved changes?')) return;
-                setSelectedId(e.target.value);
-              }}
-              disabled={loadingSummaries}
-            >
-              {summaries.map(s => (
-                <MenuItem key={s.id} value={s.id}>
-                  {`${s.eventId}-${s.edition}`}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <Button variant="contained" onClick={handleCreate}>New Edition</Button>
-          <Button variant="contained" onClick={handleCopy} disabled={!selectedId}>Copy</Button>
-
+        <Box mb={2} display="flex" justifyContent="space-between" alignItems="center">
+          <Box fontWeight="bold">Event Edition Details</Box>
+          <Box>
+            <Button variant="contained" onClick={handleCreate} sx={{ mr: 1 }}>New Edition</Button>
+            <Button variant="contained" onClick={handleCopy} disabled={!selectedEvent?.id}>Copy</Button>
+          </Box>
         </Box>
 
         {loadingData ? (
           <CircularProgress size={24} />
         ) : (
-          selectedId && (
+          selectedEvent?.id && (
             <Box display="flex" flexDirection="column" gap={2}>
               <TextField label="Short Event Name" value={eventShortName} onChange={e => { setEventShortName(e.target.value); setDirty(true); }} />
               <TextField label="Full Event Name" value={eventName} onChange={e => { setEventName(e.target.value); setDirty(true); }} />
@@ -414,8 +620,137 @@ const EventEditionsPanel: FC = () => {
                   onChange={e => { setFees(prev => ({ ...prev, total: Number(e.target.value) })); setDirty(true); }}
                 />
               </Box>
+              <Box sx={{ mt: 4, mb: 2 }}>
+                <h3>Race Distances</h3>
+                <List>
+                  {raceDistances.map((distance, index) => (
+                    <ListItem key={index} sx={{ display: 'flex', gap: 2 }}>
+                      <TextField
+                        label="ID"
+                        value={distance.id}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, id: e.target.value };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <TextField
+                        label="Display Name"
+                        value={distance.displayName}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, displayName: e.target.value };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <TextField
+                        label="Length (km)"
+                        type="number"
+                        value={distance.length}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, length: Number(e.target.value) };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <TextField
+                        label="Ascent (m)"
+                        type="number"
+                        value={distance.ascent}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, ascent: Number(e.target.value) };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <TextField
+                        label="Descent (m)"
+                        type="number"
+                        value={distance.descent}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, descent: Number(e.target.value) };
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
+                      <IconButton
+                        onClick={() => {
+                          const newDistances = raceDistances.filter((_, i) => i !== index);
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                      >
+                        <DeleteIcon />
+                      </IconButton>
+                    </ListItem>
+                  ))}
+                </List>
+                <Box sx={{ display: 'flex', gap: 2, mt: 2, mb: 4 }}>
+                  <TextField
+                    label="ID"
+                    value={newDistance.id}
+                    onChange={(e) => setNewDistance({ ...newDistance, id: e.target.value })}
+                    size="small"
+                  />
+                  <TextField
+                    label="Display Name"
+                    value={newDistance.displayName}
+                    onChange={(e) => setNewDistance({ ...newDistance, displayName: e.target.value })}
+                    size="small"
+                  />
+                  <TextField
+                    label="Length (km)"
+                    type="number"
+                    value={newDistance.length}
+                    onChange={(e) => setNewDistance({ ...newDistance, length: Number(e.target.value) })}
+                    size="small"
+                  />
+                  <TextField
+                    label="Ascent (m)"
+                    type="number"
+                    value={newDistance.ascent}
+                    onChange={(e) => setNewDistance({ ...newDistance, ascent: Number(e.target.value) })}
+                    size="small"
+                  />
+                  <TextField
+                    label="Descent (m)"
+                    type="number"
+                    value={newDistance.descent}
+                    onChange={(e) => setNewDistance({ ...newDistance, descent: Number(e.target.value) })}
+                    size="small"
+                  />
+                  <Button
+                    variant="contained"
+                    onClick={() => {
+                      if (!newDistance.id || !newDistance.displayName) {
+                        window.alert('ID and Display Name are required for race distances');
+                        return;
+                      }
+                      setRaceDistances([...raceDistances, newDistance]);
+                      setNewDistance({ id: '', name: '', distance: 0, displayName: '', length: 0, ascent: 0, descent: 0 });
+                      setDirty(true);
+                    }}
+                  >
+                    Add Distance
+                  </Button>
+                </Box>
+                <Box sx={{ mt: 2 }}>
+                  <Button variant="contained" color="primary" onClick={handleSave} disabled={!dirty}>
+                    Save
+                  </Button>
+                </Box>
+              </Box>
               <Box display="flex" gap={1}>
-                <Button variant="contained" size="small" onClick={handleSave} disabled={!dirty}>Save Changes</Button>
                 <Button variant="outlined" size="small" color="error" onClick={handleDelete}>Delete</Button>
               </Box>
             </Box>

@@ -130,29 +130,40 @@ export const getRegistrationById = async (registrationId: string): Promise<Regis
 };
 
 /**
- * Gets all registrations for a user
+ * Gets all registrations for a user, filtered by edition
  * @param userId User ID
+ * @param editionId Edition ID to filter by
  * @returns Promise with array of registrations
  */
-export const getRegistrationsByUserId = async (userId: string): Promise<Registration[]> => {
+export const getRegistrationsByUserId = async (
+  userId: string,
+  editionId: string
+): Promise<Registration[]> => {
   try {
-    const q = query(
-      collection(db, REGISTRATIONS_COLLECTION),
+    console.log("registrationService - parameters:", userId, editionId);
+    const constraints = [
       where("userId", "==", userId),
-      where("status", "in", ["pending", "confirmed"])
-    );
+      where("status", "in", ["pending", "confirmed"]),
+      where("editionId", "==", editionId)
+    ];
+
+    console.log("registrationService - query constraints:", constraints);
+    const q = query(collection(db, REGISTRATIONS_COLLECTION), ...constraints);
     const querySnapshot = await getDocs(q);
     
-    return querySnapshot.docs.map(doc => {
+    const registrations = querySnapshot.docs.map(doc => {
       const data = doc.data();
       return {
         ...data,
         dateOfBirth: (data.dateOfBirth && typeof data.dateOfBirth === 'object' && typeof (data.dateOfBirth as any).toDate === 'function')
-        ? (data.dateOfBirth as any).toDate()
-        : data.dateOfBirth || null,
+          ? (data.dateOfBirth as any).toDate()
+          : data.dateOfBirth || null,
         id: doc.id
       } as Registration;
     });
+    console.log("registrationService - querySnapshot:", querySnapshot);
+    console.log("registrationService - registrations:", registrations);
+    return registrations;
   } catch (error) {
     console.error('Error getting user registrations:', error);
     throw error;

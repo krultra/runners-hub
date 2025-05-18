@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Container, Typography, Grid, Card, CardActionArea, CardContent } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { useEventEdition } from '../contexts/EventEditionContext';
 
 const EVENTS = [
   {
@@ -19,6 +20,12 @@ const EVENTS = [
 
 const HomePage: React.FC = () => {
   const navigate = useNavigate();
+  const { setEvent } = useEventEdition();
+
+  // Clear the selected event when HomePage loads
+  useEffect(() => {
+    setEvent(null);
+  }, [setEvent]);
 
   return (
     <Container maxWidth="md" sx={{ pt: 8 }}>

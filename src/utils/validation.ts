@@ -1,6 +1,4 @@
 import { ERROR_MESSAGES } from '../constants/messages';
-import { CURRENT_EDITION_ID } from '../constants';
-import { RACE_DETAILS } from '../constants';
 
 export const initialFormData = {
   firstName: '',
@@ -19,13 +17,10 @@ export const initialFormData = {
   notifyFutureEvents: false,
   sendRunningOffers: false,
   // Event edition ID
-  editionId: CURRENT_EDITION_ID,
+  editionId: '',
   status: 'pending', // Default status
   paymentRequired: 300,
-  paymentMade: 0,
-  // Waiting list fields
-  isOnWaitinglist: false,   // Join waiting list flag
-  waitinglistExpires: null as Date | null,   // Expiration date
+  paymentMade: 0
 };
 
 /**
@@ -45,7 +40,7 @@ export const validateForm = (
   setErrors?: (errors: Record<string, string>) => void
 ) => {
   const newErrors: Record<string, string> = {};
-
+  
   // Personal info validation
   // First name validation (with length check)
   if ((touchedFields.firstName || showAllErrors) && formData.firstName.trim() === '') {
@@ -65,14 +60,22 @@ export const validateForm = (
   if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth === null) {
     newErrors.dateOfBirth = ERROR_MESSAGES.dateOfBirth;
   } else if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth !== null) {
-    const birthYear = formData.dateOfBirth.getFullYear();
-    const eventYear = 2025; // Year of the event
-    const age = eventYear - birthYear;
-    
-    if (age < 15) {
-      newErrors.dateOfBirth = 'Participants must be at least 15 years old in the year of the event';
-    } else if (age > 100) {
-      newErrors.dateOfBirth = 'Please enter a valid date of birth (maximum age is 100 years)';
+    // Check if the date is valid and complete (not just day/month with missing year)
+    if (!(formData.dateOfBirth instanceof Date) || isNaN(formData.dateOfBirth.getTime())) {
+      newErrors.dateOfBirth = 'Please enter a complete, valid date of birth';
+    } else if (formData.dateOfBirth.getFullYear() === 0 || formData.dateOfBirth.getFullYear() < 1900) {
+      // Catch partial dates with missing or implausible year
+      newErrors.dateOfBirth = 'Please enter a complete date with year of birth';
+    } else {
+      const birthYear = formData.dateOfBirth.getFullYear();
+      const eventYear = 2025; // Year of the event
+      const age = eventYear - birthYear;
+      
+      if (age < 15) {
+        newErrors.dateOfBirth = 'Participants must be at least 15 years old in the year of the event';
+      } else if (age > 100) {
+        newErrors.dateOfBirth = 'Please enter a valid date of birth (maximum age is 100 years)';
+      }
     }
   }
 
@@ -110,11 +113,12 @@ export const validateForm = (
   }
 
   // Race details
-  if ((touchedFields.raceDistance || showAllErrors) && formData.raceDistance.trim() === '') {
+  if ((touchedFields.raceDistance || showAllErrors) && (!formData.raceDistance || formData.raceDistance === '')) {
     newErrors.raceDistance = ERROR_MESSAGES.raceDistance;
   }
+  
   // Travel requirements validation with length check
-  if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim() === '') {
+  if ((touchedFields.travelRequired || showAllErrors) && (!formData.travelRequired || formData.travelRequired.trim() === '')) {
     newErrors.travelRequired = ERROR_MESSAGES.travelRequired;
   } else if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim().length > 200) {
     newErrors.travelRequired = 'Travel requirements cannot exceed 200 characters';
@@ -130,8 +134,8 @@ export const validateForm = (
     newErrors.comments = 'Comments cannot exceed 500 characters';
   }
 
-  // Waiting list expiration date validation
-  if ((touchedFields.waitinglistExpires || showAllErrors) && formData.waitinglistExpires !== null) {
+  // Waiting list expiration date validation - only if this is a waiting list registration
+  if (formData.isOnWaitinglist && (touchedFields.waitinglistExpires || showAllErrors) && formData.waitinglistExpires !== null) {
     const expirationYear = formData.waitinglistExpires.getFullYear();
     const eventYear = 2025; // Year of the event
     const expirationDate = formData.waitinglistExpires.getTime();
@@ -141,13 +145,13 @@ export const validateForm = (
       newErrors.waitinglistExpires = 'Waiting list expiration date must be in the year of the event or later';
     } else if (expirationDate < today) {
       newErrors.waitinglistExpires = 'Waiting list expiration date must be in the future';
-    } else if (expirationDate > RACE_DETAILS.date.getTime()) {
-      newErrors.waitinglistExpires = 'Waiting list expiration date must be on or before the race date';
     }
   }
 
-  if (setErrors && !silentValidation) {
+  if (!silentValidation && setErrors) {
     setErrors(newErrors);
   }
+  
+
   return newErrors;
 };
