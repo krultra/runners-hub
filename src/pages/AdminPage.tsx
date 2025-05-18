@@ -22,17 +22,8 @@ import SchedulesPanel from '../components/admin/SchedulesPanel';
 import AdminTasksPanel from '../components/admin/AdminTasksPanel';
 import EventEditionSelector from '../components/EventEditionSelector';
 
-const sections = [
-  { key: 'invitations', label: 'Invitations' },
-  { key: 'registrations', label: 'Registrations' },
-  { key: 'templates', label: 'Email Templates' },
-  { key: 'codelists', label: 'Code Lists' },
-  { key: 'editions', label: 'Event Editions' },
-  { key: 'actions', label: 'Action Requests' },
-  { key: 'tasks', label: 'Admin Tasks' },
-  { key: 'schedules', label: 'Function Schedules' },
-] as const;
-type SectionKey = typeof sections[number]['key'];
+import { adminSections, AdminSectionKey } from '../constants/adminSections';
+type SectionKey = AdminSectionKey;
 
 
 const AdminPage: React.FC = () => {
@@ -44,10 +35,13 @@ const AdminPage: React.FC = () => {
   const drawerWidth = 180; // Width for drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
 
+  // Listen for admin section changes from AppHeader
   useEffect(() => {
-    const handler = () => setDrawerOpen(o => !o);
-    window.addEventListener('toggleAdminDrawer', handler);
-    return () => window.removeEventListener('toggleAdminDrawer', handler);
+    const sectionHandler = (e: CustomEvent<string>) => {
+      setActive(e.detail as SectionKey);
+    };
+    window.addEventListener('setAdminSection', sectionHandler as EventListener);
+    return () => window.removeEventListener('setAdminSection', sectionHandler as EventListener);
   }, []);
 
   return (
@@ -74,7 +68,7 @@ const AdminPage: React.FC = () => {
       >
         <Toolbar />
         <List>
-          {sections.map((section) => (
+          {adminSections.map((section) => (
             <ListItem
               button
               key={section.key}

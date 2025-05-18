@@ -60,14 +60,22 @@ export const validateForm = (
   if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth === null) {
     newErrors.dateOfBirth = ERROR_MESSAGES.dateOfBirth;
   } else if ((touchedFields.dateOfBirth || showAllErrors) && formData.dateOfBirth !== null) {
-    const birthYear = formData.dateOfBirth.getFullYear();
-    const eventYear = 2025; // Year of the event
-    const age = eventYear - birthYear;
-    
-    if (age < 15) {
-      newErrors.dateOfBirth = 'Participants must be at least 15 years old in the year of the event';
-    } else if (age > 100) {
-      newErrors.dateOfBirth = 'Please enter a valid date of birth (maximum age is 100 years)';
+    // Check if the date is valid and complete (not just day/month with missing year)
+    if (!(formData.dateOfBirth instanceof Date) || isNaN(formData.dateOfBirth.getTime())) {
+      newErrors.dateOfBirth = 'Please enter a complete, valid date of birth';
+    } else if (formData.dateOfBirth.getFullYear() === 0 || formData.dateOfBirth.getFullYear() < 1900) {
+      // Catch partial dates with missing or implausible year
+      newErrors.dateOfBirth = 'Please enter a complete date with year of birth';
+    } else {
+      const birthYear = formData.dateOfBirth.getFullYear();
+      const eventYear = 2025; // Year of the event
+      const age = eventYear - birthYear;
+      
+      if (age < 15) {
+        newErrors.dateOfBirth = 'Participants must be at least 15 years old in the year of the event';
+      } else if (age > 100) {
+        newErrors.dateOfBirth = 'Please enter a valid date of birth (maximum age is 100 years)';
+      }
     }
   }
 

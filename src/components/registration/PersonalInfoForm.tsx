@@ -107,7 +107,20 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
             <DatePicker
               label="Date of Birth"
               value={formData.dateOfBirth}
-              onChange={(date) => onChange('dateOfBirth', date)}
+              onChange={(date) => {
+                // Update the form data with the new date
+                onChange('dateOfBirth', date);
+                
+                // Only validate immediately for complete dates from the picker
+                // (not during manual typing)
+                if (date instanceof Date && !isNaN(date.getTime()) && 
+                    date.getFullYear() > 1900 && date.getFullYear() <= new Date().getFullYear()) {
+                  setTimeout(() => {
+                    onBlur && onBlur('dateOfBirth');
+                  }, 100);
+                }
+              }}
+              // Validate when the picker closes
               onClose={() => onBlur && onBlur('dateOfBirth')}
               renderInput={(params) => (
                 <TextField
@@ -118,6 +131,8 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                   error={!!errors.dateOfBirth}
                   helperText={errors.dateOfBirth || ''}
                   inputRef={fieldRefs.dateOfBirth}
+                  // Add onBlur handler to the input field for manual typing validation
+                  onBlur={() => onBlur && onBlur('dateOfBirth')}
                   sx={{
                     '& .MuiInputBase-input': {
                       color: 'text.primary',
