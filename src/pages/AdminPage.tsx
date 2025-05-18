@@ -41,7 +41,10 @@ const AdminPage: React.FC = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   const [drawerOpen, setDrawerOpen] = useState(!isMobile);
-  const drawerWidth = 180; // width for drawer
+  // Define drawer width and margin settings
+  const drawerWidth = 180; // Width for drawer
+  const desiredMargin = 20; // Amount of margin we want to have
+  const contentLeftOffset = desiredMargin - drawerWidth; // Calculate the required offset (typically negative)
 
   useEffect(() => {
     const handler = () => setDrawerOpen(o => !o);
@@ -62,7 +65,11 @@ const AdminPage: React.FC = () => {
             width: drawerWidth,
             boxSizing: 'border-box',
             backgroundColor: theme.palette.background.paper,
-            position: 'relative',
+            position: 'fixed',
+            // Use theme's toolbar height to position below the AppBar
+            top: (theme) => `${theme.mixins.toolbar.minHeight}px`,
+            height: (theme) => `calc(100% - ${theme.mixins.toolbar.minHeight}px)`,
+            zIndex: (theme) => theme.zIndex.appBar - 1, // Make sure drawer is below AppBar
           },
         }}
       >
@@ -93,15 +100,23 @@ const AdminPage: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 3,
+          p: 0,
+          pt: 0.5, // Keep minimal top padding
+          pr: 1, // Keep right padding
+          // Ensure content is flush with drawer by removing left margin and adding it to the width calculation
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          ml: { sm: `${drawerWidth}px` },
+          marginLeft: { sm: `${drawerWidth}px` }, // Use marginLeft instead of ml for more precise control
+          // Add responsive positioning - offset only on desktop, normal padding on mobile
+          position: 'relative',
+          // Only apply the negative offset on non-mobile screens
+          left: { xs: 0, sm: `${contentLeftOffset}px` },
+          // Add appropriate padding for mobile view
+          pl: { xs: 2, sm: 0 }
         }}
       >
-        <Toolbar />
-        <Box sx={{ p: 3 }}>
-          <EventEditionSelector />
-          <Box sx={{ mt: 3 }}>
+        {/* More compact layout structure */}
+        <EventEditionSelector />
+        <Box sx={{ mt: 1, px: 0.5 }}>
             {active === 'invitations' && <InvitationsPanel />}
             {active === 'registrations' && <RegistrationsPanel />}
             {active === 'templates' && <TemplatesPanel />}
@@ -111,7 +126,6 @@ const AdminPage: React.FC = () => {
             {active === 'tasks' && <AdminTasksPanel />}
             {active === 'schedules' && <SchedulesPanel />}
           </Box>
-        </Box>
       </Box>
     </Box>
   );
