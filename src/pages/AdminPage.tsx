@@ -40,11 +40,9 @@ const AdminPage: React.FC = () => {
   const [active, setActive] = useState<SectionKey>('invitations');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  const [drawerOpen, setDrawerOpen] = useState(!isMobile);
-  // Define drawer width and margin settings
+  // Define drawer width and make it initially closed for all devices
   const drawerWidth = 180; // Width for drawer
-  const desiredMargin = 20; // Amount of margin we want to have
-  const contentLeftOffset = desiredMargin - drawerWidth; // Calculate the required offset (typically negative)
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   useEffect(() => {
     const handler = () => setDrawerOpen(o => !o);
@@ -55,8 +53,9 @@ const AdminPage: React.FC = () => {
   return (
     <Box sx={{ display: 'flex' }}>
       <Drawer
-        variant={isMobile ? 'temporary' : 'permanent'}
-        open={!isMobile || drawerOpen}
+        variant="temporary"
+        anchor="right"
+        open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
         sx={{
           width: drawerWidth,
@@ -100,18 +99,10 @@ const AdminPage: React.FC = () => {
         component="main"
         sx={{
           flexGrow: 1,
-          p: 0,
-          pt: 0.5, // Keep minimal top padding
-          pr: 1, // Keep right padding
-          // Ensure content is flush with drawer by removing left margin and adding it to the width calculation
-          width: { sm: `calc(100% - ${drawerWidth}px)` },
-          marginLeft: { sm: `${drawerWidth}px` }, // Use marginLeft instead of ml for more precise control
-          // Add responsive positioning - offset only on desktop, normal padding on mobile
-          position: 'relative',
-          // Only apply the negative offset on non-mobile screens
-          left: { xs: 0, sm: `${contentLeftOffset}px` },
-          // Add appropriate padding for mobile view
-          pl: { xs: 2, sm: 0 }
+          p: 2,
+          pt: 1, // Minimal top padding
+          width: '100%', // Full width since drawer is now overlaid instead of pushed
+          // Removed left margin and left offset since drawer is now on the right side
         }}
       >
         {/* More compact layout structure */}

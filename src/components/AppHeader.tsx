@@ -54,7 +54,15 @@ const AppHeader: React.FC = () => {
         <Box component="img" src="/krultra-logo.png" alt="Logo" sx={{ height: 40, width: 'auto', mr: 1, cursor: 'pointer' }} onClick={() => navigate('/')} />
         <Typography
           variant="h6"
-          sx={{ flexGrow: 1, cursor: 'pointer' }}
+          sx={{
+            flexGrow: 1,
+            cursor: 'pointer',
+            minWidth: 0,
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+            pr: { xs: 1, sm: 3 }, // Add some right padding for mobile
+          }}
           onClick={() => navigate('/')}
         >
           RunnersHub
@@ -77,15 +85,7 @@ const AppHeader: React.FC = () => {
           )}
         </Typography>
         {user ? (
-          <Box display="flex" alignItems="center">
-            {/* Admin drawer toggle on admin pages */}
-            {isAdmin && location.pathname === '/admin' && (
-              <Tooltip title="Toggle menu">
-                <IconButton color="inherit" onClick={() => window.dispatchEvent(new Event('toggleAdminDrawer'))} sx={{ mr: 1 }}>
-                  <MenuIcon />
-                </IconButton>
-              </Tooltip>
-            )}
+          <Box display="flex" alignItems="center" sx={{ flexShrink: 0, minWidth: 0 }}>
             {isAdmin && (
               <Button color="inherit" onClick={() => navigate('/admin')} sx={{ mr: 2 }}>
                 Admin
@@ -99,6 +99,15 @@ const AppHeader: React.FC = () => {
             <Button color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
               Log out
             </Button>
+            
+            {/* Admin drawer toggle - moved to far right of toolbar */}
+            {isAdmin && location.pathname === '/admin' && (
+              <Tooltip title="Toggle menu">
+                <IconButton color="inherit" onClick={() => window.dispatchEvent(new Event('toggleAdminDrawer'))} sx={{ ml: { xs: 0.5, sm: 1 } }}>
+                  <MenuIcon />
+                </IconButton>
+              </Tooltip>
+            )}
           </Box>
         ) : (
           <Tooltip title="Log in">
