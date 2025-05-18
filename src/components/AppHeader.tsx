@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Button, Chip } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Button, Chip, Menu, MenuItem } from '@mui/material';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
@@ -16,8 +16,17 @@ const IS_TEST_ENV = APP_STAGE === 'test';
 const AppHeader: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [avatarMenuAnchor, setAvatarMenuAnchor] = useState<null | HTMLElement>(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const handleAvatarMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+    setAvatarMenuAnchor(event.currentTarget);
+  };
+
+  const handleAvatarMenuClose = () => {
+    setAvatarMenuAnchor(null);
+  };
 
   useEffect(() => {
     const auth = getAuth();
@@ -35,6 +44,7 @@ const AppHeader: React.FC = () => {
   }, []);
 
   const handleLogout = async () => {
+    handleAvatarMenuClose();
     const auth = getAuth();
     await signOut(auth);
   };
@@ -52,6 +62,7 @@ const AppHeader: React.FC = () => {
     >
       <Toolbar>
         <Box component="img" src="/krultra-logo.png" alt="Logo" sx={{ height: 40, width: 'auto', mr: 1, cursor: 'pointer' }} onClick={() => navigate('/')} />
+        {/* Responsive App Name: hide on xs screens */}
         <Typography
           variant="h6"
           sx={{
@@ -61,7 +72,8 @@ const AppHeader: React.FC = () => {
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            pr: { xs: 1, sm: 3 }, // Add some right padding for mobile
+            pr: { xs: 1, sm: 3 },
+            display: { xs: 'none', sm: 'block' }, // Hide on xs screens
           }}
           onClick={() => navigate('/')}
         >
@@ -91,14 +103,31 @@ const AppHeader: React.FC = () => {
                 Admin
               </Button>
             )}
+            {/* User Avatar with Menu */}
             <Tooltip title={user.email || 'Logged in'}>
-              <IconButton color="inherit" size="large" sx={{ mr: 1 }}>
+              <IconButton
+                color="inherit"
+                size="large"
+                sx={{ mr: 1 }}
+                onClick={handleAvatarMenuOpen}
+              >
                 <AccountCircleIcon />
               </IconButton>
             </Tooltip>
-            <Button color="inherit" onClick={handleLogout} sx={{ ml: 1 }}>
-              Log out
-            </Button>
+            <Menu
+              anchorEl={avatarMenuAnchor}
+              open={Boolean(avatarMenuAnchor)}
+              onClose={handleAvatarMenuClose}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              <Box px={2} py={1}>
+                <Typography variant="subtitle2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  {user.displayName || user.email}
+                </Typography>
+              </Box>
+              <MenuItem onClick={handleLogout}>Log out</MenuItem>
+            </Menu>
             
             {/* Admin drawer toggle - moved to far right of toolbar */}
             {isAdmin && location.pathname === '/admin' && (
