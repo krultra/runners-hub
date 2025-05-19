@@ -59,6 +59,35 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
     - `CRON_SEND_DAILY`: CRON expression for daily send function.
 
 ### Local Development
+
+#### Starting the Development Environment
+1. Start the Firestore Emulator:
+   ```bash
+   npm run emulator:start
+   ```
+2. In a separate terminal, start the React app:
+   ```bash
+   npm start
+   ```
+   The app will run at [http://localhost:3000](http://localhost:3000) and automatically connect to the emulator.
+
+#### Working with Production Data
+To get a fresh copy of production data into your local emulator:
+
+1. Create a backup of production data:
+   ```bash
+   npm run backup
+   ```
+2. Clear the emulator and start fresh:
+   ```bash
+   npm run emulator:start:clean
+   ```
+3. Import the backup file (use the exact filename from the backup):
+   ```bash
+   npm run emulator:import local_firestore_backup/backup-YYYYMMDD_HHMMSS.json
+   ```
+
+#### Deployment
 - Build and deploy to test:
   ```bash
   npm run deploy:test
@@ -67,15 +96,6 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
   ```bash
   npm run deploy
   ```
-- Start Firestore Emulator:
-  ```bash
-  firebase emulators:start --only firestore
-  ```
-- Start the App:
-  ```bash
-  npm start
-  ```
-  The app will run at [http://localhost:3000](http://localhost:3000).
 
 ---
 

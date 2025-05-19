@@ -9,11 +9,20 @@ const DEFAULT_TIMEZONE = 'Europe/Oslo';
  * Safely converts various date inputs to a Date object
  */
 const toDate = (date: DateInput): Date => {
-  if (date instanceof Date) return date;
-  if (typeof date === 'string') return parseISO(date);
-  if (typeof date === 'number') return new Date(date);
-  if (date && typeof date.toDate === 'function') return date.toDate();
-  throw new Error(`Invalid date input: ${date}`);
+  try {
+    if (!date) return new Date(); // Return current date for null/undefined
+    if (date instanceof Date) return date;
+    if (typeof date === 'string') return parseISO(date);
+    if (typeof date === 'number') return new Date(date);
+    if (date && typeof date.toDate === 'function') return date.toDate();
+    
+    // If we get here, it's an object that's not a Date and doesn't have toDate()
+    console.warn('Received unexpected date input - Stack trace:', new Error().stack, '\nInput:', date);
+    return new Date(); // Fallback to current date
+  } catch (error) {
+    console.error('Error converting to date:', error);
+    return new Date(); // Fallback to current date on error
+  }
 };
 
 /**

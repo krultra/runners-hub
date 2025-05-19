@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { listEventEditions, getEventEdition } from '../services/eventEditionService';
+import { Timestamp } from 'firebase/firestore';
 
 export interface RaceDistance {
   id: string;
@@ -65,11 +66,18 @@ export const EventEditionProvider = ({ children }: { children: React.ReactNode }
       if (typeof eventData === 'string') {
         // If a string is passed, treat it as an event ID
         const data = await getEventEdition(eventData);
+        const convertTimestamp = (timestamp: any) => {
+          if (!timestamp) return null;
+          if (timestamp instanceof Date) return timestamp;
+          if (typeof timestamp.toDate === 'function') return timestamp.toDate();
+          return timestamp; // Fallback in case it's something else
+        };
+
         setEventState({
           ...data,
-          startTime: data.startTime.toDate(),
-          endTime: data.endTime.toDate(),
-          registrationDeadline: data.registrationDeadline?.toDate() || null,
+          startTime: convertTimestamp(data.startTime),
+          endTime: convertTimestamp(data.endTime),
+          registrationDeadline: convertTimestamp(data.registrationDeadline),
           raceDistances: data.raceDistances || [],
           fees: data.fees ?? { participation: 0, baseCamp: 0, deposit: 0, total: 0 },
         });

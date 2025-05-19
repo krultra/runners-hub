@@ -41,7 +41,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   
   // Calculate time remaining until the race
   const now = new Date();
-  const raceDate = event.startTime;
+  const raceDate = event.startTime ? new Date(event.startTime) : new Date();
   // const timeRemaining = raceDate.getTime() - now.getTime();
   
   // Check if registration is still open
