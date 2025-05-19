@@ -149,9 +149,21 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
   // Get the event edition from the registration context
   const eventEditionId = (context as any).editionId || (context as any).eventEditionId;
   if (!eventEditionId) throw new Error('No event edition ID found in registration data');
-  const eventEdition = await getEventEdition(eventEditionId);
+  let eventEdition;
+  try {
+    eventEdition = await getEventEdition(eventEditionId);
+  } catch (e) {
+    console.error('[sendEmail] Error fetching eventEdition', e);
+    throw e;
+  }
   const { eventName, eventShortName, edition } = eventEdition;
-  const tpl = await getEmailTemplate(type, 'en');
+  let tpl;
+  try {
+    tpl = await getEmailTemplate(type, 'en');
+  } catch (e) {
+    console.error('[sendEmail] Error fetching email template', e);
+    throw e;
+  }
   // enrich context for subject/body templates
   const enrichedContext = {
     ...context,
@@ -190,7 +202,7 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
   try {
     subject = subjTpl.includes('{{') ? Handlebars.compile(subjTpl)(enrichedContext) : subjTpl;
   } catch (err) {
-    console.error(`Error compiling subject template for ${type}:`, err);
+    console.error(`[sendEmail] Error compiling subject template for ${type}:`, err);
     subject = DEFAULT_SUBJECTS[type];
   }
   // default HTML for refund emails if no template provided
@@ -226,21 +238,36 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     console.error(`Error compiling body template for ${type}:`, err);
     html = '';
   }
-  const mailRef = await addDoc(collection(db, 'mail'), {
+
+  // Create the email document
+  const mailDoc = {
     to,
-    message: { subject, html },
+    message: {
+      subject,
+      html,
+    },
     type,
+    context: enrichedContext,
+    registrationId: enrichedContext.id || null,
     createdAt: serverTimestamp(),
-  });
-  await logSentEmail({ to, subject, type, registrationId: enrichedContext.id, meta: enrichedContext });
-  // update registration counters for reminders and last notices (with debug logging)
+    status: 'pending',
+  };
+
+  // Write to mail collection in Firestore
+  let mailRef;
+  try {
+    mailRef = await addDoc(collection(db, 'mail'), mailDoc);
+  } catch (firestoreError) {
+    console.error('[sendEmail] Error writing mailDoc to Firestore:', firestoreError);
+    throw firestoreError;
+  }
+
+  // update registration counters for reminders and last notices
   if (enrichedContext.id) {
     const regRef = doc(db, 'registrations', enrichedContext.id);
     try {
       if (type === EmailType.REMINDER) {
-        console.log(`sendEmail: incrementing remindersSent for ${enrichedContext.id}`);
         await updateDoc(regRef, { remindersSent: increment(1) });
-        console.log('sendEmail: remindersSent incremented');
       } else if (type === EmailType.LAST_NOTICE) {
         console.log(`sendEmail: incrementing lastNoticesSent for ${enrichedContext.id}`);
         await updateDoc(regRef, { lastNoticesSent: increment(1) });
