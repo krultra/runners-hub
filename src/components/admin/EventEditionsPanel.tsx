@@ -38,12 +38,8 @@ import {
   getEventEdition,
   updateEventEdition,
   deleteEventEdition,
-  EventEditionSummary
 } from '../../services/eventEditionService';
 import { listCodeList } from '../../services/codeListService';
-
-// Components
-import EventEditionSelector from '../EventEditionSelector';
 
 // Types
 interface SnackbarState {
@@ -62,16 +58,6 @@ interface RaceDistanceForm {
   descent: number;          // Total descent in meters (required to match RaceDistance)
 }
 
-// Helper function to convert RaceDistanceForm to RaceDistance
-const toRaceDistance = (form: RaceDistanceForm): RaceDistance => {
-  return {
-    id: form.id,
-    displayName: form.displayName,
-    length: form.length,
-    ascent: form.ascent,
-    descent: form.descent
-  };
-};
 
 // Helper function to convert RaceDistance to RaceDistanceForm
 const toRaceDistanceForm = (distance: RaceDistance): RaceDistanceForm => {
@@ -133,7 +119,7 @@ const EventEditionsPanel: FC = () => {
   });
   
   // UI state
-  const [snackbar, setSnackbar] = useState<SnackbarState>({ 
+  const [, setSnackbar] = useState<SnackbarState>({ 
     open: false, 
     message: '', 
     severity: 'success' 
@@ -158,16 +144,6 @@ const EventEditionsPanel: FC = () => {
       console.error('Event Error:', eventError);
     }
   }, [selectedEvent, eventLoading, eventError]);
-  
-  // Load data when selected event changes in context
-  useEffect(() => {
-    if (selectedEvent?.id) {
-      loadEventData(selectedEvent.id);
-    } else {
-      // Clear form when no event is selected
-      resetForm();
-    }
-  }, [selectedEvent?.id]);
 
   useEffect(() => {
     listCodeList('status', 'results').then(data =>
@@ -176,7 +152,7 @@ const EventEditionsPanel: FC = () => {
   }, []);
 
   // Load event data from Firestore by ID
-  const loadEventData = async (eventId: string) => {
+  const loadEventData = useCallback(async (eventId: string) => {
     if (!eventId) return;
     
     setLoadingData(true);
@@ -211,8 +187,18 @@ const EventEditionsPanel: FC = () => {
       setLoadingData(false);
       setDirty(false);
     }
-  };
+  }, [setEvent]);
   
+  // Load data when selected event changes in context
+  useEffect(() => {
+    if (selectedEvent?.id) {
+      loadEventData(selectedEvent.id);
+    } else {
+      // Clear form when no event is selected
+      resetForm();
+    }
+  }, [selectedEvent?.id, loadEventData]);
+
   // Reset form to initial state
   const resetForm = () => {
     setEventId('');

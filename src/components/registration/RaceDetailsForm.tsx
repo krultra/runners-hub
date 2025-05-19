@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import {
   Grid,
   TextField,
@@ -18,19 +18,36 @@ interface RaceDetailsFormProps {
     raceDistance: string;
     travelRequired: string;
     comments: string;
+    [key: string]: any;
   };
   onChange: (field: string, value: any) => void;
   errors: Record<string, string>;
   fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
   onBlur?: (field: string) => void;
   event: CurrentEvent;
+  touchedFields?: Record<string, boolean>;
 }
 
-const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, event }) => {
-  // Effect to scroll to top when component mounts
+const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ 
+  formData, 
+  onChange, 
+  errors, 
+  fieldRefs, 
+  onBlur, 
+  event,
+  touchedFields = {}
+}) => {
+  const firstRadioRef = useRef<HTMLInputElement>(null);
+
+  // Effect to focus on the first radio button when the form mounts
   useEffect(() => {
     window.scrollTo(0, 0);
+    if (firstRadioRef.current) {
+      firstRadioRef.current.focus();
+    }
   }, [event]);
+
+
   return (
     <Box sx={{ mt: 2, mb: 4 }}>
       <Typography variant="h6" gutterBottom>
@@ -42,26 +59,40 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
       
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <FormControl component="fieldset" required error={!!errors.raceDistance}>
+          <FormControl 
+            component="fieldset" 
+            required 
+            error={!!(errors.raceDistance && touchedFields.raceDistance)}
+            fullWidth
+            sx={{ mb: 2 }}
+          >
             <FormLabel component="legend">Race Distance</FormLabel>
             <RadioGroup
               aria-label="race-distance"
               name="raceDistance"
               value={formData.raceDistance}
-              onChange={(e) => onChange('raceDistance', e.target.value)}
+              onChange={(e) => {
+                onChange('raceDistance', e.target.value);
+              }}
               onBlur={() => onBlur && onBlur('raceDistance')}
               ref={fieldRefs.raceDistance as any}
+              sx={{ gap: 1 }}
             >
               {(event.raceDistances || []).map((distance, idx) => (
                 <FormControlLabel
                   key={distance.id}
                   value={distance.id}
-                  control={<Radio />}
+                  control={
+                    <Radio inputRef={idx === 0 ? firstRadioRef : undefined} />
+                  }
                   label={distance.displayName || distance.id}
+                  sx={{ '& .MuiFormControlLabel-label': { fontSize: '0.9rem' } }}
                 />
               ))}
             </RadioGroup>
-            <FormHelperText>{errors.raceDistance || 'Select the distance you wish to participate in'}</FormHelperText>
+            <FormHelperText error={!!(errors.raceDistance && touchedFields.raceDistance)}>
+              {errors.raceDistance && touchedFields.raceDistance ? errors.raceDistance : 'Select the distance you wish to participate in'}
+            </FormHelperText>
           </FormControl>
         </Grid>
         
@@ -79,8 +110,12 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ formData, onChange, e
             onChange={(e) => onChange('travelRequired', e.target.value)}
             onBlur={() => onBlur && onBlur('travelRequired')}
             inputProps={{ maxLength: 200 }}
-            error={!!errors.travelRequired}
-            helperText={errors.travelRequired || 'Please describe your travel plans to help us minimize our carbon footprint'}
+            error={!!(errors.travelRequired && touchedFields.travelRequired)}
+            helperText={
+              errors.travelRequired && touchedFields.travelRequired 
+                ? errors.travelRequired 
+                : 'Please describe your travel plans to help us minimize our carbon footprint'
+            }
             inputRef={fieldRefs.travelRequired as any}
           />
         </Grid>

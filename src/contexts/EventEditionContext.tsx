@@ -1,6 +1,5 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { listEventEditions, getEventEdition } from '../services/eventEditionService';
-import { Timestamp } from 'firebase/firestore';
+import React, { createContext, useContext, useState, useCallback } from 'react';
+import { getEventEdition } from '../services/eventEditionService';
 
 export interface RaceDistance {
   id: string;

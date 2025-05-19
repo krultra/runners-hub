@@ -8,7 +8,6 @@ import {
   Toolbar, 
   useTheme, 
   useMediaQuery,
-  Typography
 } from '@mui/material';
 import { useEventEdition } from '../contexts/EventEditionContext';
 import { Link } from 'react-router-dom';
@@ -27,7 +26,7 @@ type SectionKey = AdminSectionKey;
 
 
 const AdminPage: React.FC = () => {
-  const { event } = useEventEdition();
+  useEventEdition();
   const [active, setActive] = useState<SectionKey>('invitations');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));

@@ -71,6 +71,23 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     Record<string, React.RefObject<HTMLDivElement | null>>
   >({});
 
+  // Reset validation state when switching to Race Details step
+  useEffect(() => {
+    if (activeStep === 1) { // Race Details step
+      setTouchedFields(prev => ({
+        ...prev,
+        raceDistance: false,
+        travelRequired: false
+      }));
+      setErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors.raceDistance;
+        delete newErrors.travelRequired;
+        return newErrors;
+      });
+    }
+  }, [activeStep]);
+
   // Handlers
   const handleFormChange = useCallback((field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -701,6 +718,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             fieldRefs={divRefs.current}
             onBlur={handleFieldTouch}
             event={event}
+            touchedFields={touchedFields}
           />
         );
       case 2:
