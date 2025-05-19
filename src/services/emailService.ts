@@ -145,13 +145,29 @@ const DEFAULT_SUBJECTS: Record<EmailType, string> = {
  * Generic email sender using templates and fallback defaults
  */
 async function sendEmail(type: EmailType, to: string, context: any): Promise<DocumentReference<any>> {
+  console.log('[sendEmail] Start', { type, to, context });
   const db = getFirestore();
   // Get the event edition from the registration context
   const eventEditionId = (context as any).editionId || (context as any).eventEditionId;
+  console.log('[sendEmail] eventEditionId:', eventEditionId);
   if (!eventEditionId) throw new Error('No event edition ID found in registration data');
-  const eventEdition = await getEventEdition(eventEditionId);
+  let eventEdition;
+  try {
+    eventEdition = await getEventEdition(eventEditionId);
+    console.log('[sendEmail] eventEdition:', eventEdition);
+  } catch (e) {
+    console.error('[sendEmail] Error fetching eventEdition', e);
+    throw e;
+  }
   const { eventName, eventShortName, edition } = eventEdition;
-  const tpl = await getEmailTemplate(type, 'en');
+  let tpl;
+  try {
+    tpl = await getEmailTemplate(type, 'en');
+    console.log('[sendEmail] email template:', tpl);
+  } catch (e) {
+    console.error('[sendEmail] Error fetching email template', e);
+    throw e;
+  }
   // enrich context for subject/body templates
   const enrichedContext = {
     ...context,
@@ -161,6 +177,7 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     // Provide raw Date for templating and formatting
     today: context.today ? new Date(context.today) : new Date(),
   };
+  console.log('[sendEmail] enrichedContext:', enrichedContext);
   // Format dates to Norwegian format
   const formatOptions: Record<string, any> = {
     dateOfBirth: { day: '2-digit', month: '2-digit', year: 'numeric' },
@@ -185,12 +202,14 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
       (enrichedContext as any)[field] = date.toLocaleString('no-NO', options);
     }
   });
+  console.log('[sendEmail] formatted enrichedContext:', enrichedContext);
   const subjTpl = tpl.subjectTemplate || DEFAULT_SUBJECTS[type];
   let subject: string;
   try {
     subject = subjTpl.includes('{{') ? Handlebars.compile(subjTpl)(enrichedContext) : subjTpl;
+    console.log('[sendEmail] compiled subject:', subject);
   } catch (err) {
-    console.error(`Error compiling subject template for ${type}:`, err);
+    console.error(`[sendEmail] Error compiling subject template for ${type}:`, err);
     subject = DEFAULT_SUBJECTS[type];
   }
   // default HTML for refund emails if no template provided
@@ -226,17 +245,53 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     console.error(`Error compiling body template for ${type}:`, err);
     html = '';
   }
-  const mailRef = await addDoc(collection(db, 'mail'), {
+  console.log('[sendEmail] html:', html);
+  // Finally, create the email document in Firestore
+  const mailDoc = {
     to,
-    message: { subject, html },
+    message: {
+      subject,
+      html,
+    },
     type,
+    context: enrichedContext,
+    registrationId: enrichedContext.id || null,
     createdAt: serverTimestamp(),
-  });
-  await logSentEmail({ to, subject, type, registrationId: enrichedContext.id, meta: enrichedContext });
+    status: 'pending',
+  };
+  console.log('[sendEmail] mailDoc to be written:', mailDoc);
+
+  // Write to mail collection
+  let mailRef;
+  try {
+    console.log('[sendEmail] Writing mailDoc to Firestore...');
+    mailRef = await addDoc(collection(db, 'mail'), mailDoc);
+    console.log('[sendEmail] mailRef:', mailRef);
+  } catch (firestoreError) {
+    console.error('[sendEmail] Error writing mailDoc to Firestore:', firestoreError);
+    throw firestoreError;
+  }
+
+  // Log sent email (if applicable)
+  try {
+    console.log('[sendEmail] Logging sent email...');
+    await logSentEmail({
+      to,
+      subject,
+      type,
+      registrationId: enrichedContext.id,
+      meta: enrichedContext,
+    });
+    console.log('[sendEmail] Sent email logged.');
+  } catch (logError) {
+    console.error('[sendEmail] Error logging sent email', logError);
+  }
+
   // update registration counters for reminders and last notices (with debug logging)
   if (enrichedContext.id) {
     const regRef = doc(db, 'registrations', enrichedContext.id);
     try {
+      console.log('[sendEmail] Updating registration counters...');
       if (type === EmailType.REMINDER) {
         console.log(`sendEmail: incrementing remindersSent for ${enrichedContext.id}`);
         await updateDoc(regRef, { remindersSent: increment(1) });
