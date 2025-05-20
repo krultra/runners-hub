@@ -9,20 +9,52 @@ export const DEFAULT_TIMEZONE = 'Europe/Oslo';
 /**
  * Safely converts various date inputs to a Date object
  */
+/**
+ * Safely converts various date inputs to a Date object
+ * Handles: Date objects, timestamps, ISO strings, and date strings in format dd.MM.yyyy
+ */
 const toDate = (date: DateInput): Date => {
   try {
-    if (!date) return new Date(); // Return current date for null/undefined
-    if (date instanceof Date) return date;
-    if (typeof date === 'string') return parseISO(date);
-    if (typeof date === 'number') return new Date(date);
-    if (date && typeof date.toDate === 'function') return date.toDate();
+    // Handle null/undefined
+    if (!date) return new Date();
     
-    // If we get here, it's an object that's not a Date and doesn't have toDate()
-    console.warn('Received unexpected date input - Stack trace:', new Error().stack, '\nInput:', date);
-    return new Date(); // Fallback to current date
+    // If it's already a Date object, return it
+    if (date instanceof Date) return date;
+    
+    // Handle Firestore Timestamps
+    if (date && typeof (date as any).toDate === 'function') {
+      return (date as any).toDate();
+    }
+    
+    // Handle timestamps (numbers)
+    if (typeof date === 'number') return new Date(date);
+    
+    // Handle string dates
+    if (typeof date === 'string') {
+      // Try parsing as ISO string first
+      if (date.includes('T') || date.includes('Z') || /^\d{4}-\d{2}-\d{2}/.test(date)) {
+        return parseISO(date);
+      }
+      
+      // Try parsing as dd.MM.yyyy format
+      const parts = date.split('.');
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        // Note: months are 0-indexed in JS Date
+        return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
+      }
+      
+      // Fallback to Date.parse
+      const parsed = new Date(date);
+      if (!isNaN(parsed.getTime())) return parsed;
+    }
+    
+    // If we get here, we couldn't parse the date
+    console.warn('Could not parse date, returning current date. Input:', date);
+    return new Date();
   } catch (error) {
-    console.error('Error converting to date:', error);
-    return new Date(); // Fallback to current date on error
+    console.error('Error converting to date:', error, 'Input type:', typeof date, 'Value:', date);
+    return new Date();
   }
 };
 

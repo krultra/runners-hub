@@ -156,12 +156,10 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     eventShortName,
     eventEdition: edition,
     today: formatShortDate(context.today || new Date()),
-    // Add formatted dates to context for use in templates
-    formattedDates: {
-      dateOfBirth: context.dateOfBirth ? formatShortDate(context.dateOfBirth) : '',
-      waitinglistExpires: context.waitinglistExpires ? formatShortDate(context.waitinglistExpires) : '',
-      updatedAt: context.updatedAt ? formatDateTime(context.updatedAt) : ''
-    }
+    // Format dates directly in the context for use in templates
+    dateOfBirth: context.dateOfBirth ? formatShortDate(context.dateOfBirth) : '',
+    waitinglistExpires: context.waitinglistExpires ? formatShortDate(context.waitinglistExpires) : '',
+    updatedAt: context.updatedAt ? formatDateTime(context.updatedAt) : ''
   };
   if (!tpl.subjectTemplate) {
     console.error(`[sendEmail] No subject template found for type ${type}`);
