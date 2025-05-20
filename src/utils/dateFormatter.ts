@@ -1,9 +1,10 @@
-import { format, parseISO } from 'date-fns';
+import { parseISO } from 'date-fns';
+import { formatInTimeZone } from 'date-fns-tz';
 import { nb } from 'date-fns/locale';
 
 type DateInput = Date | string | number | { toDate(): Date };
 
-const DEFAULT_TIMEZONE = 'Europe/Oslo';
+export const DEFAULT_TIMEZONE = 'Europe/Oslo';
 
 /**
  * Safely converts various date inputs to a Date object
@@ -27,6 +28,10 @@ const toDate = (date: DateInput): Date => {
 
 /**
  * Formats a date according to the specified format string and timezone
+ * @param date - The date to format (Date, string, number, or object with toDate() method)
+ * @param formatString - The format string (using date-fns format tokens)
+ * @param options - Formatting options including timezone and locale
+ * @returns Formatted date string in the specified timezone
  */
 export const formatDate = (
   date: DateInput,
@@ -37,12 +42,11 @@ export const formatDate = (
   } = {}
 ): string => {
   try {
-    const { locale = nb } = options;
+    const { timeZone = DEFAULT_TIMEZONE, locale = nb } = options;
     const dateObj = toDate(date);
     
-    // For v2, we'll use the date directly since timezone handling is simpler
-    // and doesn't require zonedTimeToUtc in most cases
-    return format(dateObj, formatString, { locale });
+    // Format the date in the specified timezone
+    return formatInTimeZone(dateObj, timeZone, formatString, { locale });
   } catch (error) {
     console.error('Error formatting date:', error);
     return String(date);

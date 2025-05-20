@@ -62,7 +62,6 @@
     "deploy:rules:test": "firebase deploy --only firestore:rules --project runnershubtest",
     "deploy:indexes": "firebase deploy --only firestore:indexes --project runnershub-62442",
     "deploy:indexes:test": "firebase deploy --only firestore:indexes --project runnershubtest",
-    
     "backup": "node scripts/backupFirestore.js",
     "restore": "node scripts/restoreFirestore.js"
   },

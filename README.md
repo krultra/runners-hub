@@ -1,16 +1,27 @@
 # Runners Hub
 
-Runners Hub is an evolving platform designed to be a complete resource for runners — offering race information, registration, results, statistics, and eventually AI-assisted services. The current version is focused on registration for the KUTC 2025 event, but this is just the beginning. The codebase and documentation will grow as new features are added.
+Runners Hub is an evolving platform designed to be a complete resource for runners — offering race information, registration, results, statistics, and eventually AI-assisted services. The current version supports registration for KUTC 2025 and Malvikingen Opp 2025 events, including event creation and management. This is just the beginning, and the platform will continue to grow with new features and events.
 
 ---
 
 ## Vision & Roadmap
 
-- **Current:** Registration system for KUTC 2025, with admin and public participant views.
+- **Current:** 
+  - Registration system for KUTC 2025 (native) and Malvikingen Opp 2025 (redirects to external sites and imports data)
+  - Event creation and management
+  - Admin and public participant views
+  - Email notifications
+  - Firestore backend with backup/restore
+
+- **In Progress:**
+  - Unified user data management
+  - User profiles with preferences (timezone, locale, notifications)
+  - Club memberships and relationships
+
 - **Planned:**
   - Central hub for race information (multiple events)
   - Results and statistics tracking
-  - Community features and user profiles
+  - Community features and enhanced user profiles
   - AI-assisted services (e.g., race recommendations, training insights)
   - More integrations as ideas and needs emerge
 
