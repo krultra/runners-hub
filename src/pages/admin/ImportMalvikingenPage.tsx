@@ -1,10 +1,8 @@
 import React, { useState } from 'react';
-import { Box, Button, Container, Paper, TextField, Typography, CircularProgress, Alert, Link } from '@mui/material';
+import { Box, Button, Container, Paper, TextField, Typography, CircularProgress, Alert } from '@mui/material';
 import { Link as RouterLink } from 'react-router-dom';
 import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, writeBatch } from 'firebase/firestore';
-import { auth } from '../../config/firebase'; // Will be used for authentication checks
 import Papa from 'papaparse';
-import { format } from 'date-fns';
 
 // Define the structure for a Malvikingen participant
 interface MalvikingenParticipant {

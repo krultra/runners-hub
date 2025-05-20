@@ -74,7 +74,6 @@ export const getEventResults = async (editionId: string): Promise<{
     // For example: 'mo-2025' -> eventId: 'mo', edition: 2025 (as number)
     // But we need to handle both document ID format and parsed format
     let eventId, edition, editionNumber;
-    const originalEditionId = editionId; // Keep track of the original ID
     
     // If it looks like eventId-edition format (e.g., mo-2025)
     const parts = editionId.split('-');

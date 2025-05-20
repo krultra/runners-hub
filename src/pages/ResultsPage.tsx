@@ -1,5 +1,4 @@
 import React, { useState, useEffect, SyntheticEvent, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useEventEdition } from '../contexts/EventEditionContext';
 import { getEventResults } from '../services/resultsService';
 import { 
@@ -7,10 +6,8 @@ import {
   GridToolbar, 
   GridColDef,
   GridSortModel,
-  GridFilterModel,
   GridColumnVisibilityModel,
   GridValueFormatterParams,
-  GridRenderCellParams
 } from '@mui/x-data-grid';
 import { 
   Box, 
@@ -23,8 +20,7 @@ import {
   Alert,
   Tabs,
   Tab,
-  Stack,
-  Divider
+  Stack
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import { saveAs } from 'file-saver';
@@ -113,8 +109,7 @@ function a11yProps(index: number) {
 // Main ResultsPage component
 const ResultsPage = () => {
   // Get event edition from context
-  const { event: contextEvent, loading: contextLoading, error: contextError } = useEventEdition();
-  const navigate = useNavigate();
+  const { event: contextEvent } = useEventEdition();
   
   // State variables
   const [loading, setLoading] = useState<boolean>(true);

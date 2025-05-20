@@ -4,7 +4,7 @@ import { Registration } from '../types';
 import Handlebars from 'handlebars';
 import { getEmailTemplate } from './templateService';
 import { getEventEdition } from './eventEditionService';
-import { formatShortDate, formatDateTime, formatTime } from '../utils/dateFormatter';
+import { formatShortDate, formatDateTime } from '../utils/dateFormatter';
 
 /**
  * Email types supported by the application

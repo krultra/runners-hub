@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
 import { 
@@ -40,8 +40,11 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
   
   // Calculate time remaining until the race
-  const now = new Date();
-  const raceDate = event.startTime ? new Date(event.startTime) : new Date();
+  const now = useMemo(() => new Date(), []);
+  const raceDate = useMemo(
+    () => (event.startTime ? new Date(event.startTime) : new Date()),
+    [event.startTime]
+  );
   // const timeRemaining = raceDate.getTime() - now.getTime();
   
   // Check if registration is still open
@@ -74,7 +77,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     });
     
     return () => unsubscribe();
-  }, [location.key]);
+  }, [location.key, event.id]);
   
   const editionId = event.id;
   
@@ -98,7 +101,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
       }
     };
     fetchCounts();
-  }, [location.key, editionId, event.maxParticipants]);
+  }, [location.key, editionId, event.maxParticipants, event.id]);
   
   // Update countdown timer every second
   useEffect(() => {

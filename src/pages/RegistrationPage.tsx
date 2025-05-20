@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getRegistrationsByEdition } from "../services/registrationService";
 import { testFirestoreConnection } from "../services/testFirestore";
@@ -175,10 +175,6 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     return Object.keys(errors).length > 0;
   }, [formData, activeStep]);
 
-  const hasRaceDetailsErrors = useCallback(() => {
-    const errors = validateForm(formData, 1);
-    return Object.keys(errors).length > 0;
-  }, [formData]);
 
   // Check if event is full
   useEffect(() => {
@@ -205,7 +201,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       }
     };
     loadCount();
-  }, [event]);
+  }, [event, event?.id]);
 
   // Handle waiting list expiration date when event is full
   useEffect(() => {
@@ -282,6 +278,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     setSnackbarMessage,
     setSnackbarSeverity,
     setSnackbarOpen,
+    event.id
   ]);
 
   useEffect(() => {
@@ -533,7 +530,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       // Clear errors if validation hasn't been attempted
       clearAllErrors();
     }
-  }, [activeStep, validationAttempted, formData, touchedFields]);
+  }, [activeStep, validationAttempted, formData, touchedFields, clearAllErrors]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 

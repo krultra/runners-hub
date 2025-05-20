@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Typography, Box, Paper, Divider, Button, Grid, CircularProgress } from '@mui/material';
-import { useNavigate } from 'react-router-dom';
+
 import { useEventEdition } from '../contexts/EventEditionContext';
 import { Link } from 'react-router-dom';
 
@@ -19,7 +19,7 @@ function formatCountdown(target: Date) {
 }
 
 const MO2025Page: React.FC = () => {
-  const navigate = useNavigate();
+
   const { event, loading, error, setEvent } = useEventEdition();
   const [nedtelling, setNedtelling] = useState<string>(formatCountdown(LØPSDATO));
   

@@ -37,7 +37,7 @@ export const formatDate = (
   } = {}
 ): string => {
   try {
-    const { timeZone = DEFAULT_TIMEZONE, locale = nb } = options;
+    const { locale = nb } = options;
     const dateObj = toDate(date);
     
     // For v2, we'll use the date directly since timezone handling is simpler
