@@ -1,10 +1,10 @@
 import { addDoc, collection, serverTimestamp, DocumentReference, doc, updateDoc, increment } from 'firebase/firestore';
 import { getFirestore } from 'firebase/firestore';
 import { Registration } from '../types';
-import { logSentEmail } from './emailLogService';
 import Handlebars from 'handlebars';
 import { getEmailTemplate } from './templateService';
-import { listEventEditions, getEventEdition } from './eventEditionService';
+import { getEventEdition } from './eventEditionService';
+import { formatShortDate, formatDateTime } from '../utils/dateFormatter';
 
 /**
  * Email types supported by the application
@@ -122,27 +122,8 @@ export const sendStatusChangedEmail = async (registration: Registration): Promis
   return sendEmail(EmailType.STATUS_CHANGED, registration.email, context);
 };
 
-// Default subjects for fallback
-const DEFAULT_SUBJECTS: Record<EmailType, string> = {
-  [EmailType.INVITATION]: 'Invitation to register',
-  [EmailType.WELCOME]: 'Registration Confirmation',
-  [EmailType.REGISTRATION_UPDATE]: 'Registration Update',
-  [EmailType.PAYMENT_CONFIRMATION]: 'Payment Confirmation',
-  [EmailType.NEWSLETTER]: 'KrUltra Newsletter',
-  [EmailType.REMINDER]: 'Reminder',
-  [EmailType.LAST_NOTICE]: 'Last Notice Reminder',
-  [EmailType.WAITING_LIST_REGISTRATION]: `Waiting List Registration`,
-  [EmailType.WAITING_LIST_CONFIRMATION]: 'Waiting List Confirmation',
-  [EmailType.CANCELLATION]: 'Registration Cancellation',
-  [EmailType.EXPIRATION]: 'Registration Expiration',
-  [EmailType.STATUS_CHANGED]: 'Registration Status Changed',
-  [EmailType.P_LIST2W_LIST]: 'Participant to Waiting-list Notification',
-  [EmailType.W_LIST2P_LIST_OFFER]: 'Waiting-list to Participant Offer',
-  [EmailType.REFUND]: 'Refund Processed',
-};
-
 /**
- * Generic email sender using templates and fallback defaults
+ * Generic email sender using templates
  */
 async function sendEmail(type: EmailType, to: string, context: any): Promise<DocumentReference<any>> {
   const db = getFirestore();
@@ -160,6 +141,10 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
   let tpl;
   try {
     tpl = await getEmailTemplate(type, 'en');
+    if (!tpl) {
+      console.error(`[sendEmail] No template found for type ${type}`);
+      throw new Error(`No template found for type ${type}`);
+    }
   } catch (e) {
     console.error('[sendEmail] Error fetching email template', e);
     throw e;
@@ -170,73 +155,34 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     eventName,
     eventShortName,
     eventEdition: edition,
-    // Provide raw Date for templating and formatting
-    today: context.today ? new Date(context.today) : new Date(),
+    today: formatShortDate(context.today || new Date()),
+    // Format dates directly in the context for use in templates
+    dateOfBirth: context.dateOfBirth ? formatShortDate(context.dateOfBirth) : '',
+    waitinglistExpires: context.waitinglistExpires ? formatShortDate(context.waitinglistExpires) : '',
+    updatedAt: context.updatedAt ? formatDateTime(context.updatedAt) : ''
   };
-  // Format dates to Norwegian format
-  const formatOptions: Record<string, any> = {
-    dateOfBirth: { day: '2-digit', month: '2-digit', year: 'numeric' },
-    waitinglistExpires: { day: '2-digit', month: '2-digit', year: 'numeric' },
-    today: { day: '2-digit', month: '2-digit', year: 'numeric' },
-    updatedAt: { 
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
-    }
-  };
-
-  // Format each date field with its specific format
-  ['dateOfBirth', 'waitinglistExpires', 'today', 'updatedAt'].forEach((field) => {
-    const ts = (enrichedContext as any)[field];
-    if (ts) {
-      const date = ts.toDate ? ts.toDate() : new Date(ts);
-      const options = formatOptions[field];
-      (enrichedContext as any)[field] = date.toLocaleString('no-NO', options);
-    }
-  });
-  const subjTpl = tpl.subjectTemplate || DEFAULT_SUBJECTS[type];
+  if (!tpl.subjectTemplate) {
+    console.error(`[sendEmail] No subject template found for type ${type}`);
+    throw new Error(`No subject template found for type ${type}`);
+  }
   let subject: string;
   try {
-    subject = subjTpl.includes('{{') ? Handlebars.compile(subjTpl)(enrichedContext) : subjTpl;
+    subject = tpl.subjectTemplate.includes('{{') ? Handlebars.compile(tpl.subjectTemplate)(enrichedContext) : tpl.subjectTemplate;
   } catch (err) {
     console.error(`[sendEmail] Error compiling subject template for ${type}:`, err);
-    subject = DEFAULT_SUBJECTS[type];
+    throw err;
   }
-  // default HTML for refund emails if no template provided
-  const defaultRefundTemplate = `
-<div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eaeaea; border-radius: 5px;">
-  <h2 style="color: #1976d2;">Dear {{firstName}},</h2>
-  <p>
-    We would like to inform you that your payment for <strong>{{eventName}} {{eventEdition}}</strong> has been refunded in accordance with the event’s cancellation and refund policy.
-  </p>
-  <div style="background-color: #e8f5e9; padding: 15px; border-radius: 5px; margin: 20px 0;">
-    <h3 style="margin-top: 0; color: #2e7d32;">Refund Information</h3>
-    <p>Your refund has been processed and sent to the same payment method used for your original transaction.</p>
-    <p><strong>Reference:</strong> {{eventShortName}}-{{eventEdition}}-{{registrationNumber}}</p>
-  </div>
-  <p>
-    For most payment methods, such as Vipps, the refund should appear almost immediately. If you paid by bank transfer or another method, please allow a few business days for the transaction to be completed.
-  </p>
-  <p>
-    If you have any questions or believe something is incorrect, feel free to reply to this email.
-  </p>
-  <p>Best regards,<br />KrUltra</p>
-  <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #eaeaea; font-size: 12px; color: #666; text-align: center;">
-    <p>This email was sent to {{email}} in connection with your registration for {{eventName}} {{eventEdition}}.</p>
-  </div>
-</div>`;
-  const bodyTpl = tpl.bodyTemplate && tpl.bodyTemplate.trim() !== ''
-    ? tpl.bodyTemplate
-    : (type === EmailType.REFUND ? defaultRefundTemplate : '');
+
+  if (!tpl.bodyTemplate) {
+    console.error(`[sendEmail] No body template found for type ${type}`);
+    throw new Error(`No body template found for type ${type}`);
+  }
   let html: string;
   try {
-    html = bodyTpl.includes('{{') ? Handlebars.compile(bodyTpl)(enrichedContext) : bodyTpl;
+    html = tpl.bodyTemplate.includes('{{') ? Handlebars.compile(tpl.bodyTemplate)(enrichedContext) : tpl.bodyTemplate;
   } catch (err) {
-    console.error(`Error compiling body template for ${type}:`, err);
-    html = '';
+    console.error(`[sendEmail] Error compiling body template for ${type}:`, err);
+    throw err;
   }
 
   // Create the email document
@@ -269,12 +215,10 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
       if (type === EmailType.REMINDER) {
         await updateDoc(regRef, { remindersSent: increment(1) });
       } else if (type === EmailType.LAST_NOTICE) {
-        console.log(`sendEmail: incrementing lastNoticesSent for ${enrichedContext.id}`);
         await updateDoc(regRef, { lastNoticesSent: increment(1) });
-        console.log('sendEmail: lastNoticesSent incremented');
       }
     } catch (err) {
-      console.error(`sendEmail: error incrementing counters for ${enrichedContext.id}`, err);
+      console.error(`[sendEmail] Error incrementing counters for ${enrichedContext.id}`, err);
     }
   }
   return mailRef;

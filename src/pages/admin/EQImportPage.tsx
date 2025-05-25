@@ -46,7 +46,6 @@ const EQImportPage: React.FC = () => {
       });
       const db = getFirestore();
       const batch = writeBatch(db);
-      let importedCount = 0;
       // Skip header row and filter out invalid rows
       // First remove the header row
       const rawRows = results.data as string[][];
@@ -113,7 +112,6 @@ const EQImportPage: React.FC = () => {
         };
         const ref = doc(collection(db, 'moRegistrations'));
         batch.set(ref, participant);
-        importedCount++;
       }
       await batch.commit();
       setImportSuccess(true);

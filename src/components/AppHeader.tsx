@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Button, Chip, Menu, MenuItem, ListItemIcon } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { adminSections } from '../constants/adminSections';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';

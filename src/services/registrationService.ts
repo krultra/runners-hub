@@ -72,21 +72,23 @@ export const createRegistration = async (
     // Add document to Firestore
     const docRef = await addDoc(collection(db, REGISTRATIONS_COLLECTION), registrationToSave);
     
+    // Prepare email data with only the actual date values
+    const emailData = {
+      ...registrationData, // Use original data which has proper date objects
+      id: docRef.id,
+      registrationNumber,
+      // Explicitly set timestamps to ensure they're proper dates
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
     // Send appropriate email based on waiting-list status
     try {
       if (registrationToSave.isOnWaitinglist) {
         // Initial waiting-list registration email
-        await sendWaitingListRegistrationEmail({
-          ...registrationToSave,
-          id: docRef.id,
-          registrationNumber
-        } as Registration);
+        await sendWaitingListRegistrationEmail(emailData as Registration);
       } else {
-        await sendWelcomeEmail({
-          ...registrationToSave,
-          id: docRef.id,
-          registrationNumber
-        } as Registration);
+        await sendWelcomeEmail(emailData as Registration);
       }
     } catch (emailError) {
       console.error('Error sending email:', emailError);
@@ -212,10 +214,15 @@ export const updateRegistration = async (
         // Get the full updated registration data
         const updatedDoc = await getDoc(docRef);
         if (updatedDoc.exists()) {
+          const docData = updatedDoc.data();
           const updatedRegistration = {
-            ...updatedDoc.data(),
+            ...docData,
             id: registrationId,
-            dateOfBirth: updatedDoc.data().dateOfBirth ? updatedDoc.data().dateOfBirth.toDate() : null
+            dateOfBirth: docData.dateOfBirth?.toDate?.() || null,
+            waitinglistExpires: docData.waitinglistExpires?.toDate?.() || null,
+            // Ensure we use proper dates instead of serverTimestamp objects
+            createdAt: docData.createdAt?.toDate?.() || new Date(),
+            updatedAt: new Date()
           } as Registration;
           await sendRegistrationUpdateEmail(updatedRegistration);
         }

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { useNavigate, Link as RouterLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getRegistrationsByEdition } from "../services/registrationService";
 import { testFirestoreConnection } from "../services/testFirestore";
@@ -70,6 +70,23 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   const divRefs = useRef<
     Record<string, React.RefObject<HTMLDivElement | null>>
   >({});
+
+  // Reset validation state when switching to Race Details step
+  useEffect(() => {
+    if (activeStep === 1) { // Race Details step
+      setTouchedFields(prev => ({
+        ...prev,
+        raceDistance: false,
+        travelRequired: false
+      }));
+      setErrors(prev => {
+        const newErrors = {...prev};
+        delete newErrors.raceDistance;
+        delete newErrors.travelRequired;
+        return newErrors;
+      });
+    }
+  }, [activeStep]);
 
   // Handlers
   const handleFormChange = useCallback((field: string, value: any) => {
@@ -158,10 +175,6 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     return Object.keys(errors).length > 0;
   }, [formData, activeStep]);
 
-  const hasRaceDetailsErrors = useCallback(() => {
-    const errors = validateForm(formData, 1);
-    return Object.keys(errors).length > 0;
-  }, [formData]);
 
   // Check if event is full
   useEffect(() => {
@@ -188,7 +201,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       }
     };
     loadCount();
-  }, [event]);
+  }, [event, event?.id]);
 
   // Handle waiting list expiration date when event is full
   useEffect(() => {
@@ -265,6 +278,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     setSnackbarMessage,
     setSnackbarSeverity,
     setSnackbarOpen,
+    event.id
   ]);
 
   useEffect(() => {
@@ -516,7 +530,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       // Clear errors if validation hasn't been attempted
       clearAllErrors();
     }
-  }, [activeStep, validationAttempted, formData, touchedFields]);
+  }, [activeStep, validationAttempted, formData, touchedFields, clearAllErrors]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -701,6 +715,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             fieldRefs={divRefs.current}
             onBlur={handleFieldTouch}
             event={event}
+            touchedFields={touchedFields}
           />
         );
       case 2:

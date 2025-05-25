@@ -16,8 +16,7 @@ import {
   SelectChangeEvent
 } from '@mui/material';
 import ClearIcon from '@mui/icons-material/Clear';
-import { format } from 'date-fns';
-import { nb } from 'date-fns/locale';
+import { formatLongDate } from '../../utils/dateFormatter';
 import { Timestamp } from 'firebase/firestore';
 import { useEventEdition, CurrentEvent } from '../../contexts/EventEditionContext';
 import { getFullEventEditions } from '../../services/eventEditionService';
@@ -47,10 +46,11 @@ const getYear = (date: Date | Timestamp | undefined): number => {
   return dateObj ? dateObj.getFullYear() : new Date().getFullYear();
 };
 
-// Helper function to format date (handles both Date and Timestamp)
-const formatDate = (date: Date | Timestamp | undefined): string => {
+// Helper function to format date in a user-friendly way with Oslo timezone
+const formatDisplayDate = (date: Date | Timestamp | undefined): string => {
+  if (!date) return 'N/A';
   const dateObj = toDate(date);
-  return dateObj ? format(dateObj, 'PPP', { locale: nb }) : 'N/A';
+  return dateObj ? formatLongDate(dateObj, 'Europe/Oslo') : 'N/A';
 };
 
 const EventEditionSelector: React.FC<EventEditionSelectorProps> = ({
@@ -210,7 +210,7 @@ const EventEditionSelector: React.FC<EventEditionSelectorProps> = ({
               </MenuItem>
               {filteredEditions.map((edition) => (
                 <MenuItem key={edition.id} value={edition.id}>
-                  {edition.eventName} ({formatDate(edition.startTime)})
+                  {edition.eventName} ({formatDisplayDate(edition.startTime)})
                 </MenuItem>
               ))}
             </Select>
@@ -301,12 +301,12 @@ const EventEditionSelector: React.FC<EventEditionSelectorProps> = ({
             <strong>Status:</strong> {selectedEvent.status}
           </Typography>
           <Typography variant="body2">
-            <strong>Date:</strong> {formatDate(selectedEvent.startTime)}
-            {selectedEvent.endTime && ` to ${formatDate(selectedEvent.endTime)}`}
+            <strong>Date:</strong> {formatDisplayDate(selectedEvent.startTime)}
+            {selectedEvent.endTime && ` to ${formatDisplayDate(selectedEvent.endTime)}`}
           </Typography>
           {selectedEvent.registrationDeadline && (
             <Typography variant="body2">
-              <strong>Registration Deadline:</strong> {formatDate(selectedEvent.registrationDeadline)}
+              <strong>Registration Deadline:</strong> {formatDisplayDate(selectedEvent.registrationDeadline)}
             </Typography>
           )}
           {selectedEvent.maxParticipants && (

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Typography,
   Box,
@@ -6,7 +6,6 @@ import {
   List,
   ListItem,
   ListItemText,
-  Divider,
   Paper,
   Alert,
   Checkbox,
@@ -75,9 +74,19 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
   const handleOpenTermsDialog = () => setTermsDialogOpen(true);
   const handleCloseTermsDialog = () => setTermsDialogOpen(false);
   
-  // Effect to scroll to top when component mounts
+  const notifyCheckboxRef = useRef<HTMLInputElement>(null);
+
+  // Effect to scroll to top and focus on the notify checkbox when component mounts
   useEffect(() => {
     window.scrollTo(0, 0);
+    // Focus on the notify checkbox after a small delay to ensure it's rendered
+    const timer = setTimeout(() => {
+      if (notifyCheckboxRef.current) {
+        notifyCheckboxRef.current.focus();
+      }
+    }, 100);
+    
+    return () => clearTimeout(timer);
   }, []);
 
   return (
@@ -248,6 +257,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
           <FormControlLabel
             control={
               <Checkbox
+                inputRef={notifyCheckboxRef}
                 checked={formData.notifyFutureEvents}
                 name="notifyFutureEvents"
                 color="primary"

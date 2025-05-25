@@ -1,33 +1,50 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
-import { 
-  Container, 
-  Typography, 
-  Box, 
-  Paper, 
-  CircularProgress, 
-  Alert,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  ToggleButtonGroup,
-  ToggleButton,
-  Divider,
-  Grid,
-  SelectChangeEvent
+/**
+ * NOTE: This component is currently not in use and has been replaced by external results services.
+ * It was originally developed for Malvikingen Opp with intentions to support multiple events,
+ * but the functionality was later moved to dedicated external services.
+ * 
+ * The code has been preserved here for future reference and potential reuse.
+ * 
+ * Last updated: May 2025
+ */
+
+import React from 'react';
+import { Container, Typography, Paper } from '@mui/material';
+
+const GeneralResultsPage = () => {
+  return (
+    <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
+      <Paper sx={{ p: 4, textAlign: 'center' }}>
+        <Typography variant="h4" component="h1" gutterBottom>
+          Resultatside under utvikling
+        </Typography>
+        <Typography variant="body1" paragraph>
+          Denne siden er for øyeblikket ikke tilgjengelig.
+        </Typography>
+        <Typography variant="body1">
+          Vennligst bruk den offensielle resultattjenesten for å se løpsresultater for Malvikingen Opp 2025.
+        </Typography>
+      </Paper>
+    </Container>
+  );
+};
+
+export default GeneralResultsPage;
+
+/*
+ * Original code preserved for future reference
+ */
+
+/*
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { Container, Typography, Box, Paper, 
+  FormControl, InputLabel, Select, MenuItem, 
+  ToggleButtonGroup, ToggleButton, Alert, Divider, Grid 
 } from '@mui/material';
-import { 
-  DataGrid, 
-  GridColDef,
-  GridToolbar,
-  GridValueFormatterParams,
-  GridColumnVisibilityModel,
-  GridSortModel
-} from '@mui/x-data-grid';
-import { getEventResults } from '../services/resultsService';
-import { db } from '../config/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { DataGrid, GridColDef, GridColumnVisibilityModel, GridSortModel, GridToolbar, GridValueFormatterParams } from '@mui/x-data-grid';
+import { useSearchParams } from 'react-router-dom';
+import { collection, getDocs, db } from '../firebase';
+import { getEventResults } from '../api/results';
 
 // Interfaces
 interface EventEdition {
@@ -213,7 +230,7 @@ const GeneralResultsPage = () => {
     };
 
     fetchEventEditions();
-  }, [searchParams, setSearchParams, fetchEventResults]);
+  }, [searchParams, setSearchParams, fetchEventResults, eventEditions, selectedEventId]);
 
   // Handle event selection change
   const handleEventChange = (event: SelectChangeEvent) => {
@@ -500,7 +517,7 @@ const GeneralResultsPage = () => {
           Resultater
         </Typography>
         
-        {/* Event Selection */}
+        // Event Selection 
         <FormControl fullWidth sx={{ mb: 4 }}>
           <InputLabel id="event-select-label">Velg arrangement</InputLabel>
           <Select
@@ -519,14 +536,14 @@ const GeneralResultsPage = () => {
           </Select>
         </FormControl>
         
-        {/* Selected Event Header */}
+        // Selected Event Header 
         {selectedEvent && (
           <Typography variant="h5" component="h2" fontWeight="bold" gutterBottom>
             {selectedEvent.eventName} {selectedEvent.edition}
           </Typography>
         )}
         
-        {/* Loading and Error States */}
+        // Loading and Error States 
         {loading && (
           <Box display="flex" justifyContent="center" my={4}>
             <CircularProgress />
@@ -539,7 +556,7 @@ const GeneralResultsPage = () => {
           </Alert>
         )}
         
-        {/* View Type Selection */}
+        // View Type Selection 
         {!loading && !error && selectedEvent && (
           <>
             <Box sx={{ mb: 2, mt: 2 }}>
@@ -563,7 +580,7 @@ const GeneralResultsPage = () => {
               </ToggleButtonGroup>
             </Box>
             
-            {/* Results DataGrid */}
+            // Results DataGrid 
             <div style={{ height: 600, width: '100%' }}>
               <DataGrid
                 rows={filteredParticipants}
@@ -590,7 +607,7 @@ const GeneralResultsPage = () => {
               />
             </div>
             
-            {/* Abbreviations Legend */}
+            // Abbreviations Legend 
             <Box mt={4} p={2} bgcolor="background.paper" borderRadius={1}>
               <Typography variant="h6" gutterBottom>
                 Forklaringer
@@ -626,3 +643,5 @@ const GeneralResultsPage = () => {
 };
 
 export default GeneralResultsPage;
+
+*/
