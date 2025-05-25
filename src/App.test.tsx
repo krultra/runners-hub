@@ -2,8 +2,15 @@ import React from 'react';
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders registration call-to-action', () => {
-  render(<App />);
-  const registerButton = screen.getByRole('link', { name: /register now/i });
-  expect(registerButton).toBeInTheDocument();
+describe('App', () => {
+  test('renders event cards on home page', () => {
+    render(<App />);
+    
+    // Check for event cards
+    const malvikingenCard = screen.getByText(/Malvikingen Opp 2025/i);
+    const kutcCard = screen.getByText(/Kruke's Ultra-Trail Challenge 2025/i);
+    
+    expect(malvikingenCard).toBeInTheDocument();
+    expect(kutcCard).toBeInTheDocument();
+  });
 });
