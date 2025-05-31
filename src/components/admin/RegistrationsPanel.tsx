@@ -109,9 +109,9 @@ const RegistrationsPanel: React.FC = () => {
         </Typography>
       </Box>
       <TableContainer component={Paper} sx={{ mt: 2, mb: 2 }}>
-        <Table size="small">
+        <Table size="small" stickyHeader>
           <TableHead>
-            <TableRow sx={{ backgroundColor: theme.palette.grey[200] }}>
+            <TableRow>
               <TableCell>Status</TableCell>
               <TableCell>Participants</TableCell>
               <TableCell>Waiting-list</TableCell>
@@ -131,8 +131,20 @@ const RegistrationsPanel: React.FC = () => {
               <TableCell>{waitingConfirmed}</TableCell>
               <TableCell>{participantsConfirmed + waitingConfirmed}</TableCell>
             </TableRow>
-            <TableRow sx={{ backgroundColor: theme.palette.grey[100] }}>
-              <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>Sum p/c</TableCell>
+            <TableRow 
+              sx={{ 
+                position: 'sticky',
+                top: '48px',
+                zIndex: 2,
+                backgroundColor: 'background.paper',
+                borderBottom: '1px solid',
+                borderColor: 'divider',
+                '& th, & td': {
+                  backgroundColor: 'inherit'
+                }
+              }}
+            >
+              <TableCell component="th" scope="row" sx={{ fontWeight: 'bold' }}>Sum active reg.</TableCell>
               <TableCell>{participantsPending + participantsConfirmed}</TableCell>
               <TableCell>{waitingPending + waitingConfirmed}</TableCell>
               <TableCell>{participantsPending + participantsConfirmed + waitingPending + waitingConfirmed}</TableCell>
