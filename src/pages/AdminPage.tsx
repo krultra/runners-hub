@@ -99,7 +99,9 @@ const AdminPage: React.FC = () => {
         }}
       >
         {/* More compact layout structure */}
-        <EventEditionSelector />
+        <Box sx={{ mt: 2 }}>
+          <EventEditionSelector />
+        </Box>
         <Box sx={{ mt: 1, px: 0.5 }}>
             {active === 'invitations' && <InvitationsPanel />}
             {active === 'registrations' && <RegistrationsPanel />}

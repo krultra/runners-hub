@@ -39,7 +39,6 @@ function App() {
       )}
       <Router>
         <AppHeader />
-        <Toolbar />
         {/* Ensure bottom content isn't hidden behind footer */}
         <Box component="main" sx={{ pb: (theme) => theme.mixins.toolbar.minHeight }}>
           <Routes>

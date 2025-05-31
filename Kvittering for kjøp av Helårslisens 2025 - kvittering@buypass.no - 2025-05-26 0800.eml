@@ -1,0 +1,681 @@
+Delivered-To: torgeir.kruke@gmail.com
+Received: by 2002:a05:7208:159b:b0:a0:3404:c4f8 with SMTP id bv27csp3103898rbb;
+        Sun, 25 May 2025 23:00:09 -0700 (PDT)
+X-Google-Smtp-Source: AGHT+IHSmdZ8dEB7MN8kiY367cc5EmhDm+WLI/ZtF5steJeW8+l2cwMBPEcfDwcuUhT7+s4mBIzT
+X-Received: by 2002:a05:620a:25cc:b0:7ce:bdae:8a6 with SMTP id af79cd13be357-7ceecc02e2dmr1148774785a.7.1748239209370;
+        Sun, 25 May 2025 23:00:09 -0700 (PDT)
+ARC-Seal: i=1; a=rsa-sha256; t=1748239209; cv=none;
+        d=google.com; s=arc-20240605;
+        b=RQBoyIq8VPX83ERuadMvSpHJWkISIQhtPBx+p1iq4beHxMj8Vl3YteGByjc1rPxSgC
+         rTqIfd0+PjMiblnsOIjes2ty2H3MT+CvsP15JiX5zkahS9vmgqWIDcVcPM/m8f7YDcim
+         /k9KO4aJNAol0OdIXihk7JXyGrouYWUg/94dzx/FPY5OoOqznBhtKQyn42qYBzDBsG4R
+         pCiwEukEjX2yyQqMngKQ+W340Vmr924jgbPvSf/4mNhmCfGJd18KJAEAKAhSSz4uZizx
+         KUMccyszIViWNMk2xq4C8VDWClQi57WWwo+X4qnXBsweHvlBPoNo5trMHuvlOIDF03l9
+         1f/Q==
+ARC-Message-Signature: i=1; a=rsa-sha256; c=relaxed/relaxed; d=google.com; s=arc-20240605;
+        h=to:subject:message-id:mime-version:from:date:dkim-signature
+         :dkim-signature;
+        bh=hqI5psb0tQqMiYEypEoWcoopnAqpye1dU+4rCwbg4Ro=;
+        fh=6cMa66kPTgRSBja3RzTUxp3r9PtXcAnHgXkinsJqK9A=;
+        b=ZFZMnLFbBYC+L7QEvSQ2JTddIYvoIPWQI5PhUISayWsaxTVKkujWb6V9nbBzREyLk3
+         fazXaJU15AaMtyXQqbSRG91BbYGZGbifkz7tzJavM1xthZikwi1nW/Uo84O8QNu3iqVN
+         QAt8BgFBxAD5TcJuA4tGqwymXD314Vzk0WTf1ZTfvKhPmVkQjJ7pMC0wdFS4EY//PVzy
+         siqXZ+HgRs3PJerkDxY5CtFyoBQd1c7jr4jRNbQI4MMFEXt0Nud0WPlslcl8HO/acBvD
+         Kvc3GjsGZrAzs/QDRi1RSsl75Wv6w+msMZwSPeienZQiThVTZP84SupgJholmGCfq1us
+         YUtA==;
+        dara=google.com
+ARC-Authentication-Results: i=1; mx.google.com;
+       dkim=pass header.i=@buypass.no header.s=s1 header.b=jKWcqLFD;
+       dkim=pass header.i=@sendgrid.info header.s=smtpapi header.b=oaQUCxQD;
+       spf=pass (google.com: domain of bounces+19356681-b55b-torgeir.kruke=gmail.com@em4998.buypass.no designates 149.72.250.145 as permitted sender) smtp.mailfrom="bounces+19356681-b55b-torgeir.kruke=gmail.com@em4998.buypass.no";
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=buypass.no
+Return-Path: <bounces+19356681-b55b-torgeir.kruke=gmail.com@em4998.buypass.no>
+Received: from o6.mailing.buypassca.com (o6.mailing.buypassca.com. [149.72.250.145])
+        by mx.google.com with ESMTPS id af79cd13be357-7cd468b3262si2323901785a.367.2025.05.25.23.00.09
+        for <torgeir.kruke@gmail.com>
+        (version=TLS1_3 cipher=TLS_AES_128_GCM_SHA256 bits=128/128);
+        Sun, 25 May 2025 23:00:09 -0700 (PDT)
+Received-SPF: pass (google.com: domain of bounces+19356681-b55b-torgeir.kruke=gmail.com@em4998.buypass.no designates 149.72.250.145 as permitted sender) client-ip=149.72.250.145;
+Authentication-Results: mx.google.com;
+       dkim=pass header.i=@buypass.no header.s=s1 header.b=jKWcqLFD;
+       dkim=pass header.i=@sendgrid.info header.s=smtpapi header.b=oaQUCxQD;
+       spf=pass (google.com: domain of bounces+19356681-b55b-torgeir.kruke=gmail.com@em4998.buypass.no designates 149.72.250.145 as permitted sender) smtp.mailfrom="bounces+19356681-b55b-torgeir.kruke=gmail.com@em4998.buypass.no";
+       dmarc=pass (p=REJECT sp=REJECT dis=NONE) header.from=buypass.no
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=buypass.no;
+	h=content-type:from:mime-version:subject:to:cc:content-type:feedback-id:
+	from:subject:to;
+	s=s1; bh=hqI5psb0tQqMiYEypEoWcoopnAqpye1dU+4rCwbg4Ro=;
+	b=jKWcqLFDIIuKlFYpSfn5YhcA9Q8+zljheZo73KQF3UaCnus++ChbGmSGO3Nx9l2PTQoA
+	fBjUZYmGu62zLS5wm0a1XDhlCgdJfotTlV7Abtfop5OyDOrp6CJAJiB8rgkTkbIv/5Dsxh
+	NvzqqcNHJ2Y/MRAbhG29LFESLBE/lJC/WTZdRkGweFxU7RmThMl/RXUHDNu14sFEN8w148
+	iUmk4SMF2RER4de+S0Qb6+RfOUe3nFiPw6Sr5M1ApBsrWo54nUo0hlPCtNh6k/3cmDo7jx
+	qc7BJV53HwwyaXxNS9RWeujAM03/2siVr/AXg6NR3CeL6zXYSmNUV10ACzPb6svQ==
+DKIM-Signature: v=1; a=rsa-sha256; c=relaxed/relaxed; d=sendgrid.info;
+	h=content-type:from:mime-version:subject:to:cc:content-type:feedback-id:
+	from:subject:to;
+	s=smtpapi; bh=hqI5psb0tQqMiYEypEoWcoopnAqpye1dU+4rCwbg4Ro=;
+	b=oaQUCxQDInd8yN8yDTQHDKp8gBO1U5XeJpUSfmUZPxHKU+2L44YemF9njQkFPWw34fZA
+	cmCzkjT/T1T/MMqOMzlwPTehNjxIVNVyQ5OFiRxl2zeP/5C/wYGNbCtchb6RhRXHQ8Cvqh
+	B4N598+3+zpNkZTqKccp9nxwhT7fIyILY=
+Received: by recvd-b7858b88-mmxcc with SMTP id recvd-b7858b88-mmxcc-1-68340368-1B
+	2025-05-26 06:00:08.228523609 +0000 UTC m=+4089084.055613082
+Received: from MTkzNTY2ODE (unknown)
+	by geopod-ismtpd-2 (SG) with HTTP
+	id nMNcJIWCSyKNCQHcj3bmQg
+	Mon, 26 May 2025 06:00:08.167 +0000 (UTC)
+Content-Type: multipart/alternative; boundary=02e712effc5da3739dab6ff723c6b029f87fb79907309b2387d7732424c9
+Date: Mon, 26 May 2025 06:00:08 +0000 (UTC)
+From: kvittering@buypass.no
+Mime-Version: 1.0
+Message-ID: <nMNcJIWCSyKNCQHcj3bmQg@geopod-ismtpd-2>
+Subject: Kvittering for =?UTF-8?B?a2rDuHAgYXYgSGVsw6Vyc2xpc2Vucw==?= 2025
+X-SG-EID: 
+ =?us-ascii?Q?u001=2EEbzxBVGAyDxZGSHyQx1l2o9DcubGoUrk5IBC6ydydVPxSfVQY4PvhNdlj?=
+ =?us-ascii?Q?AUN12SEhODHtbDrXRf=2F2vU95lsLgoh=2FBXn=2Fj7VP?=
+ =?us-ascii?Q?6+ftdRVBh5deaDf+7Yq+U1+trYHtawMttQSs2GM?=
+ =?us-ascii?Q?aVKAihYgO7OnPRUKVCMI9iTXAkg8IgGupsBsk9g?=
+ =?us-ascii?Q?6ogp2Ipe=2FIqsgIwuXt+KOmZvZB+r0BWvuAZzrHM?=
+ =?us-ascii?Q?w=3D=3D?=
+X-SG-ID: 
+ =?us-ascii?Q?u001=2ESdBcvi+Evd=2FbQef8eZF3BpTL9BgbK5wfSJMJGMsmprDsPyUTnMagHRCjb?=
+ =?us-ascii?Q?=2F65GublVfPUxiuWBn+DgIJ=2FP8jQwDstKl4kE4hG?=
+ =?us-ascii?Q?aUBNdbn=2FKYgDrz5kUR=2FeZZGKNfhQf4AcN5BZNDW?=
+ =?us-ascii?Q?rKrBZIwCVXdXZZn5g97RpZV88i9sVkco+lVFvHo?=
+ =?us-ascii?Q?G9kRJDhVoJmb53RKpKoeN4Y1rg0IQfpx8CFfKql?=
+ =?us-ascii?Q?A=3D=3D?=
+To: torgeir.kruke@gmail.com
+X-Entity-ID: u001.NVQitBHVe9ETBOZxT3poMQ==
+
+--02e712effc5da3739dab6ff723c6b029f87fb79907309b2387d7732424c9
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/plain; charset=iso-8859-1
+Mime-Version: 1.0
+
+Kvittering for gjennomf=F8rt betaling.
+
+iSonen ( https://u19356681.ct.sendgrid.net/ls/click?upn=3Du001.0SURLCgNCi1o=
+-2BuPgwgmfqF6CSti2Hm1hyTDeicqp8Cd5tj9gLLO6z1tThOOSFtQspi9I_yRw2nD-2BnTM6iK7=
+7KSOFdH9rpKL3XuuTGev2gyiHJAzeJzpLMWWmsN4CkrY-2BKrKWhdlEQH8S4uUY6qe4XwVy1z5x=
+F9Y3YbJtu3cRUaFutGbhlXxUTC7W-2BBsA8GN-2FzlQ8HfrZ8s0taN-2BDGq7wKzhZWZjMbMLQt=
+lZVRK-2Fox9x4lHrXW8t0sX5lPYCNZxwscCK5qP8IffUm2x-2BdaoKj-2F6Zje-2FPqYEE1wOtN=
+1-2BEE9qP5DU86qqI-2B9-2BcBF3DUo-2FadwJyKDN-2BxMIBVyF3nIIk0amCxn4q8dCQ5X70JA=
+RC6mW7Y-2BGF1zBgF8LShCw9tXQhIv2J-2B2Nhf5yJPA4FuXnuTnEfgxjDAWurdB83abO9I1WMP=
+G9W8QbokmymKmVP5ZB2CrdhMo )
+
+--------------------------
+Betalingen er gjennomf=F8rt!
+--------------------------
+
+Hel=E5rslisens 2025
+Ved feil eller endringer, ta kontakt med arrang=F8r
+
+Ordreinformasjon
+
+Transaksjons id: 32614058712
+
+Betalingsreferanse: 87VnP6tiqj4JFJxi7MLjmn2NKajb2C
+
+Betalingsmetode: Vipps
+
+Dato og tidspunkt for transaksjon: 26.05.2025 08:00
+
+Navn p=E5 kj=F8per: Torgeir Kruke
+
+Moms: 0.00,-
+
+Beskrivelse: Hel=E5rslisens 2025 Totalt
+
+600.00,-
+
+Denne transaksjonen er underlagt Buypass, Personvern, avtale for bruk
+
+Betaling gjennomf=F8rt av Buypass Payment AS - Foretaksregisteret NO 980 93=
+2 753 MVA
+
+Denne e-posten ble sendt til torgeir.kruke@gmail.com  ( ?subject=3D&body=3D=
+ )
+
+( https://u19356681.ct.sendgrid.net/ls/click?upn=3Du001.0SURLCgNCi1o-2BuPgw=
+gmfqKcZkEi0sgKl0DQEeJHpFHSNudHTZpMwIFiMstH9Xj9fJF7A_yRw2nD-2BnTM6iK77KSOFdH=
+9rpKL3XuuTGev2gyiHJAzeJzpLMWWmsN4CkrY-2BKrKWhdlEQH8S4uUY6qe4XwVy1z5xF9Y3YbJ=
+tu3cRUaFutGbhlXxUTC7W-2BBsA8GN-2FzlQ8HfrZ8s0taN-2BDGq7wKzhZWZjMbMLQtlZVRK-2=
+Fox9x4lHrXW8t0sX5lPYCNZxwscCK5qP8IffUm2x-2BdaoKj-2F6Zje-2FPqYEE1wOtN1-2BEE9=
+qP5DU86qqI-2B9-2BcBF3DUo-2FadwJyKDoFeT-2BD10LtZxC-2FvMlqsO9pvrVIuNDZhPLAEI1=
+hN5Zd8rwjRUIcf2gMYLutDPrNrklDVqJpZQC88PJmNaeUWsA4OknmXppCWGUh-2BKwrxs8GZ-2F=
+5xbYkskSqFeAeoUQ4Vfu ) ( https://u19356681.ct.sendgrid.net/ls/click?upn=3Du=
+001.0SURLCgNCi1o-2BuPgwgmfqF6CSti2Hm1hyTDeicqp8Cd5tj9gLLO6z1tThOOSFtQs02nV_=
+yRw2nD-2BnTM6iK77KSOFdH9rpKL3XuuTGev2gyiHJAzeJzpLMWWmsN4CkrY-2BKrKWhdlEQH8S=
+4uUY6qe4XwVy1z5xF9Y3YbJtu3cRUaFutGbhlXxUTC7W-2BBsA8GN-2FzlQ8HfrZ8s0taN-2BDG=
+q7wKzhZWZjMbMLQtlZVRK-2Fox9x4lHrXW8t0sX5lPYCNZxwscCK5qP8IffUm2x-2BdaoKj-2F6=
+Zje-2FPqYEE1wOtN1-2BEE9qP5DU86qqI-2B9-2BcBF3DUo-2FadwJyKD1k5FrI1DNeTsvr8xUC=
+wvx8OdUxjyeZs-2BTxaKaQiAzF2Dzbe7x6vzFJJABPgQRV62N9rLBYL-2B75gghMIBrY6iI8Hed=
+3cpeA3g-2BhQ5RqgzdTZsPYoP5KVDd58t7x-2FWkW1Y )
+
+Utviklet av Buypass i samarbeid med Norges Idrettsforbund
+--02e712effc5da3739dab6ff723c6b029f87fb79907309b2387d7732424c9
+Content-Transfer-Encoding: quoted-printable
+Content-Type: text/html; charset=iso-8859-1
+Mime-Version: 1.0
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org=
+/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html data-editor-version=3D"2" class=3D"sg-campaigns" xmlns=3D"http://www.=
+w3.org/1999/xhtml">
+    <head>
+      <meta http-equiv=3D"Content-Type" content=3D"text/html; charset=3Dutf=
+-8">
+      <meta name=3D"viewport" content=3D"width=3Ddevice-width, initial-scal=
+e=3D1, minimum-scale=3D1, maximum-scale=3D1">
+      <!--[if !mso]><!-->
+      <meta http-equiv=3D"X-UA-Compatible" content=3D"IE=3DEdge">
+      <!--<![endif]-->
+      <!--[if (gte mso 9)|(IE)]>
+      <xml>
+        <o:OfficeDocumentSettings>
+          <o:AllowPNG/>
+          <o:PixelsPerInch>96</o:PixelsPerInch>
+        </o:OfficeDocumentSettings>
+      </xml>
+      <![endif]-->
+      <!--[if (gte mso 9)|(IE)]>
+  <style type=3D"text/css">
+    body {width: 600px;margin: 0 auto;}
+    table {border-collapse: collapse;}
+    table, td {mso-table-lspace: 0pt;mso-table-rspace: 0pt;}
+    img {-ms-interpolation-mode: bicubic;}
+  </style>
+<![endif]-->
+      <style type=3D"text/css">
+    body, p, div {
+      font-family: arial,helvetica,sans-serif;
+      font-size: 16px;
+    }
+    body {
+      color: #000335;
+    }
+    body a {
+      color: #003e7e;
+      text-decoration: none;
+    }
+    p { margin: 0; padding: 0; }
+    table.wrapper {
+      width:100% !important;
+      table-layout: fixed;
+      -webkit-font-smoothing: antialiased;
+      -webkit-text-size-adjust: 100%;
+      -moz-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    img.max-width {
+      max-width: 100% !important;
+    }
+    .column.of-2 {
+      width: 50%;
+    }
+    .column.of-3 {
+      width: 33.333%;
+    }
+    .column.of-4 {
+      width: 25%;
+    }
+    ul ul ul ul  {
+      list-style-type: disc !important;
+    }
+    ol ol {
+      list-style-type: lower-roman !important;
+    }
+    ol ol ol {
+      list-style-type: lower-latin !important;
+    }
+    ol ol ol ol {
+      list-style-type: decimal !important;
+    }
+    @media screen and (max-width:480px) {
+      .preheader .rightColumnContent,
+      .footer .rightColumnContent {
+        text-align: left !important;
+      }
+      .preheader .rightColumnContent div,
+      .preheader .rightColumnContent span,
+      .footer .rightColumnContent div,
+      .footer .rightColumnContent span {
+        text-align: left !important;
+      }
+      .preheader .rightColumnContent,
+      .preheader .leftColumnContent {
+        font-size: 80% !important;
+        padding: 5px 0;
+      }
+      table.wrapper-mobile {
+        width: 100% !important;
+        table-layout: fixed;
+      }
+      img.max-width {
+        height: auto !important;
+        max-width: 100% !important;
+      }
+      a.bulletproof-button {
+        display: block !important;
+        width: auto !important;
+        font-size: 80%;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+      }
+      .columns {
+        width: 100% !important;
+      }
+      .column {
+        display: block !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+      }
+      .social-icon-column {
+        display: inline-block !important;
+      }
+    }
+  </style>
+      <!--user entered Head Start--><style>
+
+
+      .blueTop {
+        border-top: 1px solid #003a78;
+      }
+      .fontSize20 {
+        font-size: 20px;
+      }
+      .fontSize18 {
+        font-size: 18px;
+       =20
+      }
+      .fontSize16 {
+        font-size: 16px;
+        line-height: 25px;
+        border-bottom:1px solid #00033520;
+      }
+      .fontSize14 {
+        font-size: 14px;
+      }
+      .fontSize12 {
+        font-size: 12px;
+      }
+      .bold {
+        font-weight: bold;
+      }
+      .tdCenter {
+        text-align: center;
+      }
+      .tdRight {
+        text-align: right;
+      }
+      .blue300 {
+        color: #006ee0;
+      }
+
+      .blue500 {
+        color: #003a78;
+      }
+
+      .blue600 {
+        color: #002e5e;
+      }
+
+      .blueText {
+        text-align: center;
+        font-weight: normal;
+      }
+
+      .paddingLeft24 {
+
+        font-size: 18px;
+      }
+
+      .paddingLeft32 {
+        padding-left: 32px;
+      }
+
+      .noMargin {
+        margin: 0;
+      }
+      .button {
+        height: 40px;
+        border-radius: 4px;
+        box-shadow: 0 1px 10px 0 rgba(0, 0, 0, 0.1),
+          0 4px 5px 0 rgba(0, 0, 0, 0.06), 0 2px 4px 0 rgba(0, 0, 0, 0.07);
+        padding: 8px;
+        border: none;
+        font-size: 14px;
+        font-weight: bold;
+        text-decoration: none;
+        line-height: 36px;
+      }
+
+      .footer {
+        height: 130px;
+        width: 100%;
+        background-color: #003a78;
+        align-items: center;
+      }
+
+      .regularLeft {
+        font-family: inherit;=20
+        text-align: left;=20
+        padding-left:26px;=20
+      }    =20
+     =20
+      .regularCenterd {
+        font-family: inherit;=20
+        text-align: center;=20
+        padding-left:26px;
+        padding:18px 0px 18px 0px;=20
+        line-height:22px;
+      }     =20
+      .regularTopCenterd {
+        font-family: inherit;=20
+        text-align: center;=20
+        line-height:35px;
+      }  =20
+
+
+      #registrationContent {
+        width: 100%;
+        height: 100%;
+        background-color: #f1f8ff;
+        border-radius: 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
+      }
+
+
+
+</style><meta charset=3D"iso-8859-1"><!--End Head user entered-->
+    </head>
+    <body>
+      <center class=3D"wrapper" data-link-color=3D"#003e7e" data-body-style=
+=3D"font-size:16px; font-family:arial,helvetica,sans-serif; color:#000335; =
+background-color:#f4f2f2;">
+        <div class=3D"webkit">
+          <table cellpadding=3D"0" cellspacing=3D"0" border=3D"0" width=3D"=
+100%" class=3D"wrapper" bgcolor=3D"#f4f2f2">
+            <tr>
+              <td valign=3D"top" bgcolor=3D"#f4f2f2" width=3D"100%">
+                <table width=3D"100%" role=3D"content-container" class=3D"o=
+uter" align=3D"center" cellpadding=3D"0" cellspacing=3D"0" border=3D"0">
+                  <tr>
+                    <td width=3D"100%">
+                      <table width=3D"100%" cellpadding=3D"0" cellspacing=
+=3D"0" border=3D"0">
+                        <tr>
+                          <td>
+                            <!--[if mso]>
+    <center>
+    <table><tr><td width=3D"600">
+  <![endif]-->
+                                    <table width=3D"100%" cellpadding=3D"0"=
+ cellspacing=3D"0" border=3D"0" style=3D"width:100%; max-width:600px;" alig=
+n=3D"center">
+                                      <tr>
+                                        <td role=3D"modules-container" styl=
+e=3D"padding:5px 0px 0px 0px; color:#000335; text-align:left;" bgcolor=3D"#=
+F4F2F2" width=3D"100%" align=3D"left"><table class=3D"module preheader preh=
+eader-hide" role=3D"module" data-type=3D"preheader" border=3D"0" cellpaddin=
+g=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"display: none !important;=
+ mso-hide: all; visibility: hidden; opacity: 0; color: transparent; height:=
+ 0; width: 0;">
+    <tr>
+      <td role=3D"module-content">
+        <p>Kvittering for gjennomf=F8rt betaling.</p>
+      </td>
+    </tr>
+  </table><table class=3D"wrapper" role=3D"module" data-type=3D"image" bord=
+er=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"table-=
+layout: fixed;" data-muid=3D"826bc2c1-d4d3-4c2e-8139-5be10b495194">
+=20
+    <tbody>
+      <tr>
+        <td style=3D"font-size:6px; line-height:10px; padding:20px 0px 20px=
+ 20px; background-color:#000335; border-radius:10px 10px 0px 0px;" valign=
+=3D"top" align=3D"left">
+        <a href=3D"https://u19356681.ct.sendgrid.net/ls/click?upn=3Du001.0S=
+URLCgNCi1o-2BuPgwgmfqF6CSti2Hm1hyTDeicqp8Cd5tj9gLLO6z1tThOOSFtQsGZ2X_yRw2nD=
+-2BnTM6iK77KSOFdH9rpKL3XuuTGev2gyiHJAzeJzpLMWWmsN4CkrY-2BKrKWhdlEQH8S4uUY6q=
+e4XwVy1z5xF9Y3YbJtu3cRUaFutGbhlXxUTC7W-2BBsA8GN-2FzlQ8HfrZ8s0taN-2BDGq7wKzh=
+ZWZjMbMLQtlZVRK-2Fox9x4lHrXW8t0sX5lPYCNZxwscCK5qP8IffUm2x-2BdaoKj-2F6Zje-2F=
+PqYEE1wOtN1-2BEE9qP5DU85fywW17xhlZTadrGVqEkhVzXRgPDVLylhkx7rOiE-2FObInVD8wd=
+6uKq1nsaggtyFaZ5nvgiCAQjASeItoVU3mWzCLUPS0vLZliFm6UdlazTbRsakCgzZP4Y7fxuy7H=
+hbBoCgn2oQm0HXmXI7hFFpGav"><img class=3D"max-width" border=3D"0" style=3D"d=
+isplay:block; color:#000000; text-decoration:none; font-family:Helvetica, a=
+rial, sans-serif; font-size:16px;" width=3D"100" alt=3D"iSonen" data-propor=
+tionally-constrained=3D"true" data-responsive=3D"false" src=3D"http://cdn.m=
+cauto-images-production.sendgrid.net/7a44f99371085ef5/23c606c8-6d4c-4bee-a4=
+25-d69b7919928d/289x150.png"></a></td>
+      </tr>
+    </tbody>
+  </table>
+  <div style=3D"background-color:#ffffff; ">
+  <table class=3D"module" role=3D"module" data-type=3D"text" border=3D"0" c=
+ellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"table-layout: fi=
+xed;" data-muid=3D"2d7ae6e9-9dd2-44a3-ad39-8d2d721315da" data-mc-module-ver=
+sion=3D"2019-10-22">
+    <tbody>
+      <tr>
+        <td style=3D"padding:0px 0px 0px 0px; line-height:30px; text-align:=
+inherit; background-color:#ffffff;" height=3D"100%" valign=3D"top" bgcolor=
+=3D"#ffffff" role=3D"module-content"><div><h2 style=3D"text-align: center; =
+font-family: inherit"><span style=3D"color: #002e5e; font-style: normal; fo=
+nt-variant-ligatures: normal; font-variant-caps: normal; font-weight: 700; =
+letter-spacing: normal; orphans: 2; text-align: center; text-indent: 0px; t=
+ext-transform: none; white-space: pre-wrap; widows: 2; word-spacing: 0px; -=
+webkit-text-stroke-width: 0px; text-decoration-style: initial; text-decorat=
+ion-color: initial; float: none; display: inline; font-size: 20px; font-fam=
+ily: arial, helvetica, sans-serif">Betalingen er gjennomf=F8rt!</span></h2>
+<div class=3D"regularTopCenterd"><span style=3D"box-sizing: border-box; fon=
+t-size: 16px; vertical-align: baseline; scroll-behavior: auto">Hel=E5rslise=
+ns 2025</span></div>
+<div class=3D"regularTopCenterd" style=3D"padding: 0px 0px 10px 0px;"><span=
+ style=3D"font-family: arial, helvetica, sans-serif; font-size: 16px; font-=
+weight: 700; display: inline; color: #002E5E">Ved feil eller endringer, ta =
+kontakt med arrang=F8r</span></div><div></div></div></td>
+      </tr>
+    </tbody>
+  </table><table class=3D"module" role=3D"module" data-type=3D"spacer" bord=
+er=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"table-=
+layout: fixed;" data-muid=3D"391c993f-ef90-4b3d-a249-6b17159aa58f">
+    <tbody>
+      <tr>
+        <td style=3D"padding:0px 0px 30px 0px;" role=3D"module-content" bgc=
+olor=3D"">
+        </td>
+      </tr>
+    </tbody>
+  </table><table class=3D"module" role=3D"module" data-type=3D"code" border=
+=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"table-la=
+yout: fixed;" data-muid=3D"d05fcdf1-eee4-4c07-9079-633677168685">
+    <tbody>
+      <tr>
+        <td height=3D"100%" valign=3D"top" role=3D"module-content"><table s=
+tyle=3D"padding: 0px 24px 0px 24px;  width: 100%;">
+<tr>
+        <td class=3D"paddingLeft24 bold">
+          Ordreinformasjon
+        </td>
+      </tr>
+      <tr>
+        <td class=3D"paddingLeft24" colspan=3D"2" >
+          <p class=3D"fontSize16">Transaksjons id: 32614058712</p>
+        </td>
+      </tr>
+      <tr>
+            <td class=3D"paddingLeft24" colspan=3D"2">
+                <p class=3D"fontSize16">Betalingsreferanse: 87VnP6tiqj4JFJx=
+i7MLjmn2NKajb2C</p>
+            </td>
+        </tr>
+        <tr>
+          <td class=3D"paddingLeft24" colspan=3D"2">
+                <p class=3D"fontSize16">Betalingsmetode: Vipps</p>
+          </td>
+        </tr>
+         <tr>
+            <td class=3D"paddingLeft24" colspan=3D"2">
+                <p class=3D"fontSize16">Dato og tidspunkt for transaksjon: =
+26.05.2025 08:00</p>
+            </td>
+        </tr>
+      <tr>
+          <td class=3D"paddingLeft24" colspan=3D"2">
+                <p class=3D"fontSize16">Navn p=E5 kj=F8per: Torgeir Kruke</=
+p>
+          </td>
+      </tr>
+        <tr>
+            <td class=3D"paddingLeft24" colspan=3D"2">
+                <p class=3D"fontSize16">Moms: 0.00,-</p>
+            </td>
+        </tr>=20
+      <tr >
+        <td colspan=3D"2" class=3D"paddingLeft24 bold" >
+          Beskrivelse: Hel=E5rslisens 2025
+        </td>
+        </tr>
+
+      <tr style=3D" margin-top: 20px; background-color:#00033520; ">
+        <td class=3D"paddingLeft24 bold" >
+          Totalt
+        </td>
+        <td class=3D"tdRight bold"  >           =20
+            <p>600.00,-</p>       =20
+        </td>
+      </tr>
+</table></td>
+      </tr>
+    </tbody>
+  </table><table class=3D"module" role=3D"module" data-type=3D"text" border=
+=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"table-la=
+yout: fixed;" data-muid=3D"f533b8ec-8d91-4939-aaf9-745f4ac38faf" data-mc-mo=
+dule-version=3D"2019-10-22">
+    <tbody>
+      <tr>
+        <td style=3D"padding:18px 0px 18px 0px; line-height:22px; text-alig=
+n:inherit; background-color:ffffff;" height=3D"100%" valign=3D"top" bgcolor=
+=3D"ffffff" role=3D"module-content"><div><div style=3D"font-family: inherit=
+; text-align: center"><br></div>
+<div class=3D"regularLeft"><span style=3D"box-sizing: border-box; font-size=
+: 16px; vertical-align: baseline; scroll-behavior: auto; color: #000335">De=
+nne transaksjonen er underlagt Buypass, Personvern, avtale for bruk</span><=
+/div>
+<div class=3D"regularLeft"><br></div>
+<div class=3D"regularLeft"><span style=3D"box-sizing: border-box; font-size=
+: 16px; vertical-align: baseline; scroll-behavior: auto; color: #000335">Be=
+taling gjennomf=F8rt av Buypass Payment AS - Foretaksregisteret NO 980 932 =
+753 MVA&nbsp;</span></div>
+<div></div></div></td>
+      </tr>
+    </tbody>
+  </table><table class=3D"module" role=3D"module" data-type=3D"text" border=
+=3D"0" cellpadding=3D"0" cellspacing=3D"0" width=3D"100%" style=3D"table-la=
+yout: fixed;" data-muid=3D"21f2e0c6-8133-41e3-a874-abe41c8f4ce9" data-mc-mo=
+dule-version=3D"2019-10-22">
+    <tbody>
+      <tr>
+        <td class=3D"regularCenterd" height=3D"100%" valign=3D"top" bgcolor=
+=3D"ffffff" role=3D"module-content"><div><div style=3D"font-family: inherit=
+; text-align: center"><span style=3D"box-sizing: border-box; font-size: 16p=
+x; vertical-align: baseline; scroll-behavior: auto; color: #000335">Denne e=
+-posten ble sendt til torgeir.kruke@gmail.com</span><span style=3D"box-sizi=
+ng: border-box; font-size: 16px; vertical-align: baseline; scroll-behavior:=
+ auto; color: #000335"> </span><a href=3D"?subject=3D&amp;body=3D"><span st=
+yle=3D"box-sizing: border-box; font-size: 16px; vertical-align: baseline; s=
+croll-behavior: auto; color: 003e7e"></span><span style=3D"color: 003e7e"> =
+</span></a><span style=3D"color: 003e7e">&nbsp;</span></div><div></div></di=
+v></td>
+      </tr>
+    </tbody>
+  </table>
+  </div>
+   <div style=3D"background-color:#000335;" width=3D"94%" >
+  <table class=3D"wrapper" role=3D"module" data-type=3D"image" border=3D"0"=
+ cellpadding=3D"0" cellspacing=3D"0" width=3D"94%" style=3D"table-layout: f=
+ixed; background-color:#000335; padding:20px 5px 15px 5px;" data-muid=3D"79=
+28ce30-4c3a-4a71-8325-0919ad013c1a">
+    <tbody>
+      <tr>
+        <td style=3D"font-size:6px; line-height:10px; padding:8px 0px 0px 0=
+px;" valign=3D"top" align=3D"center">
+            <a href=3D"https://u19356681.ct.sendgrid.net/ls/click?upn=3Du00=
+1.0SURLCgNCi1o-2BuPgwgmfqKcZkEi0sgKl0DQEeJHpFHSNudHTZpMwIFiMstH9Xj9fMUkz_yR=
+w2nD-2BnTM6iK77KSOFdH9rpKL3XuuTGev2gyiHJAzeJzpLMWWmsN4CkrY-2BKrKWhdlEQH8S4u=
+UY6qe4XwVy1z5xF9Y3YbJtu3cRUaFutGbhlXxUTC7W-2BBsA8GN-2FzlQ8HfrZ8s0taN-2BDGq7=
+wKzhZWZjMbMLQtlZVRK-2Fox9x4lHrXW8t0sX5lPYCNZxwscCK5qP8IffUm2x-2BdaoKj-2F6Zj=
+e-2FPqYEE1wOtN1-2BEE9qP5DU85fywW17xhlZTadrGVqEkhVQKI2IWNvr-2FGIWsclx6rmzGUy=
+LWeOE8QNJ-2BAb6rS5vBSFFdqAwbi3SV0sk0cyZ4vC0s4T2eCrq-2BlOxlnaPA33DzTxFNtdVTm=
+U5-2BDmm06UtwFxix-2BcYnuGhElIZXoI8IW3">
+            <img class=3D"max-width" border=3D"0" style=3D"display:block; c=
+olor:#000000; text-decoration:none; font-family:Helvetica, arial, sans-seri=
+f; font-size:16px;" width=3D"140" alt=3D"Buypass logo" data-proportionally-=
+constrained=3D"true" data-responsive=3D"false" src=3D"http://cdn.mcauto-ima=
+ges-production.sendgrid.net/7a44f99371085ef5/3a163762-40de-499e-9947-59836a=
+55a1bf/452x135.png" >
+            </a>
+        </td>
+        <td style=3D"font-size:6px; line-height:10px; padding: 0px 0px 0px =
+0px;" valign=3D"top" align=3D"center">
+            <a href=3D"https://u19356681.ct.sendgrid.net/ls/click?upn=3Du00=
+1.0SURLCgNCi1o-2BuPgwgmfqF6CSti2Hm1hyTDeicqp8Cd5tj9gLLO6z1tThOOSFtQs0nAR_yR=
+w2nD-2BnTM6iK77KSOFdH9rpKL3XuuTGev2gyiHJAzeJzpLMWWmsN4CkrY-2BKrKWhdlEQH8S4u=
+UY6qe4XwVy1z5xF9Y3YbJtu3cRUaFutGbhlXxUTC7W-2BBsA8GN-2FzlQ8HfrZ8s0taN-2BDGq7=
+wKzhZWZjMbMLQtlZVRK-2Fox9x4lHrXW8t0sX5lPYCNZxwscCK5qP8IffUm2x-2BdaoKj-2F6Zj=
+e-2FPqYEE1wOtN1-2BEE9qP5DU85fywW17xhlZTadrGVqEkhVrzgQI8cAEn-2FKoHsPSuncANnz=
+vtm4SGVOiOqANYmDTCoWD0NCeyoB-2FzW-2BTyfb0SIgHE6-2Bf1SY7TRr-2BWymWR714GaHJZt=
+nq4DpRYIrCSLeEStqmvlxJOuPNvtzhc-2FYAPbW">
+                <img class=3D"max-width" border=3D"0" style=3D"display:bloc=
+k; color:#000000; text-decoration:none; font-family:Helvetica, arial, sans-=
+serif; font-size:16px;" width=3D"120" alt=3D"Norges Idrettsforbund logo" da=
+ta-proportionally-constrained=3D"true" data-responsive=3D"false" src=3D"htt=
+p://cdn.mcauto-images-production.sendgrid.net/7a44f99371085ef5/23c606c8-6d4=
+c-4bee-a425-d69b7919928d/289x150.png" >
+            </a>
+        </td>
+  </table>
+  <div style=3D"background-color:#000335; font-family: inherit; text-align:=
+ center; line-height:20px; padding: 5px 0px 40px 0px"><p style=3D"color: #f=
+fffff;">Utviklet av Buypass i samarbeid med Norges Idrettsforbund&nbsp;</p>=
+</div>
+  </div>
+  </td>
+ =20
+                                      </tr>
+                                    </table>
+                                    <!--[if mso]>
+                                  </td>
+                                </tr>
+                              </table>
+                            </center>
+                            <![endif]-->
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </center>
+    <img src=3D"https://u19356681.ct.sendgrid.net/wf/open?upn=3Du001.HQ7joY=
+FIaDLAE2BOJY1RlWYOxjikdwFsMuAhhcQw9gtRkt9aU6YyIzLqwEDD-2BGN7ruqvTn2MfXvLhbs=
+-2F5mc8N2FA2MwtP-2BVz26hoYlUsuTdh25-2FXszS9xOvUPso5H-2FCakUTB-2BYsOurj9NXWU=
+xSdWDQe6440nY-2B8Lp15JbeCAIjO7Zm1pJaaFGNeh0SHqYj-2Ba9SzOQHTZfCNsGfe-2FSpGeu=
+8Z62xcG2tRLfg5ivS3Atxa7qIE2ZdjzR3RYZEjtGFtaV31QjSrim-2FRHq-2Bgm4IJTFC8lY1BK=
+Glfxb-2Bp9KwgXKpOld6Z-2B4GR1wwsoe-2FTy-2FRMVt77XPMowBwZOMi6DF-2B6s3ghCFmbHx=
+AhHyQUwrZQXCoakz6dmpJ2aGVik1YkwuK-2BI" alt=3D"" width=3D"1" height=3D"1" bo=
+rder=3D"0" style=3D"height:1px !important;width:1px !important;border-width=
+:0 !important;margin-top:0 !important;margin-bottom:0 !important;margin-rig=
+ht:0 !important;margin-left:0 !important;padding-top:0 !important;padding-b=
+ottom:0 !important;padding-right:0 !important;padding-left:0 !important;"/>=
+</body>
+  </html>
+--02e712effc5da3739dab6ff723c6b029f87fb79907309b2387d7732424c9--
