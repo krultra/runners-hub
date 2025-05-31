@@ -29,3 +29,32 @@ dataconnect-debug.log*
 /emulator-data
 /firestore-data
 /.firebase/
+# SMTP Agent / Python: ignore local virtualenvs, caches, logs, and secrets
+# venvs
+.venv/
+venv/
+env/
+_smtp-agent/.venv/
+_smtp-agent/venv/
+
+# Python caches
+**/__pycache__/
+**/*.py[cod]
+_smtp-agent/.mypy_cache/
+_smtp-agent/.pytest_cache/
+
+# Coverage / logs
+_smtp-agent/.coverage
+_smtp-agent/smtp_agent.log
+
+# Env files / secrets
+.env
+*.env
+_smtp-agent/.env
+_smtp-agent/*.env
+_smtp-agent/serviceAccount*.json
+_smtp-agent/*_creds*.json
+
+# Editors
+.idea/
+.vscode/

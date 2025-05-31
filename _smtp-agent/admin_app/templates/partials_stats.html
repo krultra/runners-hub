@@ -1,0 +1,8 @@
+<div class="card">
+  <h3>Recent Activity</h3>
+  <ul>
+    <li>Last 1h: SENT {{ stats.h1.sent }} • ERROR {{ stats.h1.error }}</li>
+    <li>Last 24h: SENT {{ stats.h24.sent }} • ERROR {{ stats.h24.error }}</li>
+    <li>Last processed at: {{ stats.lastProcessedAt or '—' }}</li>
+  </ul>
+</div>

@@ -1,0 +1,136 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Registrations collection
+    match /registrations/{registrationId} {
+      // Temporarily, anyone can create, read, update, and delete registrations (for public leaderboard, email checks, etc)
+      //allow read, write: if true;
+      // Anyone can read registrations (for public leaderboard, email checks, etc)
+      allow read: if true;
+
+      // Only authenticated user with matching email can create, update, or delete their registration
+      allow create, update, delete: if request.auth != null
+        && request.auth.uid == request.resource.data.userId;
+    }
+    
+    // Allow writes to the mail collection for email sending
+    match /mail/{emailId} {
+      // Allow authenticated users to create emails
+      allow create: if request.auth != null;
+      
+      // Allow the Trigger Email extension to read and delete emails
+      allow read, delete: if true;
+    }
+    
+    // Allow access to the counters collection
+    match /counters/{counterId} {
+      // Allow anyone to read and write to counters
+      allow read, write: if true;
+    }
+
+    // Allow authenticated users to read the admins collection for admin checks
+    match /admins/{adminId} {
+      allow read: if request.auth != null;
+      allow write: if false;
+    }
+
+    // Allow each authenticated user to read/write their own user document, and allow admin users to read/write any user document
+    match /users/{userId} {
+      allow read, write: if request.auth != null && (
+        request.auth.uid == userId || get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true
+      );
+    }
+
+    // Allow only admin users to read/write invitations collection
+    match /invitations/{invitationId} {
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Allow only admin users to read/write emailLogs collection
+    match /emailLogs/{logId} {
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Allow authenticated user to read. Allow only admin users to write emailTemplates collection
+    match /emailTemplates/{templateId} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Allow only admin users to read/write registrationStatuses collection
+    match /registrationStatuses/{statusId} {
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Allow any signed-in user to read actionRequests but restrict writes to admins
+    match /actionRequests/{reqId} {
+      // any signed-in user can list/fetch
+      allow read: if request.auth != null;
+      // only admins can modify
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Allow only admin users to read and write adminTasks collection
+    match /adminTasks/{taskId} {
+      allow read: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Allow only admin users to read/write functionSchedules for schedule overrides
+    match /functionSchedules/{docId} {
+      allow read, write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Allow only admin users to read currentSchedules for UI display
+    match /currentSchedules/{docId} {
+      allow read: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      allow write: if false;
+    }
+
+    // Allow anyone to read registrations, but only admins to write
+    match /registrations/{registrationId} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && exists(/databases/$(database)/documents/users/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Rule for the Malvikingen moRegistrations collection
+    match /moRegistrations/{participantId} {
+      allow read: if true; // Or adjust as needed for public reading
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+   }
+
+    // Rule for the Malvikingen moTiming collection
+    match /moTiming/{timingId} {
+      allow read: if true; // Or adjust as needed for public reading
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+   }
+
+    // Rule for the Malvikingen timeGradingFactors collection
+    match /timeGradingFactors/{factorId} {
+      allow read: if true;
+      allow write: if true;
+    }
+
+    // Allow public read of eventEditions for ResultsPage
+    match /eventEditions/{editionId} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Allow only admin users to read/write codeLists collection
+    match /codeLists/{itemId} {
+      allow read, write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+    }
+
+    // Deny all other access by default
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

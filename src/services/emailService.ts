@@ -127,17 +127,32 @@ export const sendStatusChangedEmail = async (registration: Registration): Promis
  */
 async function sendEmail(type: EmailType, to: string, context: any): Promise<DocumentReference<any>> {
   const db = getFirestore();
-  // Get the event edition from the registration context
+  // Get the event edition from the registration context if available
   const eventEditionId = (context as any).editionId || (context as any).eventEditionId;
-  if (!eventEditionId) throw new Error('No event edition ID found in registration data');
-  let eventEdition;
-  try {
-    eventEdition = await getEventEdition(eventEditionId);
-  } catch (e) {
-    console.error('[sendEmail] Error fetching eventEdition', e);
-    throw e;
+  let eventEdition = null;
+  let eventName = '';
+  let eventShortName = '';
+  let edition = '';
+  
+  if (eventEditionId) {
+    try {
+      eventEdition = await getEventEdition(eventEditionId);
+      if (eventEdition) {
+        eventName = eventEdition.eventName || '';
+        eventShortName = eventEdition.eventShortName || '';
+        edition = eventEdition.edition?.toString() || '';
+      }
+    } catch (e) {
+      console.error('[sendEmail] Error fetching eventEdition', e);
+      // Don't throw error for general emails, just log it
+      if (type !== EmailType.NEWSLETTER) {
+        throw e;
+      }
+    }
+  } else if (type !== EmailType.NEWSLETTER) {
+    // Only throw error for non-newsletter emails that require an event edition
+    throw new Error('No event edition ID found in registration data');
   }
-  const { eventName, eventShortName, edition } = eventEdition;
   let tpl;
   try {
     tpl = await getEmailTemplate(type, 'en');
@@ -197,6 +212,17 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     registrationId: enrichedContext.id || null,
     createdAt: serverTimestamp(),
     status: 'pending',
+    // Add metadata for tracking and filtering
+    metadata: {
+      emailType: type,
+      locale: 'en', // Currently hardcoded, could be made dynamic if needed
+      emailTemplate: `${type}_en`,
+      ...(eventEditionId && {
+        eventEditionId,
+        eventId: eventEditionId.split('-').slice(0, -1).join('-'), // Remove year suffix (e.g., 'kutc-2025' -> 'kutc')
+        edition: edition?.toString() || ''
+      })
+    },
   };
 
   // Write to mail collection in Firestore

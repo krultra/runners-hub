@@ -1,0 +1,76 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Admin Config – Runners-Hub SMTP Agent</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0f14;
+        --panel: #121821;
+        --border: #1f2a37;
+        --text: #e5edf6;
+        --muted: #9aa7b7;
+        --brand-600: #2563eb;
+        --input-bg: #0f172a;
+      }
+      body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; margin: 24px; color: var(--text); background: var(--bg); }
+      a { color: #93c5fd; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .muted { color: var(--muted); }
+      .err { color: #fca5a5; }
+      form { max-width: 640px; }
+      label { display: block; margin-top: 14px; font-weight: 600; }
+      input[type="text"], input[type="number"], select { width: 100%; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 14px; background: var(--input-bg); color: var(--text); }
+      .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .actions { margin-top: 16px; display: flex; gap: 12px; align-items: center; }
+      button { padding: 8px 12px; border-radius: 10px; background: var(--brand-600); color: #fff; border: 0; cursor: pointer; }
+      button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); padding: 8px 12px; border-radius: 10px; }
+      .card { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--panel); }
+      .hint { font-size: 12px; color: var(--muted); }
+    </style>
+  </head>
+  <body>
+    <div style="margin-bottom: 12px;"><a href="/">← Dashboard</a></div>
+
+    <h2>Admin Config</h2>
+    <p class="muted">Values saved here override defaults from the agent's environment and are applied live without restart.</p>
+
+    {% if error %}
+      <p class="err">{{ error }}</p>
+    {% endif %}
+
+    <form method="post" action="/config" class="card">
+      <label for="pollInterval">Poll interval (seconds)</label>
+      <input id="pollInterval" name="pollInterval" type="number" min="1" step="1" value="{{ cfg.pollInterval }}" />
+      <div class="hint">How often the agent checks Firestore for new emails.</div>
+
+      <label for="processFromAfter">Process From After (ISO 8601 or YYYY-MM-DD)</label>
+      <input id="processFromAfter" name="processFromAfter" type="text" placeholder="e.g. 2025-08-07T00:00:00Z" value="{{ cfg.processFromAfter }}" />
+      <div class="hint">Skip mail created before this timestamp. Leave blank to process all.</div>
+
+      <div class="row">
+        <div>
+          <label for="maxRetryCount">Max retry count</label>
+          <input id="maxRetryCount" name="maxRetryCount" type="number" min="1" step="1" value="{{ cfg.maxRetryCount }}" />
+          <div class="hint">After this many failed attempts, the email is marked SKIPPED.</div>
+        </div>
+        <div>
+          <label for="logLevel">Log level</label>
+          <select id="logLevel" name="logLevel">
+            {% set levels = ['DEBUG','INFO','WARNING','ERROR'] %}
+            {% for lvl in levels %}
+              <option value="{{ lvl }}" {% if cfg.logLevel == lvl %}selected{% endif %}>{{ lvl }}</option>
+            {% endfor %}
+          </select>
+          <div class="hint">Applies immediately to the running agent.</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button type="submit">Save</button>
+        <a class="secondary" href="/config">Reset</a>
+      </div>
+    </form>
+  </body>
+</html>

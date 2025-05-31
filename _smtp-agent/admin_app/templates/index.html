@@ -1,0 +1,87 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Runners-Hub SMTP Agent</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0f14;
+        --panel: #121821;
+        --border: #1f2a37;
+        --text: #e5edf6;
+        --muted: #9aa7b7;
+        --brand: #3b82f6;
+        --brand-600: #2563eb;
+        --chip-bg: #1e293b;
+        --chip-text: #cbd5e1;
+        --card-shadow: 0 1px 2px rgba(0,0,0,0.3);
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #0b0f14;
+          --panel: #121821;
+          --border: #1f2a37;
+          --text: #e5edf6;
+          --muted: #9aa7b7;
+          --brand: #3b82f6;
+          --brand-600: #2563eb;
+          --chip-bg: #1e293b;
+          --chip-text: #cbd5e1;
+          --card-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+      }
+      body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin: 24px; color: var(--text); background: var(--bg); }
+      header { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+      header h2 { margin: 0; font-weight: 650; letter-spacing: 0.2px; }
+      nav { display: flex; gap: 12px; align-items: center; }
+      nav a { color: var(--text); text-decoration: none; padding: 6px 10px; border-radius: 8px; background: transparent; border: 1px solid transparent; }
+      nav a:hover { border-color: var(--border); background: rgba(255,255,255,0.03); }
+      .muted { color: var(--muted); }
+      .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+      .card { border: 1px solid var(--border); border-radius: 12px; padding: 16px; background: var(--panel); box-shadow: var(--card-shadow); }
+      .button { display: inline-block; padding: 8px 12px; border-radius: 8px; background: var(--brand-600); color: white; text-decoration: none; }
+      .list { list-style: none; padding: 0; margin: 0; }
+      .list li { padding: 6px 0; border-bottom: 1px dashed var(--border); }
+      .list li:last-child { border-bottom: none; }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h2>Runners-Hub SMTP Agent</h2>
+      <nav>
+        <a href="/">Dashboard</a>
+        <a href="/emails">Emails</a>
+        <a href="/config">Admin Config</a>
+        <a href="/health" target="_blank">Health</a>
+      </nav>
+    </header>
+
+    <section class="grid" style="margin-top: 16px;">
+      <div class="grid">
+        {% include 'partials_stats.html' %}
+      </div>
+      <div class="card">
+        <h3>Configuration</h3>
+        <ul class="list">
+          <li><strong>Mail collection</strong>: {{ cfg.mailCollection }}</li>
+          <li><strong>Poll interval</strong>: {{ cfg.pollInterval }}s</li>
+          <li><strong>Process From After</strong>: {{ cfg.processFromAfter }}</li>
+          <li><strong>Max Retry Count</strong>: {{ cfg.maxRetryCount }}</li>
+          <li><strong>Log Level</strong>: {{ cfg.logLevel }}</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <h3>Health</h3>
+        <p>See JSON at <a href="/health">/health</a>.</p>
+      </div>
+
+      <div class="card">
+        <h3>Logs</h3>
+        <p><a class="button" href="/logs" target="_blank">View recent log tail</a></p>
+      </div>
+    </section>
+  </body>
+</html>

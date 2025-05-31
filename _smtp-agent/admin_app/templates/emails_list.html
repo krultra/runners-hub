@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Emails – Runners-Hub SMTP Agent</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0f14;
+        --panel: #121821;
+        --border: #1f2a37;
+        --text: #e5edf6;
+        --muted: #9aa7b7;
+        --link: #93c5fd;
+        --chip-bg: #1e293b;
+        --chip-text: #cbd5e1;
+      }
+      body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; margin: 24px; color: var(--text); background: var(--bg); }
+      a { color: var(--link); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .toolbar { display: flex; gap: 12px; align-items: center; margin-bottom: 16px; }
+      .tag { padding: 2px 8px; border-radius: 999px; background: var(--chip-bg); color: var(--chip-text); font-size: 12px; }
+      table { width: 100%; border-collapse: collapse; background: var(--panel); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+      th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
+      th { background: rgba(255,255,255,0.02); font-weight: 600; }
+      tr:last-child td { border-bottom: none; }
+      .muted { color: var(--muted); }
+      .err { color: #fca5a5; }
+    </style>
+  </head>
+  <body>
+    <div class="toolbar">
+      <a href="/">← Dashboard</a>
+      <span class="muted">|</span>
+      <a href="/emails?state=SENT">SENT</a>
+      <a href="/emails?state=ERROR">ERROR</a>
+      <a href="/emails">ALL</a>
+      <span class="muted">|</span>
+      <span class="tag">limit {{ limit }}</span>
+      {% if state %}<span class="tag">state {{ state }}</span>{% endif %}
+    </div>
+
+    {% if error %}
+      <p class="err">{{ error }}</p>
+    {% endif %}
+
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>To</th>
+          <th>Subject</th>
+          <th>State</th>
+          <th>Created</th>
+          <th>Updated</th>
+          <th>Error</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for it in items %}
+          <tr>
+            <td><a href="/emails/{{ it.id }}{% if state %}?state={{ state }}{% endif %}">{{ it.id }}</a></td>
+            <td>{{ it.to }}</td>
+            <td><a href="/emails/{{ it.id }}{% if state %}?state={{ state }}{% endif %}">{{ it.subject }}</a></td>
+            <td>{{ it.state }}</td>
+            <td class="muted">{{ it.createdAt }}</td>
+            <td class="muted">{{ it.lastUpdatedAt }}</td>
+            <td class="err">{{ it.error }}</td>
+          </tr>
+        {% endfor %}
+        {% if not items %}
+          <tr><td colspan="6" class="muted">No emails found.</td></tr>
+        {% endif %}
+      </tbody>
+    </table>
+  </body>
+</html>

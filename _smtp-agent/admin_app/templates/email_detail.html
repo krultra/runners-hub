@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Email {{ doc.id if doc else '' }} – Runners-Hub SMTP Agent</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0f14;
+        --panel: #121821;
+        --border: #1f2a37;
+        --text: #e5edf6;
+        --muted: #9aa7b7;
+        --link: #93c5fd;
+      }
+      body { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, Cantarell, Noto Sans, sans-serif; margin: 24px; color: var(--text); background: var(--bg); }
+      a { color: var(--link); text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      .muted { color: var(--muted); }
+      .card { border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-bottom: 16px; background: var(--panel); }
+      pre { white-space: pre-wrap; word-break: break-word; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; background: #0f172a; color: #e2e8f0; padding: 12px; border-radius: 8px; border: 1px solid var(--border); }
+      iframe { width: 100%; min-height: 420px; border: 1px solid var(--border); border-radius: 10px; background: #ffffff; }
+    </style>
+  </head>
+  <body>
+    <div style="display:flex; gap:12px; align-items:center;">
+      <a href="/emails{% if state %}?state={{ state }}{% endif %}">← Back to list</a>
+      <span class="muted">|</span>
+      {% if prev_id %}
+        <a href="/emails/{{ prev_id }}{% if state %}?state={{ state }}{% endif %}">Previous</a>
+      {% else %}
+        <span class="muted">Previous</span>
+      {% endif %}
+      {% if next_id %}
+        <a href="/emails/{{ next_id }}{% if state %}?state={{ state }}{% endif %}">Next</a>
+      {% else %}
+        <span class="muted">Next</span>
+      {% endif %}
+    </div>
+
+    {% if error %}
+      <p class="err">{{ error }}</p>
+    {% endif %}
+
+    {% if doc %}
+      <div class="card">
+        <h2>Summary</h2>
+        <p><strong>ID:</strong> {{ doc.id }}</p>
+        <p><strong>To:</strong> {{ doc.to }}</p>
+        <p><strong>Subject:</strong> {{ doc.subject }}</p>
+        <p><strong>Created:</strong> <span class="muted">{{ doc.createdAt }}</span></p>
+        <p><strong>State:</strong> {{ doc.smtpAgent.state }}</p>
+        <p><strong>Last Updated:</strong> <span class="muted">{{ doc.smtpAgent.lastUpdatedAt }}</span></p>
+        {% if doc.smtpAgent.lastAttempt %}
+          <p><strong>Last Attempt:</strong> success={{ doc.smtpAgent.lastAttempt.success }}, error={{ doc.smtpAgent.lastAttempt.errorMessage }}</p>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h2>HTML</h2>
+        {% if doc.html %}
+          <iframe srcdoc="{{ doc.html | safe }}"></iframe>
+        {% else %}
+          <p class="muted">No HTML content</p>
+        {% endif %}
+      </div>
+
+      <div class="card">
+        <h2>Raw Document</h2>
+        <pre>{{ doc.data | tojson(indent=2) }}</pre>
+      </div>
+    {% endif %}
+  </body>
+</html>

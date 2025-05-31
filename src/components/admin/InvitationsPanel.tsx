@@ -99,7 +99,7 @@ const InvitationsPanel: React.FC = () => {
   return (
     <Box>
       <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-        <Typography variant="h5">Invitations</Typography>
+        <Typography variant="h5" color="textSecondary">Invitations</Typography>
         <Typography variant="subtitle1" color="textSecondary">
           {selectedEvent.eventName} {selectedEvent.edition}
         </Typography>
