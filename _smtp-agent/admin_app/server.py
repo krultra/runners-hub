@@ -7,6 +7,7 @@ from flask_httpauth import HTTPBasicAuth
 
 import config
 from datetime import datetime, timezone, timedelta
+from pathlib import Path
 
 try:
     import firebase_admin
@@ -34,6 +35,29 @@ def verify_password(username, password):
 
 def create_app():
     app = Flask(__name__)
+
+    def get_version() -> str:
+        """Read version from repository VERSION file.
+        Attempts repo root, then _smtp-agent fallback. Returns '0.0.0' if missing.
+        """
+        try:
+            here = Path(__file__).resolve()
+            # repo root is three levels up from this file
+            repo_root = here.parent.parent.parent
+            version_file = repo_root / "VERSION"
+            if not version_file.exists():
+                version_file = (here.parent.parent / "VERSION")
+            if version_file.exists():
+                v = version_file.read_text(encoding="utf-8").strip()
+                if v:
+                    return v
+        except Exception:
+            pass
+        return "0.0.0"
+
+    @app.context_processor
+    def inject_version():
+        return {"app_version": get_version(), "owner_name": "KrUltra"}
 
     def require_auth(f):
         @wraps(f)
@@ -68,7 +92,7 @@ def create_app():
             pass
         status = {
             "status": "ok",
-            "version": "0.1.0",
+            "version": get_version(),
             "adminPort": config.ADMIN_PORT,
             "pollInterval": effective["pollInterval"],
             "logLevel": effective["logLevel"],

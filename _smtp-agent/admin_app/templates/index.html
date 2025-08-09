@@ -45,6 +45,7 @@
       .list { list-style: none; padding: 0; margin: 0; }
       .list li { padding: 6px 0; border-bottom: 1px dashed var(--border); }
       .list li:last-child { border-bottom: none; }
+      footer { margin-top: 28px; padding-top: 12px; border-top: 1px dashed var(--border); font-size: 12px; color: var(--muted); display:flex; justify-content: space-between; align-items:center; }
     </style>
   </head>
   <body>
@@ -83,5 +84,9 @@
         <p><a class="button" href="/logs" target="_blank">View recent log tail</a></p>
       </div>
     </section>
+    <footer>
+      <span>© {{ owner_name }} — Runners-Hub SMTP Agent</span>
+      <span class="muted">v{{ app_version }}</span>
+    </footer>
   </body>
 </html>
