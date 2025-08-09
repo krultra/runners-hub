@@ -1,0 +1,54 @@
+name: Version Bump
+
+on:
+  push:
+    branches: [ main, dev ]
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    runs-on: ubuntu-latest
+    if: ${{ github.actor != 'github-actions[bot]' }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Bump VERSION
+        shell: bash
+        run: |
+          BRANCH="${GITHUB_REF##*/}"
+          VERSION_FILE="VERSION"
+          if [[ ! -f "$VERSION_FILE" ]]; then echo "0.0.0" > "$VERSION_FILE"; fi
+          CUR=$(cat "$VERSION_FILE" | tr -d '\n' )
+          IFS='.' read -r MAJ MIN PAT <<< "$CUR"
+          MAJ=${MAJ:-0}; MIN=${MIN:-0}; PAT=${PAT:-0}
+          if [[ "$BRANCH" == "main" ]]; then
+            MIN=$((MIN+1)); PAT=0
+          else
+            PAT=$((PAT+1))
+          fi
+          NEW="$MAJ.$MIN.$PAT"
+          echo "$NEW" > "$VERSION_FILE"
+          echo "Bumped version: $CUR -> $NEW"
+
+      - name: Commit and push VERSION bump
+        shell: bash
+        run: |
+          CHANGES=$(git status --porcelain)
+          if [[ -n "$CHANGES" ]]; then
+            NEW=$(cat VERSION)
+            git add VERSION
+            git commit -m "chore(version): bump to v${NEW} [skip-version]"
+            git push
+          else
+            echo "No changes to commit"
+          fi
