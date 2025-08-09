@@ -67,6 +67,10 @@
         </div>
       </div>
 
+      <label for="dashboardRefreshSec">Dashboard auto-refresh (seconds)</label>
+      <input id="dashboardRefreshSec" name="dashboardRefreshSec" type="number" min="5" step="5" value="{{ cfg.dashboardRefreshSec or 30 }}" />
+      <div class="hint">How often the dashboard refreshes stats. Leave blank to disable auto-refresh.</div>
+
       <div class="actions">
         <button type="submit">Save</button>
         <a class="secondary" href="/config">Reset</a>

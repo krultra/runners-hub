@@ -84,6 +84,52 @@
         <p><a class="button" href="/logs" target="_blank">View recent log tail</a></p>
       </div>
     </section>
+    <script>
+      (function(){
+        const refreshSec = {{ cfg.dashboardRefreshSec | tojson }};
+        const els = {
+          h1: document.getElementById('stat-h1'),
+          h24: document.getElementById('stat-h24'),
+          last: document.getElementById('stat-last'),
+          since: document.getElementById('stat-since'),
+          errorsSince: document.getElementById('stat-errors-since'),
+          time: document.getElementById('stat-time'),
+          dot: document.getElementById('status-dot'),
+          text: document.getElementById('status-text'),
+          note: document.getElementById('refresh-note'),
+          resetBtn: document.getElementById('btn-reset-status')
+        };
+        function fmt(ts){
+          if(!ts) return '—';
+          try { return new Date(ts).toISOString(); } catch(e) { return String(ts); }
+        }
+        async function fetchStats(){
+          try {
+            const res = await fetch('/stats', { credentials: 'same-origin' });
+            if(!res.ok) return;
+            const s = await res.json();
+            if(els.h1) els.h1.textContent = `Last 1h: SENT ${s.h1.sent} • ERROR ${s.h1.error}`;
+            if(els.h24) els.h24.textContent = `Last 24h: SENT ${s.h24.sent} • ERROR ${s.h24.error}`;
+            if(els.last) els.last.textContent = `Last processed at: ${fmt(s.lastProcessedAt)}`;
+            if(els.since) els.since.innerHTML = `Status since: ${fmt(s.status.since)} • Errors since reset: <span id="stat-errors-since">${s.status.errorsSinceReset}</span>`;
+            if(els.time) els.time.textContent = `Server time: ${fmt(s.serverTime)}`;
+            if(els.dot) els.dot.style.background = (s.status.indicator === 'red') ? '#ef4444' : '#22c55e';
+            if(els.text) els.text.textContent = (s.status.indicator === 'red') ? 'Issues detected' : 'Healthy';
+          } catch(e) { /* ignore transient errors */ }
+        }
+        if(els.note && refreshSec){ els.note.textContent = `Auto-refreshing every ${refreshSec}s`; }
+        fetchStats();
+        if(refreshSec && refreshSec > 0){ setInterval(fetchStats, refreshSec * 1000); }
+        if(els.resetBtn){
+          els.resetBtn.addEventListener('click', async function(){
+            try {
+              const res = await fetch('/status/reset', { method: 'POST', credentials: 'same-origin' });
+              await fetchStats();
+            } catch(e) {}
+          });
+        }
+      })();
+    </script>
     <footer>
       <span>© {{ owner_name }} — Runners-Hub SMTP Agent</span>
       <span class="muted">v{{ app_version }}</span>

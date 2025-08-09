@@ -1,8 +1,20 @@
 <div class="card">
-  <h3>Recent Activity</h3>
-  <ul>
-    <li>Last 1h: SENT {{ stats.h1.sent }} • ERROR {{ stats.h1.error }}</li>
-    <li>Last 24h: SENT {{ stats.h24.sent }} • ERROR {{ stats.h24.error }}</li>
-    <li>Last processed at: {{ stats.lastProcessedAt or '—' }}</li>
+  <h3 style="display:flex; align-items:center; gap:10px; margin:0 0 8px 0;">
+    Recent Activity
+    <span id="status-indicator" style="display:inline-flex; align-items:center; gap:6px; font-size:12px; color:#9aa7b7;">
+      <span id="status-dot" style="width:10px; height:10px; border-radius:999px; background: {% if stats.status.indicator=='red' %}#ef4444{% else %}#22c55e{% endif %}; display:inline-block;"></span>
+      <span id="status-text">{% if stats.status.indicator=='red' %}Issues detected{% else %}Healthy{% endif %}</span>
+    </span>
+  </h3>
+  <ul style="margin: 0 0 10px 18px;">
+    <li id="stat-h1">Last 1h: SENT {{ stats.h1.sent }} • ERROR {{ stats.h1.error }}</li>
+    <li id="stat-h24">Last 24h: SENT {{ stats.h24.sent }} • ERROR {{ stats.h24.error }}</li>
+    <li id="stat-last">Last processed at: {{ stats.lastProcessedAt or '—' }}</li>
+    <li id="stat-since" class="muted">Status since: {{ stats.status.since or '—' }} • Errors since reset: <span id="stat-errors-since">{{ stats.status.errorsSinceReset }}</span></li>
+    <li id="stat-time" class="muted">Server time: {{ stats.serverTime or '—' }}</li>
   </ul>
+  <div style="display:flex; justify-content: space-between; align-items:center; gap: 12px;">
+    <button id="btn-reset-status" class="secondary" style="padding:6px 10px; border-radius:8px; background:transparent; border:1px solid var(--border); color:var(--text); cursor:pointer;">Reset status</button>
+    <span class="muted" id="refresh-note">Auto-refreshing every {{ cfg.dashboardRefreshSec }}s</span>
+  </div>
 </div>
