@@ -173,9 +173,15 @@ def create_app():
                 if reset_at and ts and ts >= reset_at and st == "ERROR":
                     errors_since_reset += 1
             stats["lastProcessedAt"] = last_ts
-            stats["status"]["since"] = reset_at.isoformat() if reset_at else None
-            stats["status"]["errorsSinceReset"] = errors_since_reset
-            stats["status"]["indicator"] = "red" if errors_since_reset > 0 else "green"
+            # If admin has never reset status, use 24h window as baseline
+            if reset_at is None:
+                stats["status"]["since"] = t24.isoformat()
+                stats["status"]["errorsSinceReset"] = stats["h24"]["error"]
+                stats["status"]["indicator"] = "red" if stats["h24"]["error"] > 0 else "green"
+            else:
+                stats["status"]["since"] = reset_at.isoformat()
+                stats["status"]["errorsSinceReset"] = errors_since_reset
+                stats["status"]["indicator"] = "red" if errors_since_reset > 0 else "green"
         except Exception:
             pass
         return stats
