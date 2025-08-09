@@ -117,17 +117,31 @@ def create_app():
         status["firestore"] = {"ok": fs_ok, "error": fs_error}
         return jsonify(status)
 
+    def _read_status_reset(db):
+        try:
+            doc = db.collection("admin").document("smtpAgentStatus").get()
+            if doc.exists:
+                data = doc.to_dict() or {}
+                return data.get("statusResetAt")
+        except Exception:
+            pass
+        return None
+
     def _collect_stats():
         stats = {
             "h1": {"sent": 0, "error": 0},
             "h24": {"sent": 0, "error": 0},
             "lastProcessedAt": None,
+            "status": {"indicator": "green", "since": None, "errorsSinceReset": 0},
+            "serverTime": None,
         }
+        now = datetime.now(timezone.utc)
+        stats["serverTime"] = now.isoformat()
         if firestore is None:
             return stats
         try:
             db = firestore.client()
-            now = datetime.now(timezone.utc)
+            reset_at = _read_status_reset(db)
             t1 = now - timedelta(hours=1)
             t24 = now - timedelta(hours=24)
             # Query last 24h processed docs
@@ -137,6 +151,7 @@ def create_app():
             )
             docs = q24.stream()
             last_ts = None
+            errors_since_reset = 0
             for d in docs:
                 data = d.to_dict() or {}
                 sa = data.get("smtpAgent", {}) or {}
@@ -154,7 +169,13 @@ def create_app():
                         stats["h1"]["sent"] += 1
                     elif st == "ERROR":
                         stats["h1"]["error"] += 1
+                # errors since reset
+                if reset_at and ts and ts >= reset_at and st == "ERROR":
+                    errors_since_reset += 1
             stats["lastProcessedAt"] = last_ts
+            stats["status"]["since"] = reset_at.isoformat() if reset_at else None
+            stats["status"]["errorsSinceReset"] = errors_since_reset
+            stats["status"]["indicator"] = "red" if errors_since_reset > 0 else "green"
         except Exception:
             pass
         return stats
@@ -168,12 +189,15 @@ def create_app():
             try:
                 db = firestore.client()
                 merged = _read_admin_config(db)
+                # also allow dashboard refresh interval override
+                refresh_sec = merged.get("dashboardRefreshSec")
             except Exception:
                 merged = {
                     "pollInterval": config.POLL_INTERVAL,
                     "processFromAfter": config.PROCESS_FROM_AFTER or "",
                     "maxRetryCount": config.MAX_RETRY_COUNT,
                     "logLevel": config.LOG_LEVEL,
+                    "dashboardRefreshSec": None,
                 }
         else:
             merged = {
@@ -181,6 +205,7 @@ def create_app():
                 "processFromAfter": config.PROCESS_FROM_AFTER or "",
                 "maxRetryCount": config.MAX_RETRY_COUNT,
                 "logLevel": config.LOG_LEVEL,
+                "dashboardRefreshSec": None,
             }
         return render_template(
             "index.html",
@@ -190,9 +215,29 @@ def create_app():
                 "processFromAfter": merged.get("processFromAfter"),
                 "maxRetryCount": merged.get("maxRetryCount"),
                 "logLevel": merged.get("logLevel"),
+                "dashboardRefreshSec": merged.get("dashboardRefreshSec") or 30,
             },
             stats=stats,
         )
+
+    @app.get("/stats")
+    @require_auth
+    def stats_json():
+        return jsonify(_collect_stats())
+
+    @app.post("/status/reset")
+    @require_auth
+    def reset_status():
+        if firestore is None:
+            return jsonify({"ok": False, "error": "Firestore not available"}), 500
+        try:
+            db = firestore.client()
+            db.collection("admin").document("smtpAgentStatus").set({
+                "statusResetAt": datetime.now(timezone.utc)
+            }, merge=True)
+            return jsonify({"ok": True})
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
 
     @app.get("/emails")
     @require_auth
@@ -324,6 +369,7 @@ def create_app():
             "processFromAfter": d.get("processFromAfter", config.PROCESS_FROM_AFTER),
             "maxRetryCount": d.get("maxRetryCount", config.MAX_RETRY_COUNT),
             "logLevel": d.get("logLevel", config.LOG_LEVEL),
+            "dashboardRefreshSec": d.get("dashboardRefreshSec"),
         }
         return merged
 
@@ -347,10 +393,13 @@ def create_app():
         mrc = request.form.get("maxRetryCount", type=int)
         pfa = (request.form.get("processFromAfter") or "").strip()
         lvl = (request.form.get("logLevel") or "").upper() or config.LOG_LEVEL
+        drs = request.form.get("dashboardRefreshSec", type=int)
         if poll is None or poll <= 0:
             poll = config.POLL_INTERVAL
         if mrc is None or mrc <= 0:
             mrc = config.MAX_RETRY_COUNT
+        if drs is None or drs <= 0:
+            drs = None
         # Store
         try:
             db.document("admin/smtpAgentConfig").set({
@@ -358,6 +407,7 @@ def create_app():
                 "processFromAfter": pfa,
                 "maxRetryCount": mrc,
                 "logLevel": lvl,
+                "dashboardRefreshSec": drs,
                 "updatedAt": firestore.SERVER_TIMESTAMP,
             }, merge=True)
         except Exception as e:
