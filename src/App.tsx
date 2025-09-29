@@ -32,15 +32,20 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      {stage !== 'production' && (
-        <Alert severity="warning" variant="filled" sx={{ width: '100%', textAlign: 'center' }}>
-          {`Mode: ${stage.toUpperCase()}`}
-        </Alert>
-      )}
       <Router>
         <AppHeader />
-        {/* Ensure bottom content isn't hidden behind footer */}
-        <Box component="main" sx={{ pb: (theme) => theme.mixins.toolbar.minHeight }}>
+        {/* Spacer matching AppBar height to prevent overlap */}
+        <Toolbar />
+        {/* Stage banner below header */}
+        {stage !== 'production' && (
+          <Alert severity="warning" variant="filled" sx={{ width: '100%', textAlign: 'center' }}>
+            {`Mode: ${stage.toUpperCase()}`}
+          </Alert>
+        )}
+        {/* Ensure content isn't hidden behind fixed header or fixed footer */}
+        <Box component="main" sx={{
+          pb: (theme) => theme.mixins.toolbar.minHeight,
+        }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/kutc-2025" element={<KUTC2025Page />} />

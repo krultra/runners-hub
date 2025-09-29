@@ -1,0 +1,976 @@
+{
+  "summary": {
+    "backupCount": 48,
+    "currentCount": 48,
+    "addedCount": 0,
+    "removedCount": 0,
+    "changedCount": 43,
+    "suspiciousEmailChanges": 0
+  },
+  "added": [],
+  "removed": [],
+  "changed": [
+    {
+      "id": "2hdUA0ySuqP2VKSVonQBvhXSFHm2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 407000000
+          },
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 476000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "4KNoFbfsVXew85vXhRU3vwLU8Um2",
+      "diffs": {
+        "firstName": {
+          "after": "Eirik Sakshaug"
+        },
+        "lastName": {
+          "after": "Utheim"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 926000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "41501024"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": []
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 510274800,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "6rTyD7vPi8OwEqgNNzB6NxNVTDA3",
+      "diffs": {
+        "firstName": {
+          "after": "Fredrik Storflor"
+        },
+        "lastName": {
+          "after": "Moen"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564592,
+            "_nanoseconds": 708000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "93691064"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": [
+            "VørterUltra"
+          ]
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 562460400,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "926Lpl8sa7TQJXqFIugmDbEJZ9x2",
+      "diffs": {
+        "firstName": {
+          "after": "Stian Vallestad"
+        },
+        "lastName": {
+          "after": "Alvær"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 314000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "90686191"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": [
+            "Førde IL / Hemit BIL"
+          ]
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 250470000,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "9h9hOSBUQoQAHaqa7q8TkjJtStY2",
+      "diffs": {
+        "firstName": {
+          "after": "Claudiu Eduard"
+        },
+        "lastName": {
+          "after": "Nedelciu"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 576000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "46260026"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": []
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 615513600,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "ANzFhXb7VeMvvc4Dgz7PnK76FLB2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 591000000
+          },
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 783000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "B971wc4ATuMFtncMR2ZtBlIsJng1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 989000000
+          },
+          "after": {
+            "_seconds": 1758564596,
+            "_nanoseconds": 653000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "CcnVWXio1RYlx1CQjrzRsjHGb0q1",
+      "diffs": {
+        "firstName": {
+          "after": "Martin"
+        },
+        "lastName": {
+          "after": "Schrøder"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564596,
+            "_nanoseconds": 237000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "99238668"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": [
+            "Trondheim & Omegn Sportsklubb"
+          ]
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 608767200,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "KICMoYR7jYTqOjybACHLMAnZRK93",
+      "diffs": {
+        "firstName": {
+          "after": "Jo"
+        },
+        "lastName": {
+          "after": "Helgetun"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 123000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "48059758"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": [
+            "Rindal IL"
+          ]
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 1005346800,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "KdfGFu9X2mO01ukUXt0UNsvSpZS2",
+      "diffs": {
+        "firstName": {
+          "after": "Terje"
+        },
+        "lastName": {
+          "after": "Berg"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564596,
+            "_nanoseconds": 546000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "97334092"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": []
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 65055600,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "KhN8nS8NXWUZRxsZkIvRkN0U0lt2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350462,
+            "_nanoseconds": 598000000
+          },
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 230000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "KuMBsVpt7SZgXZ0bcVWsBjeTcMh2",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1758558243,
+            "_nanoseconds": 508000000
+          },
+          "after": {
+            "_seconds": 1758564566,
+            "_nanoseconds": 240000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "LQnRvGWBX1SUUomAh1hFhrBEA5A3",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 104000000
+          },
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 52000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "MF4oHJBcx2gaBTtG2VzfVYWGiPr1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 207000000
+          },
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 154000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "Mn1wetxhvXWs1cvZOYx5sBbMy0p2",
+      "diffs": {
+        "firstName": {
+          "after": "Ole Forsgren"
+        },
+        "lastName": {
+          "after": "Kanstad"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 417000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "97544379"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": []
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 715557600,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "NZcXNyryYlXH8ch1nAsO781nY9s1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350462,
+            "_nanoseconds": 409000000
+          },
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 19000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "PC96DMeJHUchTTUbHBdntNWasYy1",
+      "diffs": {
+        "firstName": {
+          "after": "Jes Gitz"
+        },
+        "lastName": {
+          "after": "Holler"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 105000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "46642507"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": [
+            "TOSK"
+          ]
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 356565600,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "QqPwHM3DtGezbraHMCdsSheIT2U2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350463,
+            "_nanoseconds": 801000000
+          },
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 736000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "RkswfaKdrCWMrwRodQUa9DgsgEv1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350463,
+            "_nanoseconds": 201000000
+          },
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 893000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "S5UTPd2stFUQf5T4X2SGEAMsQne2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 307000000
+          },
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 268000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "SSeZhIzPjAPqTKbQ5fzUD53wZJx1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350462,
+            "_nanoseconds": 794000000
+          },
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 467000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "T5fJ7uGX30ODcJ0A1GsFCoBoY863",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350463,
+            "_nanoseconds": 701000000
+          },
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 628000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "V8iZE4eftDS2OW8W0c6InHAqkd53",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350462,
+            "_nanoseconds": 89000000
+          },
+          "after": {
+            "_seconds": 1758564592,
+            "_nanoseconds": 601000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "WUzUHANBueZSgaqptzWxMRCxAmw1",
+      "diffs": {
+        "firstName": {
+          "after": "Daniel Alexander"
+        },
+        "lastName": {
+          "after": "Lindqvist"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564596,
+            "_nanoseconds": 33000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "90980795"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": [
+            "Historielauget"
+          ]
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 746316000,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "YnvktpbNuXPFJ3lMyrOPR59yfQ83",
+      "diffs": {
+        "firstName": {
+          "after": "Elias Frey"
+        },
+        "lastName": {
+          "after": "Olsen"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 372000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "46961540"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": [
+            "Eventyrrota IL"
+          ]
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 1082498400,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "a1nZl1V73KdT6ODIMonN0Ab62Wf1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350463,
+            "_nanoseconds": 901000000
+          },
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 839000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "hJW93GaZVuVmT0zBeivCKFWD4Pj2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350462,
+            "_nanoseconds": 998000000
+          },
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 682000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "j9K6qL2zApffONTqAOL4j4Xn2733",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350462,
+            "_nanoseconds": 288000000
+          },
+          "after": {
+            "_seconds": 1758564592,
+            "_nanoseconds": 918000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "jD6P7NpoPOfwdSck8TqLIeoueHy1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350463,
+            "_nanoseconds": 98000000
+          },
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 787000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "jbBkw5dEvMcd7jylBKbXmjCAXrm2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350462,
+            "_nanoseconds": 187000000
+          },
+          "after": {
+            "_seconds": 1758564592,
+            "_nanoseconds": 814000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "jsAiXcmXHvOTQKqOi38pWfIi1lM2",
+      "diffs": {
+        "firstName": {
+          "after": "Håvard Weldingh"
+        },
+        "lastName": {
+          "after": "Nilsen"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 678000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "46962016"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": []
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 1022018400,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "kys5ch4jCCRd5feymY9a78y3Mpx2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 891000000
+          },
+          "after": {
+            "_seconds": 1758564596,
+            "_nanoseconds": 443000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "lEBTLDMLrJd4mTdHwuMiaVQqZBb2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 1000000
+          },
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 943000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "mZB62HW2x7f2Q04T6LqEp952C4N2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350461,
+            "_nanoseconds": 776000000
+          },
+          "after": {
+            "_seconds": 1758564592,
+            "_nanoseconds": 156000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "mh5gDMqVI1aIkJEZx5idRvmgOR82",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350463,
+            "_nanoseconds": 406000000
+          },
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 212000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "mmyxitHaRaZUCdDSl6z6D9AzEnP2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350463,
+            "_nanoseconds": 307000000
+          },
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 1000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "odp60JRd10edV7VkomJtmfz1z8p1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350461,
+            "_nanoseconds": 984000000
+          },
+          "after": {
+            "_seconds": 1758564592,
+            "_nanoseconds": 467000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "pvqSrRYvtlRIFb2Qqk51NgylYlo1",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350462,
+            "_nanoseconds": 695000000
+          },
+          "after": {
+            "_seconds": 1758564593,
+            "_nanoseconds": 337000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "uqbgzflbtcaXpmtNjHTvBvLeO0l2",
+      "diffs": {
+        "firstName": {
+          "after": "Hedda Vogt"
+        },
+        "lastName": {
+          "after": "Kristiansen"
+        },
+        "lastSynced": {
+          "after": {
+            "_seconds": 1758564595,
+            "_nanoseconds": 577000000
+          }
+        },
+        "nationality": {
+          "after": "NOR"
+        },
+        "phone": {
+          "after": "948 25 103"
+        },
+        "editionId": {
+          "after": "kutc-2025"
+        },
+        "representing": {
+          "after": []
+        },
+        "dateOfBirth": {
+          "after": {
+            "_seconds": 1137798000,
+            "_nanoseconds": 0
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "yAqbAod0D4hnyO5ar8IDyhXDjsa2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350461,
+            "_nanoseconds": 881000000
+          },
+          "after": {
+            "_seconds": 1758564592,
+            "_nanoseconds": 298000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "zStuyRITpJOB9cF9Yp90BtvvqqI3",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350463,
+            "_nanoseconds": 599000000
+          },
+          "after": {
+            "_seconds": 1758564594,
+            "_nanoseconds": 523000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "ztwjWgKsGjQhA81S7KWTRH8hmjO2",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 789000000
+          },
+          "after": {
+            "_seconds": 1758564596,
+            "_nanoseconds": 341000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "zy17Uj2MQaR1iYxQo3zf16cbrCE3",
+      "diffs": {
+        "lastSynced": {
+          "before": {
+            "_seconds": 1745350464,
+            "_nanoseconds": 688000000
+          },
+          "after": {
+            "_seconds": 1758564596,
+            "_nanoseconds": 135000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    }
+  ]
+}

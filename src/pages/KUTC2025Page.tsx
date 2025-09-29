@@ -296,9 +296,21 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 </Box>
               )
             ) : (
-              <Typography variant="h6" color="error" sx={{ mb: 4 }}>
-                Registration is now closed
-              </Typography>
+              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+                <Typography variant="h6" color="error" sx={{ mb: 2 }}>
+                  Registration is now closed
+                </Typography>
+                <Button
+                  component={RouterLink}
+                  to="/participants"
+                  variant="outlined"
+                  color="inherit"
+                  size="large"
+                  sx={theme => ({ py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+                >
+                  Show participants and waiting-list
+                </Button>
+              </Box>
             )}
           </Box>
         ) : isRegistrationOpen ? (
@@ -425,9 +437,21 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             </>
           )
         ) : (
-          <Typography variant="h6" color="error" sx={{ mb: 4 }}>
-            Registration is now closed
-          </Typography>
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+            <Typography variant="h6" color="error" sx={{ mb: 2 }}>
+              Registration is now closed
+            </Typography>
+            <Button
+              component={RouterLink}
+              to="/participants"
+              variant="outlined"
+              color="inherit"
+              size="large"
+              sx={theme => ({ py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+            >
+              Show participants and waiting-list
+            </Button>
+          </Box>
         )}
       </Box>
       

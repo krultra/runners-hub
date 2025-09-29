@@ -1,16 +1,6 @@
 import { getFirestore, collection, query, where, getDocs, setDoc, doc, serverTimestamp } from 'firebase/firestore';
 import { AppUser } from './userUtils';
-
-export interface Registration {
-  userId: string; // email
-  editionId: string;
-  firstName: string;
-  lastName: string;
-  nationality: string;
-  dateOfBirth: string;
-  phoneNumber: string;
-  representing: string;
-}
+import type { Registration } from '../types';
 
 /**
  * Sync users from registrations for a given edition.
@@ -24,9 +14,13 @@ export async function syncUsersFromRegistrations(editionId: string) {
   const regSnap = await getDocs(regQ);
   for (const regDoc of regSnap.docs) {
     const reg = regDoc.data() as Registration;
-    // Try to find user by email (userId)
-    // If you have a mapping from email to UID, use it; otherwise, use email as doc ID
-    const userQuery = query(collection(db, 'users'), where('email', '==', reg.userId));
+    // Ensure we have an email to sync to the user profile
+    if (!reg.email) {
+      console.warn('syncUsersFromRegistrations: Registration missing email, skipping', { id: regDoc.id });
+      continue;
+    }
+    // Try to find user by email
+    const userQuery = query(collection(db, 'users'), where('email', '==', reg.email));
     const userSnap = await getDocs(userQuery);
     let userRef;
     let existingUser: any = null;
@@ -34,8 +28,9 @@ export async function syncUsersFromRegistrations(editionId: string) {
       userRef = doc(db, 'users', userSnap.docs[0].id);
       existingUser = userSnap.docs[0].data();
     } else {
-      // Fallback: create user doc with email as ID (not ideal, but works if no UID mapping)
-      userRef = doc(db, 'users', reg.userId);
+      // Prefer UID from registration if available; otherwise, fallback to email as doc ID
+      const docId = (reg as any).userId ? String((reg as any).userId) : String(reg.email);
+      userRef = doc(db, 'users', docId);
     }
     // Merge representing array
     let representingArr: string[] = [];
@@ -49,13 +44,13 @@ export async function syncUsersFromRegistrations(editionId: string) {
     representingArr = representingArr.filter(Boolean);
     // Update user doc
     await setDoc(userRef, {
-      email: reg.userId ?? '',
+      email: reg.email ?? '',
       editionId: reg.editionId ?? '',
       firstName: reg.firstName ?? '',
       lastName: reg.lastName ?? '',
       nationality: reg.nationality ?? '',
-      dateOfBirth: reg.dateOfBirth ?? '',
-      phone: reg.phoneNumber ?? '',
+      dateOfBirth: (reg as any).dateOfBirth ?? '',
+      phone: (reg as any).phoneNumber ?? '',
       representing: representingArr,
       lastSynced: serverTimestamp(),
     }, { merge: true });

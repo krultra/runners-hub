@@ -3,6 +3,7 @@ export const adminSections = [
   { key: 'invitations', label: 'Invitations' },
   { key: 'registrations', label: 'Registrations' },
   { key: 'templates', label: 'Email Templates' },
+  { key: 'bulkemail', label: 'Bulk Email' },
   { key: 'codelists', label: 'Code Lists' },
   { key: 'editions', label: 'Event Editions' },
   { key: 'actions', label: 'Action Requests' },

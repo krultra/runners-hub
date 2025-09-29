@@ -63,7 +63,11 @@
     "deploy:indexes": "firebase deploy --only firestore:indexes --project runnershub-62442",
     "deploy:indexes:test": "firebase deploy --only firestore:indexes --project runnershubtest",
     "backup": "node scripts/backupFirestore.js",
-    "restore": "node scripts/restoreFirestore.js"
+    "restore": "node scripts/restoreFirestore.js",
+    "copy:users": "node scripts/copyCollection.js",
+    "compare:users": "node scripts/compareUsersWithBackup.js",
+    "backfill:uids": "node scripts/backfillUserUids.js",
+    "sync:users": "node scripts/syncUsersFromRegistrations.js"
   },
   "eslintConfig": {
     "extends": [

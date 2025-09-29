@@ -1,11 +1,12 @@
 // scripts/backupFirestore.js
 const fs = require('fs')
 const path = require('path')
+const os = require('os')
 const admin = require('firebase-admin')
 
 // Initialize with your service account
 admin.initializeApp({
-  credential: admin.credential.cert(require('../serviceAccountKey.json')),
+  credential: admin.credential.cert(require(path.join(os.homedir(), '.secrets/runners-hub/serviceAccountKey.json'))),
 })
 const db = admin.firestore()
 

@@ -19,15 +19,17 @@ import CodeListPanel from '../components/admin/CodeListPanel';
 import ActionRequestsPanel from '../components/admin/ActionRequestsPanel';
 import SchedulesPanel from '../components/admin/SchedulesPanel';
 import AdminTasksPanel from '../components/admin/AdminTasksPanel';
+import BulkEmailPanel from '../components/admin/BulkEmailPanel';
 import EventEditionSelector from '../components/EventEditionSelector';
+import AdminLandingPanel from '../components/admin/AdminLandingPanel';
 
 import { adminSections, AdminSectionKey } from '../constants/adminSections';
-type SectionKey = AdminSectionKey;
+type SectionKey = AdminSectionKey | 'landing';
 
 
 const AdminPage: React.FC = () => {
   useEventEdition();
-  const [active, setActive] = useState<SectionKey>('invitations');
+  const [active, setActive] = useState<SectionKey>('landing');
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   // Define drawer width and make it initially closed for all devices
@@ -103,9 +105,11 @@ const AdminPage: React.FC = () => {
           <EventEditionSelector />
         </Box>
         <Box sx={{ mt: 1, px: 0.5 }}>
+            {active === 'landing' && <AdminLandingPanel onSelect={(k: AdminSectionKey) => setActive(k)} />}
             {active === 'invitations' && <InvitationsPanel />}
             {active === 'registrations' && <RegistrationsPanel />}
             {active === 'templates' && <TemplatesPanel />}
+            {active === 'bulkemail' && <BulkEmailPanel />}
             {active === 'codelists' && <CodeListPanel />}
             {active === 'editions' && <EventEditionsPanel />}
             {active === 'actions' && <ActionRequestsPanel />}

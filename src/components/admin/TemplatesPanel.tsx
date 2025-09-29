@@ -3,7 +3,9 @@ import { Box, Typography, MenuItem, FormControl, InputLabel, Select, TextField, 
 import Editor from '@monaco-editor/react';
 import { html as beautifyHtml } from 'js-beautify';
 import Handlebars from 'handlebars';
+import { registerDefaultEmailHelpers } from '../../services/handlebarsHelpers';
 import { listEmailTemplates, updateEmailTemplate, importEmailTemplates, addEmailTemplate, deleteEmailTemplate, EmailTemplate } from '../../services/templateService';
+import { enqueueRawEmail } from '../../services/emailService';
 
 const TemplatesPanel: React.FC = () => {
   const [templates, setTemplates] = useState<EmailTemplate[]>([]);
@@ -23,8 +25,13 @@ const TemplatesPanel: React.FC = () => {
   const [newType, setNewType] = useState('');
   const [newSubject, setNewSubject] = useState('');
   const [newBody, setNewBody] = useState('');
+  // test send dialog
+  const [testDialogOpen, setTestDialogOpen] = useState(false);
+  const [testRecipient, setTestRecipient] = useState('');
 
   useEffect(() => {
+    // ensure handlebars helpers are registered once
+    registerDefaultEmailHelpers(Handlebars);
     (async () => {
       setLoading(true);
       const data = await listEmailTemplates();
@@ -45,6 +52,53 @@ const TemplatesPanel: React.FC = () => {
     if (current) {
       const formatted = beautifyHtml(current.bodyTemplate, { indent_size: 2 });
       setCurrent({ ...current, bodyTemplate: formatted });
+    }
+  };
+
+  const buildPreviewFromCurrent = () => {
+    if (!current) return { subject: '', html: '', context: {} };
+    const context: any = {
+      eventName: 'KrUltra TestEvent',
+      eventShortName: 'KUTE',
+      eventEdition: new Date().getFullYear(),
+      eventDate: new Date(Date.now() + 10 * 24 * 60 * 60 * 1000),
+      representing: 'KrUltra Runners',
+      name: 'Test User',
+      firstName: 'Test',
+      lastName: 'User',
+      email: 'test@krultra.com',
+      registrationNumber: 12345,
+      dateOfBirth: new Date('1990-01-01'),
+      nationality: 'NOR',
+      phoneCountryCode: '+47',
+      phoneNumber: '123456789',
+      travelRequired: 'Yes',
+      termsAccepted: true,
+      comments: 'No comments',
+      notifyFutureEvents: true,
+      sendRunningOffers: false,
+      waitinglistExpires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      locale: current.locale || 'en',
+    };
+    const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+    context.dateOfBirth = fmt(context.dateOfBirth);
+    context.waitinglistExpires = fmt(context.waitinglistExpires);
+    context.today = fmt(new Date());
+    const subj = Handlebars.compile(current.subjectTemplate)(context);
+    const html = Handlebars.compile(current.bodyTemplate)(context);
+    return { subject: subj, html, context };
+  };
+
+  const handleTestSend = async () => {
+    if (!current || !testRecipient) return;
+    try {
+      const { subject, html, context } = buildPreviewFromCurrent();
+      await enqueueRawEmail(testRecipient, subject, html, { type: current.type, context });
+      setTestDialogOpen(false);
+      setTestRecipient('');
+      alert('Test email enqueued.');
+    } catch (e: any) {
+      alert('Failed to enqueue test email: ' + (e?.message || e));
     }
   };
 
@@ -228,6 +282,7 @@ const TemplatesPanel: React.FC = () => {
                 <Button variant="outlined" onClick={handleFormat}>Format</Button>
                 <Button variant="contained" onClick={handleSave}>Save</Button>
                 <Button variant="outlined" color="error" onClick={handleDelete} disabled={loading}>Delete</Button>
+                <Button variant="contained" color="secondary" onClick={() => setTestDialogOpen(true)}>Test</Button>
               </Box>
             </Box>
           )}
@@ -260,6 +315,27 @@ const TemplatesPanel: React.FC = () => {
             <DialogActions>
               <Button onClick={() => setNewDialogOpen(false)}>Cancel</Button>
               <Button variant="contained" onClick={addNewTemplate} disabled={!newLocale || !newType}>Add</Button>
+            </DialogActions>
+          </Dialog>
+
+          {/* Test send dialog */}
+          <Dialog open={testDialogOpen} onClose={() => setTestDialogOpen(false)} maxWidth="sm" fullWidth>
+            <DialogTitle>Send Test Email</DialogTitle>
+            <DialogContent>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, mt: 1 }}>
+                <TextField
+                  label="Recipient Email"
+                  type="email"
+                  fullWidth
+                  value={testRecipient}
+                  onChange={e => setTestRecipient(e.target.value)}
+                  placeholder="you@example.com"
+                />
+              </Box>
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => setTestDialogOpen(false)}>Cancel</Button>
+              <Button variant="contained" onClick={handleTestSend} disabled={!testRecipient}>Send</Button>
             </DialogActions>
           </Dialog>
         </Box>

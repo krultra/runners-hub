@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useTheme, Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Alert } from '@mui/material';
 import RegistrationDetailsDialog from './RegistrationDetailsDialog';
 import { getRegistrationsByEdition, generateTestRegistrations } from '../../services/registrationService';
+import { syncUsersFromRegistrations } from '../../utils/userSyncUtils';
 import { listCodeList } from '../../services/codeListService';
 import { Registration } from '../../types';
 import { useEventEdition } from '../../contexts/EventEditionContext';
@@ -19,6 +20,7 @@ const RegistrationsPanel: React.FC = () => {
   const [regLoading, setRegLoading] = useState(false);
   const [testCount, setTestCount] = useState<number>(0);
   const [testLoading, setTestLoading] = useState(false);
+  const [syncLoading, setSyncLoading] = useState(false);
 
   const theme = useTheme();
 
@@ -63,8 +65,22 @@ const RegistrationsPanel: React.FC = () => {
   const closeDetails = () => {
     setDialogOpen(false);
     setSelectedReg(null);
+    // Refresh list on close to reflect any changes made
+    loadData();
   };
   const handleUpdate = () => { loadData(); };
+
+  const handleSyncUsers = async () => {
+    if (!selectedEvent?.id) return;
+    setSyncLoading(true);
+    try {
+      await syncUsersFromRegistrations(selectedEvent.id);
+    } catch (error) {
+      console.error('Error syncing users from registrations:', error);
+    } finally {
+      setSyncLoading(false);
+    }
+  };
 
   const handleGenerateTest = async () => {
     if (!selectedEvent?.id) return;
@@ -176,6 +192,9 @@ const RegistrationsPanel: React.FC = () => {
         />
         <Button variant="contained" onClick={handleGenerateTest} disabled={!testCount || testLoading}>
           {testLoading ? <CircularProgress size={20} /> : 'Generate Test Registrations'}
+        </Button>
+        <Button variant="outlined" onClick={handleSyncUsers} disabled={!selectedEvent?.id || syncLoading}>
+          {syncLoading ? <CircularProgress size={20} /> : 'Sync users from registrations'}
         </Button>
       </Box>
       {regLoading ? (

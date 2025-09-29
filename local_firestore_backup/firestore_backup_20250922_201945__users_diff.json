@@ -1,0 +1,77 @@
+{
+  "summary": {
+    "backupCount": 48,
+    "currentCount": 48,
+    "addedCount": 0,
+    "removedCount": 0,
+    "changedCount": 7,
+    "suspiciousEmailChanges": 0
+  },
+  "added": [],
+  "removed": [],
+  "changed": [
+    {
+      "id": "B971wc4ATuMFtncMR2ZtBlIsJng1",
+      "diffs": {
+        "uid": {
+          "after": "B971wc4ATuMFtncMR2ZtBlIsJng1"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "QqPwHM3DtGezbraHMCdsSheIT2U2",
+      "diffs": {
+        "uid": {
+          "after": "QqPwHM3DtGezbraHMCdsSheIT2U2"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "hJW93GaZVuVmT0zBeivCKFWD4Pj2",
+      "diffs": {
+        "uid": {
+          "after": "hJW93GaZVuVmT0zBeivCKFWD4Pj2"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "mZB62HW2x7f2Q04T6LqEp952C4N2",
+      "diffs": {
+        "uid": {
+          "after": "mZB62HW2x7f2Q04T6LqEp952C4N2"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "mmyxitHaRaZUCdDSl6z6D9AzEnP2",
+      "diffs": {
+        "uid": {
+          "after": "mmyxitHaRaZUCdDSl6z6D9AzEnP2"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "yAqbAod0D4hnyO5ar8IDyhXDjsa2",
+      "diffs": {
+        "uid": {
+          "after": "yAqbAod0D4hnyO5ar8IDyhXDjsa2"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "zStuyRITpJOB9cF9Yp90BtvvqqI3",
+      "diffs": {
+        "uid": {
+          "after": "zStuyRITpJOB9cF9Yp90BtvvqqI3"
+        }
+      },
+      "suspiciousEmail": false
+    }
+  ]
+}

@@ -2,6 +2,7 @@ import { addDoc, collection, serverTimestamp, DocumentReference, doc, updateDoc,
 import { getFirestore } from 'firebase/firestore';
 import { Registration } from '../types';
 import Handlebars from 'handlebars';
+import { registerDefaultEmailHelpers } from './handlebarsHelpers';
 import { getEmailTemplate } from './templateService';
 import { getEventEdition } from './eventEditionService';
 import { formatShortDate, formatDateTime } from '../utils/dateFormatter';
@@ -155,6 +156,8 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
   }
   let tpl;
   try {
+    // Ensure helpers are registered prior to compiling
+    registerDefaultEmailHelpers(Handlebars);
     tpl = await getEmailTemplate(type, 'en');
     if (!tpl) {
       console.error(`[sendEmail] No template found for type ${type}`);
@@ -200,18 +203,29 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     throw err;
   }
 
-  // Create the email document
+  // Create the email document (compatible with SMTP agent reading /mail)
   const mailDoc = {
+    // Required by SMTP agent
     to,
+    subject, // duplicate subject at top-level
     message: {
-      subject,
+      subject, // keep nested for backward compatibility
       html,
     },
+    // Initialize agent namespace so listener query can see this doc
+    smtpAgent: {
+      state: 'PENDING' as const,
+      lastUpdatedAt: serverTimestamp(),
+    },
+    // Agent state fields
+    state: 'PENDING' as const,
+    delivery: null as any,
+    // App metadata
     type,
     context: enrichedContext,
     registrationId: enrichedContext.id || null,
     createdAt: serverTimestamp(),
-    status: 'pending',
+    status: 'pending', // keep legacy field for compatibility
     // Add metadata for tracking and filtering
     metadata: {
       emailType: type,
@@ -234,6 +248,16 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
     throw firestoreError;
   }
 
+  // Ensure smtpAgent map exists for agent query compatibility
+  try {
+    await updateDoc(mailRef, {
+      'smtpAgent.state': 'PENDING',
+      'smtpAgent.lastUpdatedAt': serverTimestamp(),
+    });
+  } catch (err) {
+    console.warn('[sendEmail] Warning: failed to set smtpAgent fields after addDoc', err);
+  }
+
   // update registration counters for reminders and last notices
   if (enrichedContext.id) {
     const regRef = doc(db, 'registrations', enrichedContext.id);
@@ -251,4 +275,73 @@ async function sendEmail(type: EmailType, to: string, context: any): Promise<Doc
 }
 
 // Generic sender for dynamic templates
+export async function enqueueRawEmail(
+  to: string,
+  subject: string,
+  html: string,
+  options?: { type?: EmailType | string; context?: any; eventEditionId?: string; campaignId?: string }
+): Promise<DocumentReference<any>> {
+  const db = getFirestore();
+  const type = options?.type ?? 'test';
+  const context = options?.context ?? {};
+  const eventEditionId = options?.eventEditionId;
+
+  // Build metadata similar to sendEmail
+  let eventId = undefined as string | undefined;
+  let edition = undefined as string | undefined;
+  if (eventEditionId) {
+    try {
+      const ee = await getEventEdition(eventEditionId);
+      if (ee) {
+        edition = ee.edition?.toString() || '';
+        eventId = eventEditionId.split('-').slice(0, -1).join('-');
+      }
+    } catch {
+      // Non-fatal for test enqueues
+    }
+  }
+
+  const mailDoc = {
+    to,
+    subject,
+    message: {
+      subject,
+      html,
+    },
+    smtpAgent: {
+      state: 'PENDING' as const,
+      lastUpdatedAt: serverTimestamp(),
+    },
+    state: 'PENDING' as const,
+    delivery: null as any,
+    type,
+    context,
+    registrationId: context?.id || null,
+    createdAt: serverTimestamp(),
+    status: 'pending',
+    metadata: {
+      emailType: String(type),
+      locale: context?.locale || 'en',
+      emailTemplate: `${type}_${context?.locale || 'en'}`,
+      ...(options?.campaignId && { campaignId: options.campaignId }),
+      ...(eventEditionId && {
+        eventEditionId,
+        eventId: eventId || '',
+        edition: edition || '',
+      }),
+    },
+  };
+
+  const ref = await addDoc(collection(db, 'mail'), mailDoc);
+  try {
+    await updateDoc(ref, {
+      'smtpAgent.state': 'PENDING',
+      'smtpAgent.lastUpdatedAt': serverTimestamp(),
+    });
+  } catch (err) {
+    console.warn('[enqueueRawEmail] Warning: failed to set smtpAgent fields after addDoc', err);
+  }
+  return ref;
+}
+
 export { sendEmail };

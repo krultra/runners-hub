@@ -101,6 +101,8 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
   const [selectedMailDetails, setSelectedMailDetails] = useState<any>(null);
   const [emailCommentDialogOpen, setEmailCommentDialogOpen] = useState(false);
   const [emailAdminComment, setEmailAdminComment] = useState('');
+  // cache of mail statuses by mailRef id
+  const [mailStatuses, setMailStatuses] = useState<Record<string, string>>({});
 
   useEffect(() => {
     setIsOnWaitinglist(registration.isOnWaitinglist || false);
@@ -127,6 +129,31 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
+
+  // Load current smtpAgent.status for adminComments which have a mailRef
+  useEffect(() => {
+    const loadStatuses = async () => {
+      try {
+        const entries = (adminCommentsList || []).filter((c: any) => c.mailRef);
+        if (!entries.length) return;
+        const updates: Record<string, string> = {};
+        for (const c of entries) {
+          const key = String(c.mailRef);
+          const ref = doc(db, 'mail', key);
+          const snap = await getDoc(ref);
+          if (snap.exists()) {
+            const d: any = snap.data();
+            const s = d?.smtpAgent?.state || d?.status || 'unknown';
+            updates[key] = String(s);
+          }
+        }
+        if (Object.keys(updates).length) setMailStatuses(prev => ({ ...prev, ...updates }));
+      } catch (e) {
+        console.error('Failed to load mail statuses', e);
+      }
+    };
+    loadStatuses();
+  }, [adminCommentsList]);
 
   const refreshReg = async () => {
     const fresh = await getRegistrationById(registration.id!);
@@ -173,6 +200,8 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
       adminComment.trim() || undefined
     );
     await refreshReg();
+    // Notify parent to refresh list so changes are immediately reflected
+    onUpdate();
     const def =
       status === 'cancelled'
         ? EmailType.CANCELLATION
@@ -214,12 +243,7 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
 
   const confirmSendEmail = async () => {
     setEmailDialogOpen(false);
-    // reset progress state
-    setMailProgressOpen(true);
-    setMailStatus('pending');
-    setMailError('');
-    setTimerExceeded(false);
-    // clear previous listener/timer
+    // Clear any previous listener/timer (legacy)
     if (unsubscribeRef.current) unsubscribeRef.current();
     if (timerRef.current) clearTimeout(timerRef.current);
     try {
@@ -241,36 +265,24 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
             at: Timestamp.now(),
             mailRef: mailRef.id,
             type: selectedEmailType,
-            state: 'pending',
+            state: 'PENDING',
             text: emailAdminComment
           })
         });
         // counter is updated inside sendEmail
         // clear admin comment
         setEmailAdminComment('');
-        // listen for status updates
-        const unsub = onSnapshot(mailRef, (snap) => {
-          const data = snap.data() as any;
-          const rawStatus = data.delivery?.state || data.status;
-          const statusVal = String(rawStatus).toLowerCase();
-          // @ts-ignore: allow dynamic status
-          setMailStatus(statusVal);
-          if (statusVal !== 'pending') {
-            if (timerRef.current) clearTimeout(timerRef.current);
-            if (statusVal === 'error') setMailError(
-              data.delivery?.error ||
-              data.delivery?.errorMsg ||
-              data.errorMsg ||
-              'Unknown error'
-            );
-            if (statusVal === 'success') setTimeout(() => setMailProgressOpen(false), 1000);
+        // Immediately confirm enqueue instead of waiting for trigger/agent
+        alert('Email queued for delivery.');
+        // Optionally refresh statuses shortly after enqueue
+        try {
+          const snap = await getDoc(mailRef);
+          if (snap.exists()) {
+            const d: any = snap.data();
+            const s = d?.smtpAgent?.state || d?.status || 'unknown';
+            setMailStatuses(prev => ({ ...prev, [mailRef.id]: String(s) }));
           }
-        });
-        // @ts-ignore: ref assignment
-        unsubscribeRef.current = unsub;
-        // timer for slow sends
-        // @ts-ignore: ref assignment
-        timerRef.current = setTimeout(() => setTimerExceeded(true), 5000);
+        } catch {}
       }
     } catch (err: any) {
       console.error('Error initiating email send:', err);
@@ -467,7 +479,7 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
                       ? c.at.toDate().toLocaleString()
                       : new Date(c.at).toLocaleString()}
                   </TableCell>
-                  <TableCell>{c.state || '-'}</TableCell>
+                  <TableCell>{(c.mailRef && (mailStatuses[c.mailRef] || c.state)) || c.state || '-'}</TableCell>
                   <TableCell>
                     {c.mailRef ? (
                       <Button size="small" onClick={() => openMailDetails(c.mailRef!)}>
@@ -659,7 +671,7 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
                     </TableRow>
                     <TableRow>
                       <TableCell>Status</TableCell>
-                      <TableCell>{selectedMailDetails.delivery?.state || selectedMailDetails.status}</TableCell>
+                      <TableCell>{selectedMailDetails.smtpAgent?.state || selectedMailDetails.status || 'unknown'}</TableCell>
                     </TableRow>
                   </TableBody>
                 </Table>

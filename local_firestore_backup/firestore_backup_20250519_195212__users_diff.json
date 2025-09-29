@@ -1,0 +1,388 @@
+{
+  "summary": {
+    "backupCount": 37,
+    "currentCount": 48,
+    "addedCount": 11,
+    "removedCount": 0,
+    "changedCount": 28,
+    "suspiciousEmailChanges": 0
+  },
+  "added": [
+    "6rTyD7vPi8OwEqgNNzB6NxNVTDA3",
+    "9h9hOSBUQoQAHaqa7q8TkjJtStY2",
+    "CcnVWXio1RYlx1CQjrzRsjHGb0q1",
+    "HfhcUlzo2XgSidsp36xfuB6Q4oC2",
+    "KICMoYR7jYTqOjybACHLMAnZRK93",
+    "Mn1wetxhvXWs1cvZOYx5sBbMy0p2",
+    "PC96DMeJHUchTTUbHBdntNWasYy1",
+    "WUzUHANBueZSgaqptzWxMRCxAmw1",
+    "YnvktpbNuXPFJ3lMyrOPR59yfQ83",
+    "jsAiXcmXHvOTQKqOi38pWfIi1lM2",
+    "uqbgzflbtcaXpmtNjHTvBvLeO0l2"
+  ],
+  "removed": [],
+  "changed": [
+    {
+      "id": "2hdUA0ySuqP2VKSVonQBvhXSFHm2",
+      "diffs": {
+        "email": {
+          "before": "2hdUA0ySuqP2VKSVonQBvhXSFHm2",
+          "after": "cathengen@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "4KNoFbfsVXew85vXhRU3vwLU8Um2",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1747568692,
+            "_nanoseconds": 828000000
+          },
+          "after": {
+            "_seconds": 1748187324,
+            "_nanoseconds": 263000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "ANzFhXb7VeMvvc4Dgz7PnK76FLB2",
+      "diffs": {
+        "email": {
+          "before": "ANzFhXb7VeMvvc4Dgz7PnK76FLB2",
+          "after": "torisak93@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "KdfGFu9X2mO01ukUXt0UNsvSpZS2",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1747503973,
+            "_nanoseconds": 581000000
+          },
+          "after": {
+            "_seconds": 1758455289,
+            "_nanoseconds": 182000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "KhN8nS8NXWUZRxsZkIvRkN0U0lt2",
+      "diffs": {
+        "displayName": {
+          "before": "",
+          "after": "Torgeir Kruke"
+        },
+        "lastLogin": {
+          "before": {
+            "_seconds": 1747559620,
+            "_nanoseconds": 122000000
+          },
+          "after": {
+            "_seconds": 1758557456,
+            "_nanoseconds": 232000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "KuMBsVpt7SZgXZ0bcVWsBjeTcMh2",
+      "diffs": {
+        "isAdmin": {
+          "before": false,
+          "after": true
+        },
+        "lastLogin": {
+          "before": {
+            "_seconds": 1745682113,
+            "_nanoseconds": 796000000
+          },
+          "after": {
+            "_seconds": 1758558243,
+            "_nanoseconds": 508000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "LQnRvGWBX1SUUomAh1hFhrBEA5A3",
+      "diffs": {
+        "email": {
+          "before": "LQnRvGWBX1SUUomAh1hFhrBEA5A3",
+          "after": "kristine.ovesen@hotmail.no"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "MF4oHJBcx2gaBTtG2VzfVYWGiPr1",
+      "diffs": {
+        "email": {
+          "before": "MF4oHJBcx2gaBTtG2VzfVYWGiPr1",
+          "after": "oyvind.hanes@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "NZcXNyryYlXH8ch1nAsO781nY9s1",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1745062366,
+            "_nanoseconds": 620000000
+          },
+          "after": {
+            "_seconds": 1754564361,
+            "_nanoseconds": 851000000
+          }
+        },
+        "email": {
+          "before": "NZcXNyryYlXH8ch1nAsO781nY9s1",
+          "after": "andersris@yahoo.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "QqPwHM3DtGezbraHMCdsSheIT2U2",
+      "diffs": {
+        "email": {
+          "before": "QqPwHM3DtGezbraHMCdsSheIT2U2",
+          "after": "rstobakk@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "RkswfaKdrCWMrwRodQUa9DgsgEv1",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1745610916,
+            "_nanoseconds": 59000000
+          },
+          "after": {
+            "_seconds": 1755933088,
+            "_nanoseconds": 882000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "S5UTPd2stFUQf5T4X2SGEAMsQne2",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1745261075,
+            "_nanoseconds": 815000000
+          },
+          "after": {
+            "_seconds": 1755580738,
+            "_nanoseconds": 432000000
+          }
+        },
+        "email": {
+          "before": "S5UTPd2stFUQf5T4X2SGEAMsQne2",
+          "after": "anne.gro.gaarden@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "SSeZhIzPjAPqTKbQ5fzUD53wZJx1",
+      "diffs": {
+        "email": {
+          "before": "SSeZhIzPjAPqTKbQ5fzUD53wZJx1",
+          "after": "ranheimt@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "T5fJ7uGX30ODcJ0A1GsFCoBoY863",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1746020334,
+            "_nanoseconds": 113000000
+          },
+          "after": {
+            "_seconds": 1758479051,
+            "_nanoseconds": 198000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "V8iZE4eftDS2OW8W0c6InHAqkd53",
+      "diffs": {
+        "email": {
+          "before": "V8iZE4eftDS2OW8W0c6InHAqkd53",
+          "after": "hanne.midttun@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "W1qpPHwldXSjZVFjXESsEvTBA502",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1747554361,
+            "_nanoseconds": 208000000
+          },
+          "after": {
+            "_seconds": 1747748669,
+            "_nanoseconds": 626000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "a1nZl1V73KdT6ODIMonN0Ab62Wf1",
+      "diffs": {
+        "email": {
+          "before": "a1nZl1V73KdT6ODIMonN0Ab62Wf1",
+          "after": "jamticom@hotmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "hJW93GaZVuVmT0zBeivCKFWD4Pj2",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1746274870,
+            "_nanoseconds": 508000000
+          },
+          "after": {
+            "_seconds": 1758386412,
+            "_nanoseconds": 585000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "j9K6qL2zApffONTqAOL4j4Xn2733",
+      "diffs": {
+        "email": {
+          "before": "j9K6qL2zApffONTqAOL4j4Xn2733",
+          "after": "anders.skar@hotmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "jbBkw5dEvMcd7jylBKbXmjCAXrm2",
+      "diffs": {
+        "email": {
+          "before": "jbBkw5dEvMcd7jylBKbXmjCAXrm2",
+          "after": "matsbraa88@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "kys5ch4jCCRd5feymY9a78y3Mpx2",
+      "diffs": {
+        "email": {
+          "before": "kys5ch4jCCRd5feymY9a78y3Mpx2",
+          "after": "paalmaas@online.no"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "mh5gDMqVI1aIkJEZx5idRvmgOR82",
+      "diffs": {
+        "email": {
+          "before": "mh5gDMqVI1aIkJEZx5idRvmgOR82",
+          "after": "gotvassli@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "mmyxitHaRaZUCdDSl6z6D9AzEnP2",
+      "diffs": {
+        "email": {
+          "before": "mmyxitHaRaZUCdDSl6z6D9AzEnP2",
+          "after": "christineberger@hotmail.no"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "odp60JRd10edV7VkomJtmfz1z8p1",
+      "diffs": {
+        "lastLogin": {
+          "before": {
+            "_seconds": 1746289004,
+            "_nanoseconds": 61000000
+          },
+          "after": {
+            "_seconds": 1749326949,
+            "_nanoseconds": 477000000
+          }
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "pvqSrRYvtlRIFb2Qqk51NgylYlo1",
+      "diffs": {
+        "email": {
+          "before": "pvqSrRYvtlRIFb2Qqk51NgylYlo1",
+          "after": "tage.rosten@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "zStuyRITpJOB9cF9Yp90BtvvqqI3",
+      "diffs": {
+        "email": {
+          "before": "zStuyRITpJOB9cF9Yp90BtvvqqI3",
+          "after": "geirknudsen83@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "ztwjWgKsGjQhA81S7KWTRH8hmjO2",
+      "diffs": {
+        "email": {
+          "before": "ztwjWgKsGjQhA81S7KWTRH8hmjO2",
+          "after": "kristin.solba@gmail.com"
+        }
+      },
+      "suspiciousEmail": false
+    },
+    {
+      "id": "zy17Uj2MQaR1iYxQo3zf16cbrCE3",
+      "diffs": {
+        "email": {
+          "before": "zy17Uj2MQaR1iYxQo3zf16cbrCE3",
+          "after": "hallgeir@26peaks.no"
+        }
+      },
+      "suspiciousEmail": false
+    }
+  ]
+}

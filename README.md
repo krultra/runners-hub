@@ -2,6 +2,8 @@
 
 Runners Hub is an evolving platform designed to be a complete resource for runners — offering race information, registration, results, statistics, and eventually AI-assisted services. The current version supports registration for KUTC 2025 and Malvikingen Opp 2025 events, including event creation and management. This is just the beginning, and the platform will continue to grow with new features and events.
 
+This repository contains the React front‑end (Create React App), admin tooling, and Firebase configuration for Hosting, Firestore, and Cloud Functions.
+
 ---
 
 ## Vision & Roadmap
@@ -12,11 +14,13 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
   - Admin and public participant views
   - Email notifications
   - Firestore backend with backup/restore
+  - Manual admin sync from `registrations` → `users` (UI button and CLI)
 
 - **In Progress:**
   - Unified user data management
   - User profiles with preferences (timezone, locale, notifications)
   - Club memberships and relationships
+  - KUTC race page layout using Strapi data
 
 - **Planned:**
   - Central hub for race information (multiple events)
@@ -24,6 +28,7 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
   - Community features and enhanced user profiles
   - AI-assisted services (e.g., race recommendations, training insights)
   - More integrations as ideas and needs emerge
+  - Production deployment on Raspberry Pi 5
 
 ---
 
@@ -35,6 +40,7 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
 - Firestore (Firebase) backend
 - Backup & Restore Firestore
 - Modern, user-friendly React UI
+- Admin/manual sync: update `users` collection from `registrations` per edition (UI + CLI)
 
 ---
 
@@ -55,7 +61,10 @@ Runners Hub is an evolving platform designed to be a complete resource for runne
    ```bash
    npm install
    ```
-3. Copy `.env.example` to `.env` and fill in your Firebase config. For emulator use, you can use dummy values.
+3. Configure environment variables:
+   - Production: `.env.production`
+   - Test: `.env.test`
+   - Key vars: `REACT_APP_VERSION`, `REACT_APP_STAGE` (`test` for test), Firebase config keys
 
 #### Environment Variables (`.env`)
 - The `.env` file configures Firebase connection and app behavior. Key parameters include:
@@ -110,6 +119,29 @@ To get a fresh copy of production data into your local emulator:
 
 ---
 
+## Documentation
+
+- Environments: `docs/ENVIRONMENTS.md`
+- Admin Scripts: `docs/ADMIN_SCRIPTS.md`
+- Operations (Build/Deploy/Rules/Indexes/Functions): `docs/OPERATIONS.md`
+- Data Model: `docs/DATA_MODEL.md`
+- Project TODOs: `docs/TODO.md`
+- SMTP Agent (Firestore → SMTP): `docs/SMTP_AGENT.md`
+
+Key admin scripts (run from repo root):
+- Backup: `npm run backup`
+- Restore: `npm run restore -- path/to/backup.json`
+- Copy users collection: `npm run copy:users`
+- Compare users vs backup: `npm run compare:users -- local_firestore_backup/<backup>.json`
+- Backfill user uids: `npm run backfill:uids`
+- Sync users from registrations (CLI): `npm run sync:users`
+
+Admin UI also contains a "Sync users from registrations" button in `Registrations` panel.
+
+To track upcoming work and ideas, maintain the checklist in `docs/TODO.md`.
+
+---
+
 ## Usage
 
 - **Registration:** Visit the registration page and fill out the form to participate in KUTC 2025.
@@ -145,7 +177,8 @@ The app uses several Firestore collections to manage registrations, users, admin
 
 - **users**
   - Stores user profiles and roles.
-  - Key fields: `isAdmin` (boolean), `email`, `displayName`, etc.
+  - Key fields: `uid` (equal to document ID), `email`, `firstName`, `lastName`, `representing[]`, `isAdmin` (boolean), etc.
+  - Note: The admin sync ensures `email` is set from registration emails; a backfill utility sets missing `uid = doc.id`.
 
 - **admins**
   - Stores admin user references (read-only for admin checks).
@@ -257,16 +290,14 @@ If you aren’t satisfied with the build tool and configuration choices, you can
 **Important:** The current `firestore.rules` file allows all access for development. Before going to production, update your rules to restrict access based on authentication and user roles.
 See `firestore.rules` for a TODO reminder.
 
----
-
+-
 ## Learn More
 
 - [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started)
 - [React documentation](https://reactjs.org/)
 - [Firebase documentation](https://firebase.google.com/docs)
 
----
-
+-
 ## Contributing & Future Updates
 
 This project is in active development and will expand well beyond the current KUTC 2025 registration system. Contributions, suggestions, and ideas are welcome! As new features are added, both the code and documentation will be updated.
