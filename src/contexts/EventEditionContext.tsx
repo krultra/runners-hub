@@ -21,6 +21,7 @@ export interface CurrentEvent {
   resultTypes: string[];
   resultsStatus: string;
   resultURL?: string;
+  liveResultsURL?: string;
   startTime: Date;
   endTime: Date;
   registrationDeadline: Date | null;

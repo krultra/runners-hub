@@ -39,7 +39,7 @@ import {
   updateEventEdition,
   deleteEventEdition,
 } from '../../services/eventEditionService';
-import { listCodeList } from '../../services/codeListService';
+import { listCodeList, CodeListItem } from '../../services/codeListService';
 
 // Types
 interface SnackbarState {
@@ -93,6 +93,7 @@ const EventEditionsPanel: FC = () => {
   const [resultTypes, setResultTypes] = useState<string[]>([]);
   const [resultsStatus, setResultsStatus] = useState<string>('');
   const [resultURL, setResultURL] = useState<string>('');
+  const [liveResultsURL, setLiveResultsURL] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [registrationDeadline, setRegistrationDeadline] = useState<Date | null>(null);
@@ -127,7 +128,8 @@ const EventEditionsPanel: FC = () => {
   });
   
   const [snackbarOpen, setSnackbarOpen] = useState<boolean>(false);
-  const [availableStatuses, setAvailableStatuses] = useState<string[]>([]);
+  const [eventStatusOptions, setEventStatusOptions] = useState<CodeListItem[]>([]);
+  const [resultsStatusOptions, setResultsStatusOptions] = useState<CodeListItem[]>([]);
   
   // Context
   const { 
@@ -147,9 +149,27 @@ const EventEditionsPanel: FC = () => {
   }, [selectedEvent, eventLoading, eventError]);
 
   useEffect(() => {
-    listCodeList('status', 'results').then(data =>
-      setAvailableStatuses(data.map(d => d.code))
-    );
+    let isMounted = true;
+
+    const loadStatuses = async () => {
+      try {
+        const [eventStatuses, resultStatuses] = await Promise.all([
+          listCodeList('status', 'eventEditions'),
+          listCodeList('status', 'results')
+        ]);
+        if (!isMounted) return;
+        setEventStatusOptions(eventStatuses);
+        setResultsStatusOptions(resultStatuses);
+      } catch (err) {
+        console.error('Failed to load status code lists', err);
+      }
+    };
+
+    loadStatuses();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Load event data from Firestore by ID
@@ -167,6 +187,7 @@ const EventEditionsPanel: FC = () => {
       setResultTypes(data.resultTypes || []);
       setResultsStatus(data.resultsStatus || '');
       setResultURL((data as any).resultURL || '');
+      setLiveResultsURL((data as any).liveResultsURL || '');
       setStartDate(data.startTime.toDate());
       setEndDate(data.endTime.toDate());
       setRegistrationDeadline(data.registrationDeadline?.toDate() || null);
@@ -211,6 +232,7 @@ const EventEditionsPanel: FC = () => {
     setResultTypes([]);
     setResultsStatus('');
     setResultURL('');
+    setLiveResultsURL('');
     setStartDate(new Date());
     setEndDate(new Date());
     setRegistrationDeadline(new Date());
@@ -281,6 +303,7 @@ const EventEditionsPanel: FC = () => {
       resultTypes,
       resultsStatus,
       resultURL,
+      liveResultsURL,
       startTime: Timestamp.fromDate(d1),
       endTime: Timestamp.fromDate(d2),
       registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
@@ -488,12 +511,37 @@ const EventEditionsPanel: FC = () => {
         {loadingData ? (
           <CircularProgress size={24} />
         ) : (
-          selectedEvent?.id && (
+          (selectedEvent?.id || dirty) && (
             <Box display="flex" flexDirection="column" gap={2}>
               <TextField label="Short Event Name" value={eventShortName} onChange={e => { setEventShortName(e.target.value); setDirty(true); }} />
               <TextField label="Full Event Name" value={eventName} onChange={e => { setEventName(e.target.value); setDirty(true); }} />
-              <TextField label="Status" value={status} onChange={e => { setStatus(e.target.value); setDirty(true); }} />
+              <FormControl>
+                <InputLabel id="event-status-label">Status</InputLabel>
+                <Select
+                  labelId="event-status-label"
+                  value={status}
+                  label="Status"
+                  renderValue={(selected) => {
+                    const option = eventStatusOptions.find(opt => opt.code === selected);
+                    if (!option) return selected;
+                    const label = option.verboseName && option.verboseName !== option.code
+                      ? `${option.code} – ${option.verboseName}`
+                      : option.code;
+                    return label;
+                  }}
+                  onChange={e => { setStatus(e.target.value); setDirty(true); }}
+                >
+                  {eventStatusOptions.map(option => (
+                    <MenuItem key={option.code} value={option.code}>
+                      {option.verboseName && option.verboseName !== option.code
+                        ? `${option.code} – ${option.verboseName}`
+                        : option.code}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
               <TextField label="Results URL" value={resultURL} onChange={e => { setResultURL(e.target.value); setDirty(true); }} />
+              <TextField label="Live Results URL" value={liveResultsURL} onChange={e => { setLiveResultsURL(e.target.value); setDirty(true); }} />
               <TextField
                 label="Event ID"
                 value={eventId}
@@ -539,10 +587,22 @@ const EventEditionsPanel: FC = () => {
                   labelId="status-label"
                   value={resultsStatus}
                   label="Results Status"
+                  renderValue={(selected) => {
+                    const option = resultsStatusOptions.find(opt => opt.code === selected);
+                    if (!option) return selected;
+                    const label = option.verboseName && option.verboseName !== option.code
+                      ? `${option.code} – ${option.verboseName}`
+                      : option.code;
+                    return label;
+                  }}
                   onChange={e => { setResultsStatus(e.target.value); setDirty(true); }}
                 >
-                  {availableStatuses.map(st => (
-                    <MenuItem key={st} value={st}>{st}</MenuItem>
+                  {resultsStatusOptions.map(option => (
+                    <MenuItem key={option.code} value={option.code}>
+                      {option.verboseName && option.verboseName !== option.code
+                        ? `${option.code} – ${option.verboseName}`
+                        : option.code}
+                    </MenuItem>
                   ))}
                 </Select>
               </FormControl>

@@ -8,10 +8,12 @@ This repository contains the React front‑end (Create React App), admin tooling
 
 ## Vision & Roadmap
 
-- **Current:** 
+- **Current:**
   - Registration system for KUTC 2025 (native) and Malvikingen Opp 2025 (redirects to external sites and imports data)
-  - Event creation and management
-  - Admin and public participant views
+  - Event creation and management with status controls sourced from code lists
+  - Admin dashboards with contextual warnings (waiting-list expirations, payment anomalies, results status reminders)
+  - Live results hand-off: editions support `liveResultsURL` with public call-to-action when status is `ongoing`
+  - Public participant listing resilient to direct refreshes and deep links
   - Email notifications
   - Firestore backend with backup/restore
   - Manual admin sync from `registrations` → `users` (UI button and CLI)
@@ -34,13 +36,20 @@ This repository contains the React front‑end (Create React App), admin tooling
 
 ## Features (Current)
 - Register for KUTC 2025 event
-- Admin dashboard for managing registrations
-- Public participant listing
+- Admin dashboard for managing registrations, including real-time alerts for expiring waiting-list slots and payments requiring review
+- Public participant listing that supports direct navigation/shareable URLs
+- Live results promotion: when an edition is marked `ongoing` and has a `liveResultsURL`, users get one-click access to external result feeds
 - Email notifications/testing
 - Firestore (Firebase) backend
 - Backup & Restore Firestore
 - Modern, user-friendly React UI
 - Admin/manual sync: update `users` collection from `registrations` per edition (UI + CLI)
+
+### Recent Highlights (Autumn 2025)
+- Results status workflow adds a persistent admin banner one hour before race start, offering a guided update dialog backed by `codeLists`
+- Event editions editor now manages `liveResultsURL`, with dropdowns for both event and results statuses fed by Firestore code lists
+- KUTC and MO public pages surface "Event is ongoing" messaging plus a live-results button while a race is running
+- Participant listings remain accessible after hard refreshes thanks to context restoration and local storage
 
 ---
 

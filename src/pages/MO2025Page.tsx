@@ -46,6 +46,20 @@ const MO2025Page: React.FC = () => {
   const now = new Date();
   const isPastEvent = raceDate < now;
   const isRegistrationOpen = registrationDeadline ? now < registrationDeadline : false;
+  const liveResultsURL = event?.liveResultsURL ?? '';
+  const isEventOngoing = event?.resultsStatus === 'ongoing';
+  const showLiveResultsButton = Boolean(isEventOngoing && liveResultsURL);
+
+  let statusMessage = '';
+  if (isEventOngoing) {
+    statusMessage = 'Løpet pågår nå';
+  } else if (isPastEvent) {
+    statusMessage = 'Løpet er avsluttet';
+  } else if (!isRegistrationOpen) {
+    statusMessage = 'Påmeldingen er stengt';
+  } else {
+    statusMessage = 'Påmeldingen er åpen';
+  }
 
   if (loading) {
     return (
@@ -120,16 +134,22 @@ const MO2025Page: React.FC = () => {
               </Typography>
             </Box>
           )}
-          {isPastEvent && (
-            <Box sx={{ mt: 2 }}>
-              <Typography variant="h5" color="text.secondary">
-                Dette løpet er avsluttet
-              </Typography>
-            </Box>
-          )}
         </Paper>
-        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'center', gap: 2, mt: 2, mb: 4 }}>
-          {!isPastEvent && isRegistrationOpen && (
+        <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'center', gap: 2, mt: 2, mb: 2 }}>
+          {showLiveResultsButton && liveResultsURL && (
+            <Button
+              variant="contained"
+              color="secondary"
+              size="large"
+              href={liveResultsURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ fontWeight: 700, minWidth: 220 }}
+            >
+              Se live resultater
+            </Button>
+          )}
+          {!isPastEvent && !isEventOngoing && isRegistrationOpen && (
             <>
               <Button
                 variant="contained"
@@ -155,11 +175,6 @@ const MO2025Page: React.FC = () => {
               </Button>
             </>
           )}
-          {!isPastEvent && !isRegistrationOpen && (
-            <Alert severity="info" sx={{ mb: 2 }}>
-              Påmeldingen er stengt
-            </Alert>
-          )}
           <Button
             variant="outlined"
             color="inherit"
@@ -184,6 +199,12 @@ const MO2025Page: React.FC = () => {
             </Button>
           )}
         </Box>
+
+        {statusMessage && (
+          <Alert severity={isEventOngoing ? 'success' : 'info'} sx={{ mb: 4 }}>
+            {statusMessage}
+          </Alert>
+        )}
 
         <Box sx={{ flexGrow: 1, mb: 4 }}>
           <Grid container spacing={4} justifyContent="center">

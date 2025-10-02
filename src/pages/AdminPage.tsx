@@ -22,6 +22,7 @@ import AdminTasksPanel from '../components/admin/AdminTasksPanel';
 import BulkEmailPanel from '../components/admin/BulkEmailPanel';
 import EventEditionSelector from '../components/EventEditionSelector';
 import AdminLandingPanel from '../components/admin/AdminLandingPanel';
+import ResultsStatusBanner from '../components/admin/ResultsStatusBanner';
 
 import { adminSections, AdminSectionKey } from '../constants/adminSections';
 type SectionKey = AdminSectionKey | 'landing';
@@ -104,6 +105,7 @@ const AdminPage: React.FC = () => {
         <Box sx={{ mt: 2 }}>
           <EventEditionSelector />
         </Box>
+        <ResultsStatusBanner />
         <Box sx={{ mt: 1, px: 0.5 }}>
             {active === 'landing' && <AdminLandingPanel onSelect={(k: AdminSectionKey) => setActive(k)} />}
             {active === 'invitations' && <InvitationsPanel />}

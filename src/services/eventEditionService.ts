@@ -30,6 +30,7 @@ export interface EventEdition {
   resultTypes: string[];
   resultsStatus: string;
   resultURL?: string;
+  liveResultsURL?: string;
   startTime: Timestamp;
   endTime: Timestamp;
   registrationDeadline?: Timestamp;
@@ -87,6 +88,7 @@ export const getEventEdition = async (id: string): Promise<EventEdition> => {
     resultTypes: data.resultTypes || [],
     resultsStatus: data.resultsStatus || '',
     resultURL: data.resultURL || '',
+    liveResultsURL: data.liveResultsURL || '',
     startTime: data.startTime,
     endTime: data.endTime,
     registrationDeadline: data.registrationDeadline,
@@ -125,7 +127,8 @@ export const addEventEdition = async (
   // Make sure the payload being saved has the same eventId that's used in the document ID
   const finalPayload = {
     ...payload,
-    eventId: payload.eventId.trim() // Clean up but keep original format for display
+    eventId: payload.eventId.trim(), // Clean up but keep original format for display
+    liveResultsURL: payload.liveResultsURL || ''
   };
   
   // Use setDoc with the generated ID instead of addDoc
@@ -144,7 +147,10 @@ export const updateEventEdition = async (
   console.log('updateEventEdition - payload:', payload);
   const ref = doc(db, COLL, id);
   try {
-    await updateDoc(ref, payload as any);
+    await updateDoc(ref, {
+      ...payload,
+      liveResultsURL: payload.liveResultsURL ?? (payload as any).liveResultsURL ?? undefined
+    } as any);
     console.log('updateEventEdition - update successful');
   } catch (error) {
     console.error('updateEventEdition - error updating event:', error);

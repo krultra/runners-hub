@@ -49,6 +49,9 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   
   // Check if registration is still open
   const isRegistrationOpen = event.registrationDeadline ? now < event.registrationDeadline : false;
+  const liveResultsURL = event.liveResultsURL ?? '';
+  const isEventOngoing = event.resultsStatus === 'ongoing';
+  const showLiveResultsButton = Boolean(isEventOngoing && liveResultsURL);
   
   // Check if user is authenticated and has a registration (re-run on location change)
   const location = useLocation();
@@ -133,6 +136,25 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   // Determine if new registrations should go on waiting-list
   const forceQueue = waitingListCount > 0;
 
+  const renderLiveResultsButton = () => {
+    if (!showLiveResultsButton) return null;
+    return (
+      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
+        <Button
+          variant="contained"
+          color="secondary"
+          size="large"
+          href={liveResultsURL}
+          target="_blank"
+          rel="noopener noreferrer"
+          sx={{ fontWeight: 700, px: 4, minWidth: 220 }}
+        >
+          View Live Results
+        </Button>
+      </Box>
+    );
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4, textAlign: 'center' }}>
@@ -185,6 +207,8 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             </Typography>
           </Box>
         </Paper>
+
+        {renderLiveResultsButton()}
         
         {user && isUserRegistered && !isRegistrationInvalid ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
@@ -438,8 +462,8 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           )
         ) : (
           <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-            <Typography variant="h6" color="error" sx={{ mb: 2 }}>
-              Registration is now closed
+            <Typography variant="h6" color={isEventOngoing ? 'info.main' : 'error'} sx={{ mb: 2 }}>
+              {isEventOngoing ? 'Event is ongoing' : 'Registration is now closed'}
             </Typography>
             <Button
               component={RouterLink}

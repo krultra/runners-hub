@@ -84,25 +84,17 @@ Audit of sent emails.
 
 - ref to mail doc, status, timestamps, etc.
 
-### counters
 Monotonic counters used to generate sequential numbers (e.g., registrations).
 
 - id: string — counter name (e.g., `registrations-kutc-2025`)
 - currentValue: number
 
-## Relationships
-
-- One user can have many registrations (linked by email; optionally by `userId=uid`).
-- `representing` in `users` is derived from any `registrations.representing` values entered over time.
-
-## Data Flows
-
-- Registration create → (optional) Admin Sync updates/creates matching `users` doc:
-  - Find `users` by `email == registration.email`.
-  - If none, create `users/{uid-or-email}` (prefer UID if available, else email).
-  - Merge basic profile fields and update `representing` array.
+### eventEditions *(new details)*
+- Added explicit `liveResultsURL` string field for linking to external live timing systems.
+- `status` and `resultsStatus` values are now sourced from the `codeLists` collection (`object='eventEditions' | 'results', type='status'`).
+- Admin UI enforces dropdown selection backed by code lists; ensure new codes include `code`, `verboseName`, and optional `sortOrder`.
 
 ## Security
-
+{{ ... }}
 - See `firestore.rules` and `firestore.rules.bak` for rule sets.
 - Production rules should enforce read/write on `users/{uid}` only for the authenticated user or admins.

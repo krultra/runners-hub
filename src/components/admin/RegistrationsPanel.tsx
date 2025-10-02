@@ -124,15 +124,33 @@ const RegistrationsPanel: React.FC = () => {
     (r.paymentMade || 0) > 0
   ).length;
   
-  // 3. Waiting-list registrations with status='cancelled' AND paymentMade > 0
   const cancelledWithPayment = registrations.filter(r => 
     r.isOnWaitinglist && 
     r.status === 'cancelled' && 
     (r.paymentMade || 0) > 0
   ).length;
-  
+
   const totalWarnings = wlExpiredNotMarked + expiredWithPayment + cancelledWithPayment;
 
+  const formatWaitinglistExpires = (value: any): string => {
+    if (!value) return '-';
+    try {
+      if (typeof value.toDate === 'function') {
+        return value.toDate().toLocaleString();
+      }
+      if (value instanceof Date) {
+        return value.toLocaleString();
+      }
+      const parsed = new Date(value);
+      if (!Number.isNaN(parsed.getTime())) {
+        return parsed.toLocaleString();
+      }
+      return String(value);
+    } catch (err) {
+      console.warn('Unable to format waitinglistExpires value', value, err);
+      return '-';
+    }
+  };
   if (!selectedEvent) {
     return (
       <Box p={3}>
@@ -290,7 +308,7 @@ const RegistrationsPanel: React.FC = () => {
                     </Typography>
                   )}
                   {!hasAnyWarning && reg.waitinglistExpires && (
-                    (reg.waitinglistExpires as any).toDate().toLocaleString()
+                    formatWaitinglistExpires(reg.waitinglistExpires)
                   )}
                   {!hasAnyWarning && !reg.waitinglistExpires && '-'}
                 </TableCell>
