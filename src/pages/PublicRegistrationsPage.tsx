@@ -41,8 +41,9 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
       // For example: fetchEventByIdAndEdition(eventId, edition);
       
     } else if (!editionId && !eventLoading && !event) {
-      // No editionId provided and no event in context
-      navigate('/');
+      // No editionId provided and no event in context - just try to load without event
+      // This allows the page to work when accessed directly via URL
+      console.log('No event in context, page will load when event is available');
     }
   }, [editionId, event, eventLoading, navigate]);
 
@@ -77,11 +78,11 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
     );
   }
 
-  if (eventError || !event) {
+  if (eventError) {
     return (
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
         <Alert severity="error">
-          {eventError ? `Error loading event: ${eventError.message}` : 'No event selected'}
+          Error loading event: {eventError.message}
         </Alert>
         <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>
           Back to Home
@@ -90,18 +91,43 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
     );
   }
 
+  if (!event) {
+    return (
+      <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
+        <Alert severity="info">
+          Please select an event to view participants.
+        </Alert>
+        <Button variant="contained" onClick={() => navigate('/')} sx={{ mt: 2 }}>
+          Select Event
+        </Button>
+      </Container>
+    );
+  }
+
   const regsList = registrations || [];
   const filteredRegs = regsList.filter(r => showCancelled || ['pending','confirmed'].includes(r.status));
+  const now = new Date();
+  const isExpiredWl = (r: PublicRegistration) => !!(r.isOnWaitinglist && r.waitinglistExpires && r.waitinglistExpires <= now);
+  // Display lists (include cancelled when toggled on)
   const participants = filteredRegs.filter(r => !r.isOnWaitinglist);
-  const waitingList = filteredRegs.filter(r => r.isOnWaitinglist);
-  const participantsCount = regsList.filter(r => ['pending','confirmed'].includes(r.status) && !r.isOnWaitinglist).length;
-  const waitingListCount = regsList.filter(r => ['pending','confirmed'].includes(r.status) && r.isOnWaitinglist).length;
+  const waitingList = filteredRegs.filter(r => r.isOnWaitinglist && (showCancelled || !isExpiredWl(r)));
+  // Stable indices computed from ACTIVE entries only
+  const activeParticipants = regsList.filter(r => ['pending','confirmed'].includes(r.status) && !r.isOnWaitinglist);
+  const activeWaiting = regsList.filter(r => ['pending','confirmed'].includes(r.status) && r.isOnWaitinglist && !isExpiredWl(r));
+  const participantIndexByRegNo = new Map<number, number>();
+  activeParticipants.forEach((r, i) => participantIndexByRegNo.set(r.registrationNumber, i + 1));
+  const waitingIndexByRegNo = new Map<number, number>();
+  activeWaiting.forEach((r, i) => waitingIndexByRegNo.set(r.registrationNumber, i + 1));
+  // Counts
+  const participantsCount = activeParticipants.length;
+  const waitingListCount = showCancelled ? regsList.filter(r => ['pending','confirmed'].includes(r.status) && r.isOnWaitinglist).length : activeWaiting.length;
   const hasWaitingList = waitingList.length > 0;
+  const distanceLabelById = new Map((event.raceDistances || []).map(d => [d.id, d.displayName || d.id]));
 
   return (
     <Container maxWidth="md" sx={{ mt: 4 }}>
       <Typography variant="h4" gutterBottom sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-        {event.eventName} - {hasWaitingList ? 'Participants and Waiting-list' : 'Registered Participants'}
+        {event.eventName} {event.edition} – {hasWaitingList ? 'Participants and Waiting-list' : 'Registered Participants'}
       </Typography>
       <Alert severity="info" sx={{ mb: 3 }}>
         {hasWaitingList
@@ -125,6 +151,7 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
                 <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>Name</TableCell>
                 <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>Nationality</TableCell>
                 <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>Representing</TableCell>
+                <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>Race distance</TableCell>
                 <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>Status</TableCell>
               </TableRow>
             </TableHead>
@@ -137,21 +164,25 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
                 >
-                  <TableCell>{reg.registrationNumber}</TableCell>
+                  <TableCell>{participantIndexByRegNo.get(reg.registrationNumber) ?? ''}</TableCell>
                   <TableCell>{reg.firstName} {reg.lastName}</TableCell>
                   <TableCell>{reg.nationality}</TableCell>
                   <TableCell>{reg.representing}</TableCell>
+                  <TableCell>{distanceLabelById.get(reg.raceDistance) || reg.raceDistance || '-'}</TableCell>
                   <TableCell><StatusIndicator status={reg.status} /></TableCell>
                 </TableRow>
               ))}
               {hasWaitingList && (
                 <>
                   <TableRow>
-                    <TableCell colSpan={5} sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: 'info.dark', color: 'info.contrastText' }}>
+                    <TableCell colSpan={6} sx={{ textAlign: 'center', fontWeight: 'bold', bgcolor: 'info.dark', color: 'info.contrastText' }}>
                       Waiting-list
                     </TableCell>
                   </TableRow>
-                  {waitingList.map((reg, idx) => (
+                  {waitingList.map((reg, idx) => {
+                    const expired = isExpiredWl(reg);
+                    const displayStatus = expired ? 'expired' : reg.status;
+                    return (
                     <TableRow
                       key={reg.registrationNumber}
                       sx={{
@@ -159,13 +190,14 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
                         '&:last-child td, &:last-child th': { border: 0 }
                       }}
                     >
-                      <TableCell>{reg.registrationNumber}</TableCell>
+                      <TableCell>{!expired ? (waitingIndexByRegNo.get(reg.registrationNumber) ?? '') : ''}</TableCell>
                       <TableCell>{reg.firstName} {reg.lastName}</TableCell>
                       <TableCell>{reg.nationality}</TableCell>
                       <TableCell>{reg.representing}</TableCell>
-                      <TableCell><StatusIndicator status={reg.status} /></TableCell>
+                      <TableCell>{distanceLabelById.get(reg.raceDistance) || reg.raceDistance || '-'}</TableCell>
+                      <TableCell><StatusIndicator status={displayStatus} /></TableCell>
                     </TableRow>
-                  ))}
+                  );})}
                 </>
               )}
             </TableBody>

@@ -6,8 +6,10 @@ export interface PublicRegistration {
   lastName: string;
   nationality: string;
   representing: string;
+  raceDistance: string;
   status: string;
   isOnWaitinglist: boolean;
+  waitinglistExpires?: Date | null;
 }
 
 export async function fetchPublicRegistrations(editionId: string): Promise<PublicRegistration[]> {
@@ -26,8 +28,10 @@ export async function fetchPublicRegistrations(editionId: string): Promise<Publi
       lastName: data.lastName ?? '',
       nationality: data.nationality ?? '',
       representing: data.representing ?? '',
+      raceDistance: data.raceDistance ?? '',
       status: data.status ?? '',
       isOnWaitinglist: data.isOnWaitinglist ?? false,
+      waitinglistExpires: data.waitinglistExpires?.toDate?.() || null,
     };
   });
 }

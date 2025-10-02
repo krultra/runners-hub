@@ -92,6 +92,7 @@ const EventEditionsPanel: FC = () => {
   const [status, setStatus] = useState<string>('draft');
   const [resultTypes, setResultTypes] = useState<string[]>([]);
   const [resultsStatus, setResultsStatus] = useState<string>('');
+  const [resultURL, setResultURL] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
   const [registrationDeadline, setRegistrationDeadline] = useState<Date | null>(null);
@@ -165,6 +166,7 @@ const EventEditionsPanel: FC = () => {
       setStatus(data.status);
       setResultTypes(data.resultTypes || []);
       setResultsStatus(data.resultsStatus || '');
+      setResultURL((data as any).resultURL || '');
       setStartDate(data.startTime.toDate());
       setEndDate(data.endTime.toDate());
       setRegistrationDeadline(data.registrationDeadline?.toDate() || null);
@@ -208,6 +210,7 @@ const EventEditionsPanel: FC = () => {
     setStatus('draft');
     setResultTypes([]);
     setResultsStatus('');
+    setResultURL('');
     setStartDate(new Date());
     setEndDate(new Date());
     setRegistrationDeadline(new Date());
@@ -277,6 +280,7 @@ const EventEditionsPanel: FC = () => {
       status,
       resultTypes,
       resultsStatus,
+      resultURL,
       startTime: Timestamp.fromDate(d1),
       endTime: Timestamp.fromDate(d2),
       registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
@@ -489,6 +493,7 @@ const EventEditionsPanel: FC = () => {
               <TextField label="Short Event Name" value={eventShortName} onChange={e => { setEventShortName(e.target.value); setDirty(true); }} />
               <TextField label="Full Event Name" value={eventName} onChange={e => { setEventName(e.target.value); setDirty(true); }} />
               <TextField label="Status" value={status} onChange={e => { setStatus(e.target.value); setDirty(true); }} />
+              <TextField label="Results URL" value={resultURL} onChange={e => { setResultURL(e.target.value); setDirty(true); }} />
               <TextField
                 label="Event ID"
                 value={eventId}

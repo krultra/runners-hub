@@ -29,6 +29,7 @@ export interface EventEdition {
   status: string;
   resultTypes: string[];
   resultsStatus: string;
+  resultURL?: string;
   startTime: Timestamp;
   endTime: Timestamp;
   registrationDeadline?: Timestamp;
@@ -85,6 +86,7 @@ export const getEventEdition = async (id: string): Promise<EventEdition> => {
     status: data.status || '',
     resultTypes: data.resultTypes || [],
     resultsStatus: data.resultsStatus || '',
+    resultURL: data.resultURL || '',
     startTime: data.startTime,
     endTime: data.endTime,
     registrationDeadline: data.registrationDeadline,

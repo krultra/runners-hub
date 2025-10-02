@@ -1,5 +1,7 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { getEventEdition } from '../services/eventEditionService';
+
+const LAST_EVENT_KEY = 'runnershub_last_event_id';
 
 export interface RaceDistance {
   id: string;
@@ -18,6 +20,7 @@ export interface CurrentEvent {
   status: string;
   resultTypes: string[];
   resultsStatus: string;
+  resultURL?: string;
   startTime: Date;
   endTime: Date;
   registrationDeadline: Date | null;
@@ -48,14 +51,32 @@ const EventEditionContext = createContext<EventContextValue>({
 
 export const EventEditionProvider = ({ children }: { children: React.ReactNode }) => {
   const [event, setEventState] = useState<CurrentEvent | null>(null);
-  
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
+
+  // Restore last event from localStorage on mount
+  useEffect(() => {
+    const restoreLastEvent = async () => {
+      try {
+        const lastEventId = localStorage.getItem(LAST_EVENT_KEY);
+        if (lastEventId) {
+          console.log('Restoring last event from localStorage:', lastEventId);
+          await setEvent(lastEventId);
+        }
+      } catch (err) {
+        console.error('Failed to restore last event:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    restoreLastEvent();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setEvent = useCallback(async (eventData: Partial<CurrentEvent> | string | null) => {
     if (eventData === null) {
       setEventState(null);
+      localStorage.removeItem(LAST_EVENT_KEY);
       return;
     }
 
@@ -72,17 +93,24 @@ export const EventEditionProvider = ({ children }: { children: React.ReactNode }
           return timestamp; // Fallback in case it's something else
         };
 
-        setEventState({
+        const eventState = {
           ...data,
           startTime: convertTimestamp(data.startTime),
           endTime: convertTimestamp(data.endTime),
           registrationDeadline: convertTimestamp(data.registrationDeadline),
           raceDistances: data.raceDistances || [],
           fees: data.fees ?? { participation: 0, baseCamp: 0, deposit: 0, total: 0 },
-        });
+        };
+        setEventState(eventState);
+        // Save to localStorage for restoration on refresh
+        localStorage.setItem(LAST_EVENT_KEY, eventData);
       } else {
         // If an object is passed, update the event state
         setEventState(prev => prev ? { ...prev, ...eventData } as CurrentEvent : eventData as CurrentEvent);
+        // Save ID if available
+        if ((eventData as CurrentEvent).id) {
+          localStorage.setItem(LAST_EVENT_KEY, (eventData as CurrentEvent).id);
+        }
       }
     } catch (err) {
       setError(err as Error);

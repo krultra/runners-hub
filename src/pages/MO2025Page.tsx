@@ -1,11 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Container, Typography, Box, Paper, Divider, Button, Grid, CircularProgress } from '@mui/material';
+import React, { useState, useEffect, useMemo } from 'react';
+import { Container, Typography, Box, Paper, Divider, Button, Grid, CircularProgress, Alert } from '@mui/material';
 
 import { useEventEdition } from '../contexts/EventEditionContext';
 import { Link } from 'react-router-dom';
-
-const LØPSDATO = new Date('2025-05-10T12:00:00+02:00'); // Lørdag 10. mai 2025, kl 12:00
-const PÅMELDINGSFRIST = new Date('2025-05-09T23:59:59+02:00'); // Sett frist til dagen før
 
 function formatCountdown(target: Date) {
   const now = new Date();
@@ -18,20 +15,37 @@ function formatCountdown(target: Date) {
   return `${dager} dager ${timer} timer ${minutter} minutter ${sekunder} sekunder`;
 }
 
+const toDate = (v: any): Date | null => {
+  if (!v) return null;
+  if (v instanceof Date) return v;
+  if (typeof v.toDate === 'function') return v.toDate();
+  return null;
+}
+
 const MO2025Page: React.FC = () => {
 
   const { event, loading, error, setEvent } = useEventEdition();
-  const [nedtelling, setNedtelling] = useState<string>(formatCountdown(LØPSDATO));
   
   // Load the MO-2025 event when the component mounts
   useEffect(() => {
     setEvent('mo-2025');
   }, [setEvent]);
 
+  // Extract dates from event
+  const raceDate = useMemo(() => toDate(event?.startTime) || new Date(), [event?.startTime]);
+  const registrationDeadline = useMemo(() => toDate(event?.registrationDeadline), [event?.registrationDeadline]);
+  
+  const [nedtelling, setNedtelling] = useState<string>(formatCountdown(raceDate));
+
   useEffect(() => {
-    const timer = setInterval(() => setNedtelling(formatCountdown(LØPSDATO)), 1000);
+    const timer = setInterval(() => setNedtelling(formatCountdown(raceDate)), 1000);
     return () => clearInterval(timer);
-  }, []);
+  }, [raceDate]);
+
+  // Determine if event is in the past
+  const now = new Date();
+  const isPastEvent = raceDate < now;
+  const isRegistrationOpen = registrationDeadline ? now < registrationDeadline : false;
 
   if (loading) {
     return (
@@ -52,7 +66,7 @@ const MO2025Page: React.FC = () => {
   if (!event) {
     return (
       <Box p={3}>
-        <Typography>No event data available. <Link to="/">Go back to home</Link></Typography>
+        <Alert severity="warning">No event data available. <Link to="/">Go back to home</Link></Alert>
       </Box>
     );
   }
@@ -66,56 +80,86 @@ const MO2025Page: React.FC = () => {
         <Typography variant="h5" color="text.secondary" paragraph>
           Malviks eldste motbakkeløp
         </Typography>
-        <Button
-          href="https://krultra.no/nb/mo"
-          target="_blank"
-          rel="noopener noreferrer"
-          variant="text"
-          color="inherit"
-          sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '1rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}
-        >
-          Mer informasjon på hjemmesiden for Malvikingen Opp
-        </Button>
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
+          <Button
+            href="https://krultra.no/nb/mo"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="text"
+            color="inherit"
+            sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '1rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}
+          >
+            Mer informasjon på hjemmesiden for Malvikingen Opp
+          </Button>
+          <Button
+            href="https://www.facebook.com/groups/146973852042384/"
+            target="_blank"
+            rel="noopener noreferrer"
+            variant="text"
+            color="inherit"
+            sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '0.95rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}
+          >
+            Se også løpets facebook-gruppe for nyheter, bilder og resultater
+          </Button>
+        </Box>
         <Paper elevation={1} sx={{ borderRadius: 2, p: 3, mb: 4 }}>
           <Typography variant="h4">
-            {LØPSDATO.toLocaleDateString('nb-NO', {
+            {raceDate.toLocaleDateString('nb-NO', {
               weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
             })}
           </Typography>
           <Typography variant="h6">
-            Start konkurranseklasser: {LØPSDATO.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}
+            Start konkurranseklasser: {raceDate.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })}
             <br />
             Start turklasse: Fra kl. 10:00
           </Typography>
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h5">
-              {nedtelling} igjen
-            </Typography>
-          </Box>
+          {!isPastEvent && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h5">
+                {nedtelling} igjen
+              </Typography>
+            </Box>
+          )}
+          {isPastEvent && (
+            <Box sx={{ mt: 2 }}>
+              <Typography variant="h5" color="text.secondary">
+                Dette løpet er avsluttet
+              </Typography>
+            </Box>
+          )}
         </Paper>
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'center', gap: 2, mt: 2, mb: 4 }}>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            href="https://docs.google.com/forms/d/e/1FAIpQLSfUjLiF7JwKMiKA8kpplwlGjmxgGZ1slE_IWNmxZucqHSj95g/viewform?usp=sharing"
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ fontWeight: 700, minWidth: 220 }}
-          >
-            Påmelding turklasse
-          </Button>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            href="https://signup.eqtiming.com/?Event=Malvik_IL&lang=norwegian"
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ fontWeight: 700, minWidth: 220 }}
-          >
-            Påmelding konkurranseklasser
-          </Button>
+          {!isPastEvent && isRegistrationOpen && (
+            <>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                href="https://docs.google.com/forms/d/e/1FAIpQLSfUjLiF7JwKMiKA8kpplwlGjmxgGZ1slE_IWNmxZucqHSj95g/viewform?usp=sharing"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ fontWeight: 700, minWidth: 220 }}
+              >
+                Påmelding turklasse
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                href="https://signup.eqtiming.com/?Event=Malvik_IL&lang=norwegian"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ fontWeight: 700, minWidth: 220 }}
+              >
+                Påmelding konkurranseklasser
+              </Button>
+            </>
+          )}
+          {!isPastEvent && !isRegistrationOpen && (
+            <Alert severity="info" sx={{ mb: 2 }}>
+              Påmeldingen er stengt
+            </Alert>
+          )}
           <Button
             variant="outlined"
             color="inherit"
@@ -126,18 +170,19 @@ const MO2025Page: React.FC = () => {
           >
             Se deltakere
           </Button>
-          <Button
-            variant="outlined"
-            color="inherit"
-            href="https://www.facebook.com/download/1718681152388411/Resultater%20Malvikingen%20Opp%202025.xlsx?av=595602135&eav=AfbwfpHqvI3hzavKGm2cjekFwaqwCJzPU2g55Uzd0GWjqg1zZu7H1cxBuyFpGyihbmk&paipv=0&ext=1747503216&hash=AcrFcZvBncq_x69HiQI&__cft__[0]=AZVfJPtX04bk8RjC0u3lNePyh1AHCj5BLtP2LeSXaTVKw9T_3QScCO4p-Xt1iPXlmO_rNZE6waWSHCFGjD0PsQvlhsxSitrkWgPFZXb1bhN_NTWG130Gm4VY0sv-SkPIAwBDuTzGSES4hNyoHxxxzw6Cxyn3FwaFHD7tZIqQjshL0h12yN3X3yBbY3EUO5l3VMPDXsmQH3xY1dWLBBvLpxXj&__tn__=H-R"
-            target="_blank"
-            rel="noopener noreferrer"
-            size="large"
-            sx={{ minWidth: 180 }}
-            //onClick={() => navigate('/results/mo-2025')}
-          >
-            Last ned resultater
-          </Button>
+          {isPastEvent && event.resultURL && (
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              href={event.resultURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ fontWeight: 700, minWidth: 220 }}
+            >
+              Se resultater
+            </Button>
+          )}
         </Box>
 
         <Box sx={{ flexGrow: 1, mb: 4 }}>
@@ -164,7 +209,7 @@ const MO2025Page: React.FC = () => {
               <Paper elevation={0} sx={{ p: 3, border: '1px solid', borderColor: 'divider', borderRadius: 2, height: '100%' }}>
                 <Typography variant="h6" gutterBottom>Påmelding og betaling</Typography>
                 <Divider sx={{ mb: 2 }} />
-                <Typography><b>Påmeldingsfrist:</b> {PÅMELDINGSFRIST.toLocaleDateString('nb-NO')}</Typography>
+                <Typography><b>Påmeldingsfrist:</b> {registrationDeadline?.toLocaleDateString('nb-NO') || 'Ikke satt'}</Typography>
                 <Typography><b>Deltakeravgift:</b></Typography>
                 <ul style={{ textAlign: 'left', marginTop: 4, marginBottom: 8 }}>
                   <li>200,- kroner for konkurranseklasser og trim med tidtaking <br /><span style={{ fontSize: '0.95em', color: '#555' }}>(+ evt. engangslisens 30,- for de som ikke har årslisens)</span></li>

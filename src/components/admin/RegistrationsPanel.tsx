@@ -99,6 +99,7 @@ const RegistrationsPanel: React.FC = () => {
   };
 
   // registration summary counts
+  const now = new Date();
   const participants = registrations.filter(r => !r.isOnWaitinglist);
   const participantsPending = participants.filter(r => r.status === 'pending').length;
   const participantsConfirmed = participants.filter(r => r.status === 'confirmed').length;
@@ -107,6 +108,30 @@ const RegistrationsPanel: React.FC = () => {
   const waitingConfirmed = waitingList.filter(r => r.status === 'confirmed').length;
   const cancelledCount = registrations.filter(r => r.status === 'cancelled').length;
   const expiredCount = registrations.filter(r => r.status === 'expired').length;
+  
+  // Warning counts
+  // 1. WL registrations where expiration is in the past AND status != 'expired'
+  const wlExpiredNotMarked = registrations.filter(r => 
+    r.isOnWaitinglist && 
+    r.waitinglistExpires && 
+    (r.waitinglistExpires as any) <= now && 
+    r.status !== 'expired'
+  ).length;
+  
+  // 2. Registrations with status='expired' AND paymentMade > 0
+  const expiredWithPayment = registrations.filter(r => 
+    r.status === 'expired' && 
+    (r.paymentMade || 0) > 0
+  ).length;
+  
+  // 3. Waiting-list registrations with status='cancelled' AND paymentMade > 0
+  const cancelledWithPayment = registrations.filter(r => 
+    r.isOnWaitinglist && 
+    r.status === 'cancelled' && 
+    (r.paymentMade || 0) > 0
+  ).length;
+  
+  const totalWarnings = wlExpiredNotMarked + expiredWithPayment + cancelledWithPayment;
 
   if (!selectedEvent) {
     return (
@@ -124,6 +149,22 @@ const RegistrationsPanel: React.FC = () => {
           {selectedEvent.eventName} {selectedEvent.edition}
         </Typography>
       </Box>
+      {totalWarnings > 0 && (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          <strong>Action required:</strong>
+          <ul style={{ margin: '8px 0', paddingLeft: '20px' }}>
+            {wlExpiredNotMarked > 0 && (
+              <li>{wlExpiredNotMarked} waiting-list registration{wlExpiredNotMarked !== 1 ? 's' : ''} have passed their expiration and should be marked as expired.</li>
+            )}
+            {expiredWithPayment > 0 && (
+              <li>{expiredWithPayment} expired registration{expiredWithPayment !== 1 ? 's' : ''} with payment made should be reviewed for refund.</li>
+            )}
+            {cancelledWithPayment > 0 && (
+              <li>{cancelledWithPayment} cancelled waiting-list registration{cancelledWithPayment !== 1 ? 's' : ''} with payment made should be reviewed for refund.</li>
+            )}
+          </ul>
+        </Alert>
+      )}
       <TableContainer component={Paper} sx={{ mt: 2, mb: 2 }}>
         <Table size="small" stickyHeader>
           <TableHead>
@@ -209,22 +250,56 @@ const RegistrationsPanel: React.FC = () => {
               <TableCell>Paid</TableCell>
               <TableCell>List</TableCell>
               <TableCell>Status</TableCell>
+              <TableCell>WL Expires</TableCell>
               <TableCell>Actions</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {registrations.map(reg => (
-              <TableRow key={reg.id}>
+            {registrations.map(reg => {
+              // Warning flags
+              const isWlExpired = !!(reg.isOnWaitinglist && reg.waitinglistExpires && (reg.waitinglistExpires as any) <= now && reg.status !== 'expired');
+              const hasExpiredWithPayment = !!(reg.status === 'expired' && (reg.paymentMade || 0) > 0);
+              const hasCancelledWlWithPayment = !!(reg.isOnWaitinglist && reg.status === 'cancelled' && (reg.paymentMade || 0) > 0);
+              const hasAnyWarning = isWlExpired || hasExpiredWithPayment || hasCancelledWlWithPayment;
+              
+              return (
+              <TableRow key={reg.id} sx={hasAnyWarning ? { backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(244,67,54,0.18)' : 'rgba(244,67,54,0.08)' } : undefined}>
                 <TableCell>{reg.registrationNumber}</TableCell>
                 <TableCell>{reg.firstName} {reg.lastName}</TableCell>
                 <TableCell>{reg.paymentMade}</TableCell>
                 <TableCell>{reg.isOnWaitinglist ? 'Waiting-list' : 'Participant'}</TableCell>
-                <TableCell>{reg.status}</TableCell>
+                <TableCell>
+                  <Box component="span" sx={hasAnyWarning ? { color: (theme) => theme.palette.error.main, fontWeight: 700 } : undefined}>
+                    {reg.status}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  {isWlExpired && (
+                    <Typography variant="body2" sx={{ fontSize: '0.85rem', color: 'error.main', fontWeight: 500 }}>
+                      WL expired
+                    </Typography>
+                  )}
+                  {hasExpiredWithPayment && (
+                    <Typography variant="body2" sx={{ fontSize: '0.85rem', color: 'error.main', fontWeight: 500 }}>
+                      Expired + paid
+                    </Typography>
+                  )}
+                  {hasCancelledWlWithPayment && (
+                    <Typography variant="body2" sx={{ fontSize: '0.85rem', color: 'error.main', fontWeight: 500 }}>
+                      Cancelled WL + paid
+                    </Typography>
+                  )}
+                  {!hasAnyWarning && reg.waitinglistExpires && (
+                    (reg.waitinglistExpires as any).toDate().toLocaleString()
+                  )}
+                  {!hasAnyWarning && !reg.waitinglistExpires && '-'}
+                </TableCell>
                 <TableCell>
                   <Button size="small" onClick={() => openDetails(reg)}>Details</Button>
                 </TableCell>
               </TableRow>
-            ))}
+              );
+            })}
           </TableBody>
         </Table>
       </TableContainer>

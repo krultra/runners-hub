@@ -385,6 +385,9 @@ export const getRegistrationsByEdition = async (editionId: string): Promise<Regi
       dateOfBirth: (data.dateOfBirth && typeof data.dateOfBirth === 'object' && typeof (data.dateOfBirth as any).toDate === 'function')
         ? (data.dateOfBirth as any).toDate()
         : data.dateOfBirth || null,
+      waitinglistExpires: (data.waitinglistExpires && typeof data.waitinglistExpires === 'object' && typeof (data.waitinglistExpires as any).toDate === 'function')
+        ? (data.waitinglistExpires as any).toDate()
+        : data.waitinglistExpires || null,
       payments,
     };
   });

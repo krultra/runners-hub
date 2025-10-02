@@ -20,30 +20,29 @@ import {
   TableContainer,
   SelectChangeEvent,
 } from '@mui/material';
+import { FormControlLabel, Checkbox } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import ErrorIcon from '@mui/icons-material/Error';
 import {
   onSnapshot,
   DocumentReference,
 } from 'firebase/firestore';
 import { doc, updateDoc, getDoc, arrayUnion, Timestamp } from 'firebase/firestore';
 import { db } from '../../config/firebase';
-import CircularProgress from '@mui/material/CircularProgress';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
 import {
   Registration,
   Payment,
-  PaymentMethod,
+  PaymentMethod
 } from '../../types';
+import { useEventEdition } from '../../contexts/EventEditionContext';
 import {
   updateRegistration,
   addPaymentToRegistration,
   updateRegistrationStatus,
   getRegistrationById,
 } from '../../services/registrationService';
-import {
-  sendEmail,
-  EmailType,
-} from '../../services/emailService';
+import { sendEmail, EmailType } from '../../services/emailService';
 import { listEmailTemplates, EmailTemplate } from '../../services/templateService';
 
 // Local definition to replace the deleted statusService
@@ -67,6 +66,8 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
   onClose,
   onUpdate,
 }) => {
+  const { event } = useEventEdition();
+  const distanceOptions = (event?.raceDistances || []).map(d => ({ id: d.id, label: d.displayName || d.id }));
   const [isOnWaitinglist, setIsOnWaitinglist] = useState(
     registration.isOnWaitinglist || false
   );
@@ -89,7 +90,6 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
   const [adminCommentsList, setAdminCommentsList] = useState(
     registration.adminComments || []
   );
-
   // mail send progress state
   const [mailProgressOpen, setMailProgressOpen] = useState(false);
   const [mailStatus, setMailStatus] = useState<string>('pending');
@@ -103,24 +103,46 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
   const [emailAdminComment, setEmailAdminComment] = useState('');
   // cache of mail statuses by mailRef id
   const [mailStatuses, setMailStatuses] = useState<Record<string, string>>({});
-
-  useEffect(() => {
-    setIsOnWaitinglist(registration.isOnWaitinglist || false);
-    setStatus(registration.status || '');
-    setPayments(registration.payments || []);
-    setAdminCommentsList(
-      (registration.adminComments || []).slice().sort((a, b) => {
-        const ta = a.at.toDate ? a.at.toDate().getTime() : new Date(a.at).getTime();
-        const tb = b.at.toDate ? b.at.toDate().getTime() : new Date(b.at).getTime();
-        return tb - ta;
-      })
-    );
-  }, [registration]);
+  // edit mode state
+  const [editMode, setEditMode] = useState(false);
+  const [form, setForm] = useState({
+    firstName: registration.firstName || '',
+    lastName: registration.lastName || '',
+    email: registration.originalEmail || registration.email || '',
+    raceDistance: registration.raceDistance || '',
+    nationality: registration.nationality || '',
+    phoneCountryCode: registration.phoneCountryCode || '',
+    phoneNumber: registration.phoneNumber || '',
+    representing: registration.representing || '',
+    dateOfBirth: registration.dateOfBirth ? new Date(registration.dateOfBirth) : null as Date | null,
+    notifyFutureEvents: !!registration.notifyFutureEvents,
+    sendRunningOffers: !!registration.sendRunningOffers,
+    comments: registration.comments || '',
+  });
 
   // load dynamic email templates
   useEffect(() => {
     listEmailTemplates().then(setTemplates).catch(console.error);
   }, []);
+
+  // Reset form when switching to a different registration and exit edit mode
+  useEffect(() => {
+    setForm({
+      firstName: registration.firstName || '',
+      lastName: registration.lastName || '',
+      email: registration.originalEmail || registration.email || '',
+      raceDistance: registration.raceDistance || '',
+      nationality: registration.nationality || '',
+      phoneCountryCode: registration.phoneCountryCode || '',
+      phoneNumber: registration.phoneNumber || '',
+      representing: registration.representing || '',
+      dateOfBirth: registration.dateOfBirth ? new Date(registration.dateOfBirth) : null,
+      notifyFutureEvents: !!registration.notifyFutureEvents,
+      sendRunningOffers: !!registration.sendRunningOffers,
+      comments: registration.comments || '',
+    });
+    setEditMode(false);
+  }, [registration.id]);
 
   // cleanup mail listener & timer on unmount
   useEffect(() => {
@@ -129,6 +151,27 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
       if (timerRef.current) clearTimeout(timerRef.current);
     };
   }, []);
+
+  const handleSaveEdits = async () => {
+    const payload: any = {
+      firstName: form.firstName.trim(),
+      lastName: form.lastName.trim(),
+      email: form.email.trim(),
+      raceDistance: form.raceDistance.trim(),
+      nationality: form.nationality.trim(),
+      phoneCountryCode: form.phoneCountryCode.trim(),
+      phoneNumber: form.phoneNumber.trim(),
+      representing: form.representing.trim(),
+      notifyFutureEvents: !!form.notifyFutureEvents,
+      sendRunningOffers: !!form.sendRunningOffers,
+      comments: form.comments,
+    };
+    if (form.dateOfBirth) payload.dateOfBirth = new Date(form.dateOfBirth);
+    await updateRegistration(registration.id!, payload, false);
+    await refreshReg();
+    onUpdate();
+    setEditMode(false);
+  };
 
   // Load current smtpAgent.status for adminComments which have a mailRef
   useEffect(() => {
@@ -322,33 +365,68 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
     <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
       <DialogTitle>Registration #{registration.registrationNumber}</DialogTitle>
       <DialogContent>
-        <Typography variant="subtitle1">
-          {registration.firstName} {registration.lastName} ({registration.nationality})
-        </Typography>
-        <Typography variant="body2">
-          Email: {registration.originalEmail || registration.email}
-        </Typography>
-        <Typography variant="body2">Race: {registration.raceDistance}</Typography>
-        <Typography variant="body2">
-          Payment Made: {registration.paymentMade}
-        </Typography>
-        <Typography variant="body2">
-          Phone: {registration.phoneCountryCode} {registration.phoneNumber}
-        </Typography>
-        <Typography variant="body2">
-          Created: {registration.createdAt
-            ? registration.createdAt.toDate
-              ? registration.createdAt.toDate().toLocaleString()
-              : new Date(registration.createdAt).toLocaleString()
-            : 'N/A'}
-        </Typography>
-        <Typography variant="body2">
-          Updated: {registration.updatedAt
-            ? registration.updatedAt.toDate
-              ? registration.updatedAt.toDate().toLocaleString()
-              : new Date(registration.updatedAt).toLocaleString()
-            : 'N/A'}
-        </Typography>
+        {editMode ? (
+          <>
+            <Box display="grid" gridTemplateColumns={{ xs: '1fr', sm: '1fr 1fr' }} gap={2}>
+              <TextField label="First name" value={form.firstName} onChange={e => setForm(f => ({ ...f, firstName: e.target.value }))} />
+              <TextField label="Last name" value={form.lastName} onChange={e => setForm(f => ({ ...f, lastName: e.target.value }))} />
+              <TextField label="Email" type="email" fullWidth value={form.email} onChange={e => setForm(f => ({ ...f, email: e.target.value }))} />
+              <FormControl fullWidth>
+                <InputLabel id="race-distance-label">Race distance</InputLabel>
+                <Select
+                  labelId="race-distance-label"
+                  label="Race distance"
+                  value={form.raceDistance}
+                  onChange={(e) => setForm(f => ({ ...f, raceDistance: e.target.value as string }))}
+                >
+                  {distanceOptions.map(opt => (
+                    <MenuItem key={opt.id} value={opt.id}>{opt.label}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField label="Nationality (ISO3)" value={form.nationality} onChange={e => setForm(f => ({ ...f, nationality: e.target.value }))} />
+              <TextField label="Phone country code" value={form.phoneCountryCode} onChange={e => setForm(f => ({ ...f, phoneCountryCode: e.target.value }))} />
+              <TextField label="Phone number" value={form.phoneNumber} onChange={e => setForm(f => ({ ...f, phoneNumber: e.target.value }))} />
+              <TextField label="Representing" value={form.representing} onChange={e => setForm(f => ({ ...f, representing: e.target.value }))} />
+              <TextField label="Date of birth" type="date" InputLabelProps={{ shrink: true }} value={form.dateOfBirth ? new Date(form.dateOfBirth).toISOString().slice(0,10) : ''} onChange={e => setForm(f => ({ ...f, dateOfBirth: e.target.value ? new Date(e.target.value) : null }))} />
+            </Box>
+            <Box mt={2}>
+              <FormControlLabel control={<Checkbox checked={form.notifyFutureEvents} onChange={e => setForm(f => ({ ...f, notifyFutureEvents: e.target.checked }))} />} label="Notify Future Events" />
+              <FormControlLabel control={<Checkbox checked={form.sendRunningOffers} onChange={e => setForm(f => ({ ...f, sendRunningOffers: e.target.checked }))} />} label="Send Running Offers" />
+            </Box>
+            <TextField fullWidth margin="normal" label="Comments" value={form.comments} onChange={e => setForm(f => ({ ...f, comments: e.target.value }))} multiline rows={3} />
+          </>
+        ) : (
+          <>
+            <Typography variant="subtitle1">
+              {registration.firstName} {registration.lastName} ({registration.nationality})
+            </Typography>
+            <Typography variant="body2">
+              Email: {registration.originalEmail || registration.email}
+            </Typography>
+            <Typography variant="body2">Race: {registration.raceDistance}</Typography>
+            <Typography variant="body2">
+              Payment Made: {registration.paymentMade}
+            </Typography>
+            <Typography variant="body2">
+              Phone: {registration.phoneCountryCode} {registration.phoneNumber}
+            </Typography>
+            <Typography variant="body2">
+              Created: {registration.createdAt
+                ? registration.createdAt.toDate
+                  ? registration.createdAt.toDate().toLocaleString()
+                  : new Date(registration.createdAt).toLocaleString()
+                : 'N/A'}
+            </Typography>
+            <Typography variant="body2">
+              Updated: {registration.updatedAt
+                ? registration.updatedAt.toDate
+                  ? registration.updatedAt.toDate().toLocaleString()
+                  : new Date(registration.updatedAt).toLocaleString()
+                : 'N/A'}
+            </Typography>
+          </>
+        )}
         {registration.waitinglistExpires && (
           <Typography variant="body2">
             Waitinglist Expires: {registration.waitinglistExpires.toDate
@@ -494,16 +572,40 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button
-          variant="outlined"
-          onClick={() => {
-            setEmailAdminComment('');
-            setSelectedEmailType(EmailType.NEWSLETTER);
-            setEmailCommentDialogOpen(true);
-          }}
-        >
-          Send Email
-        </Button>
+        {!editMode && (
+          <Button
+            variant="outlined"
+            onClick={() => {
+              setEmailAdminComment('');
+              setSelectedEmailType(EmailType.NEWSLETTER);
+              setEmailCommentDialogOpen(true);
+            }}
+          >
+            Send Email
+          </Button>
+        )}
+        {!editMode && (
+          <Button variant="contained" onClick={() => setEditMode(true)}>Edit Details</Button>
+        )}
+        {editMode && (
+          <>
+            <Button onClick={() => { setEditMode(false); setForm({
+              firstName: registration.firstName || '',
+              lastName: registration.lastName || '',
+              email: registration.originalEmail || registration.email || '',
+              raceDistance: registration.raceDistance || '',
+              nationality: registration.nationality || '',
+              phoneCountryCode: registration.phoneCountryCode || '',
+              phoneNumber: registration.phoneNumber || '',
+              representing: registration.representing || '',
+              dateOfBirth: registration.dateOfBirth ? new Date(registration.dateOfBirth) : null,
+              notifyFutureEvents: !!registration.notifyFutureEvents,
+              sendRunningOffers: !!registration.sendRunningOffers,
+              comments: registration.comments || '',
+            }); }}>Cancel</Button>
+            <Button variant="contained" onClick={handleSaveEdits}>Save</Button>
+          </>
+        )}
         <Button onClick={onClose}>Close</Button>
       </DialogActions>
 
