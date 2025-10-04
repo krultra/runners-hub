@@ -50,6 +50,7 @@ export async function syncUsersFromRegistrations(editionId: string) {
       lastName: reg.lastName ?? '',
       nationality: reg.nationality ?? '',
       dateOfBirth: (reg as any).dateOfBirth ?? '',
+      phoneCountryCode: (reg as any).phoneCountryCode ?? '',
       phone: (reg as any).phoneNumber ?? '',
       representing: representingArr,
       lastSynced: serverTimestamp(),

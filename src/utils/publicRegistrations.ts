@@ -10,6 +10,7 @@ export interface PublicRegistration {
   status: string;
   isOnWaitinglist: boolean;
   waitinglistExpires?: Date | null;
+  bib?: string | number | null;
 }
 
 export async function fetchPublicRegistrations(editionId: string): Promise<PublicRegistration[]> {
@@ -32,6 +33,7 @@ export async function fetchPublicRegistrations(editionId: string): Promise<Publi
       status: data.status ?? '',
       isOnWaitinglist: data.isOnWaitinglist ?? false,
       waitinglistExpires: data.waitinglistExpires?.toDate?.() || null,
+      bib: data.bib ?? null,
     };
   });
 }

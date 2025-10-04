@@ -118,6 +118,15 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
   activeParticipants.forEach((r, i) => participantIndexByRegNo.set(r.registrationNumber, i + 1));
   const waitingIndexByRegNo = new Map<number, number>();
   activeWaiting.forEach((r, i) => waitingIndexByRegNo.set(r.registrationNumber, i + 1));
+
+  const formatIndexOrBib = (reg: PublicRegistration, indexMap: Map<number, number>) => {
+    if (reg.bib !== undefined && reg.bib !== null && reg.bib !== '') {
+      return reg.bib;
+    }
+    return indexMap.get(reg.registrationNumber) ?? '';
+  };
+  const usesBibNumbers = regsList.some(r => r.bib !== undefined && r.bib !== null && r.bib !== '');
+  const indexHeaderLabel = usesBibNumbers ? 'Bib' : '#';
   // Counts
   const participantsCount = activeParticipants.length;
   const waitingListCount = showCancelled ? regsList.filter(r => ['pending','confirmed'].includes(r.status) && r.isOnWaitinglist).length : activeWaiting.length;
@@ -147,7 +156,7 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
           <Table stickyHeader aria-label="public registrations table">
             <TableHead>
               <TableRow sx={{ backgroundColor: 'background.paper' }}>
-                <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>#</TableCell>
+                <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>{indexHeaderLabel}</TableCell>
                 <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>Name</TableCell>
                 <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>Nationality</TableCell>
                 <TableCell sx={{ fontWeight: 600, bgcolor: 'info.dark', color: 'info.contrastText', borderBottom: 2, borderColor: 'info.dark' }}>Representing</TableCell>
@@ -164,7 +173,7 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
                     '&:last-child td, &:last-child th': { border: 0 }
                   }}
                 >
-                  <TableCell>{participantIndexByRegNo.get(reg.registrationNumber) ?? ''}</TableCell>
+                  <TableCell>{formatIndexOrBib(reg, participantIndexByRegNo)}</TableCell>
                   <TableCell>{reg.firstName} {reg.lastName}</TableCell>
                   <TableCell>{reg.nationality}</TableCell>
                   <TableCell>{reg.representing}</TableCell>
@@ -190,7 +199,7 @@ const PublicRegistrationsPage: React.FC<PublicRegistrationsPageProps> = ({ editi
                         '&:last-child td, &:last-child th': { border: 0 }
                       }}
                     >
-                      <TableCell>{!expired ? (waitingIndexByRegNo.get(reg.registrationNumber) ?? '') : ''}</TableCell>
+                      <TableCell>{!expired ? formatIndexOrBib(reg, waitingIndexByRegNo) : ''}</TableCell>
                       <TableCell>{reg.firstName} {reg.lastName}</TableCell>
                       <TableCell>{reg.nationality}</TableCell>
                       <TableCell>{reg.representing}</TableCell>

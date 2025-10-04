@@ -23,6 +23,20 @@ import { getNextSequentialNumber } from './counterService';
 // Collection reference
 const REGISTRATIONS_COLLECTION = 'registrations';
 
+const normalizeEmail = (value: string) => value.trim().toLowerCase();
+
+const mapRegistrationDoc = (docSnap: any): Registration => {
+  const data = docSnap.data();
+  return {
+    ...data,
+    dateOfBirth:
+      data.dateOfBirth && typeof data.dateOfBirth === 'object' && typeof (data.dateOfBirth as any).toDate === 'function'
+        ? (data.dateOfBirth as any).toDate()
+        : data.dateOfBirth || null,
+    id: docSnap.id
+  } as Registration;
+};
+
 /**
  * Creates a new registration in Firestore
  * @param registrationData Registration data to save
@@ -142,32 +156,64 @@ export const getRegistrationsByUserId = async (
   editionId: string
 ): Promise<Registration[]> => {
   try {
-    console.log("registrationService - parameters:", userId, editionId);
+    if (!userId) return [];
+    const q = query(
+      collection(db, REGISTRATIONS_COLLECTION),
+      where('editionId', '==', editionId),
+      where('status', 'in', ['pending', 'confirmed']),
+      where('userId', '==', userId)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(mapRegistrationDoc);
+  } catch (error) {
+    console.error('Error getting user registrations by userId:', error);
+    throw error;
+  }
+};
+
+export const getRegistrationsByEmail = async (
+  email: string,
+  editionId: string
+): Promise<Registration[]> => {
+  try {
+    if (!email) return [];
+    const normalizedEmail = normalizeEmail(email);
+
     const constraints = [
-      where("userId", "==", userId),
-      where("status", "in", ["pending", "confirmed"]),
-      where("editionId", "==", editionId)
+      where('editionId', '==', editionId),
+      where('status', 'in', ['pending', 'confirmed'])
     ];
 
-    console.log("registrationService - query constraints:", constraints);
-    const q = query(collection(db, REGISTRATIONS_COLLECTION), ...constraints);
+    const q = query(
+      collection(db, REGISTRATIONS_COLLECTION),
+      ...constraints,
+      where('email', '==', normalizedEmail)
+    );
     const querySnapshot = await getDocs(q);
-    
-    const registrations = querySnapshot.docs.map(doc => {
-      const data = doc.data();
-      return {
-        ...data,
-        dateOfBirth: (data.dateOfBirth && typeof data.dateOfBirth === 'object' && typeof (data.dateOfBirth as any).toDate === 'function')
-          ? (data.dateOfBirth as any).toDate()
-          : data.dateOfBirth || null,
-        id: doc.id
-      } as Registration;
+
+    const seenIds = new Set<string>();
+    const results = querySnapshot.docs.map(docSnap => {
+      const mapped = mapRegistrationDoc(docSnap);
+      seenIds.add(mapped.id!);
+      return mapped;
     });
-    console.log("registrationService - querySnapshot:", querySnapshot);
-    console.log("registrationService - registrations:", registrations);
-    return registrations;
+
+    const qOriginal = query(
+      collection(db, REGISTRATIONS_COLLECTION),
+      ...constraints,
+      where('originalEmail', '==', normalizedEmail)
+    );
+    const originalSnapshot = await getDocs(qOriginal);
+    originalSnapshot.docs.forEach(docSnap => {
+      if (!seenIds.has(docSnap.id)) {
+        results.push(mapRegistrationDoc(docSnap));
+        seenIds.add(docSnap.id);
+      }
+    });
+
+    return results;
   } catch (error) {
-    console.error('Error getting user registrations:', error);
+    console.error('Error getting user registrations by email:', error);
     throw error;
   }
 };

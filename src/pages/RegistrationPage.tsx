@@ -36,6 +36,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   const [existingRegistrationId, setExistingRegistrationId] = useState<
     string | null
   >(null);
+  const [prefillChecked, setPrefillChecked] = useState(false);
 
   // Form state
   const [activeStep, setActiveStep] = useState(0);
@@ -217,10 +218,13 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
 
   // Fetch and prefill existing registration
   useEffect(() => {
+    let isMounted = true;
     const fetchAndPrefill = async () => {
-      if (authChecked && user && user.uid) {
+      if (!authChecked) return;
+      if (isMounted) setPrefillChecked(false);
+
+      if (user && user.uid) {
         try {
-          // Dynamically import to avoid SSR issues
           const { getRegistrationsByUserId } = await import(
             "../services/registrationService"
           );
@@ -229,8 +233,8 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             event.id
           );
           if (registrations && registrations.length > 0) {
-            // Use the first registration (should only be one per user)
             const reg = registrations[0];
+            if (!isMounted) return;
             setFormData(prev => ({
               ...initialFormData,
               ...reg,
@@ -249,6 +253,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             setIsEditingExisting(true);
             setExistingRegistrationId(reg.id ?? null);
           } else {
+            if (!isMounted) return;
             setIsEditingExisting(false);
             setExistingRegistrationId(null);
             setFormData(prev => ({
@@ -268,10 +273,22 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           } else {
             console.error("Error fetching existing registration:", err);
           }
+        } finally {
+          if (isMounted) setPrefillChecked(true);
         }
+      } else {
+        if (!isMounted) return;
+        setIsEditingExisting(false);
+        setExistingRegistrationId(null);
+        setPrefillChecked(true);
       }
     };
+
     fetchAndPrefill();
+
+    return () => {
+      isMounted = false;
+    };
   }, [
     authChecked,
     user,
@@ -299,11 +316,25 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     }
   }, [authChecked, user, navigate]);
 
-  // Check if registration is still open
+  const isLoggedIn = Boolean(user);
+
+  const toDate = (value: any): Date | null => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    if (typeof value.toDate === "function") return value.toDate();
+    return new Date(value);
+  };
+
+  // Check if registration is still open / event has started
   const now = new Date();
-  const isRegistrationOpen = event.registrationDeadline
-    ? now < event.registrationDeadline
-    : false;
+  const eventStartDate = toDate(event.startTime);
+  const registrationDeadlineDate = toDate(event.registrationDeadline);
+  const hasEventStarted = eventStartDate ? now >= eventStartDate : false;
+  const isRegistrationOpen = registrationDeadlineDate
+    ? now < registrationDeadlineDate
+    : !hasEventStarted;
+  const canEditExisting = isEditingExisting && !hasEventStarted;
+  const isRegistrationAccessible = isRegistrationOpen || canEditExisting;
 
   // Check if the form is valid for final submission (including terms)
   const isFormValidForSubmission = () => {
@@ -734,15 +765,30 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     }
   };
 
-  if (!isRegistrationOpen) {
+  if (!isRegistrationAccessible) {
+    if (isLoggedIn && !prefillChecked) {
+      return (
+        <Container maxWidth="md">
+          <Box sx={{ my: 8, textAlign: "center" }}>
+            <CircularProgress />
+          </Box>
+        </Container>
+      );
+    }
+
+    const messageTitle = hasEventStarted ? "Event Started" : "Registration Closed";
+    const messageBody = hasEventStarted
+      ? "The event has already started, so registration updates are no longer possible."
+      : "We're sorry, but registration for KUTC 2025 is now closed.";
+
     return (
       <Container maxWidth="md">
         <Box sx={{ my: 8, textAlign: "center" }}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Registration Closed
+            {messageTitle}
           </Typography>
           <Typography variant="body1" paragraph>
-            We're sorry, but registration for KUTC 2025 is now closed.
+            {messageBody}
           </Typography>
           <Button variant="contained" onClick={() => navigate("/")}>
             Return to Home

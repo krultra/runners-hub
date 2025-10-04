@@ -155,6 +155,181 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     );
   };
 
+  const isLoggedIn = Boolean(user);
+  const hasKnownRegistration = Boolean(userRegistration);
+
+  const registrationAlert = () => {
+    if (!isLoggedIn) return null;
+    if (hasKnownRegistration && isRegistrationInvalid) {
+      return (
+        <Alert severity="warning" sx={{ mb: 2 }}>
+          Your registration has been cancelled or expired. You can still open the form to request changes or contact the organizer.
+        </Alert>
+      );
+    }
+    if (hasKnownRegistration && userRegistration?.isOnWaitinglist) {
+      return (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          You are on the waiting-list for this event.
+        </Alert>
+      );
+    }
+    if (hasKnownRegistration) {
+      return (
+        <Alert severity="success" sx={{ mb: 2 }}>
+          You are already registered for this event.
+        </Alert>
+      );
+    }
+    return (
+      <Alert severity="info" sx={{ mb: 2 }}>
+        We couldn’t find an active registration for this account. Open the form to start or update your entry.
+      </Alert>
+    );
+  };
+
+  const renderRegistrationActions = () => {
+    if (isLoggedIn) {
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+          {registrationAlert()}
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <Button
+              component={RouterLink}
+              to="/register"
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700, boxShadow: 2 }}
+            >
+              Edit my registration
+            </Button>
+            <Button
+              component={RouterLink}
+              to="/participants"
+              variant="outlined"
+              color="inherit"
+              size="large"
+              sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+            >
+              Show participants and waiting-list
+            </Button>
+          </Box>
+        </Box>
+      );
+    }
+
+    if (isRegistrationOpen) {
+      if (availableSpots === 0 || forceQueue) {
+        return (
+          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+            <Alert severity="error" sx={{ mb: 2 }}>
+              This event is fully booked
+            </Alert>
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <form
+                onSubmit={e => {
+                  e.preventDefault();
+                  if (isLoading || isCheckingRegistration) return;
+                  if (user) {
+                    navigate('/register');
+                  } else {
+                    navigate('/auth?returnTo=/register');
+                  }
+                }}
+                style={{ display: 'inline' }}
+              >
+                <Button
+                  variant="contained"
+                  color="primary"
+                  size="large"
+                  sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
+                  disabled={isLoading || isCheckingRegistration}
+                  type="submit"
+                >
+                  Sign up for the waiting-list
+                </Button>
+              </form>
+              <Button
+                component={RouterLink}
+                to="/participants"
+                variant="outlined"
+                color="inherit"
+                size="large"
+                sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+              >
+                Show participants and waiting-list
+              </Button>
+            </Box>
+          </Box>
+        );
+      }
+
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                if (isLoading || isCheckingRegistration) return;
+                if (user) {
+                  navigate('/register');
+                } else {
+                  navigate('/auth?returnTo=/register');
+                }
+              }}
+              style={{ display: 'inline' }}
+            >
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
+                disabled={isLoading || isCheckingRegistration}
+                type="submit"
+              >
+                Register Now
+              </Button>
+            </form>
+            <Button
+              component={RouterLink}
+              to="/participants"
+              variant="outlined"
+              color="inherit"
+              size="large"
+              sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+            >
+              See Participants
+            </Button>
+          </Box>
+          {!isLoading && availableSpots !== null && (
+            <Typography variant="body1" sx={{ mb: 4 }}>
+              {availableSpots} spots still available
+            </Typography>
+          )}
+        </Box>
+      );
+    }
+
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+        <Typography variant="h6" color={isEventOngoing ? 'info.main' : 'error'} sx={{ mb: 2 }}>
+          {isEventOngoing ? 'Event is ongoing' : 'Registration is now closed'}
+        </Typography>
+        <Button
+          component={RouterLink}
+          to="/participants"
+          variant="outlined"
+          color="inherit"
+          size="large"
+          sx={theme => ({ py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+        >
+          Show participants and waiting-list
+        </Button>
+      </Box>
+    );
+  };
+
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4, textAlign: 'center' }}>
@@ -209,276 +384,9 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
         </Paper>
 
         {renderLiveResultsButton()}
-        
-        {user && isUserRegistered && !isRegistrationInvalid ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-            <Alert severity="info" sx={{ mb: 2 }}>
-              {userRegistration?.isOnWaitinglist
-                ? 'You are on the waiting-list for this event'
-                : 'You are already registered for this event'}
-            </Alert>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <Button
-                component={RouterLink}
-                to="/register"
-                variant="contained"
-                color="primary"
-                size="large"
-                sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700, boxShadow: 2 }}
-              >
-                Review Registration
-              </Button>
-              <Button
-                component={RouterLink}
-                to="/participants"
-                variant="outlined"
-                color="inherit"
-                size="large"
-                sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-              >
-                Show participants and waiting-list
-              </Button>
-            </Box>
-          </Box>
-        ) : user && isUserRegistered && isRegistrationInvalid ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-            <Alert severity="warning" sx={{ mb: 2 }}>
-              Your registration has been invalidated. Please contact the organizer if you have questions.
-            </Alert>
-            {isRegistrationOpen ? (
-              availableSpots === 0 ? (
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <form
-                    onSubmit={e => {
-                      e.preventDefault();
-                      if (isLoading || isCheckingRegistration) return;
-                      if (user) {
-                        navigate('/register');
-                      } else {
-                        navigate('/auth?returnTo=/register');
-                      }
-                    }}
-                    style={{ display: 'inline' }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
-                      disabled={isLoading || isCheckingRegistration}
-                      type="submit"
-                    >
-                      Sign up for the waiting-list
-                    </Button>
-                  </form>
-                  <Button
-                    component={RouterLink}
-                    to="/participants"
-                    variant="outlined"
-                    color="inherit"
-                    size="large"
-                    sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-                  >
-                    Show participants and waiting-list
-                  </Button>
-                </Box>
-              ) : (
-                <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                  <form
-                    onSubmit={e => {
-                      e.preventDefault();
-                      if (isLoading || isCheckingRegistration) return;
-                      if (user) {
-                        navigate('/register');
-                      } else {
-                        navigate('/auth?returnTo=/register');
-                      }
-                    }}
-                    style={{ display: 'inline' }}
-                  >
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      size="large"
-                      sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
-                      disabled={isLoading || isCheckingRegistration}
-                      type="submit"
-                    >
-                      Register Now
-                    </Button>
-                  </form>
-                  <Button
-                    component={RouterLink}
-                    to="/participants"
-                    variant="outlined"
-                    color="inherit"
-                    size="large"
-                    sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-                  >
-                    See Participants
-                  </Button>
-                </Box>
-              )
-            ) : (
-              <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-                <Typography variant="h6" color="error" sx={{ mb: 2 }}>
-                  Registration is now closed
-                </Typography>
-                <Button
-                  component={RouterLink}
-                  to="/participants"
-                  variant="outlined"
-                  color="inherit"
-                  size="large"
-                  sx={theme => ({ py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-                >
-                  Show participants and waiting-list
-                </Button>
-              </Box>
-            )}
-          </Box>
-        ) : isRegistrationOpen ? (
-          (availableSpots === 0 || forceQueue) ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-              <Alert severity="error" sx={{ mb: 2 }}>
-                This event is fully booked
-              </Alert>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <form
-                  onSubmit={e => {
-                    e.preventDefault();
-                    if (isLoading || isCheckingRegistration) return;
-                    if (user) {
-                      navigate('/register');
-                    } else {
-                      navigate('/auth?returnTo=/register');
-                    }
-                  }}
-                  style={{ display: 'inline' }}
-                >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
-                    disabled={isLoading || isCheckingRegistration}
-                    type="submit"
-                  >
-                    Sign up for the waiting-list
-                  </Button>
-                </form>
-                <Button
-                  component={RouterLink}
-                  to="/participants"
-                  variant="outlined"
-                  color="inherit"
-                  size="large"
-                  sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-                >
-                  Show participants and waiting-list
-                </Button>
-              </Box>
-            </Box>
-          ) : isUserRegistered ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-              <Typography 
-                variant="subtitle1" 
-                color="success.main" 
-                sx={{ mb: 1.5, fontWeight: 'medium' }}
-              >
-                You are registered for this event
-              </Typography>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <Button
-                  component={RouterLink}
-                  to="/register"
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700, boxShadow: 2 }}
-                >
-                  Review Registration
-                </Button>
-                <Button
-                  component={RouterLink}
-                  to="/participants"
-                  variant="outlined"
-                  color="inherit"
-                  size="large"
-                  sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-                >
-                  See Participants
-                </Button>
-              </Box>
-            </Box>
-          ) : (
-            <>
-              <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-                <form
-                  onSubmit={e => {
-                    e.preventDefault();
-                    if (isLoading || isCheckingRegistration) return;
-                    if (user) {
-                      navigate('/register');
-                    } else {
-                      navigate('/auth?returnTo=/register');
-                    }
-                  }}
-                  style={{ display: 'inline' }}
-                >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    size="large"
-                    sx={{
-                      py: 1.5,
-                      px: 4,
-                      minWidth: 210,
-                      fontWeight: 700
-                    }}
-                    disabled={isLoading || isCheckingRegistration}
-                    type="submit"
-                  >
-                    Register Now
-                  </Button>
-                </form> 
-                <Button
-                  component={RouterLink}
-                  to="/participants"
-                  variant="outlined"
-                  color="inherit"
-                  size="large"
-                  sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-                >
-                  See Participants
-                </Button>
-              </Box>
-              {!isLoading && availableSpots !== null && (
-                <Typography variant="body1" sx={{ mb: 4 }}>
-                  {availableSpots} spots still available
-                </Typography>
-              )}
-            </>
-          )
-        ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-            <Typography variant="h6" color={isEventOngoing ? 'info.main' : 'error'} sx={{ mb: 2 }}>
-              {isEventOngoing ? 'Event is ongoing' : 'Registration is now closed'}
-            </Typography>
-            <Button
-              component={RouterLink}
-              to="/participants"
-              variant="outlined"
-              color="inherit"
-              size="large"
-              sx={theme => ({ py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-            >
-              Show participants and waiting-list
-            </Button>
-          </Box>
-        )}
+        {renderRegistrationActions()}
       </Box>
-      
+
       <Grid container spacing={4} sx={{ mb: 4 }}>
         <Grid item xs={12} md={6}>
           <Paper
