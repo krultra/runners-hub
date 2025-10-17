@@ -1,11 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Container, Typography, Grid, Card, CardActionArea, CardContent, Alert, CircularProgress, Box, FormControlLabel, Switch } from '@mui/material';
+import { Container, Typography, Grid, Card, CardActionArea, CardContent, Alert, CircularProgress, Box, FormControlLabel, Switch, Chip, Stack, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
 import { useEventEdition } from '../contexts/EventEditionContext';
 import { getFullEventEditions, EventEdition } from '../services/eventEditionService';
+import { deriveStatus } from '../utils/derivedStatus';
 import { listCodeList, CodeListItem } from '../services/codeListService';
 
-type EditionWithStatus = EventEdition & { statusItem?: CodeListItem };
+type EditionWithStatus = EventEdition & { statusItem?: CodeListItem; statusNum?: number; resultStatusItem?: CodeListItem; resultStatusCode?: string };
 
 // Helpers
 const toDate = (v: any): Date | null => {
@@ -41,19 +42,38 @@ const HomePage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const [eds, statusList] = await Promise.all([
+        const [eds, statusList, resStatusList] = await Promise.all([
           getFullEventEditions(),
-          listCodeList('status', 'eventEditions')
+          listCodeList('status', 'eventEditions'),
+          listCodeList('resultStatus', 'eventEditions')
         ]);
-        const statusByCode = new Map(statusList.map(it => [it.code, it]));
-        const withStatus: EditionWithStatus[] = eds.map(e => ({ ...e, statusItem: statusByCode.get(e.status) }));
-        // Default filter: upcoming/current only (20..79). We'll extend at render time for 'showPast'.
-        const filtered = withStatus.filter(e => {
-          const so = e.statusItem?.sortOrder ?? -1;
-          return so >= 20; // exclude drafts <20 here; include >=20 and decide past in view
+        const statusByCode = new Map(statusList.map(it => [String(it.code), it]));
+        const resStatusByCode = new Map(resStatusList.map(it => [String(it.code), it]));
+        const statusTextToCode: Record<string, number> = {
+          hidden: 0, draft: 10, announced: 20, pre_registration: 30, open: 40, waitlist: 44,
+          late_registration: 50, full: 54, closed: 60, in_progress: 70, suspended: 75,
+          finished: 80, cancelled: 90, finalized: 100
+        };
+        const resultTextToCode: Record<string, number> = {
+          notStarted: 1, ongoing: 2, awaitingResults: 3, incomplete: 4,
+          preliminary: 5, unofficial: 6, final: 7, cancelled: 8, noResults: 9
+        };
+        const withStatus: EditionWithStatus[] = eds.map(e => {
+          const rawStatus = String((e as any).status ?? '').trim();
+          const statusNum = Number.parseInt(rawStatus, 10);
+          const derivedNum = !isNaN(statusNum) ? statusNum : (statusTextToCode[rawStatus] ?? undefined);
+          const statusItem = statusByCode.get(String(derivedNum ?? rawStatus));
+
+          const rawRes = String((e as any).resultsStatus || (e as any).resultStatus || '').trim();
+          const resNum = Number.parseInt(rawRes, 10);
+          const resDerivedNum = !isNaN(resNum) ? resNum : (resultTextToCode[rawRes] ?? undefined);
+          const resultStatusCode = String(resDerivedNum ?? rawRes);
+          const resultStatusItem = resStatusByCode.get(resultStatusCode);
+
+          return { ...e, statusItem, statusNum: derivedNum, resultStatusItem, resultStatusCode };
         });
-        // Sort by sortOrder asc, then startTime asc if available
-        filtered.sort((a, b) => {
+        // Sort: status.sortOrder asc, then startTime asc
+        withStatus.sort((a, b) => {
           const sa = a.statusItem?.sortOrder ?? 0;
           const sb = b.statusItem?.sortOrder ?? 0;
           if (sa !== sb) return sa - sb;
@@ -61,7 +81,7 @@ const HomePage: React.FC = () => {
           const tb = (b.startTime as any)?.toDate ? (b.startTime as any).toDate().getTime() : (b.startTime as any)?.getTime?.() || 0;
           return ta - tb;
         });
-        setEditions(filtered);
+        setEditions(withStatus);
       } catch (e: any) {
         console.error('Failed to load front page editions:', e);
         setError(e?.message || 'Failed to load events');
@@ -75,9 +95,14 @@ const HomePage: React.FC = () => {
   const content = useMemo(() => {
     // Apply 'showPast' (>=80) vs current/upcoming (20..79)
     const visible = editions.filter(e => {
-      const so = e.statusItem?.sortOrder ?? -1;
-      if (showPast) return so >= 20; // include 20..79 and >=80
-      return so >= 20 && so <= 79;   // only 20..79
+      const d = deriveStatus(e);
+      // Exclude drafts/hidden always
+      const code = String(e.statusItem?.code || e.status || '').toLowerCase();
+      const isDraft = code === '10' || code === 'draft';
+      const isHidden = code === '0' || code === 'hidden';
+      if (isDraft || isHidden) return false;
+      if (showPast) return true; // include all non-drafts
+      return !(d === 'finished' || d === 'finalized' || d === 'cancelled');
     });
     if (loading) {
       return (
@@ -118,11 +143,51 @@ const HomePage: React.FC = () => {
                   {ed.registrationDeadline && (
                     <Typography variant="body2"><strong>Registration deadline:</strong> {formatDateTime(ed.registrationDeadline)}</Typography>
                   )}
-                  {/* Status at bottom, emphasized */}
-                  {ed.statusItem?.verboseName && (
-                    <Typography color="text.secondary" sx={{ fontStyle: 'italic', mt: 1 }}>
-                      {ed.statusItem.verboseName}
-                    </Typography>
+                  {/* Status & indicators */}
+                  <Box sx={{ mt: 1 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                      {/* Derived status chip (only for dynamic states) */}
+                      {(() => {
+                        const d = deriveStatus(ed);
+                        return (d === 'in_progress' || d === 'finished' || d === 'finalized' || d === 'cancelled') ? (
+                          <Chip size="small" color={d === 'in_progress' ? 'success' : d === 'finished' ? 'default' : d === 'finalized' ? 'primary' : 'warning'} label={d} />
+                        ) : null;
+                      })()}
+                      {/* Code list status verbose (authoritative display label) */}
+                      {ed.statusItem?.verboseName && (
+                        <Chip size="small" variant="outlined" label={ed.statusItem.verboseName} />
+                      )}
+                      {/* Results status (show only when results are available: 4..7) */}
+                      {(() => {
+                        const rs = (ed.resultStatusCode || '').toLowerCase();
+                        const available = ['incomplete','preliminary','unofficial','final'].includes(rs) || ['4','5','6','7'].includes(ed.resultStatusCode || '');
+                        return ed.resultStatusItem && available ? (
+                        <Chip size="small" color="info" variant="outlined" label={ed.resultStatusItem.verboseName || 'Results available'} />
+                        ) : null;
+                      })()}
+                      {/* Presence indicators for links (non-CTA, informative) */}
+                      {ed.liveResultsURL && (
+                        <Chip size="small" color="success" variant="outlined" label="Live results available" />
+                      )}
+                      {ed.resultURL && (
+                        <Chip size="small" color="primary" variant="outlined" label="Final results available" />
+                      )}
+                    </Stack>
+                  </Box>
+                  {/* Action buttons for results links */}
+                  {(ed.liveResultsURL || ed.resultURL) && (
+                    <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1 }}>
+                      {ed.liveResultsURL && (
+                        <Button size="small" variant="contained" color="success" onClick={(e) => { e.stopPropagation(); window.open(ed.liveResultsURL!, '_blank'); }}>
+                          Live Results
+                        </Button>
+                      )}
+                      {ed.resultURL && (
+                        <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); window.open(ed.resultURL!, '_blank'); }}>
+                          Final Results
+                        </Button>
+                      )}
+                    </Stack>
                   )}
                 </CardContent>
               </CardActionArea>

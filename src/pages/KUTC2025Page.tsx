@@ -9,7 +9,8 @@ import {
   Grid,
   Paper,
   Divider,
-  Alert
+  Alert,
+  Chip
 } from '@mui/material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
@@ -32,6 +33,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const [availableSpots, setAvailableSpots] = useState<number | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [waitingListCount, setWaitingListCount] = useState<number>(0);
+  const [activeParticipants, setActiveParticipants] = useState<number>(0);
   
   // State for user authentication and registration
   const [user, setUser] = useState<any>(null);
@@ -47,11 +49,29 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   );
   // const timeRemaining = raceDate.getTime() - now.getTime();
   
-  // Check if registration is still open
-  const isRegistrationOpen = event.registrationDeadline ? now < event.registrationDeadline : false;
+  // Event status and timing
+  const eventStatusCode = typeof event.status === 'number' ? event.status : parseInt(String(event.status || ''), 10) || 0;
+  const raceStarted = now >= raceDate;
+  const raceEnded = event.endTime ? now >= new Date(event.endTime) : false;
+  
+  // Registration logic
+  const registrationDeadlinePassed = event.registrationDeadline ? now >= event.registrationDeadline : true;
+  const isRegistrationPhase = eventStatusCode >= 30 && eventStatusCode <= 60; // pre_registration (30) through closed (60)
+  const isRegistrationOpen = isRegistrationPhase && !registrationDeadlinePassed && !raceStarted;
+  
+  // Results availability logic
   const liveResultsURL = event.liveResultsURL ?? '';
-  const isEventOngoing = event.resultsStatus === 'ongoing';
-  const showLiveResultsButton = Boolean(isEventOngoing && liveResultsURL);
+  const resultURL = event.resultURL ?? '';
+  const resultsStatusCode = String(event.resultsStatus || '').toLowerCase();
+  const hasResultsAvailable = ['incomplete', 'preliminary', 'unofficial', 'final'].includes(resultsStatusCode) 
+    || ['4', '5', '6', '7'].includes(event.resultsStatus || '');
+  const isEventOngoing = (resultsStatusCode === 'ongoing' || event.resultsStatus === '2') && raceStarted && !raceEnded;
+  
+  const showLiveResultsButton = Boolean(liveResultsURL && (isEventOngoing || raceStarted));
+  const showFinalResultsButton = Boolean(hasResultsAvailable && resultURL);
+  
+  // Participants list visibility: show only before race starts and if there are participants
+  const showParticipantsList = activeParticipants > 0 && !raceStarted && !hasResultsAvailable;
   
   // Check if user is authenticated and has a registration (re-run on location change)
   const location = useLocation();
@@ -93,12 +113,14 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           countActiveParticipants(editionId),
           countWaitingList(editionId)
         ]);
+        setActiveParticipants(activeCount);
         setWaitingListCount(wlCount);
         setAvailableSpots(Math.max(0, (event.maxParticipants ?? 0) - activeCount));
       } catch (error) {
         console.error('Error fetching counts:', error);
         setAvailableSpots(null);
         setWaitingListCount(0);
+        setActiveParticipants(0);
       } finally {
         setIsLoading(false);
       }
@@ -136,198 +158,213 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   // Determine if new registrations should go on waiting-list
   const forceQueue = waitingListCount > 0;
 
-  const renderLiveResultsButton = () => {
-    if (!showLiveResultsButton) return null;
+  const renderResultsButtons = () => {
+    if (!showLiveResultsButton && !showFinalResultsButton) return null;
+    
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', mb: 3 }}>
-        <Button
-          variant="contained"
-          color="secondary"
-          size="large"
-          href={liveResultsURL}
-          target="_blank"
-          rel="noopener noreferrer"
-          sx={{ fontWeight: 700, px: 4, minWidth: 220 }}
-        >
-          View Live Results
-        </Button>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, mb: 4 }}>
+        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {showLiveResultsButton && (
+            <Button
+              variant="contained"
+              color="success"
+              size="large"
+              href={liveResultsURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220 }}
+            >
+              Live Results
+            </Button>
+          )}
+          {showFinalResultsButton && (
+            <Button
+              variant="outlined"
+              color="primary"
+              size="large"
+              href={resultURL}
+              target="_blank"
+              rel="noopener noreferrer"
+              sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220, borderWidth: 2 }}
+            >
+              Final Results
+            </Button>
+          )}
+        </Box>
       </Box>
     );
   };
 
   const isLoggedIn = Boolean(user);
-  const hasKnownRegistration = Boolean(userRegistration);
+  const hasActiveRegistration = userRegistration && !isRegistrationInvalid;
 
   const registrationAlert = () => {
-    if (!isLoggedIn) return null;
-    if (hasKnownRegistration && isRegistrationInvalid) {
+    if (!isLoggedIn || !userRegistration) return null;
+    
+    if (isRegistrationInvalid) {
       return (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          Your registration has been cancelled or expired. You can still open the form to request changes or contact the organizer.
+          Your registration has been {userRegistration.status}. You can contact the organizer for assistance.
         </Alert>
       );
     }
-    if (hasKnownRegistration && userRegistration?.isOnWaitinglist) {
+    
+    if (userRegistration.isOnWaitinglist) {
       return (
         <Alert severity="info" sx={{ mb: 2 }}>
-          You are on the waiting-list for this event.
+          You are on the waiting-list (position: {waitingListCount > 0 ? 'pending confirmation' : 'check with organizer'}).
         </Alert>
       );
     }
-    if (hasKnownRegistration) {
-      return (
-        <Alert severity="success" sx={{ mb: 2 }}>
-          You are already registered for this event.
-        </Alert>
-      );
-    }
+    
     return (
-      <Alert severity="info" sx={{ mb: 2 }}>
-        We couldn’t find an active registration for this account. Open the form to start or update your entry.
+      <Alert severity="success" sx={{ mb: 2 }}>
+        ✓ You are registered for this event!
       </Alert>
     );
   };
 
   const renderRegistrationActions = () => {
-    if (isLoggedIn) {
+    // After race ended with results available
+    if (raceEnded && hasResultsAvailable) {
+      return null; // Results buttons are shown separately
+    }
+
+    // Race ongoing - minimal info
+    if (raceStarted && !raceEnded) {
       return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-          {registrationAlert()}
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Button
-              component={RouterLink}
-              to="/register"
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700, boxShadow: 2 }}
-            >
-              Edit my registration
-            </Button>
-            <Button
-              component={RouterLink}
-              to="/participants"
-              variant="outlined"
-              color="inherit"
-              size="large"
-              sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-            >
-              Show participants and waiting-list
-            </Button>
-          </Box>
+          <Typography variant="h6" color="info.main" sx={{ mb: 2 }}>
+            🏃 Event is ongoing
+          </Typography>
         </Box>
       );
     }
 
-    if (isRegistrationOpen) {
-      if (availableSpots === 0 || forceQueue) {
-        return (
-          <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-            <Alert severity="error" sx={{ mb: 2 }}>
-              This event is fully booked
-            </Alert>
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <form
-                onSubmit={e => {
-                  e.preventDefault();
-                  if (isLoading || isCheckingRegistration) return;
-                  if (user) {
-                    navigate('/register');
-                  } else {
-                    navigate('/auth?returnTo=/register');
-                  }
-                }}
-                style={{ display: 'inline' }}
+    // User is logged in
+    if (isLoggedIn) {
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+          {registrationAlert()}
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+            {/* Show "Edit registration" if user has any registration (active or not) */}
+            {userRegistration && (
+              <Button
+                component={RouterLink}
+                to="/register"
+                variant={hasActiveRegistration ? "outlined" : "contained"}
+                color="primary"
+                size="large"
+                sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               >
-                <Button
-                  variant="contained"
-                  color="primary"
-                  size="large"
-                  sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
-                  disabled={isLoading || isCheckingRegistration}
-                  type="submit"
-                >
-                  Sign up for the waiting-list
-                </Button>
-              </form>
+                {hasActiveRegistration ? 'View my registration' : 'Update registration'}
+              </Button>
+            )}
+            {/* Show "Register Now" if no registration exists and registration is open */}
+            {!userRegistration && isRegistrationOpen && (
+              <Button
+                component={RouterLink}
+                to="/register"
+                variant="contained"
+                color="primary"
+                size="large"
+                sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
+              >
+                {availableSpots === 0 || forceQueue ? 'Join waiting-list' : 'Register Now'}
+              </Button>
+            )}
+            {/* Show participants list if relevant */}
+            {showParticipantsList && (
               <Button
                 component={RouterLink}
                 to="/participants"
                 variant="outlined"
                 color="inherit"
                 size="large"
-                sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
+                sx={{ py: 1.5, px: 4, minWidth: 210 }}
               >
-                Show participants and waiting-list
+                {waitingListCount > 0 ? 'Participants & Waiting-list' : 'See Participants'}
               </Button>
-            </Box>
+            )}
           </Box>
-        );
-      }
-
-      return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                if (isLoading || isCheckingRegistration) return;
-                if (user) {
-                  navigate('/register');
-                } else {
-                  navigate('/auth?returnTo=/register');
-                }
-              }}
-              style={{ display: 'inline' }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
-                disabled={isLoading || isCheckingRegistration}
-                type="submit"
-              >
-                Register Now
-              </Button>
-            </form>
-            <Button
-              component={RouterLink}
-              to="/participants"
-              variant="outlined"
-              color="inherit"
-              size="large"
-              sx={theme => ({ ml: 2, py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-            >
-              See Participants
-            </Button>
-          </Box>
-          {!isLoading && availableSpots !== null && (
-            <Typography variant="body1" sx={{ mb: 4 }}>
-              {availableSpots} spots still available
+          {/* Show availability info for non-registered users during open registration */}
+          {!userRegistration && isRegistrationOpen && !isLoading && availableSpots !== null && (
+            <Typography variant="body1" sx={{ mt: 2, fontWeight: 500 }}>
+              {availableSpots > 0 
+                ? `${availableSpots} spot${availableSpots !== 1 ? 's' : ''} available`
+                : '⚠️ Event is fully booked - join the waiting-list'}
             </Typography>
           )}
         </Box>
       );
     }
 
-    return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
-        <Typography variant="h6" color={isEventOngoing ? 'info.main' : 'error'} sx={{ mb: 2 }}>
-          {isEventOngoing ? 'Event is ongoing' : 'Registration is now closed'}
-        </Typography>
-        <Button
-          component={RouterLink}
-          to="/participants"
-          variant="outlined"
-          color="inherit"
-          size="large"
-          sx={theme => ({ py: 1.5, px: 4, minWidth: 210, border: theme.palette.mode === 'dark' ? '2px solid #fff' : undefined })}
-        >
-          Show participants and waiting-list
-        </Button>
-      </Box>
-    );
+    // User NOT logged in
+    if (isRegistrationOpen) {
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+          {availableSpots === 0 || forceQueue ? (
+            <Alert severity="warning" sx={{ mb: 2, maxWidth: 600 }}>
+              ⚠️ This event is fully booked. Sign in to join the waiting-list.
+            </Alert>
+          ) : null}
+          <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+            <Button
+              onClick={() => navigate('/auth?returnTo=/register')}
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
+              disabled={isLoading || isCheckingRegistration}
+            >
+              {availableSpots === 0 || forceQueue ? 'Sign in to join waiting-list' : 'Sign in to register'}
+            </Button>
+            {showParticipantsList && (
+              <Button
+                component={RouterLink}
+                to="/participants"
+                variant="outlined"
+                color="inherit"
+                size="large"
+                sx={{ py: 1.5, px: 4, minWidth: 210 }}
+              >
+                See Participants
+              </Button>
+            )}
+          </Box>
+          {!isLoading && availableSpots !== null && availableSpots > 0 && (
+            <Typography variant="body1" sx={{ mt: 2, fontWeight: 500 }}>
+              {availableSpots} spot{availableSpots !== 1 ? 's' : ''} available
+            </Typography>
+          )}
+        </Box>
+      );
+    }
+
+    // Registration closed, race not started yet
+    if (!isRegistrationOpen && !raceStarted) {
+      return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
+          <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
+            Registration is now closed
+          </Typography>
+          {showParticipantsList && (
+            <Button
+              component={RouterLink}
+              to="/participants"
+              variant="outlined"
+              color="inherit"
+              size="large"
+              sx={{ py: 1.5, px: 4, minWidth: 210 }}
+            >
+              {waitingListCount > 0 ? 'Participants & Waiting-list' : 'See Participants'}
+            </Button>
+          )}
+        </Box>
+      );
+    }
+
+    return null;
   };
 
   return (
@@ -340,6 +377,21 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
         <Typography variant="h5" color="text.secondary" paragraph>
           Challenge yourself on the trails to Solemsvåttan!
         </Typography>
+        
+        {/* Event status badge */}
+        {(raceStarted || hasResultsAvailable || !isRegistrationOpen) && (
+          <Box sx={{ mb: 2 }}>
+            {hasResultsAvailable && (
+              <Chip label="Results Available" color="success" size="medium" sx={{ fontWeight: 600 }} />
+            )}
+            {!hasResultsAvailable && raceStarted && !raceEnded && (
+              <Chip label="Event In Progress" color="info" size="medium" sx={{ fontWeight: 600 }} />
+            )}
+            {!hasResultsAvailable && !raceStarted && !isRegistrationOpen && registrationDeadlinePassed && (
+              <Chip label="Registration Closed" color="default" size="medium" sx={{ fontWeight: 600 }} />
+            )}
+          </Box>
+        )}
         
         <Box sx={{ mb: 2 }}>
           <Button
@@ -354,36 +406,48 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           </Button>
         </Box>
         
-        <Paper
-          elevation={1}
-          sx={{
-            borderRadius: 2,
-            p: 3,
-            mb: 4
-          }}
-        >
-          <Typography variant="h4">
-            {raceDate.toLocaleDateString('en-US', { 
-              weekday: 'long',
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
-          </Typography>
-          <Typography variant="h6">
-            Starting at {raceDate.toLocaleTimeString('en-US', { 
-              hour: '2-digit', 
-              minute: '2-digit' 
-            })}
-          </Typography>
-          <Box sx={{ mt: 2 }}>
-            <Typography variant="h5">
-              {timeLeft.days} days {timeLeft.hours} hours {timeLeft.minutes} minutes {timeLeft.seconds} seconds remaining
+        {!raceEnded && (
+          <Paper
+            elevation={1}
+            sx={{
+              borderRadius: 2,
+              p: 3,
+              mb: 4,
+              background: raceStarted 
+                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+                : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+              color: 'white'
+            }}
+          >
+            <Typography variant="h4" sx={{ color: 'white' }}>
+              {raceDate.toLocaleDateString('en-US', { 
+                weekday: 'long',
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </Typography>
-          </Box>
-        </Paper>
+            <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)' }}>
+              {raceStarted ? 'Started at' : 'Starting at'} {raceDate.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
+            </Typography>
+            {!raceStarted && (
+              <Box sx={{ mt: 2 }}>
+                <Typography variant="h5" sx={{ color: 'white', fontWeight: 600 }}>
+                  {timeLeft.days > 0 && `${timeLeft.days}d `}
+                  {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mt: 0.5 }}>
+                  until race start
+                </Typography>
+              </Box>
+            )}
+          </Paper>
+        )}
 
-        {renderLiveResultsButton()}
+        {renderResultsButtons()}
         {renderRegistrationActions()}
       </Box>
 
@@ -405,17 +469,44 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Typography variant="body1" paragraph>
-              <strong>Date:</strong> {raceDate.toLocaleDateString()}
+              <strong>Date:</strong> {raceDate.toLocaleDateString('en-US', { 
+                weekday: 'long',
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Registration Deadline:</strong> {event.registrationDeadline?.toLocaleDateString()}
+              <strong>Start Time:</strong> {raceDate.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit' 
+              })}
             </Typography>
-            <Typography variant="body1" paragraph>
-              <strong>Maximum Participants:</strong> {event.maxParticipants ?? 0}
-              {!isLoading && availableSpots !== null && !forceQueue &&(
-                <> ({availableSpots} spots still available)</>  
-              )}
-            </Typography>
+            {!raceStarted && event.registrationDeadline && (
+              <Typography variant="body1" paragraph>
+                <strong>Registration Deadline:</strong> {event.registrationDeadline.toLocaleDateString('en-US', { 
+                  month: 'long', 
+                  day: 'numeric',
+                  hour: '2-digit',
+                  minute: '2-digit'
+                })}
+              </Typography>
+            )}
+            {!raceEnded && (
+              <Typography variant="body1" paragraph>
+                <strong>Participants:</strong> {!isLoading ? (
+                  <>
+                    {activeParticipants} / {event.maxParticipants ?? 0}
+                    {isRegistrationOpen && availableSpots !== null && availableSpots > 0 && (
+                      <> ({availableSpots} spot{availableSpots !== 1 ? 's' : ''} available)</>
+                    )}
+                    {waitingListCount > 0 && (
+                      <> + {waitingListCount} on waiting-list</>
+                    )}
+                  </>
+                ) : '...'}
+              </Typography>
+            )}
             <Typography variant="body1" paragraph>
               <strong>Each loop:</strong> {event.loopDistance} km, 369 meter ascent/descent
             </Typography>
@@ -435,18 +526,20 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             </Typography>
           </Paper>
         </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper
-            elevation={1}
-            sx={{
-              backgroundColor: 'var(--color-surface)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-surface-border)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-              borderRadius: 2,
-              p: 3
-            }}
-          >
+        {/* Show fees only before race ends and if not finalized */}
+        {!raceEnded && !hasResultsAvailable && (
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={1}
+              sx={{
+                backgroundColor: 'var(--color-surface)',
+                color: 'var(--color-text)',
+                border: '1px solid var(--color-surface-border)',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
+                borderRadius: 2,
+                p: 3
+              }}
+            >
             <Typography variant="h5" component="h2" gutterBottom>
               Registration Fees
             </Typography>
@@ -479,8 +572,9 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
                   Note: Any fees charged for payment services must be covered by the participant.
                 </Typography>
-          </Paper>
-        </Grid>
+            </Paper>
+          </Grid>
+        )}
       </Grid>
     </Container>
   );
