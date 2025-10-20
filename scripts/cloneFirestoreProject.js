@@ -10,8 +10,8 @@
 
   Usage examples:
     node scripts/cloneFirestoreProject.js --confirm \
-      --source-credentials "$HOME/.secrets/runners-hub/runnershub-service-account-readwrite.json" \
-      --target-credentials "$HOME/.secrets/runners-hub/runnershubtest-service-account-readwrite.json"
+      --source-credentials "$HOME/.secrets/runners-hub/serviceAccountKey.json" \
+      --target-credentials "$HOME/.secrets/runners-hub/serviceAccountKeyTest.json"
 
     # Include only a subset of collections
     node scripts/cloneFirestoreProject.js --confirm \
@@ -22,8 +22,8 @@
     FIREBASE_ADMIN_SA_TEST: path to test service account JSON
 
   Fallback default paths if not specified:
-    $HOME/.secrets/runners-hub/runnershub-service-account-readwrite.json
-    $HOME/.secrets/runners-hub/runnershubtest-service-account-readwrite.json
+    $HOME/.secrets/runners-hub/serviceAccountKey.json
+    $HOME/.secrets/runners-hub/serviceAccountKeyTest.json
 */
 
 process.env.GOOGLE_CLOUD_DISABLE_AUTO_PAGE_WARNING = process.env.GOOGLE_CLOUD_DISABLE_AUTO_PAGE_WARNING || '1';
@@ -132,19 +132,22 @@ function createBatcher(dstDb, batchSize = 400) {
 
 async function copyDocRecursive(srcDocRef, dstDocRef, options, counters, batcher) {
   const snap = await srcDocRef.get();
-  if (!snap.exists) return;
-  const data = snap.data();
-  if (!options.dryRun) {
-    await batcher.set(dstDocRef, data, !!options.merge);
+  
+  // Copy document data if it exists
+  if (snap.exists) {
+    const data = snap.data();
+    if (!options.dryRun) {
+      await batcher.set(dstDocRef, data, !!options.merge);
+    }
+    counters.docs++;
   }
-  counters.docs++;
 
+  // Process subcollections even if parent doc has no data
   const subs = await srcDocRef.listCollections();
   for (const sub of subs) {
-    const subSnap = await sub.get();
-    for (const d of subSnap.docs) {
-      const childSrc = d.ref;
-      const childDst = dstDocRef.collection(sub.id).doc(d.id);
+    const childDocs = await sub.listDocuments();
+    for (const childSrc of childDocs) {
+      const childDst = dstDocRef.collection(sub.id).doc(childSrc.id);
       await copyDocRecursive(childSrc, childDst, options, counters, batcher);
     }
   }
@@ -237,11 +240,11 @@ async function main() {
   const sourceEnv = reverse ? 'FIREBASE_ADMIN_SA_TEST' : 'FIREBASE_ADMIN_SA_PROD';
   const targetEnv = reverse ? 'FIREBASE_ADMIN_SA_PROD' : 'FIREBASE_ADMIN_SA_TEST';
   const sourceFallback = reverse
-    ? '~/.secrets/runners-hub/runnershubtest-service-account-readwrite.json'
-    : '~/.secrets/runners-hub/runnershub-service-account-readwrite.json';
+    ? '~/.secrets/runners-hub/serviceAccountKeyTest.json'
+    : '~/.secrets/runners-hub/serviceAccountKey.json';
   const targetFallback = reverse
-    ? '~/.secrets/runners-hub/runnershub-service-account-readwrite.json'
-    : '~/.secrets/runners-hub/runnershubtest-service-account-readwrite.json';
+    ? '~/.secrets/runners-hub/serviceAccountKey.json'
+    : '~/.secrets/runners-hub/serviceAccountKeyTest.json';
 
   const srcSA = loadServiceAccount(args['source-credentials'], sourceEnv, sourceFallback);
   const dstSA = loadServiceAccount(args['target-credentials'], targetEnv, targetFallback);
