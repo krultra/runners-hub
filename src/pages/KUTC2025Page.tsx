@@ -18,6 +18,8 @@ import { Registration } from '../types';
 import { useEventEdition, CurrentEvent } from '../contexts/EventEditionContext';
 import { CircularProgress } from '@mui/material';
 import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } from '../services/registrationService';
+import { Language, Assessment, Leaderboard, EmojiEvents, Info } from '@mui/icons-material';
+import { getVerboseName } from '../services/codeListService';
 
 // Inner component with full hooks/logic, receives guaranteed `event`
 const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
@@ -40,12 +42,20 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const [isUserRegistered, setIsUserRegistered] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
+  const [statusLabel, setStatusLabel] = useState<string>('');
   
   // Calculate time remaining until the race
   const now = useMemo(() => new Date(), []);
   const raceDate = useMemo(
     () => (event.startTime ? new Date(event.startTime) : new Date()),
     [event.startTime]
+  );
+  const raceDistances = useMemo(
+    () => (event.raceDistances ?? []).filter((rd) => {
+      const { active } = rd as { active?: boolean };
+      return active !== false;
+    }),
+    [event.raceDistances]
   );
   // const timeRemaining = raceDate.getTime() - now.getTime();
   
@@ -74,7 +84,31 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   
   // Participants list visibility: show only before race starts and if there are participants
   const showParticipantsList = activeParticipants > 0 && !raceStarted && !hasResultsAvailable;
+
+  const formatCurrency = (value?: number) => {
+    if (value === undefined || value === null) return '—';
+    return `${value.toLocaleString('no-NO')} NOK`;
+  };
   
+  // Load human readable status label
+  useEffect(() => {
+    const loadStatusLabel = async () => {
+      if (!event.status) {
+        setStatusLabel('');
+        return;
+      }
+      try {
+        const label = await getVerboseName('eventEditions', 'status', String(event.status), String(event.status));
+        setStatusLabel(label);
+      } catch (err) {
+        console.warn('Could not resolve status label:', err);
+        setStatusLabel(String(event.status));
+      }
+    };
+
+    loadStatusLabel();
+  }, [event.status]);
+
   // Check if user is authenticated and has a registration (re-run on location change)
   const location = useLocation();
   useEffect(() => {
@@ -160,52 +194,67 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   // Determine if new registrations should go on waiting-list
   const forceQueue = waitingListCount > 0;
 
-  const renderResultsButtons = () => {
-    // Always show KUTC results link if results are available
-    if (!showLiveResultsButton && !showFinalResultsButton && !showKUTCResultsButton) return null;
-    
+  const renderResultsButtons = (options?: { compact?: boolean }) => {
+    const compact = options?.compact ?? false;
+
+    if (!showLiveResultsButton && !showFinalResultsButton && !showKUTCResultsButton) {
+      return (
+        <Typography variant="body2" color="text.secondary">
+          Results will be published here when available.
+        </Typography>
+      );
+    }
+
     return (
-      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, mb: 4 }}>
-        <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
-          {showKUTCResultsButton && (
-            <Button
-              component={RouterLink}
-              to={`/kutc/results/${editionId}`}
-              variant="contained"
-              color="primary"
-              size="large"
-              sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220 }}
-            >
-              KUTC Results
-            </Button>
-          )}
-          {showLiveResultsButton && (
-            <Button
-              variant="contained"
-              color="success"
-              size="large"
-              href={liveResultsURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220 }}
-            >
-              Live Results
-            </Button>
-          )}
-          {showFinalResultsButton && (
-            <Button
-              variant={showKUTCResultsButton ? 'outlined' : 'contained'}
-              color="primary"
-              size="large"
-              href={resultURL}
-              target="_blank"
-              rel="noopener noreferrer"
-              sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220, borderWidth: 2 }}
-            >
-              Final Results
-            </Button>
-          )}
-        </Box>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: compact ? 'row' : 'column',
+          alignItems: compact ? 'flex-start' : 'center',
+          gap: 2,
+          flexWrap: 'wrap',
+          justifyContent: compact ? 'flex-start' : 'center',
+          mb: compact ? 0 : 4
+        }}
+      >
+        {showKUTCResultsButton && (
+          <Button
+            component={RouterLink}
+            to={`/kutc/results/${editionId}`}
+            variant="contained"
+            color="primary"
+            size="large"
+            sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220 }}
+          >
+            KUTC Results
+          </Button>
+        )}
+        {showLiveResultsButton && (
+          <Button
+            variant="contained"
+            color="success"
+            size="large"
+            href={liveResultsURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220 }}
+          >
+            Live Results
+          </Button>
+        )}
+        {showFinalResultsButton && (
+          <Button
+            variant={showKUTCResultsButton ? 'outlined' : 'contained'}
+            color="primary"
+            size="large"
+            href={resultURL}
+            target="_blank"
+            rel="noopener noreferrer"
+            sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220, borderWidth: 2 }}
+          >
+            Final Results
+          </Button>
+        )}
       </Box>
     );
   };
@@ -383,91 +432,141 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   };
 
   return (
-    <Container maxWidth="lg">
-      <Box sx={{ my: 4, textAlign: 'center' }}>
-        <Typography variant="h2" component="h1" gutterBottom>
+    <Container maxWidth="lg" sx={{ py: 6 }}>
+      <Box sx={{ mb: 4 }}>
+        <Typography variant="h2" component="h1" textAlign="center" gutterBottom>
           Kruke's Ultra-Trail Challenge 2025
         </Typography>
-        
-        <Typography variant="h5" color="text.secondary" paragraph>
-          Challenge yourself on the trails to Solemsvåttan!
+
+        <Paper
+          elevation={0}
+          sx={{
+            mt: 3,
+            p: { xs: 3, md: 4 },
+            borderRadius: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            backgroundColor: (theme) => theme.palette.mode === 'light' ? 'grey.50' : 'grey.900'
+          }}
+        >
+          <Grid container spacing={3} alignItems="center">
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+                  Event Status
+                </Typography>
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                  <Chip
+                    icon={<Info />}
+                    label={statusLabel || 'Status pending'}
+                    color={hasResultsAvailable ? 'success' : (raceStarted ? 'info' : 'default')}
+                    sx={{ fontWeight: 600 }}
+                  />
+                </Box>
+                <Typography variant="body2" color="text.secondary">
+                  {raceStarted ? 'Event started at' : 'Event starts at'}{' '}
+                  {raceDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} on{' '}
+                  {raceDate.toLocaleDateString('en-US', {
+                    weekday: 'long',
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                  })}
+                </Typography>
+                {!raceStarted && (
+                  <Typography variant="body2" color="text.secondary">
+                    Countdown: {timeLeft.days > 0 && `${timeLeft.days}d `}
+                    {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+                  </Typography>
+                )}
+              </Box>
+            </Grid>
+            <Grid item xs={12} md={6}>
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+                  2025 Results
+                </Typography>
+                {renderResultsButtons({ compact: true })}
+              </Box>
+            </Grid>
+          </Grid>
+        </Paper>
+
+        <Box sx={{ mt: 3 }}>{renderRegistrationActions()}</Box>
+      </Box>
+
+      <Paper
+        elevation={0}
+        sx={{
+          mb: 5,
+          p: 3,
+          borderRadius: 2,
+          border: '1px solid',
+          borderColor: 'divider',
+          backgroundColor: (theme) => theme.palette.mode === 'light' ? 'grey.50' : 'grey.900'
+        }}
+      >
+        <Typography variant="h5" fontWeight={700} textAlign="center" gutterBottom>
+          Explore KUTC Resources
         </Typography>
-        
-        {/* Event status badge */}
-        {(raceStarted || hasResultsAvailable || !isRegistrationOpen) && (
-          <Box sx={{ mb: 2 }}>
-            {hasResultsAvailable && (
-              <Chip label="Results Available" color="success" size="medium" sx={{ fontWeight: 600 }} />
-            )}
-            {!hasResultsAvailable && raceStarted && !raceEnded && (
-              <Chip label="Event In Progress" color="info" size="medium" sx={{ fontWeight: 600 }} />
-            )}
-            {!hasResultsAvailable && !raceStarted && !isRegistrationOpen && registrationDeadlinePassed && (
-              <Chip label="Registration Closed" color="default" size="medium" sx={{ fontWeight: 600 }} />
-            )}
-          </Box>
-        )}
-        
-        <Box sx={{ mb: 2 }}>
+        <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
+          Dive into results history, all-time standings, and records from previous editions.
+        </Typography>
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
           <Button
-            href="https://krultra.no/en/KUTC"
+            component={RouterLink}
+            to="/kutc"
+            variant="contained"
+            color="primary"
+            sx={{ minWidth: 200, fontWeight: 600 }}
+          >
+            KUTC Overview
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/kutc/results"
+            variant="contained"
+            color="primary"
+            startIcon={<Assessment />}
+            sx={{ minWidth: 200, fontWeight: 600 }}
+          >
+            Results Overview
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/kutc/all-time"
+            variant="outlined"
+            color="primary"
+            startIcon={<Leaderboard />}
+            sx={{ minWidth: 200, fontWeight: 600 }}
+          >
+            All-Time Leaderboard
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/kutc/records"
+            variant="outlined"
+            color="primary"
+            startIcon={<EmojiEvents />}
+            sx={{ minWidth: 200, fontWeight: 600 }}
+          >
+            Records
+          </Button>
+          <Button
+            href="https://krultra.no/kutc"
             target="_blank"
             rel="noopener noreferrer"
             variant="text"
-            color="inherit"
-            sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '1rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}
+            startIcon={<Language />}
+            sx={{ minWidth: 200, fontWeight: 600 }}
           >
-            More info about KUTC
+            Official KUTC Website
           </Button>
         </Box>
-        
-        {!raceEnded && (
-          <Paper
-            elevation={1}
-            sx={{
-              borderRadius: 2,
-              p: 3,
-              mb: 4,
-              background: raceStarted 
-                ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
-                : 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-              color: 'white'
-            }}
-          >
-            <Typography variant="h4" sx={{ color: 'white' }}>
-              {raceDate.toLocaleDateString('en-US', { 
-                weekday: 'long',
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </Typography>
-            <Typography variant="h6" sx={{ color: 'rgba(255,255,255,0.9)' }}>
-              {raceStarted ? 'Started at' : 'Starting at'} {raceDate.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </Typography>
-            {!raceStarted && (
-              <Box sx={{ mt: 2 }}>
-                <Typography variant="h5" sx={{ color: 'white', fontWeight: 600 }}>
-                  {timeLeft.days > 0 && `${timeLeft.days}d `}
-                  {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
-                </Typography>
-                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.8)', mt: 0.5 }}>
-                  until race start
-                </Typography>
-              </Box>
-            )}
-          </Paper>
-        )}
-
-        {renderResultsButtons()}
-        {renderRegistrationActions()}
-      </Box>
+      </Paper>
 
       <Grid container spacing={4} sx={{ mb: 4 }}>
-        <Grid item xs={12} md={6}>
+        <Grid item xs={12}>
           <Paper
             elevation={1}
             sx={{
@@ -528,21 +627,38 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             <Typography variant="body1">
               <strong>Available Distances:</strong>
             </Typography>
-            <ul style={{ margin: 0, paddingLeft: 16 }}>
-              <li>4 loops (26.8 km / 16.7 miles)</li>
-              <li>8 loops (53.6 km / 33.3 miles)</li>
-              <li>12 loops (80.4 km / 50.0 miles)</li>
-              <li>16 loops (107.2 km / 66.6 miles)</li>
-              <li>20 loops (134.0 km / 83.3 miles)</li>
-              <li>24 loops (160.9 km / 100.0 miles)</li>
-            </ul>
+            {raceDistances.length > 0 ? (
+              <Grid container spacing={1.5} sx={{ mt: 1 }}>
+                {raceDistances.map((race) => (
+                  <Grid item xs={12} sm={6} key={race.id}>
+                    <Paper variant="outlined" sx={{ p: 1.5 }}>
+                      <Typography variant="subtitle2" fontWeight={700}>
+                        {race.displayName}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary">
+                        {race.length.toFixed(1)} km · {race.ascent.toLocaleString('no-NO')} m+
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            ) : (
+              <Box component="ul" sx={{ m: 0, pl: 2 }}>
+                <li>4 loops (26.8 km / 16.7 miles)</li>
+                <li>8 loops (53.6 km / 33.3 miles)</li>
+                <li>12 loops (80.4 km / 50.0 miles)</li>
+                <li>16 loops (107.2 km / 66.6 miles)</li>
+                <li>20 loops (134.0 km / 83.3 miles)</li>
+                <li>24 loops (160.9 km / 100.0 miles)</li>
+              </Box>
+            )}
             <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
               All participants are part of the 'Last One Standing' challenge!
             </Typography>
           </Paper>
         </Grid>
         {/* Show fees only before race ends and if not finalized */}
-        {!raceEnded && !hasResultsAvailable && (
+        {!raceEnded && !hasResultsAvailable && event.fees && (
           <Grid item xs={12} md={6}>
             <Paper
               elevation={1}
@@ -560,18 +676,18 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Typography variant="body1" paragraph>
-              <strong>Participation Fee:</strong> {event.fees.participation} NOK
+              <strong>Participation Fee:</strong> {formatCurrency(event.fees.participation)}
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Base Camp Services:</strong> {event.fees.baseCamp} NOK
+              <strong>Base Camp Services:</strong> {formatCurrency(event.fees.baseCamp)}
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Refundable Deposit:</strong> {event.fees.deposit} NOK
+              <strong>Refundable Deposit:</strong> {formatCurrency(event.fees.deposit)}
               <br />
               <em>(Returned to all participants who show up for the race)</em>
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Total:</strong> {event.fees.total} NOK
+              <strong>Total:</strong> {formatCurrency(event.fees.total)}
             </Typography>
             <Typography variant="h6" sx={{ mt: 2 }}>
               Payment Methods
