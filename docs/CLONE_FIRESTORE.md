@@ -9,8 +9,8 @@
 - Node.js (matching the repository toolchain).
 - `firebase-admin`, `@google-cloud/firestore`, and other dependencies installed via `npm install`.
 - Two Firebase service account JSON files with appropriate IAM roles:
-  - Production (default path `~/.secrets/runners-hub/prod-service-account.json`).
-  - Test (default path `~/.secrets/runners-hub/test-service-account.json`).
+  - Production (default path `~/.secrets/runners-hub/runnershub-service-account-readwrite.json`).
+  - Test (default path `~/.secrets/runners-hub/runnershubtest-service-account-readwrite.json`).
 - Environment variables or CLI flags pointing to those JSON files:
   - `FIREBASE_ADMIN_SA_PROD`
   - `FIREBASE_ADMIN_SA_TEST`
@@ -60,8 +60,7 @@ npx dotenv-cli -e .env.test -- \
     --include users \
     --purge true
   ```
-  This deletes target collection documents (including subcollections) before copying.
-
+  
 - **Capture verbose logs to file**
   ```bash
   npx dotenv-cli -e .env.test -- \
@@ -75,7 +74,7 @@ npx dotenv-cli -e .env.test -- \
 ### CLI Options
 | Option | Type | Description |
 | --- | --- | --- |
-| `--include a,b,c` | string | Comma-separated root collections to copy. Defaults to all.
+| `--include a,b,c` | string | Comma-separated root collections to copy. Defaults to a
 | `--exclude x,y` | string | Root collections to skip.
 | `--merge` | flag | Use Firestore merge writes (preserve target fields not present in source).
 | `--dry-run` | flag | Traverse and log without writing/deleting anything.

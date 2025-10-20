@@ -53,3 +53,59 @@ export const addCodeListItem = async (
 export const deleteCodeListItem = async (id: string): Promise<void> => {
   await deleteDoc(doc(db, COLL, id));
 };
+
+/**
+ * Get a single code list item by object, type, and code
+ * Returns the item with sortOrder and verboseName, or null if not found
+ */
+export const getCodeListByCode = async (
+  object: string,
+  type: string,
+  code: string
+): Promise<CodeListItem | null> => {
+  const q = query(
+    collection(db, COLL),
+    where('object', '==', object),
+    where('type', '==', type),
+    where('code', '==', code)
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const doc = snap.docs[0];
+  return { id: doc.id, ...(doc.data() as any) };
+};
+
+/**
+ * Get a single code list item by object, type, and sortOrder
+ * Returns the item with code and verboseName, or null if not found
+ */
+export const getCodeListBySortOrder = async (
+  object: string,
+  type: string,
+  sortOrder: number
+): Promise<CodeListItem | null> => {
+  const q = query(
+    collection(db, COLL),
+    where('object', '==', object),
+    where('type', '==', type),
+    where('sortOrder', '==', sortOrder)
+  );
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const doc = snap.docs[0];
+  return { id: doc.id, ...(doc.data() as any) };
+};
+
+/**
+ * Get verbose name for a code list item by object, type, and code
+ * Returns the verboseName string, or a fallback if not found
+ */
+export const getVerboseName = async (
+  object: string,
+  type: string,
+  code: string,
+  fallback: string = code
+): Promise<string> => {
+  const item = await getCodeListByCode(object, type, code);
+  return item?.verboseName || fallback;
+};

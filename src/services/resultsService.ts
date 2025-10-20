@@ -15,6 +15,43 @@ function formatSecondsToTime(seconds: number): string {
   return `${mins}:${secs.padStart(4, '0')}`;
 }
 
+const RESULTS_STATUS_DEFAULT = 'unknown';
+
+const RESULT_STATUS_MAP: Record<string, string> = {
+  '1': 'notStarted',
+  'notstarted': 'notStarted',
+  'upcoming': 'notStarted',
+  '2': 'ongoing',
+  'ongoing': 'ongoing',
+  'live': 'ongoing',
+  '3': 'waiting',
+  'awaitingresults': 'waiting',
+  'waiting': 'waiting',
+  '4': 'incomplete',
+  'incomplete': 'incomplete',
+  '5': 'preliminary',
+  'preliminary': 'preliminary',
+  '6': 'unofficial',
+  'unofficial': 'unofficial',
+  '7': 'final',
+  'final': 'final',
+  'finalized': 'final',
+  'complete': 'final',
+  '8': 'cancelled',
+  'cancelled': 'cancelled',
+  '9': 'final',
+  'noresults': 'final'
+};
+
+const normalizeResultsStatus = (status: any): string => {
+  if (status === undefined || status === null || status === '') {
+    return RESULTS_STATUS_DEFAULT;
+  }
+
+  const key = String(status).trim().toLowerCase();
+  return RESULT_STATUS_MAP[key] ?? RESULTS_STATUS_DEFAULT;
+};
+
 interface TimeGradingFactor {
   age: number;
   eventId: string;
@@ -118,6 +155,34 @@ export const getEventResults = async (editionId: string): Promise<{
     
     // Check if we were able to find the event
     console.log('Event data fetched:', eventData ? 'Found' : 'Not found');
+
+    if (!eventData) {
+      const fallbackName = parts.length >= 2
+        ? `${eventId?.toUpperCase?.() || eventId || editionId} ${editionNumber || ''}`.trim()
+        : (eventId?.toUpperCase?.() || editionId);
+
+      eventData = {
+        id: editionId,
+        eventId: eventId || editionId,
+        edition: !isNaN(editionNumber) ? editionNumber : undefined,
+        eventName: fallbackName,
+        name: fallbackName,
+        resultsStatus: RESULTS_STATUS_DEFAULT,
+        status: RESULTS_STATUS_DEFAULT
+      };
+
+      console.log(`Using fallback event data for '${editionId}' with status 'unknown'.`);
+    }
+
+    const normalizedResultsStatus = normalizeResultsStatus(eventData.resultsStatus);
+    if (eventData.resultsStatus !== normalizedResultsStatus) {
+      console.log(`Normalized resultsStatus '${eventData.resultsStatus}' -> '${normalizedResultsStatus}' for '${editionId}'.`);
+      eventData.resultsStatus = normalizedResultsStatus;
+    }
+
+    if (!eventData.status) {
+      eventData.status = normalizedResultsStatus;
+    }
 
     // Fetch participants from both registrations and moRegistrations
     console.log('Fetching from both registrations and moRegistrations');

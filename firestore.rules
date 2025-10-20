@@ -133,6 +133,19 @@ service cloud.firestore {
     }
 
     // =============================================
+    // KUTC Results (public read, admin write)
+    // =============================================
+    match /kutcResults/{editionId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /kutcResults/{editionId}/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // =============================================
     // Default deny all other access
     // =============================================
     match /{document=**} {

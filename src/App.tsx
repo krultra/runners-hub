@@ -9,7 +9,9 @@ import Alert from '@mui/material/Alert';
 // Import pages
 import HomePage from './pages/HomePage';
 import KUTC2025Page from './pages/KUTC2025Page';
+import KUTCOverviewPage from './pages/KUTCOverviewPage';
 import MO2025Page from './pages/MO2025Page';
+import AboutRunnersHubPage from './pages/AboutRunnersHubPage';
 import RegistrationPage from './pages/RegistrationPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AuthTest from './components/AuthTest';
@@ -20,6 +22,8 @@ import ImportMalvikingenPage from './pages/admin/ImportMalvikingenPage';
 import EQImportPage from './pages/admin/EQImportPage';
 import ResultsPage from './pages/ResultsPage';
 import GeneralResultsPage from './pages/GeneralResultsPage';
+import KUTCResultsOverviewPage from './pages/KUTCResultsOverviewPage';
+import KUTCYearResultsPage from './pages/KUTCYearResultsPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -48,8 +52,10 @@ function App() {
         }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
+            <Route path="/kutc" element={<KUTCOverviewPage />} />
             <Route path="/kutc-2025" element={<KUTC2025Page />} />
             <Route path="/mo-2025" element={<MO2025Page />} />
+            <Route path="/about" element={<AboutRunnersHubPage />} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/auth" element={<AuthTest />} />
             <Route path="/participants" element={<PublicRegistrationsPage />} />
@@ -72,6 +78,9 @@ function App() {
             } />
             <Route path="/results" element={<GeneralResultsPage />} />
             <Route path="/results/mo-2025" element={<ResultsPage />} />
+            {/* KUTC Results Routes */}
+            <Route path="/kutc/results" element={<KUTCResultsOverviewPage />} />
+            <Route path="/kutc/results/:year" element={<KUTCYearResultsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Box>

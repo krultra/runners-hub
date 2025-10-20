@@ -1,5 +1,23 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Container, Typography, Grid, Card, CardActionArea, CardContent, Alert, CircularProgress, Box, FormControlLabel, Switch, Chip, Stack, Button } from '@mui/material';
+import {
+  Container,
+  Typography,
+  Grid,
+  Card,
+  CardActionArea,
+  CardContent,
+  Alert,
+  CircularProgress,
+  Box,
+  FormControlLabel,
+  Switch,
+  Chip,
+  Stack,
+  Button,
+  Paper,
+  Divider
+} from '@mui/material';
+import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { useNavigate } from 'react-router-dom';
 import { useEventEdition } from '../contexts/EventEditionContext';
 import { getFullEventEditions, EventEdition } from '../services/eventEditionService';
@@ -92,44 +110,134 @@ const HomePage: React.FC = () => {
     load();
   }, []);
 
-  const content = useMemo(() => {
-    // Apply 'showPast' (>=80) vs current/upcoming (20..79)
-    const visible = editions.filter(e => {
-      const d = deriveStatus(e);
-      // Exclude drafts/hidden always
-      const code = String(e.statusItem?.code || e.status || '').toLowerCase();
-      const isDraft = code === '10' || code === 'draft';
-      const isHidden = code === '0' || code === 'hidden';
-      if (isDraft || isHidden) return false;
-      if (showPast) return true; // include all non-drafts
-      return !(d === 'finished' || d === 'finalized' || d === 'cancelled');
-    });
-    if (loading) {
-      return (
-        <Box display="flex" justifyContent="center" alignItems="center" minHeight={160}>
-          <CircularProgress />
-        </Box>
-      );
-    }
-    if (error) {
-      return <Alert severity="error">{error}</Alert>;
-    }
-    if (!visible.length) {
-      return (
-        <>
-          <Grid container spacing={4} justifyContent="center" />
-          <Typography align="center" sx={{ mt: 2 }}>
-            No events are currently available - please check in again soon!
-          </Typography>
-        </>
-      );
-    }
-    return (
-      <>
-        <Grid container spacing={4} justifyContent="center">
-          {visible.map(ed => (
+  const featuredEvents = (
+    <Paper
+      elevation={0}
+      sx={{
+        mb: 5,
+        p: { xs: 3, md: 4 },
+        borderRadius: 3,
+        border: (theme) => `1px solid ${theme.palette.divider}`,
+        backgroundColor: (theme) => theme.palette.mode === 'light' ? 'rgba(255,255,255,0.96)' : theme.palette.background.paper,
+      }}
+    >
+      <Typography variant="h5" gutterBottom fontWeight={700}>
+        Explore our signature events
+      </Typography>
+      <Grid container spacing={3}>
+        <Grid item xs={12} md={6}>
+          <Paper
+            elevation={4}
+            sx={{
+              height: '100%',
+              p: 3,
+              borderRadius: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              background: 'linear-gradient(135deg, rgba(25,118,210,0.24) 0%, rgba(25,118,210,0.08) 100%)',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
+              }
+            }}
+          >
+            <Box>
+              <Typography variant="h6" fontWeight={700} color="primary" gutterBottom>
+                Kruke's Ultra-Trail Challenge
+              </Typography>
+              <Typography variant="body2" color="text.secondary">
+                Find your distance. Find your limit.
+              </Typography>
+            </Box>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 'auto' }}>
+              <Button
+                variant="contained"
+                color="primary"
+                onClick={() => navigate('/kutc')}
+              >
+                Explore
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/kutc/results')}
+              >
+                Results
+              </Button>
+            </Stack>
+          </Paper>
+        </Grid>
+        <Grid item xs={12} md={6}>
+          <Paper
+            elevation={4}
+            sx={{
+              height: '100%',
+              p: 3,
+              borderRadius: 3,
+              display: 'flex',
+              flexDirection: 'column',
+              gap: 2,
+              background: 'linear-gradient(135deg, rgba(46,125,50,0.24) 0%, rgba(46,125,50,0.08) 100%)',
+              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+              '&:hover': {
+                transform: 'translateY(-4px)',
+                boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
+              }
+            }}
+          >
+            <Box>
+              <Typography variant="h6" fontWeight={700} sx={{ color: 'common.white' }} gutterBottom>
+                Malvikingen Opp
+              </Typography>
+              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)' }}>
+                Earn your 'Mal-Viking' title in Malvik's oldest fell race.
+              </Typography>
+            </Box>
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 'auto' }}>
+              <Button
+                variant="contained"
+                color="success"
+                onClick={() => navigate('/mo')}
+                disabled
+              >
+                Explore
+              </Button>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/mo')}
+                disabled
+              >
+                Results (coming soon)
+              </Button>
+            </Stack>
+          </Paper>
+        </Grid>
+      </Grid>
+    </Paper>
+  );
+
+  const editionCards = (visible: EditionWithStatus[]) => (
+    <Grid container spacing={3} justifyContent="center">
+        {visible.map(ed => (
           <Grid item xs={12} key={ed.id}>
-            <Card sx={{ borderRadius: 3, boxShadow: 3 }}>
+            <Card
+              sx={{
+                borderRadius: 3,
+                boxShadow: '0 4px 16px rgba(0,0,0,0.06)',
+                border: (theme) => `1px solid ${theme.palette.divider}`,
+                background: ed.id.startsWith('kutc-')
+                  ? 'linear-gradient(135deg, rgba(25,118,210,0.18) 0%, rgba(25,118,210,0.05) 100%)'
+                  : ed.id.startsWith('mo-')
+                    ? 'linear-gradient(135deg, rgba(46,125,50,0.18) 0%, rgba(46,125,50,0.05) 100%)'
+                    : (theme) => theme.palette.background.paper,
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
+                }
+              }}
+            >
               <CardActionArea onClick={() => navigate(`/${ed.id}`)}>
                 <CardContent>
                   <Typography variant="h5" component="div" gutterBottom>
@@ -166,61 +274,155 @@ const HomePage: React.FC = () => {
                         ) : null;
                       })()}
                       {/* Presence indicators for links (non-CTA, informative) */}
-                      {ed.liveResultsURL && (
-                        <Chip size="small" color="success" variant="outlined" label="Live results available" />
-                      )}
+                      {(() => {
+                        const rs = (ed.resultStatusCode || '').toLowerCase();
+                        const isOngoing = ['ongoing', '2'].includes(rs);
+                        return ed.liveResultsURL && isOngoing ? (
+                          <Chip size="small" color="success" variant="outlined" label="Live results available" />
+                        ) : null;
+                      })()}
                       {ed.resultURL && (
                         <Chip size="small" color="primary" variant="outlined" label="Final results available" />
                       )}
                     </Stack>
                   </Box>
                   {/* Action buttons for results links */}
-                  {(ed.liveResultsURL || ed.resultURL) && (
+                  {(ed.liveResultsURL || ed.resultURL || ed.id?.startsWith?.('kutc-')) && (
                     <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1 }}>
-                      {ed.liveResultsURL && (
-                        <Button size="small" variant="contained" color="success" onClick={(e) => { e.stopPropagation(); window.open(ed.liveResultsURL!, '_blank'); }}>
-                          Live Results
-                        </Button>
-                      )}
+                      {(() => {
+                        const rs = (ed.resultStatusCode || '').toLowerCase();
+                        const isOngoing = ['ongoing', '2'].includes(rs);
+                        return ed.liveResultsURL && isOngoing ? (
+                          <Button size="small" variant="contained" color="success" onClick={(e) => { e.stopPropagation(); window.open(ed.liveResultsURL!, '_blank'); }}>
+                            Live Results
+                          </Button>
+                        ) : null;
+                      })()}
                       {ed.resultURL && (
                         <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); window.open(ed.resultURL!, '_blank'); }}>
                           Final Results
                         </Button>
                       )}
+                      {(() => {
+                        const rs = (ed.resultStatusCode || '').toLowerCase();
+                        const normalizedAvailable = ['incomplete','preliminary','unofficial','final'].includes(rs) || ['4','5','6','7'].includes(ed.resultStatusCode || '');
+                        const isKUTCEdition = ed.id?.toLowerCase?.().startsWith('kutc-');
+                        return normalizedAvailable && isKUTCEdition ? (
+                          <Button
+                            size="small"
+                            variant={ed.resultURL ? 'outlined' : 'contained'}
+                            color="primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/kutc/results/${ed.id}`);
+                            }}
+                          >
+                            View KUTC Results
+                          </Button>
+                        ) : null;
+                      })()}
+                      {(() => {
+                        const rs = (ed.resultStatusCode || '').toLowerCase();
+                        const isOngoing = ['ongoing', '2'].includes(rs);
+                        return ed.liveResultsURL && isOngoing ? null : null;
+                      })()}
                     </Stack>
                   )}
                 </CardContent>
               </CardActionArea>
             </Card>
           </Grid>
-          ))}
-        </Grid>
-        <Typography align="center" sx={{ mt: 2 }}>
-          {visible.length === 1
-            ? 'Select the event for more details'
-            : 'Select an event for more details'}
-        </Typography>
+        ))}
+      </Grid>
+    );
+
+  const content = useMemo(() => {
+    const visible = editions.filter(e => {
+      const d = deriveStatus(e);
+      const code = String(e.statusItem?.code || e.status || '').toLowerCase();
+      const isDraft = code === '10' || code === 'draft';
+      const isHidden = code === '0' || code === 'hidden';
+      if (isDraft || isHidden) return false;
+      if (showPast) return true;
+      return !(d === 'finished' || d === 'finalized' || d === 'cancelled');
+    });
+
+    if (loading) {
+      return (
+        <Box display="flex" justifyContent="center" alignItems="center" minHeight={160}>
+          <CircularProgress />
+        </Box>
+      );
+    }
+    if (error) {
+      return <Alert severity="error">{error}</Alert>;
+    }
+
+    const editionSectionTitle = showPast ? 'Upcoming and past event editions' : 'Upcoming event editions';
+
+    return (
+      <>
+        {featuredEvents}
+        <Paper
+          elevation={0}
+          sx={{
+            p: { xs: 3, md: 4 },
+            borderRadius: 3,
+            border: (theme) => `1px solid ${theme.palette.divider}`,
+            backgroundColor: (theme) => theme.palette.mode === 'light' ? 'rgba(255,255,255,0.9)' : theme.palette.background.paper,
+          }}
+        >
+          <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} gap={2} mb={2}>
+            <Typography variant="h5" fontWeight={700}>
+              {editionSectionTitle}
+            </Typography>
+            <FormControlLabel
+              control={<Switch color="primary" checked={showPast} onChange={e => setShowPast(e.target.checked)} />}
+              label="Show past events"
+              sx={{
+                m: 0,
+                px: 1,
+                py: 0.5,
+                borderRadius: 1,
+                '& .MuiFormControlLabel-label': { cursor: 'pointer' }
+              }}
+            />
+          </Box>
+          <Divider sx={{ mb: 3 }} />
+          {visible.length ? (
+            <>
+              {editionCards(visible)}
+              <Typography align="center" sx={{ mt: 3 }}>
+                {visible.length === 1
+                  ? 'Select the event for more details'
+                  : 'Select an event for more details'}
+              </Typography>
+            </>
+          ) : (
+            <Typography align="center" sx={{ mt: 2 }}>
+              No events are currently available - please check in again soon!
+            </Typography>
+          )}
+        </Paper>
       </>
     );
-  }, [loading, error, editions, navigate, showPast]);
+  }, [loading, error, editions, navigate, showPast, featuredEvents]);
 
   return (
     <Container maxWidth="md" sx={{ pt: 8 }}>
       <Typography variant="h3" align="center" gutterBottom>
         Welcome to the KrUltra Runners Hub!
       </Typography>
-      <Box display="flex" justifyContent="flex-end" mb={2}>
-        <FormControlLabel
-          control={<Switch color="primary" checked={showPast} onChange={e => setShowPast(e.target.checked)} />}
-          label="Show past events"
-          sx={{
-            m: 0,
-            px: 1,
-            py: 0.5,
-            borderRadius: 1,
-            '& .MuiFormControlLabel-label': { cursor: 'pointer' }
-          }}
-        />
+      <Box textAlign="center" mb={4}>
+        <Button
+          variant="outlined"
+          color="primary"
+          endIcon={<ArrowForwardIcon />}
+          onClick={() => navigate('/about')}
+          sx={{ fontWeight: 700, px: 3 }}
+        >
+          What's the Runners Hub?
+        </Button>
       </Box>
       {content}
     </Container>

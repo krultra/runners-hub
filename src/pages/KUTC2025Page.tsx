@@ -66,9 +66,11 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const hasResultsAvailable = ['incomplete', 'preliminary', 'unofficial', 'final'].includes(resultsStatusCode) 
     || ['4', '5', '6', '7'].includes(event.resultsStatus || '');
   const isEventOngoing = (resultsStatusCode === 'ongoing' || event.resultsStatus === '2') && raceStarted && !raceEnded;
+  const hasFinalResults = resultsStatusCode === 'final' || resultsStatusCode === '7';
   
-  const showLiveResultsButton = Boolean(liveResultsURL && (isEventOngoing || raceStarted));
-  const showFinalResultsButton = Boolean(hasResultsAvailable && resultURL);
+  const showLiveResultsButton = Boolean(liveResultsURL && !hasFinalResults);
+  const showFinalResultsButton = Boolean(resultURL && hasFinalResults);
+  const showKUTCResultsButton = Boolean(hasResultsAvailable);
   
   // Participants list visibility: show only before race starts and if there are participants
   const showParticipantsList = activeParticipants > 0 && !raceStarted && !hasResultsAvailable;
@@ -159,11 +161,24 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const forceQueue = waitingListCount > 0;
 
   const renderResultsButtons = () => {
-    if (!showLiveResultsButton && !showFinalResultsButton) return null;
+    // Always show KUTC results link if results are available
+    if (!showLiveResultsButton && !showFinalResultsButton && !showKUTCResultsButton) return null;
     
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, mb: 4 }}>
         <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap', justifyContent: 'center' }}>
+          {showKUTCResultsButton && (
+            <Button
+              component={RouterLink}
+              to={`/kutc/results/${editionId}`}
+              variant="contained"
+              color="primary"
+              size="large"
+              sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220 }}
+            >
+              KUTC Results
+            </Button>
+          )}
           {showLiveResultsButton && (
             <Button
               variant="contained"
@@ -179,7 +194,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           )}
           {showFinalResultsButton && (
             <Button
-              variant="outlined"
+              variant={showKUTCResultsButton ? 'outlined' : 'contained'}
               color="primary"
               size="large"
               href={resultURL}
