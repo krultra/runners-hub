@@ -24,6 +24,8 @@ import ResultsPage from './pages/ResultsPage';
 import GeneralResultsPage from './pages/GeneralResultsPage';
 import KUTCResultsOverviewPage from './pages/KUTCResultsOverviewPage';
 import KUTCYearResultsPage from './pages/KUTCYearResultsPage';
+import KUTCAllTimeLeaderboardPage from './pages/KUTCAllTimeLeaderboardPage';
+import KUTCRecordsPage from './pages/KUTCRecordsPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -81,6 +83,8 @@ function App() {
             {/* KUTC Results Routes */}
             <Route path="/kutc/results" element={<KUTCResultsOverviewPage />} />
             <Route path="/kutc/results/:year" element={<KUTCYearResultsPage />} />
+            <Route path="/kutc/all-time" element={<KUTCAllTimeLeaderboardPage />} />
+            <Route path="/kutc/records" element={<KUTCRecordsPage />} />
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Box>

@@ -24,6 +24,10 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
   type
 }) => {
   const [searchText, setSearchText] = useState('');
+  const [pageSize, setPageSize] = useState(() => {
+    const saved = localStorage.getItem(`kutc-results-${type}-pageSize`);
+    return saved ? parseInt(saved, 10) : 25;
+  });
 
   const filteredResults = useMemo(() => {
     const searchLower = searchText.toLowerCase();
@@ -102,16 +106,11 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
       width: 80
     },
     {
-      field: 'firstName',
-      headerName: 'First Name',
-      width: 150,
-      flex: 1
-    },
-    {
-      field: 'lastName',
-      headerName: 'Last Name',
-      width: 150,
-      flex: 1
+      field: 'name',
+      headerName: 'Name',
+      width: 200,
+      flex: 1,
+      valueGetter: (params) => `${params.row.firstName || ''} ${params.row.lastName || ''}`.trim()
     },
     {
       field: 'loopsCompleted',
@@ -145,16 +144,11 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
       width: 80
     },
     {
-      field: 'firstName',
-      headerName: 'First Name',
-      width: 150,
-      flex: 1
-    },
-    {
-      field: 'lastName',
-      headerName: 'Last Name',
-      width: 150,
-      flex: 1
+      field: 'name',
+      headerName: 'Name',
+      width: 200,
+      flex: 1,
+      valueGetter: (params) => `${params.row.firstName || ''} ${params.row.lastName || ''}`.trim()
     },
     {
       field: 'raceTimeDisplay',
@@ -212,8 +206,12 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
           rows={sortedResults}
           columns={columns}
           getRowId={(row) => row.personId}
-          pageSize={25}
+          pageSize={pageSize}
           rowsPerPageOptions={[10, 25, 50, 100]}
+          onPageSizeChange={(newSize) => {
+            setPageSize(newSize);
+            localStorage.setItem(`kutc-results-${type}-pageSize`, newSize.toString());
+          }}
           disableSelectionOnClick
           components={{
             Toolbar: GridToolbar

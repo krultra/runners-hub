@@ -10,9 +10,10 @@ import {
   Grid,
   CircularProgress,
   Alert,
-  Chip
+  Chip,
+  Button
 } from '@mui/material';
-import { EmojiEvents, CalendarToday } from '@mui/icons-material';
+import { EmojiEvents, CalendarToday, Leaderboard, EmojiEventsOutlined } from '@mui/icons-material';
 import { listKUTCEditions, KUTCEdition } from '../services/kutcResultsService';
 
 const KUTCResultsOverviewPage: React.FC = () => {
@@ -64,13 +65,35 @@ const KUTCResultsOverviewPage: React.FC = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
-          KUTC Results
-        </Typography>
-        <Typography variant="h6" color="text.secondary">
-          Kruke's Ultra-Trail Challenge - Historical Results
-        </Typography>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+          <Box>
+            <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
+              <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+              KUTC Results
+            </Typography>
+            <Typography variant="h6" color="text.secondary">
+              Kruke's Ultra-Trail Challenge - Historical Results
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<Leaderboard />}
+              onClick={() => navigate('/kutc/all-time')}
+            >
+              All-Time Leaderboard
+            </Button>
+            <Button
+              variant="outlined"
+              color="primary"
+              startIcon={<EmojiEventsOutlined />}
+              onClick={() => navigate('/kutc/records')}
+            >
+              Records
+            </Button>
+          </Box>
+        </Box>
       </Box>
 
       {/* Editions Grid */}

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Container,
   Box,
@@ -9,48 +9,45 @@ import {
   Chip,
   Divider,
   CircularProgress,
-  Alert
+  Alert,
+  Link as MuiLink
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
+import { EmojiEvents, Leaderboard, Assessment, Language } from '@mui/icons-material';
 import {
+  Event,
   EventEdition,
-  RaceDistance,
-  getEventEdition
+  getEvent,
+  getAdjacentEditions
 } from '../services/eventEditionService';
+import { getVerboseName } from '../services/codeListService';
 
-const KUTC_EDITION_ID = 'kutc-2025';
-
-const toDate = (value: any): Date | null => {
-  if (!value) return null;
-  if (value instanceof Date) return value;
-  if (typeof value.toDate === 'function') return value.toDate();
-  const parsed = new Date(value);
-  return Number.isNaN(parsed.getTime()) ? null : parsed;
-};
+const EVENT_ID = 'kutc';
+const AVAILABLE_EDITION_ROUTES = new Set<string>(['kutc-2025']);
 
 const formatCurrency = (value?: number) => {
   if (value === undefined || value === null) return '—';
   return `${value.toLocaleString('no-NO')} NOK`;
 };
 
-const ensureRaceDistances = (distances?: RaceDistance[]): RaceDistance[] => {
-  if (distances && distances.length > 0) {
-    return distances;
-  }
-
-  return [
-    { id: 'kUTC-4', displayName: '4 loops', length: 26.8, ascent: 1476, descent: 1476 },
-    { id: 'kUTC-8', displayName: '8 loops', length: 53.6, ascent: 2952, descent: 2952 },
-    { id: 'kUTC-12', displayName: '12 loops', length: 80.4, ascent: 4428, descent: 4428 },
-    { id: 'kUTC-16', displayName: '16 loops', length: 107.2, ascent: 5904, descent: 5904 },
-    { id: 'kUTC-20', displayName: '20 loops', length: 134.0, ascent: 7380, descent: 7380 },
-    { id: 'kUTC-24', displayName: '24 loops', length: 160.9, ascent: 8856, descent: 8856 }
-  ];
+const formatDate = (timestamp: any): string => {
+  if (!timestamp) return 'TBA';
+  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+  return date.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric' 
+  });
 };
 
 const KUTCOverviewPage: React.FC = () => {
   const navigate = useNavigate();
-  const [event, setEvent] = useState<EventEdition | null>(null);
+  const [event, setEvent] = useState<Event | null>(null);
+  const [previousEdition, setPreviousEdition] = useState<EventEdition | null>(null);
+  const [nextEdition, setNextEdition] = useState<EventEdition | null>(null);
+  const [previousEditionStatus, setPreviousEditionStatus] = useState<string>('');
+  const [nextEditionStatus, setNextEditionStatus] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,11 +56,27 @@ const KUTCOverviewPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const edition = await getEventEdition(KUTC_EDITION_ID);
-        setEvent(edition);
+        // Fetch main event info
+        const eventData = await getEvent(EVENT_ID);
+        setEvent(eventData);
+
+        // Fetch adjacent editions dynamically based on time
+        const { previous, next } = await getAdjacentEditions(EVENT_ID);
+        
+        if (previous) {
+          setPreviousEdition(previous);
+          const statusLabel = await getVerboseName('eventEditions', 'status', previous.status, previous.status);
+          setPreviousEditionStatus(statusLabel);
+        }
+        
+        if (next) {
+          setNextEdition(next);
+          const statusLabel = await getVerboseName('eventEditions', 'status', next.status, next.status);
+          setNextEditionStatus(statusLabel);
+        }
       } catch (err: any) {
-        console.error('Failed to load KUTC overview:', err);
-        setError(err?.message || 'Kunne ikke hente KUTC-informasjon.');
+        console.error('Failed to load KUTC info:', err);
+        setError(err?.message || 'Could not load KUTC information.');
       } finally {
         setLoading(false);
       }
@@ -71,10 +84,6 @@ const KUTCOverviewPage: React.FC = () => {
 
     load();
   }, []);
-
-  const startDate = useMemo(() => toDate(event?.startTime), [event?.startTime]);
-  const registrationDeadline = useMemo(() => toDate(event?.registrationDeadline), [event?.registrationDeadline]);
-  const raceDistances = useMemo(() => ensureRaceDistances(event?.raceDistances), [event?.raceDistances]);
 
   if (loading) {
     return (
@@ -91,7 +100,7 @@ const KUTCOverviewPage: React.FC = () => {
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Alert severity="error">{error}</Alert>
         <Box mt={2}>
-          <Button variant="contained" onClick={() => navigate('/')}>Til forsiden</Button>
+          <Button variant="contained" onClick={() => navigate('/')}>Home</Button>
         </Box>
       </Container>
     );
@@ -100,222 +109,224 @@ const KUTCOverviewPage: React.FC = () => {
   if (!event) {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
-        <Alert severity="warning">Fant ikke informasjon om KUTC akkurat nå. Prøv igjen senere.</Alert>
+        <Alert severity="warning">KUTC information not available. Please try again later.</Alert>
       </Container>
     );
   }
 
+  const previousEditionHasPage = previousEdition ? AVAILABLE_EDITION_ROUTES.has(previousEdition.id) : false;
+  const nextEditionHasPage = nextEdition ? AVAILABLE_EDITION_ROUTES.has(nextEdition.id) : false;
+  const activeRaceDistances = (event.raceDistances ?? []).filter((race) => {
+    const { active } = race as { active?: boolean };
+    return active !== false;
+  });
+
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
+      {/* Header */}
       <Box textAlign="center" mb={6}>
         <Typography variant="h2" component="h1" fontWeight={800} gutterBottom>
-          {event.eventName || "Kruke's Ultra-Trail Challenge"}
+          {event.name || "Kruke's Ultra-Trail Challenge"}
         </Typography>
-        <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 720, mx: 'auto' }}>
-          KUTC er en Last One Standing-utfordring gjennom skogene ved Solemsvåttan. Utforsk distansene, avgifter og historikken fra arrangementet.
+        <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 640, mx: 'auto', mb: 3 }}>
+          Registration and Results Portal
         </Typography>
-        <StackedActions navigate={navigate} />
-        <Box mt={2}>
-          <Chip label="Last One Standing" color="primary" sx={{ fontWeight: 600, mr: 1 }} />
-          <Chip label="Backyard Ultra" variant="outlined" sx={{ fontWeight: 600 }} />
+        
+        {/* Quick Links */}
+        <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" mb={2}>
+          <Button
+            variant="contained"
+            startIcon={<Language />}
+            href="https://krultra.no/kutc"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Official Website
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<Assessment />}
+            onClick={() => navigate('/kutc/results')}
+          >
+            Results
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<Leaderboard />}
+            onClick={() => navigate('/kutc/all-time')}
+          >
+            All-Time Leaderboard
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<EmojiEvents />}
+            onClick={() => navigate('/kutc/records')}
+          >
+            Records
+          </Button>
         </Box>
       </Box>
 
-      <Grid container spacing={4} alignItems="stretch">
-        <Grid item xs={12} md={5}>
-          <Paper elevation={3} sx={{ p: 3, borderRadius: 3, height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="h5" fontWeight={700}>Neste utgave</Typography>
-            <Divider />
-            <Typography variant="body1">
-              <strong>Dato:</strong>{' '}
-              {startDate ? startDate.toLocaleDateString('no-NO', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) : 'TBA'}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Start:</strong>{' '}
-              {startDate ? startDate.toLocaleTimeString('no-NO', { hour: '2-digit', minute: '2-digit' }) : 'TBA'}
-            </Typography>
-            <Typography variant="body1">
-              <strong>Sted:</strong> Lysløypa ved Solemsvåttan, Trondheim
-            </Typography>
-            {registrationDeadline && (
-              <Typography variant="body1">
-                <strong>Påmeldingsfrist:</strong>{' '}
-                {registrationDeadline.toLocaleDateString('no-NO', { day: 'numeric', month: 'long', year: 'numeric' })}
+      {/* Editions Info */}
+      <Grid container spacing={3} sx={{ mb: 6 }}>
+        {previousEdition && (
+          <Grid item xs={12} md={6}>
+            <Paper elevation={2} sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight={700} gutterBottom>
+                Previous Edition
               </Typography>
-            )}
+              <Divider sx={{ mb: 2 }} />
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                <strong>Event:</strong> {previousEdition.eventName}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                <strong>Date:</strong> {formatDate(previousEdition.startTime)}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                <strong>Status:</strong> <Chip label={previousEditionStatus} size="small" />
+              </Typography>
+              {previousEditionHasPage ? (
+                <Button
+                  variant="outlined"
+                  onClick={() => navigate(`/${previousEdition.id}`)}
+                  fullWidth
+                >
+                  View {previousEdition.edition} Details
+                </Button>
+              ) : (
+                <Button
+                  variant="outlined"
+                  disabled
+                  fullWidth
+                >
+                  Details coming soon
+                </Button>
+              )}
+            </Paper>
+          </Grid>
+        )}
+        
+        {nextEdition && (
+          <Grid item xs={12} md={6}>
+            <Paper elevation={2} sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight={700} gutterBottom>
+                Next Edition
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                <strong>Event:</strong> {nextEdition.eventName}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 1 }}>
+                <strong>Date:</strong> {formatDate(nextEdition.startTime)}
+              </Typography>
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                <strong>Status:</strong> <Chip label={nextEditionStatus} size="small" color="primary" />
+              </Typography>
+              {nextEditionHasPage ? (
+                <Button
+                  variant="contained"
+                  onClick={() => navigate(`/${nextEdition.id}`)}
+                  fullWidth
+                >
+                  View {nextEdition.edition} Details
+                </Button>
+              ) : (
+                <Button
+                  variant="contained"
+                  disabled
+                  fullWidth
+                >
+                  Details coming soon
+                </Button>
+              )}
+            </Paper>
+          </Grid>
+        )}
+      </Grid>
+
+      {/* Event Info */}
+      <Grid container spacing={3} sx={{ mb: 6 }}>
+        {/* Race Distances */}
+        {activeRaceDistances.length > 0 && (
+          <Grid item xs={12} md={6}>
+            <Paper elevation={2} sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight={700} gutterBottom>
+                Race Distances
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Grid container spacing={2}>
+                {activeRaceDistances.map((race) => (
+                  <Grid item xs={6} key={race.id}>
+                    <Paper variant="outlined" sx={{ p: 2 }}>
+                      <Typography variant="subtitle2" fontWeight={700} color="primary">
+                        {race.displayName}
+                      </Typography>
+                      <Typography variant="body2">
+                        {race.length.toFixed(1)} km
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary">
+                        {race.ascent}m+
+                      </Typography>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
+                All participants are part of the 'Last One Standing' challenge!
+              </Typography>
+            </Paper>
+          </Grid>
+        )}
+        
+        {/* Fees & Participants */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={2} sx={{ p: 3 }}>
+            <Typography variant="h5" fontWeight={700} gutterBottom>
+              General Information
+            </Typography>
+            <Divider sx={{ mb: 2 }} />
+            
             {event.maxParticipants && (
-              <Typography variant="body1">
-                <strong>Antall plasser:</strong> {event.maxParticipants}
+              <Typography variant="body1" sx={{ mb: 2 }}>
+                <strong>Max Participants:</strong> {event.maxParticipants}
               </Typography>
             )}
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={7}>
-          <Paper elevation={3} sx={{ p: 3, borderRadius: 3, height: '100%', display: 'flex', flexDirection: 'column', gap: 2 }}>
-            <Typography variant="h5" fontWeight={700}>Startpakke og fasiliteter</Typography>
-            <Divider />
-            <Typography variant="body1">
-              • Fullt bemannet basecamp med varme fasiliteter, matservering og Crew-støtte.
-            </Typography>
-            <Typography variant="body1">
-              • Oppmerkede løyper (4,47 km) med kontrollposter, varme drikker og energi mellom rundene.
-            </Typography>
-            <Typography variant="body1">
-              • Eget restitusjonsområde, garderober og tilgang til trackingsystem for familie og support.
-            </Typography>
-            <Typography variant="body1">
-              • Premiering til last one standing, loop-rekorder og årlige klassevinnere.
-            </Typography>
+            
+            {event.fees && (
+              <Box>
+                <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
+                  Registration Fees
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                  <strong>Participation:</strong> {formatCurrency(event.fees.participation)}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                  <strong>Base Camp:</strong> {formatCurrency(event.fees.baseCamp)}
+                </Typography>
+                <Typography variant="body2" sx={{ mb: 0.5 }}>
+                  <strong>Deposit (refundable):</strong> {formatCurrency(event.fees.deposit)}
+                </Typography>
+                <Typography variant="h6" sx={{ mt: 1 }}>
+                  <strong>Total:</strong> {formatCurrency(event.fees.total)}
+                </Typography>
+              </Box>
+            )}
           </Paper>
         </Grid>
       </Grid>
 
-      <Box mt={6}>
-        <Typography variant="h4" component="h2" fontWeight={700} gutterBottom>
-          Distanser og format
+      {/* Footer Note */}
+      <Box textAlign="center" sx={{ mt: 6 }}>
+        <Typography variant="body2" color="text.secondary">
+          For detailed race information, please visit the{' '}
+          <MuiLink href="https://krultra.no/kutc" target="_blank" rel="noopener noreferrer">
+            official KUTC website
+          </MuiLink>
         </Typography>
-        <Typography variant="body1" color="text.secondary" sx={{ maxWidth: 720, mb: 3 }}>
-          Alle deltakerne starter samtidig. Hver loop er 4,47 km med 369 høydemeter. Du må være tilbake i basecamp i tide for neste start hver time. Siste løper igjen på banen vinner.
-        </Typography>
-        <Grid container spacing={3}>
-          {raceDistances.map((race) => (
-            <Grid item xs={12} sm={6} md={4} key={race.id}>
-              <Paper elevation={1} sx={{ p: 3, borderRadius: 2, height: '100%', display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography variant="h6" fontWeight={700} color="primary">
-                  {race.displayName}
-                </Typography>
-                <Divider sx={{ my: 1 }} />
-                <Typography variant="body2">
-                  <strong>Distanse:</strong> {(race.length ?? 0).toFixed(1)} km
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Stigning:</strong> {(race.ascent ?? 0).toLocaleString('no-NO')} m
-                </Typography>
-                <Typography variant="body2">
-                  <strong>Nedstigning:</strong> {(race.descent ?? 0).toLocaleString('no-NO')} m
-                </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 'auto' }}>
-                  Du kan alltid velge å fortsette på flere loops så lenge du rekker tidsfristen.
-                </Typography>
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
-      <Box mt={6}>
-        <Typography variant="h4" component="h2" fontWeight={700} gutterBottom>
-          Påmeldingsavgifter
-        </Typography>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={6}>
-            <Paper elevation={1} sx={{ p: 3, borderRadius: 2, height: '100%', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <Typography variant="h6" fontWeight={700}>Standardpakke</Typography>
-              <Divider />
-              <Typography><strong>Deltakeravgift:</strong> {formatCurrency(event.fees?.participation)}</Typography>
-              <Typography><strong>Basecamp-tjenester:</strong> {formatCurrency(event.fees?.baseCamp)}</Typography>
-              <Typography><strong>Refunderbart depositum:</strong> {formatCurrency(event.fees?.deposit)}</Typography>
-              <Typography variant="h6" sx={{ mt: 1.5 }}>
-                Totalt: {formatCurrency(event.fees?.total)}
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 'auto' }}>
-                Depositum returneres til alle som møter til start. Betaling kan gjøres via Vipps/MobilePay eller internasjonalt med PayPal/bankoverføring.
-              </Typography>
-            </Paper>
-          </Grid>
-          <Grid item xs={12} md={6}>
-            <Paper elevation={1} sx={{ p: 3, borderRadius: 2, height: '100%', display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <Typography variant="h6" fontWeight={700}>Hva inngår?</Typography>
-              <Divider />
-              <Typography variant="body2">• Full tilgang til basecamp med servering og crew-støtte gjennom hele døgnet.</Typography>
-              <Typography variant="body2">• Live tracking, tidtaking og offisiell «Last One Standing»-resultatservice.</Typography>
-              <Typography variant="body2">• Tilgang til varmestue, søvnkapasitet og bagasjeområde mellom loopene.</Typography>
-              <Typography variant="body2">• Medalje, KUTC-gave og deltagelse i loop-rekordprogrammet.</Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ mt: 'auto' }}>
-                Spørsmål om lagdeltakere eller support kan rettes til arrangøren på <a href="mailto:post@krultra.no">post@krultra.no</a>.
-              </Typography>
-            </Paper>
-          </Grid>
-        </Grid>
-      </Box>
-
-      <Box mt={6}>
-        <Typography variant="h4" component="h2" fontWeight={700} gutterBottom>
-          Veien videre
-        </Typography>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={4}>
-            <Button
-              fullWidth
-              variant="contained"
-              color="primary"
-              size="large"
-              onClick={() => navigate('/kutc-2025')}
-            >
-              Besøk årets utgave
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Button
-              fullWidth
-              variant="outlined"
-              size="large"
-              onClick={() => navigate('/kutc/results')}
-            >
-              Se historiske resultater
-            </Button>
-          </Grid>
-          <Grid item xs={12} sm={6} md={4}>
-            <Button
-              fullWidth
-              variant="outlined"
-              size="large"
-              href="https://krultra.no/en/KUTC"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Offisiell infoside
-            </Button>
-          </Grid>
-        </Grid>
       </Box>
     </Container>
   );
 };
 
-interface StackedActionsProps {
-  navigate: ReturnType<typeof useNavigate>;
-}
-
-const StackedActions: React.FC<StackedActionsProps> = ({ navigate }) => (
-  <Box mt={3} display="flex" justifyContent="center" gap={2} flexWrap="wrap">
-    <Button
-      variant="contained"
-      color="primary"
-      onClick={() => navigate('/kutc-2025')}
-      sx={{ fontWeight: 700 }}
-    >
-      Siste utgave
-    </Button>
-    <Button
-      variant="outlined"
-      color="primary"
-      onClick={() => navigate('/kutc/results')}
-      sx={{ fontWeight: 700 }}
-    >
-      Resultater
-    </Button>
-    <Button
-      variant="text"
-      color="inherit"
-      href="https://krultra.no/nb/KUTC"
-      target="_blank"
-      rel="noopener noreferrer"
-      sx={{ fontWeight: 700 }}
-    >
-      krultra.no/KUTC
-    </Button>
-  </Box>
-);
 
 export default KUTCOverviewPage;

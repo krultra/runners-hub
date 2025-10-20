@@ -8,7 +8,8 @@ import {
   deleteDoc,
   doc,
   query,
-  orderBy
+  orderBy,
+  where
 } from 'firebase/firestore';
 import { Timestamp } from 'firebase/firestore';
 
@@ -18,6 +19,7 @@ export interface RaceDistance {
   length: number;
   ascent: number;
   descent: number;
+  active?: boolean;
 }
 
 export interface EventEdition {
@@ -51,7 +53,23 @@ export interface EventEditionSummary {
   edition: number;
 }
 
+export interface Event {
+  id: string;
+  name: string;
+  shortName: string;
+  description?: string;
+  maxParticipants?: number;
+  raceDistances?: RaceDistance[];
+  fees?: {
+    participation: number;
+    baseCamp: number;
+    deposit: number;
+    total: number;
+  };
+}
+
 const COLL = 'eventEditions';
+const EVENTS_COLL = 'events';
 
 export const listEventEditions = async (): Promise<EventEditionSummary[]> => {
   const q = query(collection(db, COLL), orderBy('eventId'), orderBy('edition'));
@@ -161,4 +179,75 @@ export const updateEventEdition = async (
 export const deleteEventEdition = async (id: string): Promise<void> => {
   const ref = doc(db, COLL, id);
   await deleteDoc(ref);
+};
+
+/**
+ * Get general event information (not edition-specific)
+ * Fetches from 'events' collection
+ */
+export const getEvent = async (eventId: string): Promise<Event> => {
+  const ref = doc(db, EVENTS_COLL, eventId);
+  console.log('eventService - fetching event with id:', eventId);
+  const snap = await getDoc(ref);
+  const data = snap.data();
+  if (!data) throw new Error(`Event '${eventId}' not found`);
+  
+  return {
+    id: snap.id,
+    name: data.name || '',
+    shortName: data.shortName || '',
+    description: data.description,
+    maxParticipants: data.maxParticipants,
+    raceDistances: data.raceDistances || [],
+    fees: data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 }
+  } as Event;
+};
+
+/**
+ * Get previous and next editions for an event based on current time
+ * Previous = most recent edition that has ended (endTime < now)
+ * Next = earliest edition that hasn't started yet (startTime > now)
+ */
+export const getAdjacentEditions = async (eventId: string): Promise<{
+  previous: EventEdition | null;
+  next: EventEdition | null;
+}> => {
+  const toDateSafe = (value: unknown): Date | null => {
+    if (!value) return null;
+    if (value instanceof Date) return value;
+    if (typeof (value as { toDate?: () => Date }).toDate === 'function') {
+      return (value as { toDate: () => Date }).toDate();
+    }
+    const parsed = new Date(value as any);
+    return Number.isNaN(parsed.getTime()) ? null : parsed;
+  };
+
+  const q = query(
+    collection(db, COLL),
+    where('eventId', '==', eventId),
+    orderBy('startTime', 'asc')
+  );
+  const snap = await getDocs(q);
+  const editions = snap.docs.map(d => ({
+    id: d.id,
+    ...d.data()
+  } as unknown as EventEdition)).filter(ed => ed.status !== 'hidden');
+
+  const now = new Date();
+  
+  // Previous: most recent edition where endTime < now
+  const pastEditions = editions.filter(ed => {
+    const endTime = toDateSafe(ed.endTime);
+    return !!endTime && endTime < now;
+  });
+  const previous = pastEditions.length > 0 ? pastEditions[pastEditions.length - 1] : null;
+  
+  // Next: earliest edition where startTime > now
+  const futureEditions = editions.filter(ed => {
+    const startTime = toDateSafe(ed.startTime);
+    return !!startTime && startTime > now;
+  });
+  const next = futureEditions.length > 0 ? futureEditions[0] : null;
+  
+  return { previous, next };
 };

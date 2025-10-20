@@ -67,6 +67,46 @@ export interface KUTCEdition {
   metadata?: KUTCEditionMetadata;
 }
 
+export interface AllTimeParticipant {
+  personId: number;
+  firstName: string;
+  lastName: string;
+  editionResults: Map<string, number | null>; // editionId -> loops completed (null = didn't participate, 0 = DNS)
+  totalLoops: number;
+}
+
+export interface LoopRecord {
+  personId: number;
+  firstName: string;
+  lastName: string;
+  loopsCompleted: number;
+  totalTimeSeconds: number | null;
+  totalTimeDisplay: string;
+  editionId: string;
+  year: number;
+}
+
+export interface FastestTimeRecord {
+  personId: number;
+  firstName: string;
+  lastName: string;
+  distanceKey: string;
+  raceName: string;
+  loops: number; // Number of loops for this race distance
+  timeSeconds: number;
+  timeDisplay: string;
+  editionId: string;
+  year: number;
+}
+
+export interface AppearanceRecord {
+  personId: number;
+  firstName: string;
+  lastName: string;
+  appearances: number;
+  editions: string[]; // edition IDs
+}
+
 // ============================================
 // Helpers
 // ============================================
@@ -348,4 +388,303 @@ export async function getRunnerResult(
     ...snap.data(),
     personId
   } as KUTCResultEntry;
+}
+
+/**
+ * Get all-time leaderboard data for KUTC
+ * Aggregates loops completed across all editions for each participant
+ */
+export async function getAllTimeLeaderboard(): Promise<{
+  participants: AllTimeParticipant[];
+  editions: KUTCEdition[];
+}> {
+  console.log('[KUTC All-Time] Fetching editions...');
+  
+  // Get all editions (sorted by year)
+  const editions = await listKUTCEditions();
+  console.log(`[KUTC All-Time] Found ${editions.length} editions`);
+  
+  // Map to track all participants: personId -> participant data
+  const participantMap = new Map<number, AllTimeParticipant>();
+  
+  // Fetch results for each edition
+  for (const edition of editions) {
+    console.log(`[KUTC All-Time] Processing ${edition.id}...`);
+    
+    try {
+      // Get total competition results for this edition
+      const results = await getTotalCompetitionResults(edition.id);
+      console.log(`[KUTC All-Time] ${edition.id}: ${results.length} participants`);
+      
+      // Process each result
+      for (const result of results) {
+        const { personId, firstName, lastName, loopsCompleted, status } = result;
+        
+        // Get or create participant entry
+        if (!participantMap.has(personId)) {
+          participantMap.set(personId, {
+            personId,
+            firstName: firstName || 'Unknown',
+            lastName: lastName || 'Unknown',
+            editionResults: new Map(),
+            totalLoops: 0
+          });
+        }
+        
+        const participant = participantMap.get(personId)!;
+        
+        // Update name if we have better data
+        if (firstName) participant.firstName = firstName;
+        if (lastName) participant.lastName = lastName;
+        
+        // Determine loops for this edition
+        // loopsCompleted is number of loops, or 0 if DNS
+        const loops = loopsCompleted ?? 0;
+        participant.editionResults.set(edition.id, loops);
+        participant.totalLoops += loops;
+      }
+    } catch (err) {
+      console.error(`[KUTC All-Time] Error fetching results for ${edition.id}:`, err);
+    }
+  }
+  
+  // Convert map to array and sort by total loops (descending)
+  const participants = Array.from(participantMap.values())
+    .sort((a, b) => b.totalLoops - a.totalLoops);
+  
+  console.log(`[KUTC All-Time] Total unique participants: ${participants.length}`);
+  
+  return {
+    participants,
+    editions
+  };
+}
+
+/**
+ * Get max loops records across all KUTC editions
+ * Returns top 3 results (with ties) sorted by loops completed, then by time
+ */
+export async function getMaxLoopsRecords(): Promise<LoopRecord[]> {
+  console.log('[KUTC Records] Fetching max loops records...');
+  
+  const editions = await listKUTCEditions();
+  const allRecords: LoopRecord[] = [];
+  
+  // Collect all total competition results across editions
+  for (const edition of editions) {
+    try {
+      const results = await getTotalCompetitionResults(edition.id);
+      
+      for (const result of results) {
+        if (result.loopsCompleted && result.loopsCompleted > 0) {
+          allRecords.push({
+            personId: result.personId,
+            firstName: result.firstName || 'Unknown',
+            lastName: result.lastName || 'Unknown',
+            loopsCompleted: result.loopsCompleted,
+            totalTimeSeconds: result.totalTimeSeconds || null,
+            totalTimeDisplay: result.totalTimeDisplay || '-',
+            editionId: edition.id,
+            year: edition.year
+          });
+        }
+      }
+    } catch (err) {
+      console.error(`[KUTC Records] Error fetching results for ${edition.id}:`, err);
+    }
+  }
+  
+  // Sort by loops (descending), then by time (ascending)
+  allRecords.sort((a, b) => {
+    if (a.loopsCompleted !== b.loopsCompleted) {
+      return b.loopsCompleted - a.loopsCompleted;
+    }
+    // Handle null times
+    if (a.totalTimeSeconds === null && b.totalTimeSeconds === null) return 0;
+    if (a.totalTimeSeconds === null) return 1;
+    if (b.totalTimeSeconds === null) return -1;
+    return a.totalTimeSeconds - b.totalTimeSeconds;
+  });
+  
+  // Get top records (include ties for 3rd place)
+  if (allRecords.length === 0) return [];
+  
+  const topRecords: LoopRecord[] = [];
+  const maxLoops = allRecords[0].loopsCompleted;
+  let thirdPlaceLoops = 0;
+  
+  // Find the loops count for 3rd place
+  let placesFound = 0;
+  let currentLoops = maxLoops;
+  
+  for (const record of allRecords) {
+    if (record.loopsCompleted < currentLoops) {
+      placesFound++;
+      currentLoops = record.loopsCompleted;
+    }
+    if (placesFound === 2) {
+      thirdPlaceLoops = record.loopsCompleted;
+      break;
+    }
+  }
+  
+  // Include all records with loops >= 3rd place loops
+  for (const record of allRecords) {
+    if (thirdPlaceLoops > 0 && record.loopsCompleted >= thirdPlaceLoops) {
+      topRecords.push(record);
+    } else if (thirdPlaceLoops === 0 && topRecords.length < 3) {
+      topRecords.push(record);
+    }
+  }
+  
+  console.log(`[KUTC Records] Found ${topRecords.length} max loops records`);
+  return topRecords;
+}
+
+/**
+ * Get fastest race times for each distance across all editions
+ * Returns map of distanceKey -> fastest records (with ties)
+ */
+export async function getFastestRaceTimes(): Promise<Map<string, FastestTimeRecord[]>> {
+  console.log('[KUTC Records] Fetching fastest race times...');
+  
+  const editions = await listKUTCEditions();
+  const distanceRecords: Record<string, FastestTimeRecord[]> = {};
+  
+  // Collect all race results
+  for (const edition of editions) {
+    if (!edition.metadata?.races) continue;
+    
+    for (const race of edition.metadata.races) {
+      if (race.distanceKey === 'total') continue; // Skip total competition
+      
+      try {
+        const results = await getRaceDistanceResults(edition.id, race.distanceKey);
+        
+        for (const result of results) {
+          if (result.raceTimeSeconds && result.raceTimeSeconds > 0) {
+            // Extract loop count from race name (e.g., "12-Loops" or "12 - Loops" -> 12)
+            const loopMatch = race.raceName.match(/^(\d+)\s*-/);
+            const loops = loopMatch ? parseInt(loopMatch[1], 10) : 0;
+            
+            const record: FastestTimeRecord = {
+              personId: result.personId,
+              firstName: result.firstName || 'Unknown',
+              lastName: result.lastName || 'Unknown',
+              distanceKey: race.distanceKey,
+              raceName: race.raceName,
+              loops,
+              timeSeconds: result.raceTimeSeconds,
+              timeDisplay: result.raceTimeDisplay || '-',
+              editionId: edition.id,
+              year: edition.year
+            };
+            
+            if (!distanceRecords[race.distanceKey]) {
+              distanceRecords[race.distanceKey] = [];
+            }
+            distanceRecords[race.distanceKey].push(record);
+          }
+        }
+      } catch (err) {
+        console.error(`[KUTC Records] Error fetching race ${race.distanceKey} for ${edition.id}:`, err);
+      }
+    }
+  }
+  
+  // For each distance, keep top 3 times (including ties for 3rd place)
+  const fastestByDistance = new Map<string, FastestTimeRecord[]>();
+  
+  Object.keys(distanceRecords).forEach((distanceKey: string) => {
+    const recordsForDistance = distanceRecords[distanceKey];
+    if (!recordsForDistance || recordsForDistance.length === 0) {
+      return;
+    }
+
+    const sortedRecords: FastestTimeRecord[] = recordsForDistance
+      .slice()
+      .sort((a: FastestTimeRecord, b: FastestTimeRecord) => a.timeSeconds - b.timeSeconds);
+
+    // Find top 3 unique times (with ties)
+    const topRecords: FastestTimeRecord[] = [];
+    let placesFound = 0;
+    let currentTime = -1;
+    
+    for (const record of sortedRecords) {
+      if (record.timeSeconds !== currentTime) {
+        placesFound++;
+        currentTime = record.timeSeconds;
+      }
+      if (placesFound <= 3) {
+        topRecords.push(record);
+      } else {
+        break;
+      }
+    }
+
+    fastestByDistance.set(distanceKey, topRecords);
+    console.log(`[KUTC Records] ${distanceKey}: ${topRecords.length} top record(s)`);
+  });
+  
+  return fastestByDistance;
+}
+
+/**
+ * Get appearance leaders (most editions participated in)
+ * Returns all participants tied for most appearances
+ */
+export async function getAppearanceLeaders(): Promise<AppearanceRecord[]> {
+  console.log('[KUTC Records] Fetching appearance leaders...');
+  
+  const editions = await listKUTCEditions();
+  const participantAppearances = new Map<number, { firstName: string; lastName: string; editions: string[] }>();
+  
+  // Count appearances for each participant
+  for (const edition of editions) {
+    try {
+      const results = await getTotalCompetitionResults(edition.id);
+      
+      for (const result of results) {
+        if (!participantAppearances.has(result.personId)) {
+          participantAppearances.set(result.personId, {
+            firstName: result.firstName || 'Unknown',
+            lastName: result.lastName || 'Unknown',
+            editions: []
+          });
+        }
+        
+        participantAppearances.get(result.personId)!.editions.push(edition.id);
+        
+        // Update name if we have better data
+        if (result.firstName) {
+          participantAppearances.get(result.personId)!.firstName = result.firstName;
+        }
+        if (result.lastName) {
+          participantAppearances.get(result.personId)!.lastName = result.lastName;
+        }
+      }
+    } catch (err) {
+      console.error(`[KUTC Records] Error fetching results for ${edition.id}:`, err);
+    }
+  }
+  
+  // Convert to array and sort by appearances
+  const appearanceRecords: AppearanceRecord[] = Array.from(participantAppearances.entries()).map(
+    ([personId, data]) => ({
+      personId,
+      firstName: data.firstName,
+      lastName: data.lastName,
+      appearances: data.editions.length,
+      editions: data.editions
+    })
+  ).sort((a, b) => b.appearances - a.appearances);
+  
+  // Return only those tied for most appearances
+  if (appearanceRecords.length === 0) return [];
+  
+  const maxAppearances = appearanceRecords[0].appearances;
+  const leaders = appearanceRecords.filter(r => r.appearances === maxAppearances);
+  
+  console.log(`[KUTC Records] ${leaders.length} leader(s) with ${maxAppearances} appearances`);
+  return leaders;
 }
