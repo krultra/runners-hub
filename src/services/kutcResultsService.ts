@@ -145,6 +145,52 @@ const normalizeEditionMetadata = (editionId: string, raw: any): KUTCEditionMetad
   };
 };
 
+const FINISHED_STATUS_VALUES = new Set(['finished', 'finish', 'finished!', 'complete', 'completed']);
+
+const isFinishedStatus = (status?: string | null): boolean => {
+  if (!status) return false;
+  const normalized = String(status).trim().toLowerCase();
+  if (!normalized) return false;
+  if (FINISHED_STATUS_VALUES.has(normalized)) return true;
+  // Support combined statuses like "finished (preliminary)"
+  return normalized.startsWith('finished');
+};
+
+const countFinishedResults = (results: KUTCResultEntry[]): number =>
+  results.reduce((acc, entry) => (isFinishedStatus(entry.status) ? acc + 1 : acc), 0);
+
+const applyFinisherCounts = async (editionId: string, metadata: KUTCEditionMetadata): Promise<void> => {
+  try {
+    const totalResults = await getTotalCompetitionResults(editionId);
+    metadata.totalFinishers = countFinishedResults(totalResults);
+  } catch (err) {
+    console.warn(`[KUTC] Unable to recompute total finishers for ${editionId}`, err);
+  }
+
+  const raceUpdates = await Promise.all(
+    metadata.races
+      .filter((race) => race.distanceKey && race.distanceKey !== 'total')
+      .map(async (race) => {
+        try {
+          const results = await getRaceDistanceResults(editionId, race.distanceKey);
+          return { key: race.distanceKey, finishers: countFinishedResults(results) };
+        } catch (err) {
+          console.warn(`[KUTC] Unable to recompute finishers for ${editionId}/${race.distanceKey}`, err);
+          return { key: race.distanceKey, finishers: race.finishers };
+        }
+      })
+  );
+
+  const finisherMap = new Map(raceUpdates.map((r) => [r.key, r.finishers]));
+  metadata.races = metadata.races.map((race) => {
+    if (race.distanceKey === 'total') {
+      return { ...race, finishers: metadata.totalFinishers };
+    }
+    const override = finisherMap.get(race.distanceKey);
+    return typeof override === 'number' ? { ...race, finishers: override } : race;
+  });
+};
+
 // ============================================
 // Service Functions
 // ============================================
@@ -230,6 +276,16 @@ export const listKUTCEditions = async (): Promise<KUTCEdition[]> => {
     } as KUTCEdition;
   }));
 
+  await Promise.all(
+    editions
+      .filter((edition): edition is KUTCEdition => Boolean(edition))
+      .map(async (edition) => {
+        if (edition.metadata) {
+          await applyFinisherCounts(edition.id, edition.metadata);
+        }
+      })
+  );
+
   return editions
     .filter((edition): edition is KUTCEdition => Boolean(edition))
     .sort((a, b) => b.year - a.year);
@@ -303,6 +359,8 @@ export const getEditionMetadata = async (editionId: string): Promise<KUTCEdition
       console.error('[KUTC-Meta] Failed to get verbose name for results status:', err);
       normalized.resultsStatusLabel = normalized.resultsStatus;
     }
+
+    await applyFinisherCounts(editionDocId, normalized);
 
     return normalized;
   } catch (error) {

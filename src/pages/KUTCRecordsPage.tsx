@@ -24,6 +24,7 @@ import {
   getMaxLoopsRecords,
   getFastestRaceTimes,
   getAppearanceLeaders,
+  listKUTCEditions,
   LoopRecord,
   FastestTimeRecord,
   AppearanceRecord
@@ -36,11 +37,21 @@ const KUTCRecordsPage: React.FC = () => {
   const [appearanceLeaders, setAppearanceLeaders] = useState<AppearanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [hasDataIntegrityIssues, setHasDataIntegrityIssues] = useState(false);
+
+  const raceAvailabilityNotes: Record<string, string> = {
+    '2-loops': '(this race distance was only available in 2018)',
+    '3-loops': '(this race distance was only available in 2018)',
+    '7-loops': '(this race distance was only available in 2018, 2019 and 2020)'
+  };
 
   useEffect(() => {
     const fetchRecords = async () => {
       try {
         setLoading(true);
+        const editions = await listKUTCEditions();
+        setHasDataIntegrityIssues(editions.some(edition => edition.metadata?.resultsStatus === 'error'));
+
         const [loops, times, appearances] = await Promise.all([
           getMaxLoopsRecords(),
           getFastestRaceTimes(),
@@ -104,6 +115,12 @@ const KUTCRecordsPage: React.FC = () => {
           Back to overview
         </Button>
       </Box>
+
+      {hasDataIntegrityIssues && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          Some historical editions currently contain data errors. We are working to correct them as soon as possible.
+        </Alert>
+      )}
 
       {/* Max Loops Section */}
       <Box sx={{ mb: 6 }}>
@@ -172,6 +189,11 @@ const KUTCRecordsPage: React.FC = () => {
             <Typography variant="h6" fontWeight="bold" gutterBottom>
               {records[0]?.raceName || distanceKey}
             </Typography>
+            {raceAvailabilityNotes[distanceKey] && (
+              <Typography variant="caption" color="text.secondary" display="block" sx={{ mb: 2 }}>
+                {raceAvailabilityNotes[distanceKey]}
+              </Typography>
+            )}
             
             <TableContainer>
               <Table>

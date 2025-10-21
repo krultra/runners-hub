@@ -46,6 +46,12 @@ const KUTCYearResultsPage: React.FC = () => {
     return `${baseName} ${metadata.year}`.trim();
   }, [metadata, eventDetails]);
 
+  const hasDataIntegrityIssue = useMemo(() => {
+    if (!metadata) return false;
+    if (metadata.resultsStatus === 'error') return true;
+    return eventDetails?.resultsStatus === 'error';
+  }, [metadata, eventDetails?.resultsStatus]);
+
   // Fetch metadata and total results
   useEffect(() => {
     const fetchData = async () => {
@@ -158,13 +164,19 @@ const KUTCYearResultsPage: React.FC = () => {
             label={metadata.resultsStatus.toUpperCase()}
             color={
               metadata.resultsStatus === 'final' ? 'success' :
-              metadata.resultsStatus === 'preliminary' ? 'warning' : 'default'
+              metadata.resultsStatus === 'preliminary' ? 'warning' :
+              metadata.resultsStatus === 'error' ? 'error' : 'default'
             }
           />
           <Typography variant="body1" color="text.secondary">
             {metadata.totalParticipants} participants • {metadata.totalFinishers} finishers
           </Typography>
         </Box>
+        {hasDataIntegrityIssue && (
+          <Alert severity="warning" sx={{ mt: 2 }}>
+            We have some errors in the data for this edition. We are working to correct them as soon as possible.
+          </Alert>
+        )}
       </Box>
 
       {/* If no race selected, show distance cards */}

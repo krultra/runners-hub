@@ -14,6 +14,11 @@ import { EmojiEvents, MilitaryTech } from '@mui/icons-material';
 import { getAllTimeLeaderboard, AllTimeParticipant, KUTCEdition } from '../services/kutcResultsService';
 import { useNavigate } from 'react-router-dom';
 
+type RankedParticipant = AllTimeParticipant & {
+  rank: number;
+  medal: 'gold' | 'silver' | 'bronze' | null;
+};
+
 const KUTCAllTimeLeaderboardPage: React.FC = () => {
   const navigate = useNavigate();
   const [participants, setParticipants] = useState<AllTimeParticipant[]>([]);
@@ -25,6 +30,26 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
     const saved = localStorage.getItem('kutc-leaderboard-pageSize');
     return saved ? parseInt(saved, 10) : 25;
   });
+  const hasDataIntegrityIssues = useMemo(
+    () => editions.some(edition => edition.metadata?.resultsStatus === 'error'),
+    [editions]
+  );
+
+  const rankedParticipants: RankedParticipant[] = useMemo(
+    () => participants.map((participant, index) => ({
+      ...participant,
+      rank: index + 1,
+      medal:
+        index === 0
+          ? 'gold'
+          : index === 1
+          ? 'silver'
+          : index === 2
+          ? 'bronze'
+          : null
+    })),
+    [participants]
+  );
 
   useEffect(() => {
     const fetchLeaderboard = async () => {
@@ -46,13 +71,18 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
 
   // Filter participants based on search text
   const filteredParticipants = useMemo(() => {
-    if (!searchText) return participants;
+    if (!searchText) return rankedParticipants;
     const search = searchText.toLowerCase();
-    return participants.filter(p =>
+    return rankedParticipants.filter(p =>
       p.firstName.toLowerCase().includes(search) ||
       p.lastName.toLowerCase().includes(search)
     );
-  }, [participants, searchText]);
+  }, [rankedParticipants, searchText]);
+
+  const filteredTotalLoops = useMemo(
+    () => filteredParticipants.reduce((sum, participant) => sum + (participant.totalLoops || 0), 0),
+    [filteredParticipants]
+  );
 
   if (loading) {
     return (
@@ -156,21 +186,14 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
   ];
 
   // Transform data for DataGrid
-  const rows = filteredParticipants.map((p, index) => ({
+  const rows = filteredParticipants.map((p) => ({
     id: p.personId,
-    rank: index + 1,
+    rank: p.rank,
     firstName: p.firstName,
     lastName: p.lastName,
     editionResults: p.editionResults,
     totalLoops: p.totalLoops,
-    medal:
-      index === 0
-        ? 'gold'
-        : index === 1
-        ? 'silver'
-        : index === 2
-        ? 'bronze'
-        : null
+    medal: p.medal
   }));
 
   return (
@@ -185,7 +208,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
           Total loops completed across all KUTC editions
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Showing {filteredParticipants.length} of {participants.length} participants across {editions.length} editions
+          Showing {filteredParticipants.length} participants across {editions.length} editions with a total of {filteredTotalLoops.toLocaleString()} completed loops
         </Typography>
         <Button
           variant="outlined"
@@ -195,6 +218,12 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
           Back to overview
         </Button>
       </Box>
+
+      {hasDataIntegrityIssues && (
+        <Alert severity="warning" sx={{ mb: 3 }}>
+          Some historical editions currently contain data errors. We are working to correct them as soon as possible.
+        </Alert>
+      )}
 
       {/* Search Field */}
       <Box sx={{ mb: 3 }}>

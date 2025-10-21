@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Container,
@@ -21,6 +21,10 @@ const KUTCResultsOverviewPage: React.FC = () => {
   const [editions, setEditions] = useState<KUTCEdition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const hasDataIntegrityIssues = useMemo(
+    () => editions.some(edition => edition.metadata?.resultsStatus === 'error'),
+    [editions]
+  );
 
   useEffect(() => {
     const fetchEditions = async () => {
@@ -65,8 +69,17 @@ const KUTCResultsOverviewPage: React.FC = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       {/* Header */}
       <Box sx={{ mb: 4 }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-          <Box>
+        <Box
+          sx={{
+            display: 'flex',
+            flexWrap: 'wrap',
+            justifyContent: 'space-between',
+            alignItems: 'flex-start',
+            gap: 2,
+            mb: 2
+          }}
+        >
+          <Box sx={{ flex: '1 1 240px' }}>
             <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
               <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
               KUTC Results
@@ -75,7 +88,14 @@ const KUTCResultsOverviewPage: React.FC = () => {
               Kruke's Ultra-Trail Challenge - Historical Results
             </Typography>
           </Box>
-          <Box sx={{ display: 'flex', gap: 2, mt: 1 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: 2,
+              mt: { xs: 0, sm: 1 }
+            }}
+          >
             <Button
               variant="contained"
               color="primary"
@@ -94,6 +114,12 @@ const KUTCResultsOverviewPage: React.FC = () => {
             </Button>
           </Box>
         </Box>
+
+        {hasDataIntegrityIssues && (
+          <Alert severity="warning">
+            Some historical editions currently contain data errors. We are working to correct them as soon as possible.
+          </Alert>
+        )}
       </Box>
 
       {/* Editions Grid */}
@@ -158,7 +184,8 @@ const KUTCResultsOverviewPage: React.FC = () => {
                           size="small"
                           color={
                             edition.metadata.resultsStatus === 'final' ? 'success' :
-                            edition.metadata.resultsStatus === 'preliminary' ? 'warning' : 'default'
+                            edition.metadata.resultsStatus === 'preliminary' ? 'warning' :
+                            edition.metadata.resultsStatus === 'error' ? 'error' : 'default'
                           }
                         />
                       </Box>
