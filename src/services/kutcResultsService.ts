@@ -691,7 +691,7 @@ export async function getFastestRaceTimes(): Promise<Map<string, FastestTimeReco
  * Get appearance leaders (most editions participated in)
  * Returns all participants tied for most appearances
  */
-export async function getAppearanceLeaders(): Promise<AppearanceRecord[]> {
+export async function getAppearanceLeaders(): Promise<{ top: AppearanceRecord[]; runnerUp: AppearanceRecord[] }> {
   console.log('[KUTC Records] Fetching appearance leaders...');
   
   const editions = await listKUTCEditions();
@@ -737,12 +737,22 @@ export async function getAppearanceLeaders(): Promise<AppearanceRecord[]> {
     })
   ).sort((a, b) => b.appearances - a.appearances);
   
-  // Return only those tied for most appearances
-  if (appearanceRecords.length === 0) return [];
-  
+  if (appearanceRecords.length === 0) {
+    return { top: [], runnerUp: [] };
+  }
+
   const maxAppearances = appearanceRecords[0].appearances;
-  const leaders = appearanceRecords.filter(r => r.appearances === maxAppearances);
-  
-  console.log(`[KUTC Records] ${leaders.length} leader(s) with ${maxAppearances} appearances`);
-  return leaders;
+  const top = appearanceRecords.filter((record) => record.appearances === maxAppearances);
+
+  const runnerUpAppearances = appearanceRecords.find((record) => record.appearances < maxAppearances)?.appearances ?? null;
+  const runnerUp = runnerUpAppearances
+    ? appearanceRecords.filter((record) => record.appearances === runnerUpAppearances)
+    : [];
+
+  console.log(
+    `[KUTC Records] Found ${top.length} leader(s) with ${maxAppearances} appearances` +
+      (runnerUpAppearances ? ` and ${runnerUp.length} runner-up(s) with ${runnerUpAppearances} appearances` : '')
+  );
+
+  return { top, runnerUp };
 }

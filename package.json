@@ -37,7 +37,7 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "env-cmd -f .env.production react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
@@ -63,7 +63,9 @@
     "deploy:indexes": "firebase deploy --only firestore:indexes --project runnershub-62442",
     "deploy:indexes:test": "firebase deploy --only firestore:indexes --project runnershubtest",
     "backup": "node scripts/backupFirestore.js",
+    "backup:test": "FIREBASE_ADMIN_SA=~/.secrets/runners-hub/serviceAccountKeyTest.json node scripts/backupFirestore.js",
     "restore": "node scripts/restoreFirestore.js",
+    "restore:test": "FIREBASE_ADMIN_SA=~/.secrets/runners-hub/serviceAccountKeyTest.json node scripts/restoreFirestore.js",
     "copy:users": "node scripts/copyCollection.js",
     "compare:users": "node scripts/compareUsersWithBackup.js",
     "backfill:uids": "node scripts/backfillUserUids.js",

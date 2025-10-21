@@ -34,7 +34,10 @@ const KUTCRecordsPage: React.FC = () => {
   const navigate = useNavigate();
   const [loopRecords, setLoopRecords] = useState<LoopRecord[]>([]);
   const [fastestTimes, setFastestTimes] = useState<Map<string, FastestTimeRecord[]>>(new Map());
-  const [appearanceLeaders, setAppearanceLeaders] = useState<AppearanceRecord[]>([]);
+  const [appearanceGroups, setAppearanceGroups] = useState<{ top: AppearanceRecord[]; runnerUp: AppearanceRecord[] }>({
+    top: [],
+    runnerUp: []
+  });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [hasDataIntegrityIssues, setHasDataIntegrityIssues] = useState(false);
@@ -60,7 +63,7 @@ const KUTCRecordsPage: React.FC = () => {
         
         setLoopRecords(loops);
         setFastestTimes(times);
-        setAppearanceLeaders(appearances);
+        setAppearanceGroups(appearances);
       } catch (err) {
         console.error('Error fetching records:', err);
         setError('Failed to load records data');
@@ -95,6 +98,12 @@ const KUTCRecordsPage: React.FC = () => {
     if (index >= 3) return null;
     return <MilitaryTech sx={{ fontSize: 28, color: colors[index], mr: 1 }} />;
   };
+
+  const formatAppearances = (count: number) => `${count} ${count === 1 ? 'Edition' : 'Editions'}`;
+  const topGroup = appearanceGroups.top;
+  const runnerUpGroup = appearanceGroups.runnerUp;
+  const topAppearancesLabel = topGroup.length > 0 ? formatAppearances(topGroup[0].appearances) : null;
+  const runnerUpAppearancesLabel = runnerUpGroup.length > 0 ? formatAppearances(runnerUpGroup[0].appearances) : null;
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
@@ -176,6 +185,9 @@ const KUTCRecordsPage: React.FC = () => {
           <Timer sx={{ fontSize: 32, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
           Fastest Race Times
         </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 720 }}>
+          The records listed for the various distances below are based only on times recorded by runners who were registered for that specific race distance. Split times from runners registered for a different race distance do not count as records, even if the time is faster than that of those registered as records for the race distance in question.
+        </Typography>
 
         {Array.from(fastestTimes.entries())
           .sort(([, recordsA], [, recordsB]) => {
@@ -242,14 +254,16 @@ const KUTCRecordsPage: React.FC = () => {
         </Typography>
 
         <Paper elevation={2} sx={{ p: 3 }}>
-          {appearanceLeaders.length > 0 ? (
+          {topGroup.length > 0 ? (
             <>
-              <Typography variant="h5" color="primary" gutterBottom>
-                {appearanceLeaders[0].appearances} {appearanceLeaders[0].appearances === 1 ? 'Edition' : 'Editions'}
-              </Typography>
+              {topAppearancesLabel && (
+                <Typography variant="h5" color="primary" gutterBottom>
+                  {topAppearancesLabel}
+                </Typography>
+              )}
               
               <Grid container spacing={2}>
-                {appearanceLeaders.map((leader) => (
+                {topGroup.map((leader) => (
                   <Grid item xs={12} sm={6} md={4} key={leader.personId}>
                     <Card variant="outlined">
                       <CardContent>
@@ -264,6 +278,30 @@ const KUTCRecordsPage: React.FC = () => {
                   </Grid>
                 ))}
               </Grid>
+
+              {runnerUpGroup.length > 0 && runnerUpAppearancesLabel && (
+                <>
+                  <Typography variant="h6" fontWeight="bold" sx={{ mt: 4 }}>
+                    Runners-up – {runnerUpAppearancesLabel}
+                  </Typography>
+                  <Grid container spacing={2} sx={{ mt: 1 }}>
+                    {runnerUpGroup.map((leader) => (
+                      <Grid item xs={12} sm={6} md={4} key={`runner-${leader.personId}`}>
+                        <Card variant="outlined">
+                          <CardContent>
+                            <Typography variant="h6" fontWeight="bold" gutterBottom>
+                              {leader.firstName} {leader.lastName}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                              Participated in: {leader.editions.join(', ').replace(/kutc-/g, '')}
+                            </Typography>
+                          </CardContent>
+                        </Card>
+                      </Grid>
+                    ))}
+                  </Grid>
+                </>
+              )}
             </>
           ) : (
             <Alert severity="info">No appearance records available</Alert>

@@ -1,39 +1,39 @@
 // scripts/restoreFirestore.js
-const fs = require('fs')
-const path = require('path')
-const os = require('os')
-const admin = require('firebase-admin')
+const path = require('path');
+const os = require('os');
+const { runRestore } = require('./firestoreBackupCollections');
 
-// Initialize with your service account
-admin.initializeApp({
-  credential: admin.credential.cert(require(path.join(os.homedir(), '.secrets/runners-hub/serviceAccountKey.json'))),
-})
-const db = admin.firestore()
+async function restore() {
+  const credentialPath = process.env.FIREBASE_ADMIN_SA
+    ? process.env.FIREBASE_ADMIN_SA
+    : path.join(os.homedir(), '.secrets/runners-hub/serviceAccountKey.json');
 
-async function restore(backupPath) {
-  const absPath = path.resolve(backupPath)
-  if (!fs.existsSync(absPath)) {
-    console.error('Backup file not found:', absPath)
-    process.exit(1)
+  const backupPath = process.argv[2];
+  if (!backupPath) {
+    console.error('Usage: node scripts/restoreFirestore.js <backup-file-path> [--purge true] [--dry-run true]');
+    process.exit(1);
   }
-  const data = JSON.parse(fs.readFileSync(absPath, 'utf8'))
-  for (const [colName, docs] of Object.entries(data)) {
-    console.log(`Restoring collection: ${colName}`)
-    const colRef = db.collection(colName)
-    for (const [docId, docData] of Object.entries(docs)) {
-      await colRef.doc(docId).set(docData)
-    }
+
+  const args = process.argv.slice(3);
+  const options = {};
+  for (let i = 0; i < args.length; i++) {
+    const token = args[i];
+    if (!token.startsWith('--')) continue;
+    const key = token.slice(2);
+    const value = args[i + 1] && !args[i + 1].startsWith('--') ? args[++i] : 'true';
+    options[key] = value;
   }
-  console.log('Restore completed from', absPath)
+
+  await runRestore({
+    credentialPath,
+    inputPath: backupPath,
+    collections: [],
+    purge: options.purge === 'true' || options.purge === '1',
+    dryRun: options['dry-run'] === 'true' || options['dry-run'] === '1'
+  });
 }
 
-const arg = process.argv[2]
-if (!arg) {
-  console.error('Usage: node scripts/restoreFirestore.js <backup-file-path>')
-  process.exit(1)
-}
-
-restore(arg).catch(err => {
-  console.error('Restore failed:', err)
-  process.exit(1)
-})
+restore().catch(err => {
+  console.error('Restore failed:', err);
+  process.exit(1);
+});

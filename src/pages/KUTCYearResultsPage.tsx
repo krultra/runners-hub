@@ -19,6 +19,8 @@ import {
   getEditionMetadata,
   getTotalCompetitionResults,
   getRaceDistanceResults,
+  listKUTCEditions,
+  KUTCEdition,
   KUTCEditionMetadata,
   KUTCResultEntry,
   KUTCRaceInfo
@@ -35,7 +37,7 @@ const KUTCYearResultsPage: React.FC = () => {
   const [selectedRace, setSelectedRace] = useState<string | null>(null);
   const [raceResults, setRaceResults] = useState<KUTCResultEntry[]>([]);
   const [eventDetails, setEventDetails] = useState<EventEdition | null>(null);
-  
+  const [sortedEditions, setSortedEditions] = useState<KUTCEdition[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadingRace, setLoadingRace] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -59,7 +61,21 @@ const KUTCYearResultsPage: React.FC = () => {
 
       try {
         setLoading(true);
-        
+
+        // Fetch available editions once per mount/change
+        const editions = await listKUTCEditions();
+        const filtered = editions
+          .filter((edition): edition is KUTCEdition => Boolean(edition && typeof edition.id === 'string'))
+          .sort((a, b) => {
+            const yearA = Number.isFinite(a.year) ? a.year : Number.MAX_SAFE_INTEGER;
+            const yearB = Number.isFinite(b.year) ? b.year : Number.MAX_SAFE_INTEGER;
+            if (yearA === yearB) {
+              return a.id.localeCompare(b.id);
+            }
+            return yearA - yearB;
+          });
+        setSortedEditions(filtered);
+
         // Fetch metadata
         const meta = await getEditionMetadata(year);
         if (!meta) {
@@ -90,6 +106,19 @@ const KUTCYearResultsPage: React.FC = () => {
 
     fetchData();
   }, [year]);
+
+  const { previousEdition, nextEdition } = useMemo(() => {
+    if (!year || sortedEditions.length === 0) {
+      return { previousEdition: null, nextEdition: null };
+    }
+    const index = sortedEditions.findIndex((edition) => edition.id === year);
+    if (index === -1) {
+      return { previousEdition: null, nextEdition: null };
+    }
+    const previous = index > 0 ? sortedEditions[index - 1] : null;
+    const next = index < sortedEditions.length - 1 ? sortedEditions[index + 1] : null;
+    return { previousEdition: previous, nextEdition: next };
+  }, [year, sortedEditions]);
 
   // Fetch race-specific results when a race is selected
   const handleRaceClick = async (distanceKey: string) => {
@@ -146,13 +175,31 @@ const KUTCYearResultsPage: React.FC = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       {/* Header */}
-      <Button
-        startIcon={<ArrowBack />}
-        onClick={() => navigate('/kutc/results')}
-        sx={{ mb: 2 }}
-      >
-        Back to Overview
-      </Button>
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/kutc/results')}
+        >
+          Back to Overview
+        </Button>
+        <Box sx={{ flex: '1 1 auto' }} />
+        <Box sx={{ display: 'flex', gap: 1 }}>
+          <Button
+            variant="outlined"
+            disabled={!previousEdition}
+            onClick={() => previousEdition && navigate(`/kutc/results/${previousEdition.id}`)}
+          >
+            ← {previousEdition ? `KUTC ${previousEdition.year || previousEdition.id}` : 'No earlier edition'}
+          </Button>
+          <Button
+            variant="outlined"
+            disabled={!nextEdition}
+            onClick={() => nextEdition && navigate(`/kutc/results/${nextEdition.id}`)}
+          >
+            {nextEdition ? `KUTC ${nextEdition.year || nextEdition.id}` : 'No later edition'} →
+          </Button>
+        </Box>
+      </Box>
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
