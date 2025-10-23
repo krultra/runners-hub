@@ -24,7 +24,7 @@ import { getFullEventEditions, EventEdition } from '../services/eventEditionServ
 import { deriveStatus } from '../utils/derivedStatus';
 import { listCodeList, CodeListItem } from '../services/codeListService';
 
-type EditionWithStatus = EventEdition & { statusItem?: CodeListItem; statusNum?: number; resultStatusItem?: CodeListItem; resultStatusCode?: string };
+type EditionWithStatus = EventEdition & { statusItem?: CodeListItem; statusNum?: number; resultStatusItem?: CodeListItem; resultStatusCode?: string; RH_URL?: string };
 
 // Helpers
 const toDate = (v: any): Date | null => {
@@ -90,13 +90,17 @@ const HomePage: React.FC = () => {
 
           return { ...e, statusItem, statusNum: derivedNum, resultStatusItem, resultStatusCode };
         });
-        // Sort: status.sortOrder asc, then startTime asc
+        // Sort: status.sortOrder asc, then startTime desc (for past events) or asc (for upcoming)
         withStatus.sort((a, b) => {
           const sa = a.statusItem?.sortOrder ?? 0;
           const sb = b.statusItem?.sortOrder ?? 0;
           if (sa !== sb) return sa - sb;
           const ta = (a.startTime as any)?.toDate ? (a.startTime as any).toDate().getTime() : (a.startTime as any)?.getTime?.() || 0;
           const tb = (b.startTime as any)?.toDate ? (b.startTime as any).toDate().getTime() : (b.startTime as any)?.getTime?.() || 0;
+          // For finished/finalized/cancelled events, sort descending (most recent first)
+          const aFinished = sa >= 80; // finished, finalized, cancelled
+          const bFinished = sb >= 80;
+          if (aFinished && bFinished) return tb - ta;
           return ta - tb;
         });
         setEditions(withStatus);
@@ -219,7 +223,13 @@ const HomePage: React.FC = () => {
 
   const editionCards = (visible: EditionWithStatus[]) => (
     <Grid container spacing={3} justifyContent="center">
-        {visible.map(ed => (
+        {visible.map(ed => {
+          // Determine if event has a dedicated event edition page
+          // ONLY use RH_URL - resultURL/liveResultsURL are for external results, not event pages
+          const hasPage = !!ed.RH_URL;
+          const navigateUrl = ed.RH_URL || `/${ed.id}`;
+          
+          return (
           <Grid item xs={12} key={ed.id}>
             <Card
               sx={{
@@ -231,15 +241,19 @@ const HomePage: React.FC = () => {
                   : ed.id.startsWith('mo-')
                     ? 'linear-gradient(135deg, rgba(46,125,50,0.18) 0%, rgba(46,125,50,0.05) 100%)'
                     : (theme) => theme.palette.background.paper,
-                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-                '&:hover': {
+                transition: hasPage ? 'transform 0.2s ease, box-shadow 0.2s ease' : 'none',
+                '&:hover': hasPage ? {
                   transform: 'translateY(-4px)',
                   boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
-                }
+                } : {},
+                // Reduce opacity for events without dedicated pages (e.g., KUTC 2018-2024 backfill)
+                opacity: hasPage ? 1 : 0.6,
+                cursor: hasPage ? 'pointer' : 'default'
               }}
             >
-              <CardActionArea onClick={() => navigate(`/${ed.id}`)}>
-                <CardContent>
+              {hasPage ? (
+                <CardActionArea onClick={() => navigate(navigateUrl)}>
+                  <CardContent>
                   <Typography variant="h5" component="div" gutterBottom>
                     {ed.eventName}
                   </Typography>
@@ -293,13 +307,24 @@ const HomePage: React.FC = () => {
                         const rs = (ed.resultStatusCode || '').toLowerCase();
                         const isOngoing = ['ongoing', '2'].includes(rs);
                         return ed.liveResultsURL && isOngoing ? (
-                          <Button size="small" variant="contained" color="success" onClick={(e) => { e.stopPropagation(); window.open(ed.liveResultsURL!, '_blank'); }}>
+                          <Button 
+                            size="small" 
+                            variant="contained" 
+                            color="success" 
+                            component="div"
+                            onClick={(e) => { e.stopPropagation(); window.open(ed.liveResultsURL!, '_blank'); }}
+                          >
                             Live Results
                           </Button>
                         ) : null;
                       })()}
                       {ed.resultURL && (
-                        <Button size="small" variant="outlined" onClick={(e) => { e.stopPropagation(); window.open(ed.resultURL!, '_blank'); }}>
+                        <Button 
+                          size="small" 
+                          variant="outlined" 
+                          component="div"
+                          onClick={(e) => { e.stopPropagation(); window.open(ed.resultURL!, '_blank'); }}
+                        >
                           Final Results
                         </Button>
                       )}
@@ -312,6 +337,7 @@ const HomePage: React.FC = () => {
                             size="small"
                             variant={ed.resultURL ? 'outlined' : 'contained'}
                             color="primary"
+                            component="div"
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/kutc/results/${ed.id}`);
@@ -328,16 +354,72 @@ const HomePage: React.FC = () => {
                       })()}
                     </Stack>
                   )}
+                  </CardContent>
+                </CardActionArea>
+              ) : (
+                <CardContent>
+                  <Typography variant="h5" component="div" gutterBottom>
+                    {ed.eventName}
+                  </Typography>
+                  {/* Event facts */}
+                  <Typography variant="body2"><strong>Start:</strong> {formatDateTime(ed.startTime)}</Typography>
+                  {typeof ed.maxParticipants === 'number' && (
+                    <Typography variant="body2"><strong>Max participants:</strong> {ed.maxParticipants}</Typography>
+                  )}
+                  {ed.registrationDeadline && (
+                    <Typography variant="body2"><strong>Registration deadline:</strong> {formatDateTime(ed.registrationDeadline)}</Typography>
+                  )}
+                  {/* Status & indicators */}
+                  <Box sx={{ mt: 1 }}>
+                    <Stack direction="row" spacing={1} alignItems="center" flexWrap="wrap">
+                      {/* Derived status chip (only for dynamic states) */}
+                      {(() => {
+                        const d = deriveStatus(ed);
+                        return (d === 'in_progress' || d === 'finished' || d === 'finalized' || d === 'cancelled') ? (
+                          <Chip size="small" color={d === 'in_progress' ? 'success' : d === 'finished' ? 'default' : d === 'finalized' ? 'primary' : 'warning'} label={d} />
+                        ) : null;
+                      })()}
+                      {/* Code list status verbose (authoritative display label) */}
+                      {ed.statusItem?.verboseName && (
+                        <Chip size="small" variant="outlined" label={ed.statusItem.verboseName} />
+                      )}
+                      {/* Results status (show only when results are available: 4..7) */}
+                      {(() => {
+                        const rs = (ed.resultStatusCode || '').toLowerCase();
+                        const available = ['incomplete','preliminary','unofficial','final'].includes(rs) || ['4','5','6','7'].includes(ed.resultStatusCode || '');
+                        return ed.resultStatusItem && available ? (
+                        <Chip size="small" color="info" variant="outlined" label={ed.resultStatusItem.verboseName || 'Results available'} />
+                        ) : null;
+                      })()}
+                    </Stack>
+                  </Box>
+                  {/* Action buttons for KUTC results */}
+                  {ed.id?.startsWith?.('kutc-') && (() => {
+                    const rs = (ed.resultStatusCode || '').toLowerCase();
+                    const normalizedAvailable = ['incomplete','preliminary','unofficial','final'].includes(rs) || ['4','5','6','7'].includes(ed.resultStatusCode || '');
+                    return normalizedAvailable ? (
+                      <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 1 }}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          color="primary"
+                          onClick={() => navigate(`/kutc/results/${ed.id}`)}
+                        >
+                          View KUTC Results
+                        </Button>
+                      </Stack>
+                    ) : null;
+                  })()}
                 </CardContent>
-              </CardActionArea>
+              )}
             </Card>
           </Grid>
-        ))}
+        );})}
       </Grid>
     );
 
   const content = useMemo(() => {
-    const visible = editions.filter(e => {
+    let visible = editions.filter(e => {
       const d = deriveStatus(e);
       const code = String(e.statusItem?.code || e.status || '').toLowerCase();
       const isDraft = code === '10' || code === 'draft';
@@ -346,6 +428,15 @@ const HomePage: React.FC = () => {
       if (showPast) return true;
       return !(d === 'finished' || d === 'finalized' || d === 'cancelled');
     });
+
+    // Sort visible events: when showing past events, sort in reverse chronological order
+    if (showPast) {
+      visible = [...visible].sort((a, b) => {
+        const ta = (a.startTime as any)?.toDate ? (a.startTime as any).toDate().getTime() : (a.startTime as any)?.getTime?.() || 0;
+        const tb = (b.startTime as any)?.toDate ? (b.startTime as any).toDate().getTime() : (b.startTime as any)?.getTime?.() || 0;
+        return tb - ta; // Descending order (newest first)
+      });
+    }
 
     if (loading) {
       return (
@@ -358,7 +449,7 @@ const HomePage: React.FC = () => {
       return <Alert severity="error">{error}</Alert>;
     }
 
-    const editionSectionTitle = showPast ? 'Upcoming and past event editions' : 'Upcoming event editions';
+    const editionSectionTitle = showPast ? 'Upcoming and past events' : 'Upcoming events';
 
     return (
       <>
@@ -415,11 +506,11 @@ const HomePage: React.FC = () => {
       </Typography>
       <Box textAlign="center" mb={4}>
         <Button
-          variant="outlined"
-          color="primary"
+          variant="text"
+          color="inherit"
           endIcon={<ArrowForwardIcon />}
           onClick={() => navigate('/about')}
-          sx={{ fontWeight: 700, px: 3 }}
+          sx={{ fontSize: '0.9rem', textTransform: 'none' }}
         >
           What's the Runners Hub?
         </Button>

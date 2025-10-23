@@ -33,6 +33,7 @@ export interface EventEdition {
   resultsStatus: string;
   resultURL?: string;
   liveResultsURL?: string;
+  RH_URL?: string; // Internal Runners Hub URL for events with dedicated pages (e.g., "/kutc-2025")
   startTime: Timestamp;
   endTime: Timestamp;
   registrationDeadline?: Timestamp;
@@ -60,6 +61,8 @@ export interface Event {
   description?: string;
   maxParticipants?: number;
   raceDistances?: RaceDistance[];
+  loopDistance?: number;  // Distance per loop in km (for loop-based events like KUTC)
+  loopAscent?: number;    // Ascent per loop in meters (for loop-based events like KUTC)
   fees?: {
     participation: number;
     baseCamp: number;
@@ -92,7 +95,6 @@ export const getFullEventEditions = async (): Promise<EventEdition[]> => {
 
 export const getEventEdition = async (id: string): Promise<EventEdition> => {
   const ref = doc(db, COLL, id);
-  console.log('eventEditionService - fetching event with id:', id);
   const snap = await getDoc(ref);
   const data = snap.data();
   if (!data) throw new Error('EventEdition not found');
@@ -115,7 +117,6 @@ export const getEventEdition = async (id: string): Promise<EventEdition> => {
     raceDistances: data.raceDistances || [],
     fees: data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 }
   } as EventEdition;
-  console.log('eventEditionService - constructed event edition:', eventEdition);
   return eventEdition;
 };
 
@@ -161,15 +162,12 @@ export const updateEventEdition = async (
   id: string,
   payload: Partial<Omit<EventEdition, 'id'>>
 ): Promise<void> => {
-  console.log('updateEventEdition - updating event with id:', id);
-  console.log('updateEventEdition - payload:', payload);
   const ref = doc(db, COLL, id);
   try {
     await updateDoc(ref, {
       ...payload,
       liveResultsURL: payload.liveResultsURL ?? (payload as any).liveResultsURL ?? undefined
     } as any);
-    console.log('updateEventEdition - update successful');
   } catch (error) {
     console.error('updateEventEdition - error updating event:', error);
     throw error;
@@ -187,7 +185,6 @@ export const deleteEventEdition = async (id: string): Promise<void> => {
  */
 export const getEvent = async (eventId: string): Promise<Event> => {
   const ref = doc(db, EVENTS_COLL, eventId);
-  console.log('eventService - fetching event with id:', eventId);
   const snap = await getDoc(ref);
   const data = snap.data();
   if (!data) throw new Error(`Event '${eventId}' not found`);
@@ -199,6 +196,8 @@ export const getEvent = async (eventId: string): Promise<Event> => {
     description: data.description,
     maxParticipants: data.maxParticipants,
     raceDistances: data.raceDistances || [],
+    loopDistance: data.loopDistance,
+    loopAscent: data.loopAscent,
     fees: data.fees || { participation: 0, baseCamp: 0, deposit: 0, total: 0 }
   } as Event;
 };

@@ -1,0 +1,43 @@
+// ============================================================================
+// Firestore Security Rules for checkpointResults Collection
+// ============================================================================
+// Add these rules to your existing firestore.rules file
+
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Checkpoint Results - Public Read Access
+    // All checkpoint results are public (data is public during races anyway)
+    match /checkpointResults/{documentId} {
+      // Allow public read access to all checkpoint results
+      allow read: if true;
+      
+      // Only allow writes from authenticated admin users or backend service
+      allow write: if request.auth != null && 
+                      request.auth.token.admin == true;
+    }
+    
+    // Alternative: If you want to allow backend/service account writes only:
+    // match /checkpointResults/{documentId} {
+    //   allow read: if true;
+    //   allow write: if false;  // Only via Admin SDK
+    // }
+    
+  }
+}
+
+// ============================================================================
+// Notes:
+// ============================================================================
+// 1. Checkpoint results are marked as public read because:
+//    - Data is already public during races via live results
+//    - No sensitive personal information beyond what's already public
+//    - Required for public runner profile pages
+//
+// 2. Writes are restricted to:
+//    - Admin users (for manual corrections)
+//    - Backend service via Admin SDK (for initial import/sync)
+//
+// 3. Consider adding these rules to your existing firestore.rules file
+//    rather than replacing the entire file.

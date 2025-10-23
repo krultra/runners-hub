@@ -219,50 +219,30 @@ export const listKUTCEditions = async (): Promise<KUTCEdition[]> => {
     }
 
     const normalized = normalizeEditionMetadata(docSnap.id, metadata);
-    console.log(`[KUTC] Normalized metadata for ${docSnap.id}:`, {
-      year: normalized.year,
-      eventDate: normalized.eventDate,
-      resultsStatus: normalized.resultsStatus,
-      totalParticipants: normalized.totalParticipants,
-      totalFinishers: normalized.totalFinishers,
-      totalDNF: normalized.totalDNF,
-      totalDNS: normalized.totalDNS
-    });
 
     // Try to enrich with eventEdition data
     // docSnap.id is already in format 'kutc-2025', so use it directly
     const editionDocId = docSnap.id;
-    console.log(`[KUTC] Attempting to fetch eventEdition: ${editionDocId}`);
     try {
       const eventEdition = await getEventEdition(editionDocId);
-      console.log(`[KUTC] EventEdition found for ${editionDocId}:`, {
-        startTime: eventEdition.startTime,
-        resultsStatus: eventEdition.resultsStatus
-      });
       if (eventEdition) {
         // Use startTime from eventEdition if available
         if (eventEdition.startTime) {
-          console.log(`[KUTC] Updating eventDate from ${normalized.eventDate} to ${eventEdition.startTime}`);
           normalized.eventDate = eventEdition.startTime;
         }
         // Use resultsStatus from eventEdition if available
         if (eventEdition.resultsStatus) {
-          console.log(`[KUTC] Updating resultsStatus from ${normalized.resultsStatus} to ${eventEdition.resultsStatus}`);
           normalized.resultsStatus = eventEdition.resultsStatus;
         }
       }
     } catch (err) {
-      console.warn(`[KUTC] Error fetching eventEdition for ${editionDocId}:`, err);
-      console.log(`[KUTC] No eventEdition found, defaulting to 'unknown' status for ${editionDocId}`);
       // When eventEdition doesn't exist, default to 'unknown' status
       normalized.resultsStatus = 'unknown';
     }
 
     // Get verbose name for results status
-    console.log(`[KUTC] Getting verbose name for resultsStatus: ${normalized.resultsStatus}`);
     try {
       const verboseName = await getVerboseName('results', 'status', normalized.resultsStatus, normalized.resultsStatus);
-      console.log(`[KUTC] Verbose name for '${normalized.resultsStatus}': ${verboseName}`);
       normalized.resultsStatusLabel = verboseName;
     } catch (err) {
       console.error('[KUTC] Failed to get verbose name for results status:', err);
@@ -314,46 +294,30 @@ export const getEditionMetadata = async (editionId: string): Promise<KUTCEdition
     }
 
     const normalized = normalizeEditionMetadata(editionId, metadata);
-    console.log(`[KUTC-Meta] Normalized metadata for ${editionId}:`, {
-      year: normalized.year,
-      eventDate: normalized.eventDate,
-      resultsStatus: normalized.resultsStatus
-    });
 
     // Try to enrich with eventEdition data
     // editionId is already in format 'kutc-2025' or just '2025', handle both
     const editionDocId = editionId.startsWith('kutc-') ? editionId : `kutc-${editionId}`;
-    console.log(`[KUTC-Meta] Attempting to fetch eventEdition: ${editionDocId}`);
     try {
       const eventEdition = await getEventEdition(editionDocId);
-      console.log(`[KUTC-Meta] EventEdition found for ${editionDocId}:`, {
-        startTime: eventEdition.startTime,
-        resultsStatus: eventEdition.resultsStatus
-      });
       if (eventEdition) {
         // Use startTime from eventEdition if available
         if (eventEdition.startTime) {
-          console.log(`[KUTC-Meta] Updating eventDate from ${normalized.eventDate} to ${eventEdition.startTime}`);
           normalized.eventDate = eventEdition.startTime;
         }
         // Use resultsStatus from eventEdition if available
         if (eventEdition.resultsStatus) {
-          console.log(`[KUTC-Meta] Updating resultsStatus from ${normalized.resultsStatus} to ${eventEdition.resultsStatus}`);
           normalized.resultsStatus = eventEdition.resultsStatus;
         }
       }
     } catch (err) {
-      console.warn(`[KUTC-Meta] Error fetching eventEdition for ${editionDocId}:`, err);
-      console.log(`[KUTC-Meta] No eventEdition found, defaulting to 'unknown' status for ${editionDocId}`);
       // When eventEdition doesn't exist, default to 'unknown' status
       normalized.resultsStatus = 'unknown';
     }
 
     // Get verbose name for results status
-    console.log(`[KUTC-Meta] Getting verbose name for resultsStatus: ${normalized.resultsStatus}`);
     try {
       const verboseName = await getVerboseName('results', 'status', normalized.resultsStatus, normalized.resultsStatus);
-      console.log(`[KUTC-Meta] Verbose name for '${normalized.resultsStatus}': ${verboseName}`);
       normalized.resultsStatusLabel = verboseName;
     } catch (err) {
       console.error('[KUTC-Meta] Failed to get verbose name for results status:', err);
@@ -456,23 +420,17 @@ export async function getAllTimeLeaderboard(): Promise<{
   participants: AllTimeParticipant[];
   editions: KUTCEdition[];
 }> {
-  console.log('[KUTC All-Time] Fetching editions...');
-  
   // Get all editions (sorted by year)
   const editions = await listKUTCEditions();
-  console.log(`[KUTC All-Time] Found ${editions.length} editions`);
   
   // Map to track all participants: personId -> participant data
   const participantMap = new Map<number, AllTimeParticipant>();
   
   // Fetch results for each edition
   for (const edition of editions) {
-    console.log(`[KUTC All-Time] Processing ${edition.id}...`);
-    
     try {
       // Get total competition results for this edition
       const results = await getTotalCompetitionResults(edition.id);
-      console.log(`[KUTC All-Time] ${edition.id}: ${results.length} participants`);
       
       // Process each result
       for (const result of results) {
@@ -510,8 +468,6 @@ export async function getAllTimeLeaderboard(): Promise<{
   const participants = Array.from(participantMap.values())
     .sort((a, b) => b.totalLoops - a.totalLoops);
   
-  console.log(`[KUTC All-Time] Total unique participants: ${participants.length}`);
-  
   return {
     participants,
     editions
@@ -523,8 +479,6 @@ export async function getAllTimeLeaderboard(): Promise<{
  * Returns top 3 results (with ties) sorted by loops completed, then by time
  */
 export async function getMaxLoopsRecords(): Promise<LoopRecord[]> {
-  console.log('[KUTC Records] Fetching max loops records...');
-  
   const editions = await listKUTCEditions();
   const allRecords: LoopRecord[] = [];
   
@@ -595,7 +549,6 @@ export async function getMaxLoopsRecords(): Promise<LoopRecord[]> {
     }
   }
   
-  console.log(`[KUTC Records] Found ${topRecords.length} max loops records`);
   return topRecords;
 }
 
@@ -604,8 +557,6 @@ export async function getMaxLoopsRecords(): Promise<LoopRecord[]> {
  * Returns map of distanceKey -> fastest records (with ties)
  */
 export async function getFastestRaceTimes(): Promise<Map<string, FastestTimeRecord[]>> {
-  console.log('[KUTC Records] Fetching fastest race times...');
-  
   const editions = await listKUTCEditions();
   const distanceRecords: Record<string, FastestTimeRecord[]> = {};
   
@@ -681,7 +632,6 @@ export async function getFastestRaceTimes(): Promise<Map<string, FastestTimeReco
     }
 
     fastestByDistance.set(distanceKey, topRecords);
-    console.log(`[KUTC Records] ${distanceKey}: ${topRecords.length} top record(s)`);
   });
   
   return fastestByDistance;
@@ -692,8 +642,6 @@ export async function getFastestRaceTimes(): Promise<Map<string, FastestTimeReco
  * Returns all participants tied for most appearances
  */
 export async function getAppearanceLeaders(): Promise<{ top: AppearanceRecord[]; runnerUp: AppearanceRecord[] }> {
-  console.log('[KUTC Records] Fetching appearance leaders...');
-  
   const editions = await listKUTCEditions();
   const participantAppearances = new Map<number, { firstName: string; lastName: string; editions: string[] }>();
   
@@ -748,11 +696,6 @@ export async function getAppearanceLeaders(): Promise<{ top: AppearanceRecord[];
   const runnerUp = runnerUpAppearances
     ? appearanceRecords.filter((record) => record.appearances === runnerUpAppearances)
     : [];
-
-  console.log(
-    `[KUTC Records] Found ${top.length} leader(s) with ${maxAppearances} appearances` +
-      (runnerUpAppearances ? ` and ${runnerUp.length} runner-up(s) with ${runnerUpAppearances} appearances` : '')
-  );
 
   return { top, runnerUp };
 }

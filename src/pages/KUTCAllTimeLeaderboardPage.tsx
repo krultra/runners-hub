@@ -10,7 +10,7 @@ import {
   Button
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { EmojiEvents, MilitaryTech } from '@mui/icons-material';
+import { EmojiEvents, MilitaryTech, ArrowBack, EmojiEventsOutlined } from '@mui/icons-material';
 import { getAllTimeLeaderboard, AllTimeParticipant, KUTCEdition } from '../services/kutcResultsService';
 import { useNavigate } from 'react-router-dom';
 
@@ -198,6 +198,24 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      {/* Navigation */}
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/kutc/results')}
+        >
+          Back to Overview
+        </Button>
+        <Box sx={{ flex: '1 1 auto' }} />
+        <Button
+          variant="outlined"
+          startIcon={<EmojiEventsOutlined />}
+          onClick={() => navigate('/kutc/records')}
+        >
+          Records
+        </Button>
+      </Box>
+
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
@@ -210,13 +228,6 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           Showing {filteredParticipants.length} participants across {editions.length} editions with a total of {filteredTotalLoops.toLocaleString()} completed loops
         </Typography>
-        <Button
-          variant="outlined"
-          onClick={() => navigate('/kutc/results')}
-          sx={{ mt: 2 }}
-        >
-          Back to overview
-        </Button>
       </Box>
 
       {hasDataIntegrityIssues && (
@@ -228,6 +239,8 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
       {/* Search Field */}
       <Box sx={{ mb: 3 }}>
         <TextField
+          id="participant-search"
+          name="participantSearch"
           fullWidth
           label="Search participants"
           variant="outlined"
@@ -250,6 +263,16 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
           }}
           disableSelectionOnClick
           style={{ height: 600 }}
+          componentsProps={{
+            pagination: {
+              SelectProps: {
+                inputProps: {
+                  id: 'page-size-select',
+                  name: 'pageSize'
+                }
+              }
+            }
+          }}
           sx={{
             '& .MuiDataGrid-cell': {
               borderRight: '1px solid',
@@ -263,11 +286,8 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
         />
       </Paper>
 
-      {/* Legend */}
+      {/* Explanation */}
       <Box sx={{ mt: 2 }}>
-        <Typography variant="subtitle2" fontWeight="bold" gutterBottom>
-          Legend
-        </Typography>
         <Typography variant="body2" color="text.secondary">
           Numbers show completed loops for that edition. A value of <strong>0</strong> means the runner registered but did not start (DNS). A dash (<strong>-</strong>) means the runner did not participate that year.
         </Typography>

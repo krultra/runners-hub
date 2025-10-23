@@ -18,7 +18,7 @@ import {
   TableRow,
   Chip
 } from '@mui/material';
-import { EmojiEvents, MilitaryTech, Timer, PersonPin } from '@mui/icons-material';
+import { EmojiEvents, MilitaryTech, Timer, PersonPin, ArrowBack, Leaderboard } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
 import {
   getMaxLoopsRecords,
@@ -107,6 +107,24 @@ const KUTCRecordsPage: React.FC = () => {
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
+      {/* Navigation */}
+      <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={() => navigate('/kutc/results')}
+        >
+          Back to Overview
+        </Button>
+        <Box sx={{ flex: '1 1 auto' }} />
+        <Button
+          variant="outlined"
+          startIcon={<Leaderboard />}
+          onClick={() => navigate('/kutc/all-time')}
+        >
+          All-Time Leaderboard
+        </Button>
+      </Box>
+
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
@@ -116,13 +134,6 @@ const KUTCRecordsPage: React.FC = () => {
         <Typography variant="h6" color="text.secondary">
           All-time records and achievements
         </Typography>
-        <Button
-          variant="outlined"
-          onClick={() => navigate('/kutc/results')}
-          sx={{ mt: 2 }}
-        >
-          Back to overview
-        </Button>
       </Box>
 
       {hasDataIntegrityIssues && (

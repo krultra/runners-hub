@@ -30,8 +30,6 @@ if (shouldUseFirestoreEmulator()) {
   console.log('Connecting to Auth emulator on 127.0.0.1:9099');
   // Use localhost and trailing slash to ensure Auth emulator CORS proxy works
   connectAuthEmulator(auth, 'http://localhost:9099/', { disableWarnings: true });
-} else {
-  console.log('Using Firestore production environment');
 }
 
 export default app;

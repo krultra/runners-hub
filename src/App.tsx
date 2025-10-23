@@ -26,6 +26,10 @@ import KUTCResultsOverviewPage from './pages/KUTCResultsOverviewPage';
 import KUTCYearResultsPage from './pages/KUTCYearResultsPage';
 import KUTCAllTimeLeaderboardPage from './pages/KUTCAllTimeLeaderboardPage';
 import KUTCRecordsPage from './pages/KUTCRecordsPage';
+import CheckpointTestPage from './pages/CheckpointTestPage';
+import RunnerSearchPage from './pages/RunnerSearchPage';
+import RunnerProfilePage from './pages/RunnerProfilePage';
+import RunnerCheckpointAnalysisPage from './pages/RunnerCheckpointAnalysisPage';
 
 import AppHeader from './components/AppHeader';
 
@@ -38,7 +42,12 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <Router>
+      <Router
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true
+        }}
+      >
         <AppHeader />
         {/* Spacer matching AppBar height to prevent overlap */}
         <Toolbar />
@@ -85,6 +94,14 @@ function App() {
             <Route path="/kutc/results/:year" element={<KUTCYearResultsPage />} />
             <Route path="/kutc/all-time" element={<KUTCAllTimeLeaderboardPage />} />
             <Route path="/kutc/records" element={<KUTCRecordsPage />} />
+            {/* Runner Search */}
+            <Route path="/runners/search" element={<RunnerSearchPage />} />
+            <Route path="/runners/:userId" element={<RunnerProfilePage />} />
+            <Route path="/runners/:userId/kutc/:editionId" element={<RunnerCheckpointAnalysisPage />} />
+            {/* Test route for checkpoint service (non-production) */}
+            {stage !== 'production' && (
+              <Route path="/test/checkpoint" element={<CheckpointTestPage />} />
+            )}
             <Route path="*" element={<NotFoundPage />} />
           </Routes>
         </Box>
@@ -104,7 +121,7 @@ function App() {
           zIndex: (theme) => theme.zIndex.appBar,
         }}
       >
-        Made by KrUltra 2025 v{process.env.REACT_APP_VERSION || 'dev'}
+        KrUltra 2025 - v{process.env.REACT_APP_VERSION || 'dev'}
       </Box>
     </ThemeProvider>
   );

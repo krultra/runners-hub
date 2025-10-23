@@ -146,7 +146,21 @@ const KUTCResultsOverviewPage: React.FC = () => {
                   onClick={() => handleEditionClick(edition.id)}
                   sx={{ height: '100%' }}
                 >
-                  <CardContent>
+                  <CardContent sx={{ position: 'relative' }}>
+                    {/* Status chip in top-right corner */}
+                    {edition.metadata && (
+                      <Chip
+                        label={edition.metadata.resultsStatusLabel || edition.metadata.resultsStatus}
+                        size="small"
+                        color={
+                          edition.metadata.resultsStatus === 'final' ? 'success' :
+                          edition.metadata.resultsStatus === 'preliminary' ? 'warning' :
+                          edition.metadata.resultsStatus === 'error' ? 'error' : 'default'
+                        }
+                        sx={{ position: 'absolute', top: 16, right: 16 }}
+                      />
+                    )}
+
                     {/* Year */}
                     <Typography variant="h4" component="div" fontWeight="bold" color="primary" sx={{ mb: 2 }}>
                       {edition.year}
@@ -174,20 +188,9 @@ const KUTCResultsOverviewPage: React.FC = () => {
                         })()}
 
                         {/* Participants only */}
-                        <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                        <Typography variant="body2" color="text.secondary">
                           <strong>{edition.metadata.totalParticipants}</strong> participants
                         </Typography>
-
-                        {/* Status using verbose name from codeList */}
-                        <Chip
-                          label={edition.metadata.resultsStatusLabel || edition.metadata.resultsStatus}
-                          size="small"
-                          color={
-                            edition.metadata.resultsStatus === 'final' ? 'success' :
-                            edition.metadata.resultsStatus === 'preliminary' ? 'warning' :
-                            edition.metadata.resultsStatus === 'error' ? 'error' : 'default'
-                          }
-                        />
                       </Box>
                     ) : (
                       <Typography variant="body2" color="text.secondary">

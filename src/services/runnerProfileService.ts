@@ -1,0 +1,284 @@
+import { db } from '../config/firebase';
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  where
+} from 'firebase/firestore';
+
+interface FirestoreUser {
+  firstName?: string;
+  lastName?: string;
+  displayName?: string;
+  personId?: number | string | null;
+}
+
+export interface RunnerParticipation {
+  editionId: string;
+  year: number;
+  eventDate?: Date | null;
+  raceName: string;
+  distanceKey?: string | null;
+  raceRank?: number | null;
+  raceTimeSeconds?: number | null;
+  raceTimeDisplay?: string | null;
+  totalRank?: number | null;
+  totalTimeSeconds?: number | null;
+  totalTimeDisplay?: string | null;
+  loopsCompleted: number;
+  status?: string | null;
+  hasCheckpointData: boolean;
+}
+
+export interface RunnerBestPerformance {
+  editionId: string;
+  year: number;
+  loops: number;
+  totalTimeSeconds: number | null;
+  totalTimeDisplay?: string | null;
+  raceName: string;
+}
+
+export interface RunnerProfile {
+  userId: string;
+  personId: number | null;
+  firstName: string;
+  lastName: string;
+  totalAppearances: number;
+  appearanceYears: number[];
+  totalLoops: number;
+  bestPerformance: RunnerBestPerformance | null;
+  participations: RunnerParticipation[];
+}
+
+const deriveDistanceKey = (race: any, index: number): string => {
+  if (race?.distanceKey) return String(race.distanceKey);
+  if (race?.key) return String(race.key);
+  if (race?.raceKey) return String(race.raceKey);
+  if (race?.raceName) {
+    return String(race.raceName).toLowerCase().replace(/\s+/g, '-');
+  }
+  return `race-${index}`;
+};
+
+const toDateSafe = (value: any): Date | null => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value.toDate === 'function') return value.toDate();
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const parseYearFromEditionId = (editionId: string): number => {
+  const parts = editionId.split('-');
+  const yearStr = parts[parts.length - 1];
+  const year = Number(yearStr);
+  return Number.isFinite(year) ? year : 0;
+};
+
+const ensureNumber = (value: any): number | null => {
+  if (value === null || value === undefined) return null;
+  if (typeof value === 'number') return value;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const ensureLoops = (value: any): number => {
+  if (value === null || value === undefined) return 0;
+  if (typeof value === 'number') return value;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : 0;
+};
+
+async function determineCheckpointAvailability(eventEditionId: string, userId: string): Promise<boolean> {
+  const checkpointsRef = collection(db, 'checkpointResults');
+  const q = query(
+    checkpointsRef,
+    where('eventEditionId', '==', eventEditionId),
+    where('userId', '==', userId),
+    limit(1)
+  );
+  const snapshot = await getDocs(q);
+  return !snapshot.empty;
+}
+
+async function getRaceResult(
+  editionId: string,
+  personId: number,
+  races: any[]
+): Promise<{ result: any | null; distanceKey?: string | null }> {
+  for (let index = 0; index < races.length; index += 1) {
+    const race = races[index];
+    const distanceKey = deriveDistanceKey(race, index);
+    if (!distanceKey || distanceKey === 'total') {
+      continue;
+    }
+    const raceRef = doc(db, `kutcResults/${editionId}/races/${distanceKey}/results/${personId}`);
+    const raceSnap = await getDoc(raceRef);
+    if (raceSnap.exists()) {
+      return { result: raceSnap.data(), distanceKey };
+    }
+  }
+  return { result: null, distanceKey: null };
+}
+
+async function getKUTCParticipations(userId: string, personId: number): Promise<RunnerParticipation[]> {
+  const participations: RunnerParticipation[] = [];
+  const kutcCollection = collection(db, 'kutcResults');
+  const editionsSnapshot = await getDocs(kutcCollection);
+
+  for (const editionDoc of editionsSnapshot.docs) {
+    const editionId = editionDoc.id;
+    const totalResultRef = doc(db, `kutcResults/${editionId}/races/total/results/${personId}`);
+    const totalResultSnap = await getDoc(totalResultRef);
+    if (!totalResultSnap.exists()) {
+      continue;
+    }
+
+    const totalResult = totalResultSnap.data() as any;
+    const loopsCompleted = ensureLoops(totalResult.loopsCompleted);
+    const totalRank = ensureNumber(totalResult.finalRank);
+    const totalTimeSeconds = ensureNumber(totalResult.totalTimeSeconds);
+    const totalTimeDisplay = totalResult.totalTimeDisplay || totalResult.totalTime || null;
+    const status = totalResult.status || null;
+
+    const rawData = editionDoc.data() as any;
+    const metadata = rawData?.metadata || rawData?.summary || {};
+    const races = Array.isArray(metadata?.races) ? metadata.races : [];
+    const eventDate = toDateSafe(metadata?.eventDate);
+    const year = ensureNumber(metadata?.year) ?? parseYearFromEditionId(editionId);
+
+    let raceName = totalResult.raceName || totalResult.race || '';
+    let raceRank = ensureNumber(totalResult.raceRank);
+    let raceTimeSeconds = ensureNumber(totalResult.raceTimeSeconds);
+    let raceTimeDisplay = totalResult.raceTimeDisplay || null;
+    let distanceKey: string | null | undefined = totalResult.distanceKey || null;
+
+    if (!raceName || raceRank === null || raceTimeSeconds === null) {
+      const { result: raceResult, distanceKey: detectedKey } = await getRaceResult(editionId, personId, races);
+      if (raceResult) {
+        distanceKey = detectedKey;
+        raceName = raceResult.raceName || raceResult.distanceName || raceName;
+        raceRank = ensureNumber(raceResult.raceRank ?? raceResult.race_rank);
+        raceTimeSeconds = ensureNumber(raceResult.raceTimeSeconds ?? raceResult.race_time_seconds);
+        raceTimeDisplay = raceResult.raceTimeDisplay || raceResult.race_time_display || raceTimeDisplay;
+      }
+    }
+
+    if (!raceName) {
+      const raceIndex = races.findIndex((race: any) => {
+        const key = deriveDistanceKey(race, 0);
+        return key === distanceKey;
+      });
+      if (raceIndex >= 0) {
+        raceName = races[raceIndex]?.raceName || races[raceIndex]?.name || 'Race';
+      }
+    }
+
+    const hasCheckpointData = await determineCheckpointAvailability(editionId, userId);
+
+    participations.push({
+      editionId,
+      year: year ?? parseYearFromEditionId(editionId),
+      eventDate,
+      raceName: raceName || 'Race',
+      distanceKey,
+      raceRank,
+      raceTimeSeconds,
+      raceTimeDisplay,
+      totalRank,
+      totalTimeSeconds,
+      totalTimeDisplay,
+      loopsCompleted,
+      status,
+      hasCheckpointData
+    });
+  }
+
+  participations.sort((a, b) => b.year - a.year);
+  return participations;
+}
+
+export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
+  const userRef = doc(db, 'users', userId);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    throw new Error('Runner not found');
+  }
+
+  const userData = userSnap.data() as FirestoreUser;
+  const firstName = userData.firstName || userData.displayName?.split(' ')[0] || 'Runner';
+  const lastName = userData.lastName || userData.displayName?.split(' ').slice(1).join(' ') || '';
+  const personId = ensureNumber(userData.personId);
+
+  const participations = personId !== null
+    ? await getKUTCParticipations(userId, personId)
+    : [];
+
+  const totalAppearances = participations.length;
+  const totalLoops = participations.reduce((sum, item) => sum + item.loopsCompleted, 0);
+  const appearanceYears = Array.from(new Set(participations.map((item) => item.year)))
+    .filter((year): year is number => Number.isFinite(year) && year > 0)
+    .sort((a, b) => a - b);
+
+  let bestPerformance: RunnerBestPerformance | null = null;
+  for (const participation of participations) {
+    if (participation.loopsCompleted <= 0) {
+      continue;
+    }
+    if (!bestPerformance) {
+      bestPerformance = {
+        editionId: participation.editionId,
+        year: participation.year,
+        loops: participation.loopsCompleted,
+        totalTimeSeconds: participation.totalTimeSeconds ?? null,
+        totalTimeDisplay: participation.totalTimeDisplay,
+        raceName: participation.raceName
+      };
+      continue;
+    }
+
+    if (participation.loopsCompleted > bestPerformance.loops) {
+      bestPerformance = {
+        editionId: participation.editionId,
+        year: participation.year,
+        loops: participation.loopsCompleted,
+        totalTimeSeconds: participation.totalTimeSeconds ?? null,
+        totalTimeDisplay: participation.totalTimeDisplay,
+        raceName: participation.raceName
+      };
+      continue;
+    }
+
+    if (participation.loopsCompleted === bestPerformance.loops) {
+      const currentTime = participation.totalTimeSeconds ?? Number.POSITIVE_INFINITY;
+      const bestTime = bestPerformance.totalTimeSeconds ?? Number.POSITIVE_INFINITY;
+      if (currentTime < bestTime) {
+        bestPerformance = {
+          editionId: participation.editionId,
+          year: participation.year,
+          loops: participation.loopsCompleted,
+          totalTimeSeconds: participation.totalTimeSeconds ?? null,
+          totalTimeDisplay: participation.totalTimeDisplay,
+          raceName: participation.raceName
+        };
+      }
+    }
+  }
+
+  return {
+    userId,
+    personId,
+    firstName,
+    lastName,
+    totalAppearances,
+    appearanceYears,
+    totalLoops,
+    bestPerformance,
+    participations
+  };
+}

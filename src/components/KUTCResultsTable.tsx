@@ -110,7 +110,12 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
       headerName: 'Name',
       width: 200,
       flex: 1,
-      valueGetter: (params) => `${params.row.firstName || ''} ${params.row.lastName || ''}`.trim()
+      valueGetter: (params) => `${params.row.firstName || ''} ${params.row.lastName || ''}`.trim(),
+      renderCell: (params) => (
+        <Typography variant="body2" sx={{ whiteSpace: 'normal', lineHeight: 1.4 }}>
+          {`${params.row.firstName || ''} ${params.row.lastName || ''}`.trim()}
+        </Typography>
+      )
     },
     {
       field: 'loopsCompleted',
@@ -148,7 +153,12 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
       headerName: 'Name',
       width: 200,
       flex: 1,
-      valueGetter: (params) => `${params.row.firstName || ''} ${params.row.lastName || ''}`.trim()
+      valueGetter: (params) => `${params.row.firstName || ''} ${params.row.lastName || ''}`.trim(),
+      renderCell: (params) => (
+        <Typography variant="body2" sx={{ whiteSpace: 'normal', lineHeight: 1.4 }}>
+          {`${params.row.firstName || ''} ${params.row.lastName || ''}`.trim()}
+        </Typography>
+      )
     },
     {
       field: 'raceTimeDisplay',
@@ -224,6 +234,14 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
                 fileName: `kutc-${type}-results`,
                 delimiter: ',',
                 utf8WithBom: true
+              }
+            },
+            pagination: {
+              SelectProps: {
+                inputProps: {
+                  id: `kutc-${type}-page-size-select`,
+                  name: 'pageSize'
+                }
               }
             }
           }}

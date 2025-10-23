@@ -1,0 +1,15 @@
+[2025-10-21T18:57:45.236Z] Firestore clone starting
+[2025-10-21T18:57:45.236Z] Source project (prod): runnershub-62442
+[2025-10-21T18:57:45.236Z] Target project (test): runnershubtest
+[2025-10-21T18:57:45.236Z] Include: codeLists, eventEditions, events, kutcResults
+[2025-10-21T18:57:45.236Z] Exclude: (none)
+[2025-10-21T18:57:45.236Z] Merge mode: false
+[2025-10-21T18:57:45.237Z] Dry run: false
+[2025-10-21T18:57:56.552Z] Purging target collection codeLists (46 docs)
+[2025-10-21T18:57:59.252Z] Purging target collection eventEditions (11 docs)
+[2025-10-21T18:57:59.897Z] Purging target collection events (2 docs)
+[2025-10-21T18:58:00.099Z] Purging target collection kutcResults (8 docs)
+[2025-10-21T18:58:01.702Z] COLLECTION codeLists - 47 docs
+[2025-10-21T18:58:04.946Z] COLLECTION eventEditions - 11 docs
+[2025-10-21T18:58:05.715Z] COLLECTION events - 2 docs
+[2025-10-21T18:58:05.886Z] COLLECTION kutcResults - 8 docs

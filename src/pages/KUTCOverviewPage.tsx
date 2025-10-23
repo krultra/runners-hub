@@ -182,9 +182,12 @@ const KUTCOverviewPage: React.FC = () => {
               <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Date:</strong> {formatDate(previousEdition.startTime)}
               </Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                <strong>Status:</strong> <Chip label={previousEditionStatus} size="small" />
-              </Typography>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body1" component="span">
+                  <strong>Status:</strong>
+                </Typography>
+                <Chip label={previousEditionStatus} size="small" />
+              </Box>
               {previousEditionHasPage ? (
                 <Button
                   variant="outlined"
@@ -219,9 +222,12 @@ const KUTCOverviewPage: React.FC = () => {
               <Typography variant="body1" sx={{ mb: 1 }}>
                 <strong>Date:</strong> {formatDate(nextEdition.startTime)}
               </Typography>
-              <Typography variant="body1" sx={{ mb: 2 }}>
-                <strong>Status:</strong> <Chip label={nextEditionStatus} size="small" color="primary" />
-              </Typography>
+              <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Typography variant="body1" component="span">
+                  <strong>Status:</strong>
+                </Typography>
+                <Chip label={nextEditionStatus} size="small" color="primary" />
+              </Box>
               {nextEditionHasPage ? (
                 <Button
                   variant="contained"

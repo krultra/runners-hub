@@ -3,6 +3,5 @@
 
 export const shouldUseFirestoreEmulator = () => {
   // Use emulator only when explicitly enabled via env var
-  console.log(`firestoreMode: REACT_APP_FIRESTORE_EMULATOR = '${process.env.REACT_APP_FIRESTORE_EMULATOR}' (type: ${typeof process.env.REACT_APP_FIRESTORE_EMULATOR})`);
   return process.env.REACT_APP_FIRESTORE_EMULATOR === 'true';
 };

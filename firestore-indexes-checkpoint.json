@@ -1,0 +1,55 @@
+{
+  "indexes": [
+    {
+      "collectionGroup": "checkpointResults",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "eventEditionId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sequenceNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "checkpointResults",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "eventEditionId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sequenceNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    },
+    {
+      "collectionGroup": "checkpointResults",
+      "queryScope": "COLLECTION",
+      "fields": [
+        {
+          "fieldPath": "userId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "eventEditionId",
+          "order": "ASCENDING"
+        },
+        {
+          "fieldPath": "sequenceNumber",
+          "order": "ASCENDING"
+        }
+      ]
+    }
+  ],
+  "fieldOverrides": []
+}

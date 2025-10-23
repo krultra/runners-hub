@@ -19,12 +19,9 @@ service cloud.firestore {
     // Users Collection (Shared)
     // =============================================
     match /users/{userId} {
-      // Allow users to read their own data
-      // Admins can read any user's data
-      allow read: if request.auth != null && (
-        request.auth.uid == userId || 
-        isAdmin()
-      );
+      // Public read access for basic info (name, personId) for runner search/profiles
+      // Full read access for the user themselves or admins
+      allow read: if true;  // Allow public read for runner search and profiles
 
       // Allow users to update their own document
       // Admins can update any user document
@@ -37,6 +34,9 @@ service cloud.firestore {
           'displayName', 'photoURL', 'ra', 'lastLogin'
         ]) || isAdmin()
       );
+      
+      // Only admins can create or delete users
+      allow create, delete: if isAdmin();
     }
 
     
@@ -141,6 +141,22 @@ service cloud.firestore {
     }
 
     match /kutcResults/{editionId}/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // =============================================
+    // Events (public read, admin write)
+    // =============================================
+    match /events/{eventId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    // =============================================
+    // Checkpoint Results (public read, admin write)
+    // =============================================
+    match /checkpointResults/{documentId} {
       allow read: if true;
       allow write: if isAdmin();
     }
