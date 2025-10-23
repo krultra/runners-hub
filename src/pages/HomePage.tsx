@@ -504,7 +504,7 @@ const HomePage: React.FC = () => {
       <Typography variant="h3" align="center" gutterBottom>
         Welcome to the KrUltra Runners Hub!
       </Typography>
-      <Box textAlign="center" mb={4}>
+      <Box textAlign="center" mb={2}>
         <Button
           variant="text"
           color="inherit"
@@ -513,6 +513,26 @@ const HomePage: React.FC = () => {
           sx={{ fontSize: '0.9rem', textTransform: 'none' }}
         >
           What's the Runners Hub?
+        </Button>
+      </Box>
+      <Box
+        mb={5}
+        display="flex"
+        flexDirection={{ xs: 'column', sm: 'row' }}
+        justifyContent="center"
+        alignItems="center"
+        gap={1.5}
+      >
+        <Typography variant="h6" align="center">
+          Looking for a runner?
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={() => navigate('/runners/search')}
+          sx={{ textTransform: 'none' }}
+        >
+          Go to Runner Search
         </Button>
       </Box>
       {content}
