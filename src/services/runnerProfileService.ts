@@ -6,7 +6,8 @@ import {
   getDocs,
   limit,
   query,
-  where
+  where,
+  setDoc
 } from 'firebase/firestore';
 
 interface FirestoreUser {
@@ -14,6 +15,9 @@ interface FirestoreUser {
   lastName?: string;
   displayName?: string;
   personId?: number | string | null;
+  email?: string;
+  phoneCountryCode?: string | null;
+  phone?: string | null;
 }
 
 export interface RunnerParticipation {
@@ -47,11 +51,21 @@ export interface RunnerProfile {
   personId: number | null;
   firstName: string;
   lastName: string;
+  email: string;
+  phoneCountryCode?: string | null;
+  phone?: string | null;
   totalAppearances: number;
   appearanceYears: number[];
   totalLoops: number;
   bestPerformance: RunnerBestPerformance | null;
   participations: RunnerParticipation[];
+}
+
+export interface RunnerProfileEditableDetails {
+  firstName: string;
+  lastName: string;
+  phoneCountryCode?: string;
+  phone?: string;
 }
 
 const deriveDistanceKey = (race: any, index: number): string => {
@@ -219,9 +233,13 @@ export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
     ? await getKUTCParticipations(userId, personId)
     : [];
 
-  const totalAppearances = participations.length;
+  const countedParticipations = participations.filter((participation) =>
+    participation.status?.toUpperCase() !== 'DNS'
+  );
+
+  const totalAppearances = countedParticipations.length;
   const totalLoops = participations.reduce((sum, item) => sum + item.loopsCompleted, 0);
-  const appearanceYears = Array.from(new Set(participations.map((item) => item.year)))
+  const appearanceYears = Array.from(new Set(countedParticipations.map((item) => item.year)))
     .filter((year): year is number => Number.isFinite(year) && year > 0)
     .sort((a, b) => a - b);
 
@@ -275,10 +293,31 @@ export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
     personId,
     firstName,
     lastName,
+    email: userData.email || '',
+    phoneCountryCode: userData.phoneCountryCode || null,
+    phone: userData.phone || null,
     totalAppearances,
     appearanceYears,
     totalLoops,
     bestPerformance,
     participations
   };
+}
+
+export async function updateRunnerProfileDetails(
+  userId: string,
+  details: RunnerProfileEditableDetails
+): Promise<void> {
+  if (!userId) {
+    throw new Error('Missing userId for runner profile update');
+  }
+
+  const payload: Record<string, string | null | undefined> = {
+    firstName: details.firstName,
+    lastName: details.lastName,
+    phoneCountryCode: details.phoneCountryCode ?? '',
+    phone: details.phone ?? ''
+  };
+
+  await setDoc(doc(db, 'users', userId), payload, { merge: true });
 }

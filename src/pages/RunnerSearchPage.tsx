@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   Container,
   Typography,
@@ -35,6 +35,13 @@ const RunnerSearchPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [hasSearched, setHasSearched] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, []);
 
   // Debounced search
   useEffect(() => {
@@ -130,6 +137,7 @@ const RunnerSearchPage: React.FC = () => {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="Enter first name, last name, or both..."
+          inputRef={searchInputRef}
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">

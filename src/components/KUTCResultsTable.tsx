@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useCallback } from 'react';
 import {
   Paper,
   Typography,
@@ -9,9 +9,15 @@ import {
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
 import { Search } from '@mui/icons-material';
 import { KUTCResultEntry } from '../services/kutcResultsService';
+import { getUserIdByPersonId, hasCheckpointAnalysis } from '../services/runnerNavigationService';
+import { useNavigate } from 'react-router-dom';
+
+interface ResultWithEdition extends KUTCResultEntry {
+  editionId: string;
+}
 
 interface KUTCResultsTableProps {
-  results: KUTCResultEntry[];
+  results: ResultWithEdition[];
   title: string;
   subtitle?: string;
   type: 'total' | 'race';
@@ -23,11 +29,37 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
   subtitle,
   type
 }) => {
+  const navigate = useNavigate();
   const [searchText, setSearchText] = useState('');
   const [pageSize, setPageSize] = useState(() => {
     const saved = localStorage.getItem(`kutc-results-${type}-pageSize`);
     return saved ? parseInt(saved, 10) : 25;
   });
+  const [rowInstruction, setRowInstruction] = useState<'analysis' | 'profile' | null>(null);
+
+  const determineInstruction = useCallback(async () => {
+    for (const result of results) {
+      if (!Number.isFinite(result.personId)) {
+        continue;
+      }
+      const userId = await getUserIdByPersonId(result.personId);
+      if (!userId) {
+        continue;
+      }
+      const analysisAvailable = await hasCheckpointAnalysis(result.editionId, userId);
+      if (analysisAvailable) {
+        setRowInstruction('analysis');
+        return;
+      }
+      setRowInstruction('profile');
+      return;
+    }
+    setRowInstruction(null);
+  }, [results]);
+
+  React.useEffect(() => {
+    determineInstruction();
+  }, [determineInstruction]);
 
   const filteredResults = useMemo(() => {
     const searchLower = searchText.toLowerCase();
@@ -190,6 +222,16 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
           {results.length} {results.length === 1 ? 'result' : 'results'}
         </Typography>
+        {rowInstruction === 'analysis' && (
+          <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+            Click any runner to open their checkpoint analysis.
+          </Typography>
+        )}
+        {rowInstruction === 'profile' && (
+          <Typography variant="caption" color="text.secondary" display="block" sx={{ mt: 0.5 }}>
+            Click any runner to view their profile.
+          </Typography>
+        )}
       </Box>
 
       {/* Search */}
@@ -223,6 +265,22 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
             localStorage.setItem(`kutc-results-${type}-pageSize`, newSize.toString());
           }}
           disableSelectionOnClick
+          onRowClick={async (params) => {
+            const entry = params.row as ResultWithEdition;
+            if (!entry.personId) {
+              return;
+            }
+            const userId = await getUserIdByPersonId(entry.personId);
+            if (!userId) {
+              return;
+            }
+            const analysisAvailable = await hasCheckpointAnalysis(entry.editionId, userId);
+            if (analysisAvailable) {
+              navigate(`/runners/${userId}/kutc/${entry.editionId}`);
+              return;
+            }
+            navigate(`/runners/${userId}`);
+          }}
           components={{
             Toolbar: GridToolbar
           }}
@@ -248,7 +306,8 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
           sx={{
             '& .MuiDataGrid-row:hover': {
               backgroundColor: 'action.hover'
-            }
+            },
+            cursor: 'pointer'
           }}
         />
       </Box>

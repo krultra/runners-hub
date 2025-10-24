@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import {
   Container,
   Typography,
@@ -28,14 +28,17 @@ import {
 import { getEventEdition, EventEdition } from '../services/eventEditionService';
 import KUTCResultsTable from '../components/KUTCResultsTable';
 
+type EditionResult = KUTCResultEntry & { editionId: string };
+
 const KUTCYearResultsPage: React.FC = () => {
   const { year } = useParams<{ year: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [metadata, setMetadata] = useState<KUTCEditionMetadata | null>(null);
-  const [totalResults, setTotalResults] = useState<KUTCResultEntry[]>([]);
+  const [totalResults, setTotalResults] = useState<EditionResult[]>([]);
   const [selectedRace, setSelectedRace] = useState<string | null>(null);
-  const [raceResults, setRaceResults] = useState<KUTCResultEntry[]>([]);
+  const [raceResults, setRaceResults] = useState<EditionResult[]>([]);
   const [eventDetails, setEventDetails] = useState<EventEdition | null>(null);
   const [sortedEditions, setSortedEditions] = useState<KUTCEdition[]>([]);
   const [loading, setLoading] = useState(true);
@@ -94,7 +97,7 @@ const KUTCYearResultsPage: React.FC = () => {
 
         // Fetch total competition results
         const total = await getTotalCompetitionResults(year);
-        setTotalResults(total);
+        setTotalResults(total.map((entry) => ({ ...entry, editionId: year })));
 
       } catch (err) {
         console.error('Error fetching KUTC results:', err);
@@ -121,27 +124,75 @@ const KUTCYearResultsPage: React.FC = () => {
   }, [year, sortedEditions]);
 
   // Fetch race-specific results when a race is selected
-  const handleRaceClick = async (distanceKey: string) => {
+  const handleRaceClick = (distanceKey: string) => {
     if (!year) return;
-
-    try {
-      setLoadingRace(true);
-      setSelectedRace(distanceKey);
-      
-      const results = await getRaceDistanceResults(year, distanceKey);
-      setRaceResults(results);
-    } catch (err) {
-      console.error('Error fetching race results:', err);
-      setError('Failed to load race results');
-    } finally {
-      setLoadingRace(false);
-    }
+    navigate(`/kutc/results/${year}?distance=${encodeURIComponent(distanceKey)}`);
   };
 
   // Show total competition
   const handleShowTotal = () => {
-    setSelectedRace('total');
+    if (!year) return;
+    navigate(`/kutc/results/${year}?distance=total`);
   };
+
+  useEffect(() => {
+    if (!year || !metadata) {
+      return;
+    }
+
+    const params = new URLSearchParams(location.search);
+    const distanceParam = params.get('distance');
+
+    if (!distanceParam) {
+      setSelectedRace(null);
+      setRaceResults([]);
+      setLoadingRace(false);
+      return;
+    }
+
+    if (distanceParam === 'total') {
+      setSelectedRace('total');
+      setRaceResults([]);
+      setLoadingRace(false);
+      return;
+    }
+
+    const raceExists = metadata.races.some((race) => race.distanceKey === distanceParam);
+    if (!raceExists) {
+      console.warn(`Unknown distance "${distanceParam}" for edition ${year}`);
+      setSelectedRace(null);
+      setRaceResults([]);
+      setLoadingRace(false);
+      return;
+    }
+
+    let isMounted = true;
+    const fetchRaceResults = async () => {
+      try {
+        setSelectedRace(distanceParam);
+        setLoadingRace(true);
+        const results = await getRaceDistanceResults(year, distanceParam);
+        if (!isMounted) {
+          return;
+        }
+        setRaceResults(results.map((entry) => ({ ...entry, editionId: year })));
+        setLoadingRace(false);
+      } catch (err) {
+        console.error('Error fetching race results:', err);
+        if (!isMounted) {
+          return;
+        }
+        setLoadingRace(false);
+        setError('Failed to load race results');
+      }
+    };
+
+    fetchRaceResults();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [year, metadata, location.search]);
 
   if (loading) {
     return (

@@ -15,10 +15,24 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button
+  Button,
+  Divider,
+  Collapse,
+  TextField,
+  Tooltip,
+  InputAdornment
 } from '@mui/material';
-import { useParams, Link as RouterLink } from 'react-router-dom';
-import { getRunnerProfile, RunnerParticipation, RunnerProfile } from '../services/runnerProfileService';
+import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
+import { ChevronRight, ExpandMore, InfoOutlined } from '@mui/icons-material';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { isAdminUser } from '../utils/adminUtils';
+import {
+  getRunnerProfile,
+  RunnerParticipation,
+  RunnerProfile,
+  RunnerProfileEditableDetails,
+  updateRunnerProfileDetails
+} from '../services/runnerProfileService';
 
 const formatTimeDisplay = (display: string | null | undefined, seconds: number | null | undefined): string => {
   if (display && display.trim().length > 0) {
@@ -59,9 +73,18 @@ const formatYears = (years: number[]): string => {
 
 const RunnerProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
+  const navigate = useNavigate();
   const [profile, setProfile] = useState<RunnerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [authLoading, setAuthLoading] = useState(true);
+  const [detailsExpanded, setDetailsExpanded] = useState(false);
+  const [editableDetails, setEditableDetails] = useState<RunnerProfileEditableDetails | null>(null);
+  const [detailsSaving, setDetailsSaving] = useState(false);
+  const [detailsSuccess, setDetailsSuccess] = useState(false);
+  const [detailsError, setDetailsError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userId) return;
@@ -92,6 +115,58 @@ const RunnerProfilePage: React.FC = () => {
     };
   }, [userId]);
 
+  useEffect(() => {
+    let isMounted = true;
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (!isMounted) {
+        return;
+      }
+      setAuthUserId(user?.uid ?? null);
+      if (user?.email) {
+        isAdminUser(user.email)
+          .then((flag) => {
+            if (isMounted) {
+              setIsAdmin(Boolean(flag));
+              setAuthLoading(false);
+            }
+          })
+          .catch(() => {
+            if (isMounted) {
+              setIsAdmin(false);
+              setAuthLoading(false);
+            }
+          });
+      } else {
+        setIsAdmin(false);
+        setAuthLoading(false);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!profile) {
+      setEditableDetails(null);
+      return;
+    }
+
+    const sanitizedCode = (profile.phoneCountryCode ?? '').replace(/^\+/, '').replace(/\D/g, '');
+    const sanitizedPhone = (profile.phone ?? '').replace(/\D/g, '');
+
+    setEditableDetails({
+      firstName: profile.firstName ?? '',
+      lastName: profile.lastName ?? '',
+      phoneCountryCode: sanitizedCode,
+      phone: sanitizedPhone
+    });
+    setDetailsError(null);
+  }, [profile]);
+
   const stats = useMemo(() => {
     if (!profile) {
       return null;
@@ -108,6 +183,92 @@ const RunnerProfilePage: React.FC = () => {
         : '—'
     };
   }, [profile]);
+
+  const canEdit = Boolean(profile) && !authLoading && (authUserId === profile?.userId || isAdmin);
+
+  const hasDetailsChanged = useMemo(() => {
+    if (!profile || !editableDetails) {
+      return false;
+    }
+    const sanitizedProfileCode = (profile.phoneCountryCode ?? '').replace(/^\+/, '').replace(/\D/g, '');
+    const sanitizedProfilePhone = (profile.phone ?? '').replace(/\D/g, '');
+    return (
+      editableDetails.firstName !== (profile.firstName ?? '') ||
+      editableDetails.lastName !== (profile.lastName ?? '') ||
+      (editableDetails.phoneCountryCode ?? '') !== sanitizedProfileCode ||
+      (editableDetails.phone ?? '') !== sanitizedProfilePhone
+    );
+  }, [profile, editableDetails]);
+
+  const handleDetailChange = (field: keyof RunnerProfileEditableDetails) => (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    let value = event.target.value;
+    if (field === 'phoneCountryCode') {
+      value = value.replace(/\D/g, '').slice(0, 4);
+    } else if (field === 'phone') {
+      value = value.replace(/\D/g, '').slice(0, 15);
+    }
+
+    setEditableDetails((prev) => (prev ? { ...prev, [field]: value } : prev));
+    setDetailsSuccess(false);
+    setDetailsError(null);
+  };
+
+  const handleCancelDetails = () => {
+    if (!profile) {
+      return;
+    }
+    const sanitizedCode = (profile.phoneCountryCode ?? '').replace(/^\+/, '').replace(/\D/g, '');
+    const sanitizedPhone = (profile.phone ?? '').replace(/\D/g, '');
+
+    setEditableDetails({
+      firstName: profile.firstName ?? '',
+      lastName: profile.lastName ?? '',
+      phoneCountryCode: sanitizedCode,
+      phone: sanitizedPhone
+    });
+    setDetailsSuccess(false);
+    setDetailsError(null);
+  };
+
+  const handleSaveDetails = async () => {
+    if (!profile || !editableDetails || !hasDetailsChanged) {
+      return;
+    }
+
+    setDetailsSaving(true);
+    setDetailsError(null);
+    try {
+      const sanitizedCode = (editableDetails.phoneCountryCode ?? '').replace(/\D/g, '');
+      const sanitizedPhone = (editableDetails.phone ?? '').replace(/\D/g, '');
+      const storedCode = sanitizedCode ? `+${sanitizedCode}` : '';
+
+      await updateRunnerProfileDetails(profile.userId, {
+        firstName: editableDetails.firstName,
+        lastName: editableDetails.lastName,
+        phoneCountryCode: storedCode,
+        phone: sanitizedPhone
+      });
+
+      setProfile((prev) =>
+        prev
+          ? {
+              ...prev,
+              firstName: editableDetails.firstName,
+              lastName: editableDetails.lastName,
+              phoneCountryCode: storedCode,
+              phone: sanitizedPhone
+            }
+          : prev
+      );
+      setDetailsSuccess(true);
+    } catch (err: any) {
+      setDetailsError(err?.message || 'Failed to update personal details');
+    } finally {
+      setDetailsSaving(false);
+    }
+  };
 
   const renderParticipations = (participations: RunnerParticipation[]) => {
     if (participations.length === 0) {
@@ -142,10 +303,36 @@ const RunnerProfilePage: React.FC = () => {
               const raceTime = formatTimeDisplay(participation.raceTimeDisplay, participation.raceTimeSeconds);
               const totalTime = formatTimeDisplay(participation.totalTimeDisplay, participation.totalTimeSeconds);
               const loops = formatLoops(participation.loopsCompleted);
+              const distanceKey = participation.distanceKey || 'total';
               return (
                 <TableRow key={participation.editionId}>
-                  <TableCell>{editionLabel}</TableCell>
-                  <TableCell>{participation.raceName}</TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="primary"
+                      endIcon={<ChevronRight fontSize="small" />}
+                      onClick={() => navigate(`/kutc/results/${participation.editionId}?distance=total`)}
+                      sx={{ textTransform: 'none', fontWeight: 600 }}
+                    >
+                      {editionLabel}
+                    </Button>
+                  </TableCell>
+                  <TableCell>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      color="primary"
+                      endIcon={<ChevronRight fontSize="small" />}
+                      onClick={() => {
+                        const key = distanceKey || 'total';
+                        navigate(`/kutc/results/${participation.editionId}?distance=${encodeURIComponent(key)}`);
+                      }}
+                      sx={{ textTransform: 'none' }}
+                    >
+                      {participation.raceName}
+                    </Button>
+                  </TableCell>
                   <TableCell align="right">{formatRank(participation.raceRank)}</TableCell>
                   <TableCell align="right">{raceTime}</TableCell>
                   <TableCell align="right">{formatRank(participation.totalRank)}</TableCell>
@@ -208,9 +395,13 @@ const RunnerProfilePage: React.FC = () => {
           {stats.name}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          KUTC runner profile
+          Runner's page
         </Typography>
       </Box>
+
+      <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
+        KUTC participation history
+      </Typography>
 
       <Paper sx={{ p: 3, mb: 4 }}>
         <Grid container spacing={3}>
@@ -242,10 +433,128 @@ const RunnerProfilePage: React.FC = () => {
         </Grid>
       </Paper>
 
+      {canEdit && (
+        <Paper sx={{ mb: 4 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              px: 3,
+              py: 2
+            }}
+          >
+            <Typography variant="h5">Personal details</Typography>
+            <Button
+              variant="text"
+              size="small"
+              endIcon={<ExpandMore sx={{ transform: detailsExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
+              onClick={() => setDetailsExpanded((prev) => !prev)}
+              sx={{ textTransform: 'none' }}
+            >
+              {detailsExpanded ? 'Hide details' : 'Show details'}
+            </Button>
+          </Box>
+          <Collapse in={detailsExpanded} timeout="auto" unmountOnExit>
+            <Divider />
+            <Box sx={{ px: 3, py: 3 }}>
+              {detailsSuccess && (
+                <Alert severity="success" sx={{ mb: 2 }}>
+                  Changes saved successfully.
+                </Alert>
+              )}
+              {detailsError && (
+                <Alert severity="error" sx={{ mb: 2 }}>
+                  {detailsError}
+                </Alert>
+              )}
+              <Grid container spacing={3}>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="First name"
+                    fullWidth
+                    value={editableDetails?.firstName ?? ''}
+                    onChange={handleDetailChange('firstName')}
+                    disabled={detailsSaving}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Last name"
+                    fullWidth
+                    value={editableDetails?.lastName ?? ''}
+                    onChange={handleDetailChange('lastName')}
+                    disabled={detailsSaving}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Phone country code"
+                    fullWidth
+                    value={editableDetails?.phoneCountryCode ?? ''}
+                    onChange={handleDetailChange('phoneCountryCode')}
+                    disabled={detailsSaving}
+                    placeholder="47"
+                    InputProps={{
+                      startAdornment: <InputAdornment position="start">+</InputAdornment>,
+                      inputMode: 'numeric'
+                    }}
+                    inputProps={{ pattern: '[0-9]*', maxLength: 4 }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Phone number"
+                    fullWidth
+                    value={editableDetails?.phone ?? ''}
+                    onChange={handleDetailChange('phone')}
+                    disabled={detailsSaving}
+                    placeholder="e.g. 12345678"
+                    InputProps={{ inputMode: 'numeric' }}
+                    inputProps={{ pattern: '[0-9]*', maxLength: 15 }}
+                  />
+                </Grid>
+                <Grid item xs={12} md={6}>
+                  <TextField
+                    label="Email"
+                    fullWidth
+                    value={profile.email}
+                    disabled
+                    helperText="Email is your unique identifier. To update it, contact post@krultra.no."
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <Tooltip title="Email updates require contacting post@krultra.no">
+                            <InfoOutlined fontSize="small" color="action" />
+                          </Tooltip>
+                        </InputAdornment>
+                      )
+                    }}
+                  />
+                </Grid>
+              </Grid>
+              <Box sx={{ display: 'flex', justifyContent: 'flex-end', gap: 2, mt: 3 }}>
+                <Button
+                  variant="text"
+                  onClick={handleCancelDetails}
+                  disabled={detailsSaving || !hasDetailsChanged}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant="contained"
+                  onClick={handleSaveDetails}
+                  disabled={detailsSaving || !hasDetailsChanged}
+                >
+                  {detailsSaving ? 'Saving…' : 'Save changes'}
+                </Button>
+              </Box>
+            </Box>
+          </Collapse>
+        </Paper>
+      )}
+
       <Box>
-        <Typography variant="h5" gutterBottom>
-          KUTC participation history
-        </Typography>
         {renderParticipations(profile.participations)}
       </Box>
     </Container>

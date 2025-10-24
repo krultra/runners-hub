@@ -35,43 +35,72 @@ A fully functional search interface for finding runners who have competed in KUT
 
 ---
 
-## Next Steps - Phase 4: Public Runner Profile
+## Phase 4: Public Runner Profile Page - Complete 
 
-Now we need to create the runner profile page that displays:
+### Highlights
+- Implemented `RunnerProfilePage.tsx` to surface runner summaries, KUTC participation history, and checkpoint analysis links.
+- Added `runnerProfileService.ts` for aggregating Firestore data across `users/`, `kutcResults/`, and checkpoint availability.
+- Displayed top-line metrics (appearances, total loops, best performance) and per-edition tables with navigation to analysis when data exists.
 
-### Profile Page (`/runners/{userId}`)
+### Routes & Navigation
+- `/runners/:userId` added to `src/App.tsx`.
+- Runner search results now deep-link directly to the profile page.
 
-**Components to create:**
-1. `PublicRunnerProfilePage.tsx` - Main container
-2. `RunnerProfileHeader.tsx` - Name and quick stats
-3. `RunnerKUTCStats.tsx` - KUTC-specific statistics
+---
 
-**Data to display:**
-- Runner name
-- Total KUTC appearances
-- Total loops completed
-- Best performance (most loops, fastest time)
-- Table of all KUTC editions participated in
-- Link to detailed checkpoint analysis per edition
+## Phase 5: Detailed Checkpoint Analysis Page - Complete 
 
-**Route:** `/runners/{userId}`
+### Highlights
+- Delivered `RunnerCheckpointAnalysisPage.tsx` leveraging `checkpointResultsService.ts` to present summaries, performance insights, loop breakdowns, and checkpoint-level tables.
+- Implemented cumulative distance/ascent metrics, formatted rest times, and corrected rank deltas for clarity.
+- Linked directly from runner profiles via the Analysis column.
+
+### Routes & Navigation
+- `/runners/:userId/kutc/:editionId` registered in `src/App.tsx`.
+- Home and profile flows now provide full end-to-end access from search → profile → checkpoint analysis.
+
+---
+
+## Phase 6: Polish & Testing - Complete 
+
+### Highlights
+- Added a runner search CTA to `HomePage.tsx` so visitors can discover stats from the landing page.
+- Updated Firestore security rules to grant public read access for the collections referenced by the profile and analysis pages.
+- Expanded documentation of runner features and confirmed UI navigation works across search, profile, and analysis pages.
+
+---
+
+## Phase 7: Navigation & Profile Enhancements - Complete 
+
+### Highlights
+- Created `runnerNavigationService.ts` to map `personId` ↔ `userId` and check checkpoint availability with caching.
+- Enabled cross-navigation between runner profiles and KUTC results/analysis pages with smart fallbacks.
+- Added DataGrid row instructions and click-through guidance across results pages.
+- Refined runner profile participation stats to exclude `DNS` years from appearances and years list.
+- Introduced an owner/admin-only personal details section on `RunnerProfilePage.tsx` with editable contact info and disabled email field with context tooltip.
+- Auto-focused the `RunnerSearchPage.tsx` input to speed up keyboard-driven workflows.
+
+### Updated Files
+- `src/services/runnerNavigationService.ts` *(new)*
+- `src/pages/RunnerProfilePage.tsx`
+- `src/components/KUTCResultsTable.tsx`
+- `src/pages/KUTCYearResultsPage.tsx`
+- `src/pages/KUTCRecordsPage.tsx`
+- `src/pages/KUTCAllTimeLeaderboardPage.tsx`
+- `src/pages/RunnerSearchPage.tsx`
 
 ---
 
 ## Current Status
 
-### ✅ Completed Phases:
+### Completed Phases:
 - **Phase 1:** Data Import Foundation (checkpoint results in Firestore)
 - **Phase 2:** Checkpoint Service & Utilities (tested and working)
-- **Phase 3:** Runner Search Page (just completed)
-
-### 🚧 Next Phase:
+- **Phase 3:** Runner Search Page
 - **Phase 4:** Public Runner Profile Page
-
-### 📋 Future Phases:
 - **Phase 5:** Detailed Checkpoint Analysis Page
 - **Phase 6:** Polish & Testing
-- **Phase 7:** Future Enhancements (visualizations, comparisons)
+- **Phase 7:** Navigation & Profile Enhancements
 
 ---
 
@@ -94,4 +123,12 @@ Now we need to create the runner profile page that displays:
 
 ---
 
-Ready to proceed with Phase 4: Public Runner Profile Page! 🏃‍♂️
+## Notes
+
+- Runner search currently targets KUTC participants (users with `personId`).
+- Consider extending search to other events (e.g., MO participants) and adding richer analytics in Phase 7.
+- Search still relies on client-side filtering; evaluate Algolia/ElasticSearch for scalability in future work.
+
+---
+
+Phase 7 awaits! 
