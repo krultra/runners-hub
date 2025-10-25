@@ -23,25 +23,62 @@ service cloud.firestore {
       // Full read access for the user themselves or admins
       allow read: if true;  // Allow public read for runner search and profiles
 
-      // Allow users to update their own document
-      // Admins can update any user document
-      allow update: if request.auth != null && (
-        request.auth.uid == userId || 
+      // Allow users to create or update their own document
+      // Admins can manage any user document
+      allow create: if request.auth != null && (
+        (
+          request.auth.uid == userId &&
+          (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false)
+        ) ||
         isAdmin()
-      ) && (
-        // Only allow updates to specific fields
-        request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-          'displayName', 'photoURL', 'ra', 'lastLogin'
-        ]) || isAdmin()
+      );
+
+      allow update: if request.auth != null && (
+        (
+          request.auth.uid == userId &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'displayName',
+            'photoURL',
+            'ra',
+            'lastLogin',
+            'firstName',
+            'lastName',
+            'phoneCountryCode',
+            'phone',
+            'email'
+          ]) &&
+          request.resource.data.isAdmin == resource.data.isAdmin
+        ) ||
+        (
+          !exists(/databases/$(database)/documents/users/$(userId)) &&
+          request.auth.uid == userId &&
+          (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false)
+        ) ||
+        (
+          isAdmin() &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'displayName',
+            'photoURL',
+            'ra',
+            'lastLogin',
+            'firstName',
+            'lastName',
+            'phoneCountryCode',
+            'phone',
+            'email',
+            'personId',
+            'isAdmin'
+          ])
+        )
       );
       
-      // Only admins can create or delete users
-      allow create, delete: if isAdmin();
+      // Only admins can delete users
+      allow delete: if isAdmin();
     }
 
     
     // =============================================
-    // RunnersHub Collections (existing rules)
+    // RunnersHub Collections
     // =============================================
     match /registrations/{registrationId} {
       allow read: if true;

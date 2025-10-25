@@ -17,7 +17,7 @@ import {
 } from '@mui/material';
 import { Search, Person } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 interface RunnerSearchResult {
@@ -73,8 +73,7 @@ const RunnerSearchPage: React.FC = () => {
       const q = query(
         usersRef,
         where('personId', '!=', null),
-        orderBy('personId'),
-        limit(50)
+        orderBy('personId')
       );
       
       const snapshot = await getDocs(q);

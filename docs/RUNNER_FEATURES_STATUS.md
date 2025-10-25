@@ -131,4 +131,3 @@ A fully functional search interface for finding runners who have competed in KUT
 
 ---
 
-Phase 7 awaits! 

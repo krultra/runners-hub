@@ -33,6 +33,7 @@ import {
   RunnerProfileEditableDetails,
   updateRunnerProfileDetails
 } from '../services/runnerProfileService';
+import { getUserIdByPersonId } from '../services/runnerNavigationService';
 
 const formatTimeDisplay = (display: string | null | undefined, seconds: number | null | undefined): string => {
   if (display && display.trim().length > 0) {
@@ -74,10 +75,12 @@ const formatYears = (years: number[]): string => {
 const RunnerProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const debugTag = '[RunnerProfilePage]';
   const [profile, setProfile] = useState<RunnerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
+  const [authEmail, setAuthEmail] = useState<string | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -85,6 +88,7 @@ const RunnerProfilePage: React.FC = () => {
   const [detailsSaving, setDetailsSaving] = useState(false);
   const [detailsSuccess, setDetailsSuccess] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
+  const [authPersonIds, setAuthPersonIds] = useState<number[]>([]);
 
   useEffect(() => {
     if (!userId) return;
@@ -97,14 +101,21 @@ const RunnerProfilePage: React.FC = () => {
         const data = await getRunnerProfile(userId);
         if (isMounted) {
           setProfile(data);
+          console.log(debugTag, 'Loaded profile', {
+            userId,
+            profileUserId: data.userId,
+            hasPersonId: Boolean(data.personId)
+          });
         }
       } catch (err: any) {
         if (isMounted) {
           setError(err?.message || 'Failed to load runner profile');
+          console.warn(debugTag, 'Failed to load profile', { userId, error: err });
         }
       } finally {
         if (isMounted) {
           setLoading(false);
+          console.log(debugTag, 'Profile load complete', { userId });
         }
       }
     };
@@ -122,24 +133,37 @@ const RunnerProfilePage: React.FC = () => {
       if (!isMounted) {
         return;
       }
-      setAuthUserId(user?.uid ?? null);
+      const nextAuthUserId = user?.uid ?? null;
+      const nextAuthEmail = user?.email ?? null;
+      setAuthUserId(nextAuthUserId);
+      setAuthEmail(nextAuthEmail);
       if (user?.email) {
         isAdminUser(user.email)
           .then((flag) => {
             if (isMounted) {
               setIsAdmin(Boolean(flag));
               setAuthLoading(false);
+              console.log(debugTag, 'Auth resolved', {
+                authUid: nextAuthUserId,
+                authEmail: user.email,
+                isAdmin: Boolean(flag)
+              });
             }
           })
           .catch(() => {
             if (isMounted) {
               setIsAdmin(false);
               setAuthLoading(false);
+              console.warn(debugTag, 'Admin check failed', {
+                authUid: nextAuthUserId,
+                authEmail: user.email
+              });
             }
           });
       } else {
         setIsAdmin(false);
         setAuthLoading(false);
+        console.log(debugTag, 'Auth state without email', { authUid: nextAuthUserId });
       }
     });
 
@@ -150,6 +174,39 @@ const RunnerProfilePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    if (!profile?.personId || !authUserId) {
+      return;
+    }
+
+    let isMounted = true;
+
+    const resolveAuthPersonIds = async () => {
+      try {
+        const userIdMatch = await getUserIdByPersonId(profile.personId!);
+        if (!isMounted) {
+          return;
+        }
+        if (userIdMatch === authUserId) {
+          setAuthPersonIds([profile.personId!]);
+          console.log(debugTag, 'Mapped auth user to profile personId', {
+            authUserId,
+            profilePersonId: profile.personId
+          });
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.warn(debugTag, 'Failed mapping personId to userId', err);
+        }
+      }
+    };
+
+    resolveAuthPersonIds();
+    return () => {
+      isMounted = false;
+    };
+  }, [profile?.personId, authUserId]);
+
+  useEffect(() => {
     if (!profile) {
       setEditableDetails(null);
       return;
@@ -157,6 +214,14 @@ const RunnerProfilePage: React.FC = () => {
 
     const sanitizedCode = (profile.phoneCountryCode ?? '').replace(/^\+/, '').replace(/\D/g, '');
     const sanitizedPhone = (profile.phone ?? '').replace(/\D/g, '');
+
+    console.log(debugTag, 'Preparing editable details from profile', {
+      profileUserId: profile.userId,
+      profileFirstName: profile.firstName,
+      profileLastName: profile.lastName,
+      sanitizedCode,
+      sanitizedPhone
+    });
 
     setEditableDetails({
       firstName: profile.firstName ?? '',
@@ -184,7 +249,40 @@ const RunnerProfilePage: React.FC = () => {
     };
   }, [profile]);
 
-  const canEdit = Boolean(profile) && !authLoading && (authUserId === profile?.userId || isAdmin);
+  const emailMatches = Boolean(
+    authEmail && profile?.email && authEmail.toLowerCase() === profile.email.toLowerCase()
+  );
+
+  const personIdMatches = Boolean(
+    profile?.personId && authPersonIds.includes(profile.personId)
+  );
+
+  const canEdit = Boolean(profile) && !authLoading && (
+    authUserId === profile?.userId ||
+    emailMatches ||
+    personIdMatches ||
+    isAdmin
+  );
+
+  useEffect(() => {
+    console.log(debugTag, 'Authorization state changed', {
+      authLoading,
+      authUserId,
+      authEmail,
+      profileUserId: profile?.userId,
+      profileEmail: profile?.email,
+      profilePersonId: profile?.personId,
+      authPersonIds,
+      isAdmin,
+      canEdit
+    });
+  }, [authLoading, authUserId, authEmail, profile, isAdmin, emailMatches, personIdMatches, authPersonIds, canEdit]);
+
+  useEffect(() => {
+    console.log(debugTag, 'Render personal details toggle', {
+      detailsExpanded
+    });
+  }, [detailsExpanded]);
 
   const hasDetailsChanged = useMemo(() => {
     if (!profile || !editableDetails) {
@@ -213,6 +311,7 @@ const RunnerProfilePage: React.FC = () => {
     setEditableDetails((prev) => (prev ? { ...prev, [field]: value } : prev));
     setDetailsSuccess(false);
     setDetailsError(null);
+    console.log(debugTag, 'Detail field change', { field, value });
   };
 
   const handleCancelDetails = () => {
@@ -230,10 +329,16 @@ const RunnerProfilePage: React.FC = () => {
     });
     setDetailsSuccess(false);
     setDetailsError(null);
+    console.log(debugTag, 'Reverted edits from profile snapshot');
   };
 
   const handleSaveDetails = async () => {
     if (!profile || !editableDetails || !hasDetailsChanged) {
+      console.log(debugTag, 'Save skipped', {
+        hasProfile: Boolean(profile),
+        hasEditableDetails: Boolean(editableDetails),
+        hasDetailsChanged
+      });
       return;
     }
 
@@ -263,8 +368,17 @@ const RunnerProfilePage: React.FC = () => {
           : prev
       );
       setDetailsSuccess(true);
+      console.log(debugTag, 'Saved personal details', {
+        userId: profile.userId,
+        storedCode,
+        sanitizedPhone
+      });
     } catch (err: any) {
       setDetailsError(err?.message || 'Failed to update personal details');
+      console.error(debugTag, 'Failed saving personal details', {
+        userId: profile.userId,
+        error: err
+      });
     } finally {
       setDetailsSaving(false);
     }
@@ -435,26 +549,28 @@ const RunnerProfilePage: React.FC = () => {
 
       {canEdit && (
         <Paper sx={{ mb: 4 }}>
-          <Box
+          <Button
+            fullWidth
+            onClick={() => setDetailsExpanded((prev) => !prev)}
             sx={{
-              display: 'flex',
-              alignItems: 'center',
               justifyContent: 'space-between',
               px: 3,
-              py: 2
+              py: 2,
+              textTransform: 'none',
+              color: 'text.primary',
+              '&:hover': {
+                backgroundColor: 'action.hover'
+              }
             }}
+            endIcon={<ExpandMore sx={{ transform: detailsExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
           >
-            <Typography variant="h5">Personal details</Typography>
-            <Button
-              variant="text"
-              size="small"
-              endIcon={<ExpandMore sx={{ transform: detailsExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
-              onClick={() => setDetailsExpanded((prev) => !prev)}
-              sx={{ textTransform: 'none' }}
-            >
+            <Typography variant="h5" component="span">
+              Personal details
+            </Typography>
+            <Typography variant="body2" component="span" color="text.secondary">
               {detailsExpanded ? 'Hide details' : 'Show details'}
-            </Button>
-          </Box>
+            </Typography>
+          </Button>
           <Collapse in={detailsExpanded} timeout="auto" unmountOnExit>
             <Divider />
             <Box sx={{ px: 3, py: 3 }}>
