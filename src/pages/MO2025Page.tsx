@@ -96,7 +96,7 @@ const MO2025Page: React.FC = () => {
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
           <Button
-            href="https://krultra.no/nb/mo"
+            href="https://krultra.no/nb/node/23
             target="_blank"
             rel="noopener noreferrer"
             variant="text"

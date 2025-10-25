@@ -1,13 +1,21 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import {
-  Container,
-  Typography,
-  Box,
-  CircularProgress,
   Alert,
-  Paper,
-  Grid,
+  Box,
+  Button,
   Chip,
+  CircularProgress,
+  Collapse,
+  Container,
+  Divider,
+  Grid,
+  IconButton,
+  InputAdornment,
+  List,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
+  Paper,
   Stack,
   Table,
   TableBody,
@@ -15,15 +23,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Button,
-  Divider,
-  Collapse,
   TextField,
   Tooltip,
-  InputAdornment
+  Typography
 } from '@mui/material';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
-import { ChevronRight, ExpandMore, InfoOutlined } from '@mui/icons-material';
+import { ChevronRight, EventAvailable, ExpandMore, InfoOutlined } from '@mui/icons-material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { isAdminUser } from '../utils/adminUtils';
 import {
@@ -31,6 +36,7 @@ import {
   RunnerParticipation,
   RunnerProfile,
   RunnerProfileEditableDetails,
+  RunnerUpcomingRegistration,
   updateRunnerProfileDetails
 } from '../services/runnerProfileService';
 import { getUserIdByPersonId } from '../services/runnerNavigationService';
@@ -51,11 +57,24 @@ const formatTimeDisplay = (display: string | null | undefined, seconds: number |
   return parts;
 };
 
-const formatRank = (rank: number | null | undefined): string => {
-  if (rank === null || rank === undefined || rank <= 0) {
+const formatDateTimeDisplay = (value: Date | null | undefined): string => {
+  if (!value) {
+    return 'Date TBA';
+  }
+  return value.toLocaleString(undefined, {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+};
+
+const formatRank = (value: number | null | undefined): string => {
+  if (!Number.isFinite(value)) {
     return '—';
   }
-  return `#${rank}`;
+  return `#${value}`;
 };
 
 const formatLoops = (loops: number | undefined): string => {
@@ -478,6 +497,64 @@ const RunnerProfilePage: React.FC = () => {
     );
   };
 
+  const renderUpcomingRegistrations = (registrations: RunnerUpcomingRegistration[]) => {
+    if (!registrations.length) {
+      return (
+        <Typography variant="body2" color="text.secondary">
+          Currently not signed up for any future KrUltra event.
+        </Typography>
+      );
+    }
+
+    return (
+      <List disablePadding>
+        {registrations.map((registration, index) => {
+          const isLast = index === registrations.length - 1;
+          const typeLabel = registration.registrationType === 'kutc'
+            ? 'KUTC'
+            : registration.registrationType === 'mo'
+              ? 'MO'
+              : 'Event';
+          const statusLabel = registration.status ? registration.status : null;
+
+          return (
+            <ListItem key={registration.registrationId} alignItems="flex-start" disableGutters divider={!isLast} sx={{ py: 1.5 }}>
+              <ListItemIcon sx={{ minWidth: 40 }}>
+                <EventAvailable color="primary" />
+              </ListItemIcon>
+              <ListItemText
+                primary={
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'flex-start', sm: 'center' }}>
+                    <Typography variant="subtitle1" fontWeight={600}>
+                      {registration.eventName}
+                    </Typography>
+                    <Chip size="small" label={typeLabel} color={typeLabel === 'MO' ? 'success' : 'primary'} variant="outlined" />
+                    <Chip size="small" label={registration.editionId} variant="outlined" />
+                    {statusLabel && (
+                      <Chip size="small" label={statusLabel} color={statusLabel === 'confirmed' ? 'success' : 'warning'} variant="outlined" />
+                    )}
+                  </Stack>
+                }
+                secondary={
+                  <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ xs: 'flex-start', sm: 'center' }} sx={{ mt: 0.5 }}>
+                    <Typography variant="body2" color="text.secondary">
+                      Starts {formatDateTimeDisplay(registration.startTime)}
+                    </Typography>
+                    {typeof registration.registrationNumber === 'number' && (
+                      <Typography variant="body2" color="text.secondary">
+                        Registration #{registration.registrationNumber}
+                      </Typography>
+                    )}
+                  </Stack>
+                }
+              />
+            </ListItem>
+          );
+        })}
+      </List>
+    );
+  };
+
   if (loading) {
     return (
       <Container maxWidth="md" sx={{ py: 6, textAlign: 'center' }}>
@@ -512,6 +589,13 @@ const RunnerProfilePage: React.FC = () => {
           Runner's page
         </Typography>
       </Box>
+
+      <Paper sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Upcoming registrations
+        </Typography>
+        {renderUpcomingRegistrations(profile.upcomingRegistrations)}
+      </Paper>
 
       <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
         KUTC participation history

@@ -144,6 +144,16 @@ const HomePage: React.FC = () => {
               '&:hover': {
                 transform: 'translateY(-4px)',
                 boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
+              },
+              cursor: 'pointer'
+            }}
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate('/kutc')}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                navigate('/kutc');
               }
             }}
           >
@@ -165,7 +175,10 @@ const HomePage: React.FC = () => {
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => navigate('/kutc/results')}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  navigate('/kutc/results');
+                }}
               >
                 Results
               </Button>
@@ -187,6 +200,16 @@ const HomePage: React.FC = () => {
               '&:hover': {
                 transform: 'translateY(-4px)',
                 boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
+              },
+              cursor: 'pointer'
+            }}
+            role="button"
+            tabIndex={0}
+            onClick={() => navigate('/mo')}
+            onKeyDown={(event) => {
+              if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                navigate('/mo');
               }
             }}
           >
@@ -202,14 +225,20 @@ const HomePage: React.FC = () => {
               <Button
                 variant="contained"
                 color="success"
-                onClick={() => navigate('/mo')}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  navigate('/mo');
+                }}
                 disabled
               >
                 Explore
               </Button>
               <Button
                 variant="outlined"
-                onClick={() => navigate('/mo')}
+                onClick={(event) => {
+                  event.stopPropagation();
+                  navigate('/mo');
+                }}
                 disabled
               >
                 Results (coming soon)

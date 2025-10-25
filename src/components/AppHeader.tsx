@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon } from '@mui/material';
+import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { adminSections } from '../constants/adminSections';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -7,7 +7,7 @@ import Divider from '@mui/material/Divider';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LoginIcon from '@mui/icons-material/Login';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { createOrUpdateUser } from '../utils/userUtils';
+import { createOrUpdateUser, getUser } from '../utils/userUtils';
 import { isAdminUser } from '../utils/adminUtils';
 
 // Get environment variables
@@ -20,6 +20,7 @@ const AppHeader: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [avatarMenuAnchor, setAvatarMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [userName, setUserName] = useState<string>('');
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -63,8 +64,20 @@ const AppHeader: React.FC = () => {
         await createOrUpdateUser(u);
         const adminFlag = await isAdminUser(u.email!);
         setIsAdmin(adminFlag);
+        try {
+          const appUser = await getUser(u.uid);
+          const computedName = [appUser?.firstName, appUser?.lastName]
+            .filter(Boolean)
+            .join(' ')
+            .trim();
+          const fallbackName = appUser?.displayName || u.displayName || '';
+          setUserName(computedName || fallbackName || u.email || '');
+        } catch (err) {
+          setUserName(u.displayName || u.email || '');
+        }
       } else {
         setIsAdmin(false);
+        setUserName('');
       }
     });
     return unsub;
@@ -74,6 +87,14 @@ const AppHeader: React.FC = () => {
     handleAvatarMenuClose();
     const auth = getAuth();
     await signOut(auth);
+  };
+
+  const handleRunnerProfile = () => {
+    if (!user) {
+      return;
+    }
+    navigate(`/runners/${user.uid}`);
+    handleAvatarMenuClose();
   };
 
   return (
@@ -195,7 +216,7 @@ const AppHeader: React.FC = () => {
 
           {/* Avatar/login icon to the left of hamburger */}
           {user ? (
-            <Tooltip title={user.email || 'Logged in'}>
+            <Tooltip title={userName || user.email || 'Logged in'}>
               <IconButton
                 color="inherit"
                 size="large"
@@ -234,10 +255,20 @@ const AppHeader: React.FC = () => {
               transformOrigin={{ vertical: 'top', horizontal: 'right' }}
             >
               <Box px={2} py={1}>
-                <Typography variant="subtitle2" sx={{ maxWidth: 200, overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                  {user.displayName || user.email}
-                </Typography>
+                <Stack spacing={0.5} sx={{ maxWidth: 220 }}>
+                  <Typography variant="subtitle2" sx={{ fontWeight: 600, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                    {userName || user.email}
+                  </Typography>
+                  {user.email && (
+                    <Typography variant="caption" color="text.secondary" sx={{ overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {user.email}
+                    </Typography>
+                  )}
+                </Stack>
               </Box>
+              <Divider sx={{ my: 0.5 }} />
+              <MenuItem onClick={handleRunnerProfile}>My runner page</MenuItem>
+              <Divider sx={{ my: 0.5 }} />
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </Menu>
           )}

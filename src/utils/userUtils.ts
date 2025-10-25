@@ -6,6 +6,10 @@ export interface AppUser {
   uid: string;
   email: string;
   displayName?: string;
+  firstName?: string;
+  lastName?: string;
+  phoneCountryCode?: string | null;
+  phone?: string | null;
   createdAt?: any;
   lastLogin?: any;
   isAdmin?: boolean;

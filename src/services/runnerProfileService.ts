@@ -5,9 +5,11 @@ import {
   getDoc,
   getDocs,
   limit,
+  orderBy,
   query,
   where,
-  setDoc
+  setDoc,
+  Timestamp
 } from 'firebase/firestore';
 
 interface FirestoreUser {
@@ -59,6 +61,7 @@ export interface RunnerProfile {
   totalLoops: number;
   bestPerformance: RunnerBestPerformance | null;
   participations: RunnerParticipation[];
+  upcomingRegistrations: RunnerUpcomingRegistration[];
 }
 
 export interface RunnerProfileEditableDetails {
@@ -66,6 +69,17 @@ export interface RunnerProfileEditableDetails {
   lastName: string;
   phoneCountryCode?: string;
   phone?: string;
+}
+
+export interface RunnerUpcomingRegistration {
+  registrationId: string;
+  editionId: string;
+  eventName: string;
+  eventShortName?: string;
+  startTime: Date | null;
+  registrationType: 'kutc' | 'mo' | 'event';
+  status?: string | null;
+  registrationNumber?: number | null;
 }
 
 const deriveDistanceKey = (race: any, index: number): string => {
@@ -106,6 +120,114 @@ const ensureLoops = (value: any): number => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
 };
+
+const toDateFromUnknown = (value: any): Date | null => {
+  if (!value) return null;
+  if (value instanceof Date) return value;
+  if (typeof value.toDate === 'function') return value.toDate();
+  const parsed = new Date(value);
+  return Number.isNaN(parsed.getTime()) ? null : parsed;
+};
+
+const upcomingStatusFilter = ['pending', 'confirmed'];
+
+async function fetchUpcomingRegistrations(userId: string, email: string | null | undefined): Promise<RunnerUpcomingRegistration[]> {
+  if (!userId) {
+    return [];
+  }
+
+  const now = Timestamp.now();
+  const editionsRef = collection(db, 'eventEditions');
+  const editionsQuery = query(editionsRef, where('startTime', '>', now), orderBy('startTime', 'asc'));
+  const editionsSnapshot = await getDocs(editionsQuery);
+
+  if (editionsSnapshot.empty) {
+    return [];
+  }
+
+  const results: RunnerUpcomingRegistration[] = [];
+
+  await Promise.all(
+    editionsSnapshot.docs.map(async (editionDoc) => {
+      const editionData = editionDoc.data() as any;
+      const editionId = editionDoc.id;
+      const startTime = toDateFromUnknown(editionData.startTime);
+      const eventName = editionData.eventName || editionId;
+      const eventShortName = editionData.eventShortName || editionData.eventId || undefined;
+      const type: RunnerUpcomingRegistration['registrationType'] = editionId.toLowerCase().startsWith('kutc-')
+        ? 'kutc'
+        : editionId.toLowerCase().startsWith('mo-')
+          ? 'mo'
+          : 'event';
+
+      if (type === 'kutc' || type === 'event') {
+        const registrationsRef = collection(db, 'registrations');
+        const regQuery = query(
+          registrationsRef,
+          where('editionId', '==', editionId),
+          where('userId', '==', userId),
+          where('status', 'in', upcomingStatusFilter)
+        );
+        const registrationSnapshot = await getDocs(regQuery);
+        registrationSnapshot.forEach((docSnap) => {
+          const data = docSnap.data() as any;
+          results.push({
+            registrationId: docSnap.id,
+            editionId,
+            eventName,
+            eventShortName,
+            startTime,
+            registrationType: type,
+            status: data.status || null,
+            registrationNumber: typeof data.registrationNumber === 'number' ? data.registrationNumber : null
+          });
+        });
+      }
+
+      if (type === 'mo') {
+        const moRef = collection(db, 'moRegistrations');
+        let moQuery = query(
+          moRef,
+          where('editionId', '==', editionId),
+          where('userId', '==', userId)
+        );
+        let moSnapshot = await getDocs(moQuery);
+
+        if (moSnapshot.empty && email) {
+          const normalizedEmail = String(email).trim().toLowerCase();
+          moQuery = query(
+            moRef,
+            where('editionId', '==', editionId),
+            where('email', '==', normalizedEmail)
+          );
+          moSnapshot = await getDocs(moQuery);
+        }
+
+        moSnapshot.forEach((docSnap) => {
+          const data = docSnap.data() as any;
+          results.push({
+            registrationId: docSnap.id,
+            editionId,
+            eventName,
+            eventShortName,
+            startTime,
+            registrationType: type,
+            status: data.status || null,
+            registrationNumber: typeof data.registrationNumber === 'number' ? data.registrationNumber : null
+          });
+        });
+      }
+    })
+  );
+
+  results.sort((a, b) => {
+    const aTime = a.startTime?.getTime?.() ?? 0;
+    const bTime = b.startTime?.getTime?.() ?? 0;
+    return aTime - bTime;
+  });
+
+  return results;
+}
 
 async function determineCheckpointAvailability(eventEditionId: string, userId: string): Promise<boolean> {
   const checkpointsRef = collection(db, 'checkpointResults');
@@ -233,6 +355,8 @@ export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
     ? await getKUTCParticipations(userId, personId)
     : [];
 
+  const upcomingRegistrations = await fetchUpcomingRegistrations(userId, userData.email || null);
+
   const countedParticipations = participations.filter((participation) =>
     participation.status?.toUpperCase() !== 'DNS'
   );
@@ -300,7 +424,8 @@ export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
     appearanceYears,
     totalLoops,
     bestPerformance,
-    participations
+    participations,
+    upcomingRegistrations
   };
 }
 
