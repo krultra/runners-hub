@@ -21,7 +21,10 @@ export async function getUserIdByPersonId(personId: number): Promise<string | nu
     return null;
   }
 
-  const userId = snapshot.docs[0].id;
+  const docSnap = snapshot.docs[0];
+  const data = docSnap.data() as { uid?: string | null; userId?: string | null };
+  const resolved = (data.uid && data.uid.trim()) || (data.userId && data.userId.trim()) || docSnap.id;
+  const userId = resolved.trim();
   personIdToUserIdCache.set(personId, userId);
   return userId;
 }

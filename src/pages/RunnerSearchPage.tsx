@@ -26,7 +26,22 @@ interface RunnerSearchResult {
   lastName: string;
   personId?: number;
   email?: string;
+  uid?: string;
+  userId?: string;
 }
+
+const resolveRunnerId = (runner: RunnerSearchResult): string => {
+  const candidates = [runner.uid, runner.userId, runner.id];
+  for (const value of candidates) {
+    if (typeof value === 'string') {
+      const trimmed = value.trim();
+      if (trimmed.length > 0) {
+        return trimmed;
+      }
+    }
+  }
+  return runner.id;
+};
 
 const RunnerSearchPage: React.FC = () => {
   const navigate = useNavigate();
@@ -77,12 +92,16 @@ const RunnerSearchPage: React.FC = () => {
       );
       
       const snapshot = await getDocs(q);
-      
+
       // Client-side filtering for name matching
-      const allUsers = snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as RunnerSearchResult));
+      const allUsers = snapshot.docs.map((docSnap) => {
+        const data = docSnap.data() as RunnerSearchResult;
+        const { id: _ignoredId, ...rest } = data || {};
+        return {
+          id: docSnap.id,
+          ...rest
+        };
+      });
       
       const filtered = allUsers.filter(user => {
         const firstName = (user.firstName || '').toLowerCase();
@@ -110,8 +129,9 @@ const RunnerSearchPage: React.FC = () => {
     }
   };
 
-  const handleRunnerClick = (userId: string) => {
-    navigate(`/runners/${userId}`);
+  const handleRunnerClick = (runner: RunnerSearchResult) => {
+    const targetId = resolveRunnerId(runner);
+    navigate(`/runners/${targetId}`);
   };
 
   return (
@@ -192,7 +212,7 @@ const RunnerSearchPage: React.FC = () => {
                   disablePadding
                   divider={index < results.length - 1}
                 >
-                  <ListItemButton onClick={() => handleRunnerClick(runner.id)}>
+                  <ListItemButton onClick={() => handleRunnerClick(runner)}>
                     <ListItemText
                       primary={
                         <Stack direction="row" spacing={1} alignItems="center">

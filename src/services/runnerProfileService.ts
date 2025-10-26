@@ -20,6 +20,8 @@ interface FirestoreUser {
   email?: string;
   phoneCountryCode?: string | null;
   phone?: string | null;
+  uid?: string | null;
+  userId?: string | null;
 }
 
 export interface RunnerParticipation {
@@ -119,6 +121,25 @@ const ensureLoops = (value: any): number => {
   if (typeof value === 'number') return value;
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : 0;
+};
+
+const normalizeId = (value: unknown): string | null => {
+  if (typeof value !== 'string') {
+    return null;
+  }
+  const trimmed = value.trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+const looksLikeEmail = (value: unknown): boolean => {
+  if (typeof value !== 'string') {
+    return false;
+  }
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return false;
+  }
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed.toLowerCase());
 };
 
 const toDateFromUnknown = (value: any): Date | null => {
@@ -339,23 +360,49 @@ async function getKUTCParticipations(userId: string, personId: number): Promise<
 }
 
 export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
-  const userRef = doc(db, 'users', userId);
-  const userSnap = await getDoc(userRef);
+  if (looksLikeEmail(userId)) {
+    throw new Error('Runner not found');
+  }
+
+  let userSnap = await getDoc(doc(db, 'users', userId));
+
+  if (!userSnap.exists()) {
+    const usersRef = collection(db, 'users');
+    const uidQuery = query(usersRef, where('uid', '==', userId), limit(1));
+    const uidSnapshot = await getDocs(uidQuery);
+    if (!uidSnapshot.empty) {
+      userSnap = uidSnapshot.docs[0];
+    } else {
+      const legacyQuery = query(usersRef, where('userId', '==', userId), limit(1));
+      const legacySnapshot = await getDocs(legacyQuery);
+      if (!legacySnapshot.empty) {
+        userSnap = legacySnapshot.docs[0];
+      }
+    }
+  }
 
   if (!userSnap.exists()) {
     throw new Error('Runner not found');
   }
 
   const userData = userSnap.data() as FirestoreUser;
+  const resolvedUid =
+    normalizeId(userData.uid) ??
+    normalizeId(userData.userId) ??
+    (!userSnap.id.includes('@') ? normalizeId(userSnap.id) : null) ??
+    normalizeId(userId) ??
+    userSnap.id;
+  const effectiveUserId = resolvedUid || userId;
+
   const firstName = userData.firstName || userData.displayName?.split(' ')[0] || 'Runner';
   const lastName = userData.lastName || userData.displayName?.split(' ').slice(1).join(' ') || '';
   const personId = ensureNumber(userData.personId);
 
   const participations = personId !== null
-    ? await getKUTCParticipations(userId, personId)
+    ? await getKUTCParticipations(effectiveUserId, personId)
     : [];
 
-  const upcomingRegistrations = await fetchUpcomingRegistrations(userId, userData.email || null);
+  const upcomingRegistrations = await fetchUpcomingRegistrations(effectiveUserId, userData.email || null);
 
   const countedParticipations = participations.filter((participation) =>
     participation.status?.toUpperCase() !== 'DNS'
@@ -413,7 +460,7 @@ export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
   }
 
   return {
-    userId,
+    userId: effectiveUserId,
     personId,
     firstName,
     lastName,
