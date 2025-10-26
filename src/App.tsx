@@ -27,6 +27,11 @@ import KUTCResultsOverviewPage from './pages/KUTCResultsOverviewPage';
 import KUTCYearResultsPage from './pages/KUTCYearResultsPage';
 import KUTCAllTimeLeaderboardPage from './pages/KUTCAllTimeLeaderboardPage';
 import KUTCRecordsPage from './pages/KUTCRecordsPage';
+import MOResultsOverviewPage from './pages/MOResultsOverviewPage';
+import MOEditionResultsPage from './pages/MOEditionResultsPage';
+import MOAllTimeLeaderboardPage from './pages/MOAllTimeLeaderboardPage';
+import MORecordsPage from './pages/MORecordsPage';
+import KUTCResultsYearRedirect from './pages/KUTCResultsYearRedirect';
 import CheckpointTestPage from './pages/CheckpointTestPage';
 import RunnerSearchPage from './pages/RunnerSearchPage';
 import RunnerProfilePage from './pages/RunnerProfilePage';
@@ -93,9 +98,16 @@ function App() {
             <Route path="/results/mo-2025" element={<ResultsPage />} />
             {/* KUTC Results Routes */}
             <Route path="/kutc/results" element={<KUTCResultsOverviewPage />} />
-            <Route path="/kutc/results/:year" element={<KUTCYearResultsPage />} />
+            <Route path="/kutc/results/:year(\\d{4})" element={<KUTCResultsYearRedirect />} />
+            <Route path="/kutc/results/:editionId" element={<KUTCYearResultsPage />} />
             <Route path="/kutc/all-time" element={<KUTCAllTimeLeaderboardPage />} />
             <Route path="/kutc/records" element={<KUTCRecordsPage />} />
+
+            {/* MO Results Routes */}
+            <Route path="/mo/results" element={<MOResultsOverviewPage />} />
+            <Route path="/mo/results/:editionId" element={<MOEditionResultsPage />} />
+            <Route path="/mo/all-time" element={<MOAllTimeLeaderboardPage />} />
+            <Route path="/mo/records" element={<MORecordsPage />} />
             {/* Runner Search */}
             <Route path="/runners/search" element={<RunnerSearchPage />} />
             <Route path="/runners/:userId" element={<RunnerProfilePage />} />

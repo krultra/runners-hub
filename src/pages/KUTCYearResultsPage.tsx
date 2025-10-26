@@ -31,7 +31,13 @@ import KUTCResultsTable from '../components/KUTCResultsTable';
 type EditionResult = KUTCResultEntry & { editionId: string };
 
 const KUTCYearResultsPage: React.FC = () => {
-  const { year } = useParams<{ year: string }>();
+  const { year: routeYear, editionId: routeEditionId } = useParams<{ year?: string; editionId?: string }>();
+  const editionId = (() => {
+    const raw = (routeEditionId ?? routeYear ?? '').toString();
+    if (!raw) return '';
+    return raw.startsWith('kutc-') ? raw : `kutc-${raw}`;
+  })();
+  const year = editionId.startsWith('kutc-') ? editionId.slice(5) : editionId;
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -80,7 +86,7 @@ const KUTCYearResultsPage: React.FC = () => {
         setSortedEditions(filtered);
 
         // Fetch metadata
-        const meta = await getEditionMetadata(year);
+        const meta = await getEditionMetadata(editionId);
         if (!meta) {
           setError(`No results found for KUTC ${year}`);
           return;
@@ -89,15 +95,15 @@ const KUTCYearResultsPage: React.FC = () => {
 
         // Fetch event edition details for proper naming
         try {
-          const edition = await getEventEdition(year);
+          const edition = await getEventEdition(editionId);
           setEventDetails(edition);
         } catch (detailsError) {
           console.warn('Unable to fetch event edition details for', year, detailsError);
         }
 
         // Fetch total competition results
-        const total = await getTotalCompetitionResults(year);
-        setTotalResults(total.map((entry) => ({ ...entry, editionId: year })));
+        const total = await getTotalCompetitionResults(editionId);
+        setTotalResults(total.map((entry) => ({ ...entry, editionId })));
 
       } catch (err) {
         console.error('Error fetching KUTC results:', err);
@@ -114,7 +120,7 @@ const KUTCYearResultsPage: React.FC = () => {
     if (!year || sortedEditions.length === 0) {
       return { previousEdition: null, nextEdition: null };
     }
-    const index = sortedEditions.findIndex((edition) => edition.id === year);
+    const index = sortedEditions.findIndex((edition) => edition.id === editionId);
     if (index === -1) {
       return { previousEdition: null, nextEdition: null };
     }
@@ -125,14 +131,14 @@ const KUTCYearResultsPage: React.FC = () => {
 
   // Fetch race-specific results when a race is selected
   const handleRaceClick = (distanceKey: string) => {
-    if (!year) return;
-    navigate(`/kutc/results/${year}?distance=${encodeURIComponent(distanceKey)}`);
+    if (!editionId) return;
+    navigate(`/kutc/results/${editionId}?distance=${encodeURIComponent(distanceKey)}`);
   };
 
   // Show total competition
   const handleShowTotal = () => {
-    if (!year) return;
-    navigate(`/kutc/results/${year}?distance=total`);
+    if (!editionId) return;
+    navigate(`/kutc/results/${editionId}?distance=total`);
   };
 
   useEffect(() => {
@@ -192,7 +198,7 @@ const KUTCYearResultsPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [year, metadata, location.search]);
+  }, [editionId, metadata, location.search]);
 
   if (loading) {
     return (

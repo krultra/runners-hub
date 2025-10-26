@@ -111,6 +111,14 @@ export interface AppearanceRecord {
 // Helpers
 // ============================================
 
+const editionIdCandidates = (id: string): string[] => {
+  const raw = (id || '').toString();
+  const withPrefix = raw.startsWith('kutc-') ? raw : `kutc-${raw}`;
+  const withoutPrefix = raw.startsWith('kutc-') ? raw.slice(5) : raw;
+  const unique = new Set([raw, withPrefix, withoutPrefix].filter(Boolean));
+  return Array.from(unique);
+};
+
 const normalizeEditionMetadata = (editionId: string, raw: any): KUTCEditionMetadata => {
   const summary = raw || {};
   const races = Array.isArray(summary.races)
@@ -276,16 +284,23 @@ export const listKUTCEditions = async (): Promise<KUTCEdition[]> => {
  */
 export const getEditionMetadata = async (editionId: string): Promise<KUTCEditionMetadata | null> => {
   try {
-    const docRef = doc(db, 'kutcResults', editionId);
-    const docSnap = await getDoc(docRef);
-    const data = docSnap.exists() ? (docSnap.data() as any) : null;
-    let metadata = data?.metadata || data?.summary || null;
-
-    if (!metadata) {
-      const summaryRef = doc(db, 'kutcResults', editionId, 'metadata', 'summary');
-      const summarySnap = await getDoc(summaryRef);
-      if (summarySnap.exists()) {
-        metadata = summarySnap.data();
+    let metadata: any = null;
+    let chosenId: string | null = null;
+    for (const candidate of editionIdCandidates(editionId)) {
+      const docRef = doc(db, 'kutcResults', candidate);
+      const docSnap = await getDoc(docRef);
+      const data = docSnap.exists() ? (docSnap.data() as any) : null;
+      metadata = data?.metadata || data?.summary || null;
+      if (!metadata) {
+        const summaryRef = doc(db, 'kutcResults', candidate, 'metadata', 'summary');
+        const summarySnap = await getDoc(summaryRef);
+        if (summarySnap.exists()) {
+          metadata = summarySnap.data();
+        }
+      }
+      if (metadata) {
+        chosenId = candidate;
+        break;
       }
     }
 
@@ -293,11 +308,11 @@ export const getEditionMetadata = async (editionId: string): Promise<KUTCEdition
       return null;
     }
 
-    const normalized = normalizeEditionMetadata(editionId, metadata);
+    const normalized = normalizeEditionMetadata(chosenId || editionId, metadata);
 
     // Try to enrich with eventEdition data
     // editionId is already in format 'kutc-2025' or just '2025', handle both
-    const editionDocId = editionId.startsWith('kutc-') ? editionId : `kutc-${editionId}`;
+    const editionDocId = (chosenId || editionId).startsWith('kutc-') ? (chosenId || editionId) : `kutc-${chosenId || editionId}`;
     try {
       const eventEdition = await getEventEdition(editionDocId);
       if (eventEdition) {
@@ -338,14 +353,18 @@ export const getEditionMetadata = async (editionId: string): Promise<KUTCEdition
  * Path: kutcResults/{editionId}/races/total/results
  */
 export async function getTotalCompetitionResults(editionId: string): Promise<KUTCResultEntry[]> {
-  const resultsRef = collection(db, `kutcResults/${editionId}/races/total/results`);
-  const q = query(resultsRef, orderBy('finalRank', 'asc'));
-  const snapshot = await getDocs(q);
-  
-  return snapshot.docs.map(d => ({
-    ...d.data(),
-    personId: parseInt(d.id)
-  })) as KUTCResultEntry[];
+  for (const candidate of editionIdCandidates(editionId)) {
+    const resultsRef = collection(db, `kutcResults/${candidate}/races/total/results`);
+    const q = query(resultsRef, orderBy('finalRank', 'asc'));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      return snapshot.docs.map(d => ({
+        ...d.data(),
+        personId: parseInt(d.id)
+      })) as KUTCResultEntry[];
+    }
+  }
+  return [] as KUTCResultEntry[];
 }
 
 /**
@@ -356,14 +375,18 @@ export async function getRaceDistanceResults(
   editionId: string,
   distanceKey: string
 ): Promise<KUTCResultEntry[]> {
-  const resultsRef = collection(db, `kutcResults/${editionId}/races/${distanceKey}/results`);
-  const q = query(resultsRef, orderBy('raceRank', 'asc'));
-  const snapshot = await getDocs(q);
-  
-  return snapshot.docs.map(d => ({
-    ...d.data(),
-    personId: parseInt(d.id)
-  })) as KUTCResultEntry[];
+  for (const candidate of editionIdCandidates(editionId)) {
+    const resultsRef = collection(db, `kutcResults/${candidate}/races/${distanceKey}/results`);
+    const q = query(resultsRef, orderBy('raceRank', 'asc'));
+    const snapshot = await getDocs(q);
+    if (!snapshot.empty) {
+      return snapshot.docs.map(d => ({
+        ...d.data(),
+        personId: parseInt(d.id)
+      })) as KUTCResultEntry[];
+    }
+  }
+  return [] as KUTCResultEntry[];
 }
 
 /**
