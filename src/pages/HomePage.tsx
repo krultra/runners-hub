@@ -229,7 +229,6 @@ const HomePage: React.FC = () => {
                   event.stopPropagation();
                   navigate('/mo');
                 }}
-                disabled
               >
                 Explore
               </Button>
