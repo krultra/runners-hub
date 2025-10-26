@@ -24,13 +24,12 @@
 - Script `scripts/fillMoEventEditions.js` upserts `eventEditions/mo-YYYY` with finalized metadata (status, resultsStatus, resultTypes, timing, URLs).
 - Seeded in test and prod; `/mo/results` now lists `mo-2011` … `mo-2025`.
 
-### Phase 3 — Results Service & Edition Results
-- `src/services/moResultsService.ts`:
-  - `listEditions(eventId='mo')`
-  - `getEditionResults(editionId, filters: { class?, gender? }, sort: 'time'|'adjusted')`
-  - `getRunnerMoResults(userId)`
-- `MOEditionResultsPage.tsx` with filters, table, CSV export, and row → `/runners/{uid}`.
-- Gate: Renders test dataset.
+- ✅ `listMoEventEditions()` and overview list wired (`MOResultsOverviewPage.tsx`).
+- ✅ `getEditionResults()` with klasse/kjønn/ranking filters; `MOEditionResultsPage.tsx` shows table, CSV export, alle-mot-alle preset (with state), prev/next nav, class-specific UX (trim/tur locks gender & sorts alphabetically).
+- ☐ Implement `getRunnerMoResults(userId)` and expose per-runner linking.
+- ☐ Add `getEditionMetadata()` helper if needed for header details.
+- ☐ Prepare fixtures/test dataset for nb-NO copy and regression tests.
+- Gate: Edition results render from Firestore seed with filters + navigation.
 
 ### Phase 4 — Time Grading & All-time/Records
 - `src/services/timeGradingService.ts`:

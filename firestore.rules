@@ -182,6 +182,16 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /moResults/{resultId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /moResults/{resultId}/{document=**} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
     // =============================================
     // Events (public read, admin write)
     // =============================================
