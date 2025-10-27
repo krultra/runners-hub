@@ -236,11 +236,10 @@ const HomePage: React.FC = () => {
                 variant="outlined"
                 onClick={(event) => {
                   event.stopPropagation();
-                  navigate('/mo');
+                  navigate('/mo/results');
                 }}
-                disabled
               >
-                Results (coming soon)
+                Results
               </Button>
             </Stack>
           </Paper>

@@ -49,6 +49,59 @@ export interface MOEditionResultsOptions {
   ranking?: MORankingMode;
 }
 
+export interface MOTimeRecordEntry {
+  runnerKey: string;
+  fullName: string;
+  gender: MOResultGender | null;
+  editionId: string;
+  editionYear?: number | null;
+  timeSeconds: number;
+  timeDisplay: string;
+  adjustedSeconds?: number | null;
+  adjustedDisplay?: string | null;
+  status?: string | null;
+  age?: number | null;
+  representing?: string[] | string | null;
+}
+
+export interface MOAppearanceRecord {
+  runnerKey: string;
+  fullName: string;
+  gender: MOResultGender | null;
+  appearances: number;
+  firstYear?: number | null;
+  lastYear?: number | null;
+}
+
+export interface MOParticipationSummary {
+  editionId: string;
+  editionYear?: number | null;
+  totalCompetition: number;
+  totalOverall: number;
+}
+
+export interface MOYearlyClassStats {
+  editionId: string;
+  editionYear: number | null;
+  competitionFinished: number;
+  competitionDnf: number;
+  competitionDns: number;
+  trimCount: number;
+  turCount: number;
+  volunteerCount: number;
+  total: number;
+}
+
+export interface MORecordsResult {
+  fastestMen: MOTimeRecordEntry[];
+  fastestWomen: MOTimeRecordEntry[];
+  fastestAGG: MOTimeRecordEntry[];
+  mostAppearances: MOAppearanceRecord[];
+  topParticipationCompetition: MOParticipationSummary[];
+  topParticipationOverall: MOParticipationSummary[];
+  yearlyClassStats: MOYearlyClassStats[];
+}
+
 const toDate = (value: any): Date | null => {
   if (!value) {
     return null;
@@ -121,6 +174,16 @@ const normalizeString = (value: unknown): string | null => {
   }
   const str = String(value).trim();
   return str.length > 0 ? str : null;
+};
+
+const normalizeNameKey = (value: string | null | undefined): string | null => {
+  if (!value) {
+    return null;
+  }
+  return value
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
 };
 
 const normalizeClass = (value: unknown): MOResultClass => {
@@ -230,6 +293,39 @@ const buildFullName = (firstName?: string | null, lastName?: string | null): str
   const secondary = normalizeString(lastName);
   if (primary && secondary) return `${primary} ${secondary}`;
   return primary || secondary || '';
+};
+
+const canonicalizeClass = (rawClass: MOResultClass): MOResultClass => {
+  const normalized = normalizeClass(rawClass);
+  if (!normalized && rawClass) {
+    const value = rawClass.toLowerCase();
+    if (value.includes('funksjon') || value.includes('vol')) {
+      return '';
+    }
+  }
+  return normalized;
+};
+
+const buildRunnerKey = (entry: MOResultEntry): string | null => {
+  if (entry.userId) {
+    return entry.userId;
+  }
+  const nameKey = normalizeNameKey(entry.fullName);
+  if (!nameKey) {
+    return null;
+  }
+  const birthYear = toNumber(entry.yearOfBirth);
+  if (birthYear != null) {
+    return `${nameKey}|${birthYear}`;
+  }
+  return nameKey;
+};
+
+const isDnsStatus = (status: string | null | undefined): boolean => {
+  if (!status) {
+    return false;
+  }
+  return status.toUpperCase() === 'DNS';
 };
 
 const mapResultDoc = (
@@ -430,4 +526,543 @@ export const getRunnerMoResults = async (userId: string): Promise<MOResultEntry[
   const q = query(resultsRef, where('userId', '==', userId));
   const snapshot = await getDocs(q);
   return snapshot.docs.map((docSnap) => mapResultDoc(docSnap, factorMap));
+};
+
+interface AggregatedRunnerStats {
+  entry: MOResultEntry;
+  bestTimeSeconds: number;
+  bestTimeDisplay: string;
+  bestAdjustedSeconds: number | null;
+  bestAdjustedDisplay: string | null;
+  appearances: number;
+  editions: Set<string>;
+  firstYear: number | null;
+  lastYear: number | null;
+  competitionEditions: Set<string>;
+  trimTurEditions: Set<string>;
+  volunteerEditions: Set<string>;
+  editionYearMap: Map<string, number | null>;
+  yearCategories: Map<string, Set<'competition' | 'trim_tur' | 'volunteer'>>;
+}
+
+const aggregateRunnerStats = (
+  statsMap: Map<string, AggregatedRunnerStats>,
+  entry: MOResultEntry
+) => {
+  const runnerKey = buildRunnerKey(entry);
+  if (!runnerKey) {
+    return;
+  }
+
+  const timeSeconds = toNumber(entry.timeSeconds);
+  const adjustedSeconds = toNumber(entry.adjustedSeconds);
+  const normalizedClass = canonicalizeClass(entry.class);
+  const isCompetition = normalizedClass === 'konkurranse';
+  const isTrimOrTur = normalizedClass === 'trim_tidtaking' || normalizedClass === 'turklasse';
+  const isVolunteer = normalizedClass === '';
+
+  const isDns = isDnsStatus(entry.status);
+  const competitionIncrement = !isDns && isCompetition ? 1 : 0;
+  const trimTurIncrement = !isDns && isTrimOrTur ? 1 : 0;
+  const volunteerIncrement = !isDns && isVolunteer ? 1 : 0;
+
+  const editionId = entry.editionId;
+  const editionYear = entry.editionYear ?? extractEditionYear(editionId ?? null);
+  const yearKey = editionYear != null
+    ? String(editionYear)
+    : editionId
+    ? editionId.replace('mo-', '')
+    : null;
+
+  const current = statsMap.get(runnerKey);
+  if (!current) {
+    statsMap.set(runnerKey, {
+      entry,
+      bestTimeSeconds: timeSeconds ?? Number.POSITIVE_INFINITY,
+      bestTimeDisplay: entry.timeDisplay ?? (timeSeconds != null ? formatSeconds1d(timeSeconds) : ''),
+      bestAdjustedSeconds: adjustedSeconds ?? null,
+      bestAdjustedDisplay: entry.adjustedDisplay ??
+        (adjustedSeconds != null ? formatSeconds1d(adjustedSeconds) : null),
+      appearances: 0,
+      editions: new Set<string>(),
+      firstYear: entry.editionYear ?? null,
+      lastYear: entry.editionYear ?? null,
+      competitionEditions: new Set(),
+      trimTurEditions: new Set(),
+      volunteerEditions: new Set(),
+      editionYearMap: new Map(),
+      yearCategories: new Map()
+    });
+
+    const created = statsMap.get(runnerKey)!;
+    if (!isDns && editionId) {
+      created.editionYearMap.set(editionId, editionYear ?? null);
+      created.editions.add(editionId);
+      if (competitionIncrement) {
+        created.competitionEditions.add(editionId);
+      }
+      if (trimTurIncrement) {
+        created.trimTurEditions.add(editionId);
+      }
+      if (volunteerIncrement) {
+        created.volunteerEditions.add(editionId);
+      }
+    }
+    if (!isDns && yearKey) {
+      const categories = new Set<'competition' | 'trim_tur' | 'volunteer'>();
+      if (competitionIncrement) {
+        categories.add('competition');
+      }
+      if (trimTurIncrement) {
+        categories.add('trim_tur');
+      }
+      if (volunteerIncrement) {
+        categories.add('volunteer');
+      }
+      if (categories.size > 0) {
+        created.yearCategories.set(yearKey, categories);
+        created.appearances += 1;
+      }
+    }
+    return;
+  }
+
+  if (!isDns && editionId) {
+    current.editionYearMap.set(editionId, editionYear ?? null);
+    current.editions.add(editionId);
+    if (competitionIncrement) {
+      current.competitionEditions.add(editionId);
+    }
+    if (trimTurIncrement) {
+      current.trimTurEditions.add(editionId);
+    }
+    if (volunteerIncrement) {
+      current.volunteerEditions.add(editionId);
+    }
+  }
+  if (!isDns && yearKey) {
+    let categories = current.yearCategories.get(yearKey);
+    const isNewYear = !categories;
+    if (!categories) {
+      categories = new Set<'competition' | 'trim_tur' | 'volunteer'>();
+      current.yearCategories.set(yearKey, categories);
+    }
+    if (competitionIncrement) {
+      categories.add('competition');
+    }
+    if (trimTurIncrement) {
+      categories.add('trim_tur');
+    }
+    if (volunteerIncrement) {
+      categories.add('volunteer');
+    }
+    if (isNewYear) {
+      current.appearances += 1;
+    }
+  }
+
+  if (entry.editionYear != null) {
+    if (current.firstYear == null || entry.editionYear < current.firstYear) {
+      current.firstYear = entry.editionYear;
+    }
+    if (current.lastYear == null || entry.editionYear > current.lastYear) {
+      current.lastYear = entry.editionYear;
+    }
+  }
+
+  if (isCompetition && timeSeconds != null && timeSeconds > 0 && timeSeconds < current.bestTimeSeconds) {
+    current.bestTimeSeconds = timeSeconds;
+    current.bestTimeDisplay = entry.timeDisplay ?? formatSeconds1d(timeSeconds);
+    current.entry = entry;
+  }
+
+  if (
+    isCompetition &&
+    adjustedSeconds != null &&
+    adjustedSeconds > 0 &&
+    (current.bestAdjustedSeconds == null || adjustedSeconds < current.bestAdjustedSeconds)
+  ) {
+    current.bestAdjustedSeconds = adjustedSeconds;
+    current.bestAdjustedDisplay = entry.adjustedDisplay ?? formatSeconds1d(adjustedSeconds);
+  }
+};
+
+export interface MOAllTimeYearDetail {
+  year: string;
+  categories: ('competition' | 'trim_tur' | 'volunteer')[];
+}
+
+export interface MOAllTimeParticipant {
+  runnerKey: string;
+  fullName: string;
+  gender: MOResultGender | null;
+  appearances: number;
+  competitionCount: number;
+  competitionYears: string[];
+  trimTurCount: number;
+  trimTurYears: string[];
+  volunteerCount: number;
+  volunteerYears: string[];
+  bestTimeSeconds: number | null;
+  bestTimeDisplay: string | null;
+  bestAdjustedSeconds: number | null;
+  bestAdjustedDisplay: string | null;
+  editions: string[];
+  editionYears: string[];
+  yearDetails: MOAllTimeYearDetail[];
+}
+
+export interface MOAllTimeLeaderboardResult {
+  participants: MOAllTimeParticipant[];
+}
+
+export const getAllTimeLeaderboard = async (): Promise<MOAllTimeLeaderboardResult> => {
+  const factorMap = await loadTimeGradingFactors();
+  const resultsRef = collection(db, 'moResults');
+  const snapshot = await getDocs(resultsRef);
+
+  const statsMap = new Map<string, AggregatedRunnerStats>();
+  snapshot.docs.forEach((docSnap) => {
+    const entry = mapResultDoc(docSnap, factorMap);
+    aggregateRunnerStats(statsMap, entry);
+  });
+
+  const participants: MOAllTimeParticipant[] = Array.from(statsMap.entries())
+    .map(([runnerKey, stats]) => {
+      const sortEditions = (ids: Set<string>) =>
+        Array.from(ids).sort((a, b) => {
+          const yearA = stats.editionYearMap.get(a) ?? extractEditionYear(a) ?? 0;
+          const yearB = stats.editionYearMap.get(b) ?? extractEditionYear(b) ?? 0;
+          if (yearA && yearB && yearA !== yearB) {
+            return yearA - yearB;
+          }
+          return a.localeCompare(b);
+        });
+
+      const toYearLabels = (ids: Set<string>) =>
+        sortEditions(ids).map((editionId) => {
+          const year = stats.editionYearMap.get(editionId) ?? extractEditionYear(editionId);
+          return year != null ? String(year) : editionId.replace('mo-', '');
+        });
+
+      const overallEditions = sortEditions(stats.editions);
+      const categoryOrder: ('competition' | 'trim_tur' | 'volunteer')[] = [
+        'competition',
+        'trim_tur',
+        'volunteer'
+      ];
+
+      const parseYearValue = (value: string) => {
+        const numeric = Number.parseInt(value, 10);
+        return Number.isNaN(numeric) ? null : numeric;
+      };
+
+      const yearDetails = Array.from(stats.yearCategories.entries())
+        .map(([year, categoriesSet]) => ({
+          year,
+          categories: categoryOrder.filter((category) => categoriesSet.has(category))
+        }))
+        .sort((a, b) => {
+          const yearA = parseYearValue(a.year);
+          const yearB = parseYearValue(b.year);
+          if (yearA != null && yearB != null && yearA !== yearB) {
+            return yearA - yearB;
+          }
+          if (yearA != null && yearB == null) {
+            return -1;
+          }
+          if (yearA == null && yearB != null) {
+            return 1;
+          }
+          return a.year.localeCompare(b.year);
+        });
+
+      const competitionYears = yearDetails
+        .filter((detail) => detail.categories.includes('competition'))
+        .map((detail) => detail.year);
+
+      const trimTurYears = yearDetails
+        .filter((detail) => detail.categories.includes('trim_tur'))
+        .map((detail) => detail.year);
+
+      const volunteerYears = yearDetails
+        .filter((detail) => detail.categories.includes('volunteer'))
+        .map((detail) => detail.year);
+
+      const editionYears = yearDetails.length
+        ? yearDetails.map((detail) => detail.year)
+        : overallEditions.map((editionId) => {
+            const year = stats.editionYearMap.get(editionId) ?? extractEditionYear(editionId);
+            return year != null ? String(year) : editionId.replace('mo-', '');
+          });
+
+      return {
+        runnerKey,
+        fullName: stats.entry.fullName,
+        gender: stats.entry.gender ?? null,
+        appearances: stats.appearances,
+        competitionCount: competitionYears.length,
+        competitionYears,
+        trimTurCount: trimTurYears.length,
+        trimTurYears,
+        volunteerCount: volunteerYears.length,
+        volunteerYears,
+        bestTimeSeconds: Number.isFinite(stats.bestTimeSeconds) ? stats.bestTimeSeconds : null,
+        bestTimeDisplay: Number.isFinite(stats.bestTimeSeconds) ? stats.bestTimeDisplay ?? null : null,
+        bestAdjustedSeconds: stats.bestAdjustedSeconds,
+        bestAdjustedDisplay: stats.bestAdjustedDisplay ?? null,
+        editions: overallEditions,
+        editionYears,
+        yearDetails
+      };
+    })
+    .filter((participant) => participant.appearances > 0)
+    .sort((a, b) => {
+      if (b.appearances !== a.appearances) {
+        return b.appearances - a.appearances;
+      }
+      if (b.competitionCount !== a.competitionCount) {
+        return b.competitionCount - a.competitionCount;
+      }
+      if (a.bestTimeSeconds !== null && b.bestTimeSeconds !== null) {
+        return a.bestTimeSeconds - b.bestTimeSeconds;
+      }
+      if (a.bestTimeSeconds !== null) {
+        return -1;
+      }
+      if (b.bestTimeSeconds !== null) {
+        return 1;
+      }
+      return a.fullName.localeCompare(b.fullName, 'nb', { sensitivity: 'base' });
+    });
+
+  return { participants };
+};
+
+interface TimeRecordAccumulator {
+  men: MOTimeRecordEntry[];
+  women: MOTimeRecordEntry[];
+  agg: MOTimeRecordEntry[];
+}
+
+const maybePushTimeRecord = (
+  list: MOTimeRecordEntry[],
+  entry: MOResultEntry,
+  opts: { adjusted?: boolean }
+) => {
+  const timeSeconds = opts.adjusted ? toNumber(entry.adjustedSeconds) : toNumber(entry.timeSeconds);
+  if (timeSeconds == null || timeSeconds <= 0) {
+    return;
+  }
+  const timeDisplay = opts.adjusted
+    ? entry.adjustedDisplay ?? formatSeconds1d(timeSeconds)
+    : entry.timeDisplay ?? formatSeconds1d(timeSeconds);
+
+  const runnerKey = buildRunnerKey(entry);
+  if (!runnerKey) {
+    return;
+  }
+
+  list.push({
+    runnerKey,
+    fullName: entry.fullName,
+    gender: entry.gender ?? null,
+    editionId: entry.editionId,
+    editionYear: entry.editionYear,
+    timeSeconds,
+    timeDisplay,
+    adjustedSeconds: opts.adjusted ? timeSeconds : entry.adjustedSeconds ?? null,
+    adjustedDisplay: opts.adjusted ? timeDisplay : entry.adjustedDisplay ?? null,
+    status: entry.status,
+    age: entry.age ?? null,
+    representing: entry.representing ?? null
+  });
+};
+
+export const getRecords = async (): Promise<MORecordsResult> => {
+  const factorMap = await loadTimeGradingFactors();
+  const resultsRef = collection(db, 'moResults');
+  const snapshot = await getDocs(resultsRef);
+
+  const timeRecords: TimeRecordAccumulator = {
+    men: [],
+    women: [],
+    agg: []
+  };
+  const appearanceMap = new Map<string, AggregatedRunnerStats>();
+  const participationByEdition = new Map<
+    string,
+    { editionYear?: number | null; competition: number; overall: number }
+  >();
+  const yearlyStatsMap = new Map<string, MOYearlyClassStats>();
+
+  const getYearlyStats = (editionId: string, editionYear: number | null) => {
+    let stats = yearlyStatsMap.get(editionId);
+    if (!stats) {
+      stats = {
+        editionId,
+        editionYear,
+        competitionFinished: 0,
+        competitionDnf: 0,
+        competitionDns: 0,
+        trimCount: 0,
+        turCount: 0,
+        volunteerCount: 0,
+        total: 0
+      };
+      yearlyStatsMap.set(editionId, stats);
+    }
+    return stats;
+  };
+
+  snapshot.docs.forEach((docSnap) => {
+    const entry = mapResultDoc(docSnap, factorMap);
+    const entryClass = normalizeClass(entry.class);
+    const isCompetition = entryClass === 'konkurranse';
+    const isVolunteer = entryClass === '';
+
+    const status = entry.status ?? null;
+    const isDns = isDnsStatus(status);
+
+    const editionKey = entry.editionId;
+    const editionYear = entry.editionYear ?? extractEditionYear(editionKey);
+
+    if (editionKey) {
+      const stats = getYearlyStats(editionKey, editionYear ?? null);
+      const statusUpper = (status ?? '').toString().trim().toUpperCase();
+
+      if (isCompetition) {
+        if (statusUpper === 'DNF') {
+          stats.competitionDnf += 1;
+        } else if (statusUpper === 'DNS') {
+          stats.competitionDns += 1;
+        } else {
+          stats.competitionFinished += 1;
+        }
+      } else if (entryClass === 'trim_tidtaking') {
+        stats.trimCount += 1;
+      } else if (entryClass === 'turklasse') {
+        stats.turCount += 1;
+      } else if (isVolunteer) {
+        stats.volunteerCount += 1;
+      }
+    }
+
+    if (isCompetition) {
+      if (!isDns) {
+        if (entry.gender === 'Male') {
+          maybePushTimeRecord(timeRecords.men, entry, { adjusted: false });
+        } else if (entry.gender === 'Female') {
+          maybePushTimeRecord(timeRecords.women, entry, { adjusted: false });
+        }
+      }
+      maybePushTimeRecord(timeRecords.agg, entry, { adjusted: true });
+    }
+
+    aggregateRunnerStats(appearanceMap, entry);
+
+    if (editionKey) {
+      let summary = participationByEdition.get(editionKey);
+      if (!summary) {
+        summary = {
+          editionYear,
+          competition: 0,
+          overall: 0
+        };
+        participationByEdition.set(editionKey, summary);
+      }
+      if (!isDns) {
+        if (isCompetition) {
+          summary.competition += 1;
+        }
+        if (!isVolunteer) {
+          summary.overall += 1;
+        }
+      }
+    }
+  });
+
+  const sortByTime = (entries: MOTimeRecordEntry[]) =>
+    entries
+      .filter((item, index, self) => {
+        const key = `${item.runnerKey}|${item.editionId}`;
+        return (
+          item.timeSeconds > 0 &&
+          self.findIndex((candidate) => `${candidate.runnerKey}|${candidate.editionId}` === key) === index
+        );
+      })
+      .sort((a, b) => a.timeSeconds - b.timeSeconds || a.fullName.localeCompare(b.fullName, 'nb'));
+
+  const fastestMen = sortByTime(timeRecords.men).slice(0, 5);
+  const fastestWomen = sortByTime(timeRecords.women).slice(0, 5);
+  const fastestAGG = sortByTime(timeRecords.agg).slice(0, 10);
+
+  const appearanceEntries = Array.from(appearanceMap.entries())
+    .map(([runnerKey, stats]) => ({
+      runnerKey,
+      fullName: stats.entry.fullName,
+      gender: stats.entry.gender ?? null,
+      appearances: stats.appearances,
+      firstYear: stats.firstYear,
+      lastYear: stats.lastYear
+    }))
+    .filter((item) => item.appearances > 0)
+    .sort((a, b) => {
+      if (b.appearances !== a.appearances) {
+        return b.appearances - a.appearances;
+      }
+      return a.fullName.localeCompare(b.fullName, 'nb', { sensitivity: 'base' });
+    });
+
+  const appearanceCutoff = appearanceEntries[4]?.appearances ?? 0;
+  const mostAppearances = appearanceEntries.filter((item) => item.appearances >= appearanceCutoff);
+
+  const participationSummaries = Array.from(participationByEdition.entries())
+    .map(([editionId, value]) => ({
+      editionId,
+      editionYear: value.editionYear,
+      totalCompetition: value.competition,
+      totalOverall: value.overall
+    }))
+    .sort((a, b) => b.totalCompetition - a.totalCompetition || (a.editionYear ?? 0) - (b.editionYear ?? 0));
+
+  const topParticipationCompetition = participationSummaries
+    .filter((item) => item.totalCompetition > 0)
+    .slice(0, 5);
+
+  const sortedOverall = participationSummaries
+    .slice()
+    .sort((a, b) => b.totalOverall - a.totalOverall || (a.editionYear ?? 0) - (b.editionYear ?? 0));
+
+  const topParticipationOverall = sortedOverall.filter((item) => item.totalOverall > 0).slice(0, 5);
+
+  const yearlyClassStats = Array.from(yearlyStatsMap.values())
+    .map((stats) => ({
+      ...stats,
+      total:
+        stats.competitionFinished +
+        stats.competitionDnf +
+        stats.competitionDns +
+        stats.trimCount +
+        stats.turCount +
+        stats.volunteerCount
+    }))
+    .sort((a, b) => {
+      const yearA = a.editionYear ?? extractEditionYear(a.editionId) ?? 0;
+      const yearB = b.editionYear ?? extractEditionYear(b.editionId) ?? 0;
+      if (yearA !== yearB) {
+        return yearA - yearB;
+      }
+      return a.editionId.localeCompare(b.editionId);
+    });
+
+  return {
+    fastestMen,
+    fastestWomen,
+    fastestAGG,
+    mostAppearances,
+    topParticipationCompetition,
+    topParticipationOverall,
+    yearlyClassStats
+  };
 };

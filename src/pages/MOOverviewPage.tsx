@@ -20,7 +20,7 @@ import {
   getAdjacentEditions
 } from '../services/eventEditionService';
 import { getVerboseName } from '../services/codeListService';
-import { Language, DirectionsRun, Facebook, Hiking } from '@mui/icons-material';
+import { Language, DirectionsRun, Facebook, Hiking, EmojiEvents, Leaderboard, Assessment } from '@mui/icons-material';
 
 const EVENT_ID = 'mo';
 const AVAILABLE_EDITION_ROUTES = new Set<string>(['mo-2025']);
@@ -163,6 +163,27 @@ const MOOverviewPage: React.FC = () => {
             rel="noopener noreferrer"
           >
             Offisiell informasjon
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<Assessment />}
+            onClick={() => navigate('/mo/results')}
+          >
+            Resultater
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<Leaderboard />}
+            onClick={() => navigate('/mo/all-time')}
+          >
+            Adelskalender
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<EmojiEvents />}
+            onClick={() => navigate('/mo/records')}
+          >
+            Rekorder
           </Button>
           <Button
             variant="outlined"

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Typography, Box, Paper, Divider, Button, Grid, CircularProgress, Alert } from '@mui/material';
 
 import { useEventEdition } from '../contexts/EventEditionContext';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 function formatCountdown(target: Date) {
   const now = new Date();
@@ -23,6 +23,7 @@ const toDate = (v: any): Date | null => {
 }
 
 const MO2025Page: React.FC = () => {
+  const navigate = useNavigate();
 
   const { event, loading, error, setEvent } = useEventEdition();
   
@@ -96,6 +97,7 @@ const MO2025Page: React.FC = () => {
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
           <Button
+            component="a"
             href="https://krultra.no/nb/node/23"
             target="_blank"
             rel="noopener noreferrer"
@@ -106,6 +108,7 @@ const MO2025Page: React.FC = () => {
             Mer informasjon på hjemmesiden for Malvikingen Opp
           </Button>
           <Button
+            component="a"
             href="https://www.facebook.com/groups/146973852042384/"
             target="_blank"
             rel="noopener noreferrer"
@@ -138,6 +141,7 @@ const MO2025Page: React.FC = () => {
         <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, justifyContent: 'center', gap: 2, mt: 2, mb: 2 }}>
           {showLiveResultsButton && liveResultsURL && (
             <Button
+              component="a"
               variant="contained"
               color="secondary"
               size="large"
@@ -152,6 +156,7 @@ const MO2025Page: React.FC = () => {
           {!isPastEvent && !isEventOngoing && isRegistrationOpen && (
             <>
               <Button
+                component="a"
                 variant="contained"
                 color="primary"
                 size="large"
@@ -163,6 +168,7 @@ const MO2025Page: React.FC = () => {
                 Påmelding turklasse
               </Button>
               <Button
+                component="a"
                 variant="contained"
                 color="primary"
                 size="large"
@@ -176,6 +182,7 @@ const MO2025Page: React.FC = () => {
             </>
           )}
           <Button
+            component="a"
             variant="outlined"
             color="inherit"
             href="https://signup.eqtiming.com/participants?Event=malvik_il&uid=76727"
@@ -185,14 +192,12 @@ const MO2025Page: React.FC = () => {
           >
             Se deltakere
           </Button>
-          {isPastEvent && event.resultURL && (
+          {isPastEvent && (
             <Button
               variant="contained"
               color="primary"
               size="large"
-              href={event.resultURL}
-              target="_blank"
-              rel="noopener noreferrer"
+              onClick={() => navigate('/mo/results')}
               sx={{ fontWeight: 700, minWidth: 220 }}
             >
               Se resultater
@@ -243,6 +248,7 @@ const MO2025Page: React.FC = () => {
                   <li>
                     Påmelding for konkurranse og trim med tidtaking skjer via{' '}
                     <Button
+                      component="a"
                       href="https://signup.eqtiming.com/?Event=Malvik_IL&lang=norwegian"
                       target="_blank"
                       rel="noopener noreferrer"

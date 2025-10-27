@@ -12,7 +12,12 @@ import {
   CircularProgress,
   Alert
 } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import Button from '@mui/material/Button';
 import EventAvailableIcon from '@mui/icons-material/EventAvailable';
+import EmojiEvents from '@mui/icons-material/EmojiEvents';
+import EmojiEventsOutlined from '@mui/icons-material/EmojiEventsOutlined';
+import Leaderboard from '@mui/icons-material/Leaderboard';
 import { listMoEventEditions, MOEventEditionSummary } from '../services/moResultsService';
 import { formatDateNb } from '../utils/localeNb';
 
@@ -72,13 +77,41 @@ const MOResultsOverviewPage: React.FC = () => {
 
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="h3" gutterBottom component="h1">
-          Resultater – Malvikingen Opp
-        </Typography>
-        <Typography variant="body1" color="text.secondary">
-          Velg en utgave for detaljerte resultater, rekorder og statistikk.
-        </Typography>
+      <Box
+        sx={{
+          mb: 3,
+          display: 'flex',
+          flexWrap: 'wrap',
+          gap: 2,
+          justifyContent: 'space-between',
+          alignItems: { xs: 'stretch', sm: 'center' }
+        }}
+      >
+        <Box>
+          <Typography variant="h3" gutterBottom component="h1">
+            Resultater – Malvikingen Opp
+          </Typography>
+          <Typography variant="body1" color="text.secondary">
+            Velg en utgave for detaljerte resultater, rekorder og statistikk.
+          </Typography>
+        </Box>
+
+        <Stack direction="row" spacing={2} flexWrap="wrap">
+          <Button
+            variant="outlined"
+            startIcon={<EmojiEventsOutlined />}
+            onClick={() => navigate('/mo/records')}
+          >
+            Rekorder
+          </Button>
+          <Button
+            variant="contained"
+            startIcon={<Leaderboard />}
+            onClick={() => navigate('/mo/all-time')}
+          >
+            Adelskalender
+          </Button>
+        </Stack>
       </Box>
 
       {error ? (
