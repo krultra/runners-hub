@@ -24,11 +24,10 @@
 - Script `scripts/fillMoEventEditions.js` upserts `eventEditions/mo-YYYY` with finalized metadata (status, resultsStatus, resultTypes, timing, URLs).
 - Seeded in test and prod; `/mo/results` now lists `mo-2011` … `mo-2025`.
 
-- ✅ `listMoEventEditions()` and overview list wired (`MOResultsOverviewPage.tsx`).
-- ✅ `getEditionResults()` with klasse/kjønn/ranking filters; `MOEditionResultsPage.tsx` shows table, CSV export, alle-mot-alle preset (with state), prev/next nav, class-specific UX (trim/tur locks gender & sorts alphabetically).
-- ☐ Implement `getRunnerMoResults(userId)` and expose per-runner linking.
-- ☐ Add `getEditionMetadata()` helper if needed for header details.
-- ☐ Prepare fixtures/test dataset for nb-NO copy and regression tests.
+### Phase 3 — Results Service & Edition Results ✅
+- `listMoEventEditions()` and overview list wired (`MOResultsOverviewPage.tsx`).
+- `getEditionResults()` with klasse/kjønn/ranking filters; `MOEditionResultsPage.tsx` shows table, CSV export, alle-mot-alle preset (with state), prev/next nav, class-specific UX (trim/tur locks gender & sorts alphabetically).
+- Runner linking deferred until MO user backlog import is complete.
 - Gate: Edition results render from Firestore seed with filters + navigation.
 
 ### Phase 4 — Time Grading & All-time/Records
@@ -68,3 +67,16 @@
 - Unit tests for services; integration for pages.
 - Manual QA: navigation, nb-NO UI, UID-only links, no PII leaks.
 - Rollout: test → validate → prod with rollback plan.
+
+## Promotion checklist (after test verification)
+- **Prep imports**
+  - Competition: `scripts/importMoCompetitionResults.ts --env prod --file "public/data/Eksport til RunnersHub.csv" --start-year 2011 --end-year 2025 --include-validation (--dry-run first)`.
+  - Participation: `scripts/importMoParticipationResults.ts --env prod --file "public/data/Adelskalender.csv" --start-year 2011 --end-year 2025 --types tur,trim,volunteer (--dry-run first)`.
+- **Coverage & reconciliation**
+  - Verify: `scripts/checkMoCompetitionCoverage.ts --env prod --file "public/data/Adelskalender.csv" --start-year 2011 --end-year 2025 --output coverage-report-prod.json`.
+  - Review gaps: `scripts/reconcileMoCompetitionCoverage.ts --env prod --report coverage-report-prod.json --output reconciliation-report.json --max-candidates 5` and capture notes before DNS.
+- **DNS backfill**
+  - Apply classifications: `scripts/addMoDnsResults.ts --env prod --report reconciliation-report.json (--dry-run first)`.
+- **Finalize**
+  - Re-run coverage check to confirm zero missing `K` entries.
+  - Optionally clone validated collections from test → prod via `scripts/cloneFirestoreProject.js` instead of re-importing.
