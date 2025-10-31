@@ -40,6 +40,7 @@ import {
   updateRunnerProfileDetails
 } from '../services/runnerProfileService';
 import { getUserIdByPersonId } from '../services/runnerNavigationService';
+import { getRunnerMoResults, MOResultEntry, getEditionResults } from '../services/moResultsService';
 
 const formatTimeDisplay = (display: string | null | undefined, seconds: number | null | undefined): string => {
   if (display && display.trim().length > 0) {
@@ -84,6 +85,44 @@ const formatLoops = (loops: number | undefined): string => {
   return loops.toString();
 };
 
+const formatMoClass = (value: string | undefined | null): string => {
+  if (!value) return '—';
+  const v = String(value).toLowerCase();
+  if (v === 'konkurranse') return 'Competition';
+  if (v === 'trim_tidtaking') return 'Trim (timed)';
+  if (v === 'turklasse') return 'Tur';
+  return value;
+};
+
+const isCompetitionClass = (value: string | undefined | null): boolean => {
+  if (!value) return false;
+  return String(value).toLowerCase() === 'konkurranse';
+};
+
+const formatMoStatus = (value: string | undefined | null): string => {
+  const v = (value ?? '').toString().trim().toUpperCase();
+  if (v === 'DNS') return 'DNS';
+  if (v === 'DNF') return 'DNF';
+  return 'Finished';
+};
+
+const isCountedMoClass = (value: string | undefined | null): boolean => {
+  if (!value) return false;
+  const v = String(value).toLowerCase();
+  return v === 'konkurranse' || v === 'trim_tidtaking' || v === 'turklasse';
+};
+
+const normalizeNameKey = (value: string | undefined | null): string | null => {
+  if (!value) return null;
+  const key = value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+  return key || null;
+};
+
 const formatYears = (years: number[]): string => {
   if (!years || years.length === 0) {
     return '—';
@@ -108,6 +147,22 @@ const RunnerProfilePage: React.FC = () => {
   const [detailsSuccess, setDetailsSuccess] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [authPersonIds, setAuthPersonIds] = useState<number[]>([]);
+  const [moResults, setMoResults] = useState<MOResultEntry[]>([]);
+  const [moLoading, setMoLoading] = useState<boolean>(true);
+  const [moSummary, setMoSummary] = useState<{
+    appearances: number;
+    years: number[];
+    bestTimeDisplay: string | null;
+    bestGenderRank: number | null;
+    bestAdjustedDisplay: string | null;
+    bestAggRank: number | null;
+  } | null>(null);
+  const [moRankCache, setMoRankCache] = useState<Record<string, {
+    adjustedByUser: Record<string, number>;
+    adjustedByName: Record<string, number>;
+    byGenderUser: Record<string, Record<string, number>>;
+    byGenderName: Record<string, Record<string, number>>;
+  }>>({});
 
   useEffect(() => {
     if (!userId) return;
@@ -191,6 +246,215 @@ const RunnerProfilePage: React.FC = () => {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!profile?.userId) return;
+    let isMounted = true;
+    setMoLoading(true);
+    getRunnerMoResults(profile.userId)
+      .then((entries) => {
+        if (isMounted) setMoResults(entries);
+      })
+      .catch(() => {
+        if (isMounted) setMoResults([]);
+      })
+      .finally(() => {
+        if (isMounted) setMoLoading(false);
+      });
+    return () => {
+      isMounted = false;
+    };
+  }, [profile?.userId]);
+
+  // Build per-edition rank caches for competition entries (time by gender, adjusted overall), by userId and by normalized name
+  useEffect(() => {
+    let cancelled = false;
+    const buildCache = async () => {
+      const editions = Array.from(new Set(
+        moResults
+          .filter((e) => isCompetitionClass(e.class) && e.editionId)
+          .map((e) => e.editionId as string)
+      ));
+      if (editions.length === 0) {
+        if (!cancelled) setMoRankCache({});
+        return;
+      }
+
+      const nextCache: Record<string, {
+        adjustedByUser: Record<string, number>;
+        adjustedByName: Record<string, number>;
+        byGenderUser: Record<string, Record<string, number>>;
+        byGenderName: Record<string, Record<string, number>>;
+      }> = {};
+
+      for (const editionId of editions) {
+        const entriesThisEdition = moResults.filter((e) => e.editionId === editionId && isCompetitionClass(e.class));
+        const genders = Array.from(new Set(entriesThisEdition.map((e) => (e.gender ?? '').toString()).filter(Boolean)));
+        const byGenderUser: Record<string, Record<string, number>> = {};
+        const byGenderName: Record<string, Record<string, number>> = {};
+
+        // Gender rank (time)
+        await Promise.all(
+          genders.map(async (g) => {
+            try {
+              const list = await getEditionResults(editionId, { classFilter: 'konkurranse', genderFilter: g as any, ranking: 'time' });
+              const mapUser: Record<string, number> = {};
+              const mapName: Record<string, number> = {};
+              list.forEach((it) => {
+                const r = typeof it.rankTime === 'number' && Number.isFinite(it.rankTime) ? (it.rankTime as number) : null;
+                if (r != null) {
+                  if (it.userId) {
+                    mapUser[it.userId] = r;
+                  }
+                  const nk = normalizeNameKey(it.fullName);
+                  if (nk) {
+                    if (!(nk in mapName) || r < mapName[nk]) {
+                      mapName[nk] = r;
+                    }
+                  }
+                }
+              });
+              byGenderUser[g] = mapUser;
+              byGenderName[g] = mapName;
+            } catch (err) {
+              byGenderUser[g] = {};
+              byGenderName[g] = {};
+            }
+          })
+        );
+
+        // Adjusted rank (AGG overall)
+        let adjustedByUser: Record<string, number> = {};
+        let adjustedByName: Record<string, number> = {};
+        try {
+          const listAdj = await getEditionResults(editionId, { classFilter: 'konkurranse', ranking: 'adjusted' });
+          const mapUser: Record<string, number> = {};
+          const mapName: Record<string, number> = {};
+          listAdj.forEach((it) => {
+            const r = typeof it.rankAdjusted === 'number' && Number.isFinite(it.rankAdjusted) ? (it.rankAdjusted as number) : null;
+            if (r != null) {
+              if (it.userId) {
+                mapUser[it.userId] = r;
+              }
+              const nk = normalizeNameKey(it.fullName);
+              if (nk) {
+                if (!(nk in mapName) || r < mapName[nk]) {
+                  mapName[nk] = r;
+                }
+              }
+            }
+          });
+          adjustedByUser = mapUser;
+          adjustedByName = mapName;
+        } catch (err) {
+          adjustedByUser = {};
+          adjustedByName = {};
+        }
+
+        nextCache[editionId] = { adjustedByUser, adjustedByName, byGenderUser, byGenderName };
+      }
+
+      if (!cancelled) setMoRankCache(nextCache);
+    };
+    buildCache();
+    return () => { cancelled = true; };
+  }, [moResults]);
+
+  useEffect(() => {
+    let cancelled = false;
+    const compute = async () => {
+      if (!profile?.userId) {
+        setMoSummary(null);
+        return;
+      }
+      const comp = moResults.filter((e) => isCompetitionClass(e.class));
+      const countedAll = moResults.filter((e) => isCountedMoClass(e.class));
+      const notDnsAll = countedAll.filter((e) => (e.status ?? '').toString().toUpperCase() !== 'DNS');
+      const yearsSet = new Set<number>();
+      notDnsAll.forEach((e) => {
+        if (typeof e.editionYear === 'number' && Number.isFinite(e.editionYear)) {
+          yearsSet.add(e.editionYear);
+        } else if (e.editionId) {
+          const m = String(e.editionId).match(/(\d{4})$/);
+          if (m) yearsSet.add(Number(m[1]));
+        }
+      });
+
+      const appearances = yearsSet.size;
+      const years = Array.from(yearsSet).sort((a, b) => a - b);
+
+      let bestTimeDisplay: string | null = null;
+      let bestGenderRank: number | null = null;
+      let bestAdjustedDisplay: string | null = null;
+      let bestAggRank: number | null = null;
+
+      // Best unadjusted time (competition only)
+      const timed = comp
+        .filter((e) => (e.timeSeconds ?? null) != null && (e.timeSeconds as number) > 0)
+        .slice()
+        .sort((a, b) => (a.timeSeconds ?? Number.POSITIVE_INFINITY) - (b.timeSeconds ?? Number.POSITIVE_INFINITY));
+      if (timed.length > 0) {
+        const best = timed[0];
+        bestTimeDisplay = formatTimeDisplay(best.timeDisplay ?? null, best.timeSeconds ?? null);
+        // Try to compute gender rank for that edition
+        try {
+          const gender = (best.gender ?? null) as any;
+          if (gender && best.editionId) {
+            const editionEntries = await getEditionResults(best.editionId, {
+              classFilter: 'konkurranse',
+              genderFilter: gender,
+              ranking: 'time'
+            });
+            const match = editionEntries.find((it) => it.userId && it.userId === profile.userId);
+            bestGenderRank = match?.rankTime ?? null;
+            if (bestGenderRank == null) {
+              // fallback to first index + 1 when name matches closely
+              const alt = editionEntries.find((it) => (it.fullName || '').toLowerCase() === (best.fullName || '').toLowerCase());
+              bestGenderRank = alt ? alt.rankTime ?? null : null;
+            }
+          } else {
+            bestGenderRank = best.rankTime ?? null;
+          }
+        } catch {
+          bestGenderRank = best.rankTime ?? null;
+        }
+      }
+
+      // Best adjusted time (competition only)
+      const adjusted = comp
+        .filter((e) => (e.adjustedSeconds ?? null) != null && (e.adjustedSeconds as number) > 0)
+        .slice()
+        .sort((a, b) => (a.adjustedSeconds ?? Number.POSITIVE_INFINITY) - (b.adjustedSeconds ?? Number.POSITIVE_INFINITY));
+      if (adjusted.length > 0) {
+        const bestAdj = adjusted[0];
+        bestAdjustedDisplay = formatTimeDisplay(bestAdj.adjustedDisplay ?? null, bestAdj.adjustedSeconds ?? null);
+        try {
+          if (bestAdj.editionId) {
+            const editionEntriesAgg = await getEditionResults(bestAdj.editionId, {
+              classFilter: 'konkurranse',
+              ranking: 'adjusted'
+            });
+            const match = editionEntriesAgg.find((it) => it.userId && it.userId === profile.userId);
+            bestAggRank = match?.rankAdjusted ?? null;
+            if (bestAggRank == null) {
+              const alt = editionEntriesAgg.find((it) => (it.fullName || '').toLowerCase() === (bestAdj.fullName || '').toLowerCase());
+              bestAggRank = alt ? alt.rankAdjusted ?? null : null;
+            }
+          } else {
+            bestAggRank = bestAdj.rankAdjusted ?? null;
+          }
+        } catch {
+          bestAggRank = bestAdj.rankAdjusted ?? null;
+        }
+      }
+
+      if (!cancelled) {
+        setMoSummary({ appearances, years, bestTimeDisplay, bestGenderRank, bestAdjustedDisplay, bestAggRank });
+      }
+    };
+    compute();
+    return () => { cancelled = true; };
+  }, [moResults, profile?.userId]);
 
   useEffect(() => {
     if (!profile?.personId || !authUserId) {
@@ -497,6 +761,98 @@ const RunnerProfilePage: React.FC = () => {
     );
   };
 
+  const renderMoParticipation = (entries: MOResultEntry[]) => {
+    if (moLoading) {
+      return (
+        <Box sx={{ py: 4, textAlign: 'center' }}>
+          <CircularProgress size={24} />
+        </Box>
+      );
+    }
+    const entriesToShow = entries.filter((e) => isCountedMoClass(e.class));
+    if (!entriesToShow.length) {
+      return (
+        <Paper sx={{ p: 4, textAlign: 'center' }}>
+          <Typography variant="body1" color="text.secondary">
+            This runner has no Marka Oslo results recorded.
+          </Typography>
+        </Paper>
+      );
+    }
+
+    return (
+      <TableContainer component={Paper}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Edition</TableCell>
+              <TableCell>Class</TableCell>
+              <TableCell align="right">Rank (time)</TableCell>
+              <TableCell align="right">Time</TableCell>
+              <TableCell align="right">Rank (adjusted)</TableCell>
+              <TableCell align="right">Adjusted</TableCell>
+              <TableCell>Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {entriesToShow
+              .slice()
+              .sort((a, b) => {
+                const ya = a.editionYear ?? 0;
+                const yb = b.editionYear ?? 0;
+                return yb - ya;
+              })
+              .map((entry) => {
+                const editionLabel = entry.editionYear ? `MO ${entry.editionYear}` : entry.editionId;
+                const time = formatTimeDisplay(entry.timeDisplay ?? null, entry.timeSeconds ?? null);
+                const adjusted = formatTimeDisplay(entry.adjustedDisplay ?? null, entry.adjustedSeconds ?? null);
+                const isComp = isCompetitionClass(entry.class);
+                const genderKey = (entry.gender ?? '').toString();
+                const cache = entry.editionId ? moRankCache[entry.editionId] : undefined;
+                const nameKey = normalizeNameKey(entry.fullName ?? '') as string | null;
+                const rowGenderRank = isComp && genderKey
+                  ? (
+                      (entry.userId && cache?.byGenderUser?.[genderKey]?.[entry.userId]) ||
+                      (nameKey && cache?.byGenderName?.[genderKey]?.[nameKey]) ||
+                      (entry.rankTime ?? null)
+                    )
+                  : null;
+                const rowAggRank = isComp
+                  ? (
+                      (entry.userId && cache?.adjustedByUser?.[entry.userId]) ||
+                      (nameKey && cache?.adjustedByName?.[nameKey]) ||
+                      (entry.rankAdjusted ?? null)
+                    )
+                  : null;
+                return (
+                  <TableRow key={entry.id}>
+                    <TableCell>
+                      <Button
+                        variant="outlined"
+                        size="small"
+                        color="inherit"
+                        endIcon={<ChevronRight fontSize="small" />}
+                        onClick={() => navigate(`/mo/results/${entry.editionId}`)}
+                        sx={{ textTransform: 'none', fontWeight: 600, borderColor: 'success.main', color: 'text.primary' }}
+                      >
+                        {editionLabel}
+                      </Button>
+                    </TableCell>
+                    <TableCell>{formatMoClass(entry.class)}</TableCell>
+                    <TableCell align="right">{formatRank(rowGenderRank as any)}</TableCell>
+                    <TableCell align="right">{time}</TableCell>
+                    <TableCell align="right">{formatRank(rowAggRank as any)}</TableCell>
+                    <TableCell align="right">{adjusted}</TableCell>
+                    <TableCell>{formatMoStatus(entry.status)}</TableCell>
+                  </TableRow>
+                );
+              })}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    );
+  };
+
   const renderUpcomingRegistrations = (registrations: RunnerUpcomingRegistration[]) => {
     if (!registrations.length) {
       return (
@@ -589,47 +945,6 @@ const RunnerProfilePage: React.FC = () => {
           Runner's page
         </Typography>
       </Box>
-
-      <Paper sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Upcoming registrations
-        </Typography>
-        {renderUpcomingRegistrations(profile.upcomingRegistrations)}
-      </Paper>
-
-      <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
-        KUTC participation history
-      </Typography>
-
-      <Paper sx={{ p: 3, mb: 4 }}>
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Total appearances
-              </Typography>
-              <Typography variant="h5">{stats.appearances}</Typography>
-              <Chip label={`Years: ${stats.years}`} size="small" />
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Total loops completed
-              </Typography>
-              <Typography variant="h5">{stats.totalLoops}</Typography>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Best performance
-              </Typography>
-              <Typography variant="h6">{stats.best}</Typography>
-            </Stack>
-          </Grid>
-        </Grid>
-      </Paper>
 
       {canEdit && (
         <Paper sx={{ mb: 4 }}>
@@ -754,8 +1069,86 @@ const RunnerProfilePage: React.FC = () => {
         </Paper>
       )}
 
+      <Paper sx={{ p: 3, mb: 4 }}>
+        <Typography variant="h5" gutterBottom>
+          Upcoming registrations
+        </Typography>
+        {renderUpcomingRegistrations(profile.upcomingRegistrations)}
+      </Paper>
+
+      <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
+        KUTC participation history
+      </Typography>
+
+      <Paper sx={{ p: 3, mb: 4, border: '1px solid', borderColor: 'info.main' }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Stack spacing={1}>
+              <Typography variant="overline" color="text.secondary">
+                Total appearances
+              </Typography>
+              <Typography variant="h5">{stats.appearances}</Typography>
+              <Chip label={`Years: ${stats.years}`} size="small" />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Stack spacing={1}>
+              <Typography variant="overline" color="text.secondary">
+                Total loops completed
+              </Typography>
+              <Typography variant="h5">{stats.totalLoops}</Typography>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Stack spacing={1}>
+              <Typography variant="overline" color="text.secondary">
+                Best performance
+              </Typography>
+              <Typography variant="h6">{stats.best}</Typography>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Paper>
+
+
       <Box>
         {renderParticipations(profile.participations)}
+      </Box>
+
+      <Typography variant="h5" gutterBottom sx={{ mt: 4, mb: 2 }}>
+        MO participation history
+      </Typography>
+      <Paper sx={{ p: 3, mb: 2, border: '1px solid', borderColor: 'success.main' }}>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={4}>
+            <Stack spacing={1}>
+              <Typography variant="overline" color="text.secondary">
+                Total appearances
+              </Typography>
+              <Typography variant="h5">{moSummary?.appearances ?? 0} {((moSummary?.appearances ?? 0) === 1) ? 'appearance' : 'appearances'}</Typography>
+              <Chip label={`Years: ${formatYears(moSummary?.years ?? [])}`} size="small" />
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Stack spacing={1}>
+              <Typography variant="overline" color="text.secondary">
+                Best time (gender)
+              </Typography>
+              <Typography variant="h6">{moSummary?.bestTimeDisplay ?? '—'} {moSummary?.bestGenderRank ? `• #${moSummary.bestGenderRank}` : ''}</Typography>
+            </Stack>
+          </Grid>
+          <Grid item xs={12} md={4}>
+            <Stack spacing={1}>
+              <Typography variant="overline" color="text.secondary">
+                Best adjusted (AGG)
+              </Typography>
+              <Typography variant="h6">{moSummary?.bestAdjustedDisplay ?? '—'} {moSummary?.bestAggRank ? `• #${moSummary.bestAggRank}` : ''}</Typography>
+            </Stack>
+          </Grid>
+        </Grid>
+      </Paper>
+      <Box>
+        {renderMoParticipation(moResults)}
       </Box>
     </Container>
   );
