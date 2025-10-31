@@ -19,6 +19,8 @@ import CodeListPanel from '../components/admin/CodeListPanel';
 import ActionRequestsPanel from '../components/admin/ActionRequestsPanel';
 import SchedulesPanel from '../components/admin/SchedulesPanel';
 import AdminTasksPanel from '../components/admin/AdminTasksPanel';
+import ReconcileMoParticipantsPanel from '../components/admin/ReconcileMoParticipantsPanel';
+import UserDuplicatesPanel from '../components/admin/UserDuplicatesPanel';
 import BulkEmailPanel from '../components/admin/BulkEmailPanel';
 import EventEditionSelector from '../components/EventEditionSelector';
 import AdminLandingPanel from '../components/admin/AdminLandingPanel';
@@ -114,6 +116,8 @@ const AdminPage: React.FC = () => {
             {active === 'bulkemail' && <BulkEmailPanel />}
             {active === 'codelists' && <CodeListPanel />}
             {active === 'editions' && <EventEditionsPanel />}
+            {active === 'reconcile' && <ReconcileMoParticipantsPanel />}
+            {active === 'duplicates' && <UserDuplicatesPanel />}
             {active === 'actions' && <ActionRequestsPanel />}
             {active === 'tasks' && <AdminTasksPanel />}
             {active === 'schedules' && <SchedulesPanel />}

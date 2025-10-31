@@ -6,6 +6,8 @@ export const adminSections = [
   { key: 'bulkemail', label: 'Bulk Email' },
   { key: 'codelists', label: 'Code Lists' },
   { key: 'editions', label: 'Event Editions' },
+  { key: 'reconcile', label: 'Participant Reconcile' },
+  { key: 'duplicates', label: 'User Duplicates' },
   { key: 'actions', label: 'Action Requests' },
   { key: 'tasks', label: 'Admin Tasks' },
   { key: 'schedules', label: 'Function Schedules' },

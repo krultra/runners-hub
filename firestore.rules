@@ -193,6 +193,21 @@ service cloud.firestore {
     }
 
     // =============================================
+    // Reconciliation Staging (admin only)
+    // =============================================
+    match /moParticipantStaging/{runnerKey} {
+      allow read, write: if isAdmin();
+    }
+
+    match /moMatchCandidates/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    match /userDuplicateCandidates/{docId} {
+      allow read, write: if isAdmin();
+    }
+
+    // =============================================
     // Events (public read, admin write)
     // =============================================
     match /events/{eventId} {
