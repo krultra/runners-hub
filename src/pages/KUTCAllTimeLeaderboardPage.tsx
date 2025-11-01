@@ -12,6 +12,7 @@ import {
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { EmojiEvents, MilitaryTech, ArrowBack, EmojiEventsOutlined } from '@mui/icons-material';
 import { getAllTimeLeaderboard, AllTimeParticipant, KUTCEdition } from '../services/kutcResultsService';
+import { getUserIdByPersonId } from '../services/runnerNavigationService';
 import { useNavigate } from 'react-router-dom';
 
 type RankedParticipant = AllTimeParticipant & {
@@ -34,6 +35,19 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
     () => editions.some(edition => edition.metadata?.resultsStatus === 'error'),
     [editions]
   );
+
+  const goToRunnerByPersonId = async (personId: number) => {
+    try {
+      const userId = await getUserIdByPersonId(personId);
+      if (userId) {
+        navigate(`/runners/${userId}`);
+        return;
+      }
+    } catch (err) {
+      console.warn('[KUTC All-Time] Failed to resolve userId by personId', { personId, err });
+    }
+    navigate('/runners/search');
+  };
 
   const rankedParticipants: RankedParticipant[] = useMemo(
     () => participants.map((participant, index) => ({
@@ -115,7 +129,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
     {
       field: 'name',
       headerName: 'Participant',
-      width: 200,
+      width: 220,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {params.row.medal && (
@@ -131,9 +145,17 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
               }}
             />
           )}
-          <Typography variant="body2" fontWeight={600}>
+          <Button
+            variant="text"
+            size="small"
+            onClick={(e) => {
+              e.stopPropagation();
+              goToRunnerByPersonId(params.row.id as number);
+            }}
+            sx={{ textTransform: 'none', fontWeight: 600, p: 0, minWidth: 0 }}
+          >
             {params.row.firstName} {params.row.lastName}
-          </Typography>
+          </Button>
         </Box>
       )
     },

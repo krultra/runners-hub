@@ -112,11 +112,27 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
         headerName: 'Navn',
         flex: 1.2,
         minWidth: 160,
-        renderCell: (params) => (
-          <Typography fontWeight={600} sx={{ whiteSpace: 'normal' }}>
-            {params.value}
-          </Typography>
-        )
+        renderCell: (params) => {
+          const userId = (params.row as any).userId as string | undefined;
+          const name = params.value as string;
+          return userId ? (
+            <Button
+              variant="text"
+              size="small"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/runners/${userId}`);
+              }}
+              sx={{ textTransform: 'none', fontWeight: 600, p: 0, minWidth: 0 }}
+            >
+              {name}
+            </Button>
+          ) : (
+            <Typography fontWeight={600} sx={{ whiteSpace: 'normal' }}>
+              {name}
+            </Typography>
+          );
+        }
       },
       {
         field: 'appearances',

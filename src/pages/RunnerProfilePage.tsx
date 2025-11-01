@@ -173,14 +173,18 @@ const RunnerProfilePage: React.FC = () => {
       setError(null);
       try {
         const data = await getRunnerProfile(userId);
-        if (isMounted) {
-          setProfile(data);
-          console.log(debugTag, 'Loaded profile', {
-            userId,
-            profileUserId: data.userId,
-            hasPersonId: Boolean(data.personId)
-          });
+        if (!isMounted) return;
+        // If the URL param is an email or not the canonical id, redirect to canonical userId without exposing email in the URL.
+        if (userId !== data.userId) {
+          navigate(`/runners/${data.userId}` as any, { replace: true } as any);
+          return;
         }
+        setProfile(data);
+        console.log(debugTag, 'Loaded profile', {
+          userId,
+          profileUserId: data.userId,
+          hasPersonId: Boolean(data.personId)
+        });
       } catch (err: any) {
         if (isMounted) {
           setError(err?.message || 'Failed to load runner profile');
@@ -547,6 +551,11 @@ const RunnerProfilePage: React.FC = () => {
     isAdmin
   );
 
+  const hasMoAppearances = useMemo(
+    () => moResults.some((e) => isCountedMoClass(e.class)),
+    [moResults]
+  );
+
   useEffect(() => {
     console.log(debugTag, 'Authorization state changed', {
       authLoading,
@@ -669,18 +678,45 @@ const RunnerProfilePage: React.FC = () => {
 
   const renderParticipations = (participations: RunnerParticipation[]) => {
     if (participations.length === 0) {
-      return (
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="body1" color="text.secondary">
-            This runner has no results registered in the Runners Hub so far.
-          </Typography>
-        </Paper>
-      );
+      return null;
     }
 
     return (
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer
+        component={Paper}
+        sx={{
+          border: '1px solid',
+          borderColor: 'primary.light',
+          boxShadow: '0 6px 18px rgba(25, 118, 210, 0.16)',
+          backgroundColor: 'rgba(25, 118, 210, 0.08)',
+          borderWidth: 2,
+          borderRadius: 2
+        }}
+      >
+        <Table
+          sx={{
+            '& .MuiTableHead-root': {
+              backgroundColor: 'rgba(25, 118, 210, 0.18)',
+              '& .MuiTableCell-root': {
+                color: 'primary.contrastText',
+                backgroundColor: 'rgba(25, 118, 210, 0.35)',
+                borderColor: 'rgba(25, 118, 210, 0.2)'
+              }
+            },
+            '& .MuiTableBody-root .MuiTableRow-root': {
+              backgroundColor: 'rgba(25, 118, 210, 0.08)',
+              '&:nth-of-type(even)': {
+                backgroundColor: 'rgba(25, 118, 210, 0.12)'
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(25, 118, 210, 0.18)'
+              }
+            },
+            '& .MuiTableCell-root': {
+              borderColor: 'rgba(25, 118, 210, 0.25)'
+            }
+          }}
+        >
           <TableHead>
             <TableRow>
               <TableCell>Edition</TableCell>
@@ -710,7 +746,16 @@ const RunnerProfilePage: React.FC = () => {
                       color="primary"
                       endIcon={<ChevronRight fontSize="small" />}
                       onClick={() => navigate(`/kutc/results/${participation.editionId}?distance=total`)}
-                      sx={{ textTransform: 'none', fontWeight: 600 }}
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 600,
+                        borderColor: 'primary.main',
+                        color: 'primary.dark',
+                        '&:hover': {
+                          borderColor: 'primary.dark',
+                          backgroundColor: 'rgba(25, 118, 210, 0.12)'
+                        }
+                      }}
                     >
                       {editionLabel}
                     </Button>
@@ -725,7 +770,16 @@ const RunnerProfilePage: React.FC = () => {
                         const key = distanceKey || 'total';
                         navigate(`/kutc/results/${participation.editionId}?distance=${encodeURIComponent(key)}`);
                       }}
-                      sx={{ textTransform: 'none' }}
+                      sx={{
+                        textTransform: 'none',
+                        fontWeight: 500,
+                        borderColor: 'primary.main',
+                        color: 'primary.dark',
+                        '&:hover': {
+                          borderColor: 'primary.dark',
+                          backgroundColor: 'rgba(25, 118, 210, 0.12)'
+                        }
+                      }}
                     >
                       {participation.raceName}
                     </Button>
@@ -743,6 +797,16 @@ const RunnerProfilePage: React.FC = () => {
                         to={`/runners/${profile?.userId}/kutc/${participation.editionId}`}
                         size="small"
                         variant="outlined"
+                        color="primary"
+                        sx={{
+                          textTransform: 'none',
+                          borderColor: 'primary.main',
+                          color: 'primary.dark',
+                          '&:hover': {
+                            borderColor: 'primary.dark',
+                            backgroundColor: 'rgba(25, 118, 210, 0.12)'
+                          }
+                        }}
                       >
                         View
                       </Button>
@@ -771,25 +835,66 @@ const RunnerProfilePage: React.FC = () => {
     }
     const entriesToShow = entries.filter((e) => isCountedMoClass(e.class));
     if (!entriesToShow.length) {
-      return (
-        <Paper sx={{ p: 4, textAlign: 'center' }}>
-          <Typography variant="body1" color="text.secondary">
-            This runner has no Marka Oslo results recorded.
-          </Typography>
-        </Paper>
-      );
+      return null;
     }
 
+    const headerGender = entriesToShow.find((e) => isCompetitionClass(e.class) && e.gender)?.gender;
+    const genderHeaderLabel = headerGender === 'Male' ? 'Menn' : headerGender === 'Female' ? 'Kvinner' : 'Kjønn';
+
     return (
-      <TableContainer component={Paper}>
-        <Table>
+      <TableContainer
+        component={Paper}
+        sx={{
+          border: '1px solid',
+          borderColor: 'success.light',
+          boxShadow: '0 6px 18px rgba(46, 125, 50, 0.16)',
+          backgroundColor: 'rgba(46, 125, 50, 0.08)',
+          borderWidth: 2,
+          borderRadius: 2
+        }}
+      >
+        <Table
+          sx={{
+            '& .MuiTableHead-root': {
+              backgroundColor: 'rgba(46, 125, 50, 0.18)',
+              '& .MuiTableCell-root': {
+                color: 'common.white',
+                backgroundColor: 'rgba(46, 125, 50, 0.35)',
+                borderColor: 'rgba(46, 125, 50, 0.2)'
+              }
+            },
+            '& .MuiTableBody-root .MuiTableRow-root': {
+              backgroundColor: 'rgba(46, 125, 50, 0.08)',
+              '&:nth-of-type(even)': {
+                backgroundColor: 'rgba(46, 125, 50, 0.12)'
+              },
+              '&:hover': {
+                backgroundColor: 'rgba(46, 125, 50, 0.18)'
+              }
+            },
+            '& .MuiTableCell-root': {
+              borderColor: 'rgba(46, 125, 50, 0.25)'
+            }
+          }}
+        >
           <TableHead>
             <TableRow>
               <TableCell>Edition</TableCell>
               <TableCell>Class</TableCell>
-              <TableCell align="right">Rank (time)</TableCell>
+              <TableCell align="right">{`Rank (${genderHeaderLabel})`}</TableCell>
               <TableCell align="right">Time</TableCell>
-              <TableCell align="right">Rank (adjusted)</TableCell>
+              <TableCell align="right">
+                <Tooltip
+                  title="Age and Gender Graded time. Race time is adjusted by a factor depending on the runner's age and gender."
+                  arrow
+                  enterTouchDelay={0}
+                  leaveTouchDelay={3000}
+                >
+                  <Button variant="text" size="small" sx={{ p: 0, minWidth: 0, textTransform: 'none', fontWeight: 600, color: 'text.primary' }}>
+                    Rank (AGG)
+                  </Button>
+                </Tooltip>
+              </TableCell>
               <TableCell align="right">Adjusted</TableCell>
               <TableCell>Status</TableCell>
             </TableRow>
@@ -828,12 +933,22 @@ const RunnerProfilePage: React.FC = () => {
                   <TableRow key={entry.id}>
                     <TableCell>
                       <Button
-                        variant="outlined"
+                        variant="contained"
                         size="small"
-                        color="inherit"
+                        color="success"
                         endIcon={<ChevronRight fontSize="small" />}
                         onClick={() => navigate(`/mo/results/${entry.editionId}`)}
-                        sx={{ textTransform: 'none', fontWeight: 600, borderColor: 'success.main', color: 'text.primary' }}
+                        sx={{
+                          textTransform: 'none',
+                          fontWeight: 600,
+                          borderColor: 'success.dark',
+                          color: 'common.white',
+                          backgroundColor: 'rgba(46, 125, 50, 0.18)',
+                          '&:hover': {
+                            borderColor: 'success.dark',
+                            backgroundColor: 'rgba(46, 125, 50, 0.28)'
+                          }
+                        }}
                       >
                         {editionLabel}
                       </Button>
@@ -1080,7 +1195,16 @@ const RunnerProfilePage: React.FC = () => {
         KUTC participation history
       </Typography>
 
-      <Paper sx={{ p: 3, mb: 4, border: '1px solid', borderColor: 'info.main' }}>
+      <Paper
+        sx={{
+          p: 3,
+          mb: 4,
+          border: '2px solid',
+          borderColor: 'primary.main',
+          backgroundColor: 'rgba(25, 118, 210, 0.05)',
+          boxShadow: '0 6px 18px rgba(25, 118, 210, 0.12)'
+        }}
+      >
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Stack spacing={1}>
@@ -1111,14 +1235,25 @@ const RunnerProfilePage: React.FC = () => {
       </Paper>
 
 
-      <Box>
-        {renderParticipations(profile.participations)}
-      </Box>
+      {profile.participations.length > 0 && (
+        <Box>
+          {renderParticipations(profile.participations)}
+        </Box>
+      )}
 
       <Typography variant="h5" gutterBottom sx={{ mt: 4, mb: 2 }}>
         MO participation history
       </Typography>
-      <Paper sx={{ p: 3, mb: 2, border: '1px solid', borderColor: 'success.main' }}>
+      <Paper
+        sx={{
+          p: 3,
+          mb: 2,
+          border: '2px solid',
+          borderColor: 'success.main',
+          backgroundColor: 'rgba(46, 125, 50, 0.05)',
+          boxShadow: '0 6px 18px rgba(46, 125, 50, 0.12)'
+        }}
+      >
         <Grid container spacing={3}>
           <Grid item xs={12} md={4}>
             <Stack spacing={1}>
@@ -1147,9 +1282,11 @@ const RunnerProfilePage: React.FC = () => {
           </Grid>
         </Grid>
       </Paper>
-      <Box>
-        {renderMoParticipation(moResults)}
-      </Box>
+      {hasMoAppearances && (
+        <Box>
+          {renderMoParticipation(moResults)}
+        </Box>
+      )}
     </Container>
   );
 };

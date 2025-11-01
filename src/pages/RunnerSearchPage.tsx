@@ -17,13 +17,14 @@ import {
 } from '@mui/material';
 import { Search, Person } from '@mui/icons-material';
 import { useNavigate } from 'react-router-dom';
-import { collection, query, where, getDocs, orderBy } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
 
 interface RunnerSearchResult {
   id: string;
   firstName: string;
   lastName: string;
+  displayName?: string;
   personId?: number;
   email?: string;
   uid?: string;
@@ -79,19 +80,8 @@ const RunnerSearchPage: React.FC = () => {
 
     try {
       const usersRef = collection(db, 'users');
-      
-      // Search by first name or last name
-      // Firestore doesn't support full-text search, so we'll use prefix matching
       const searchLower = search.toLowerCase();
-      
-      // Query users with personId (indicates they've competed in KUTC)
-      const q = query(
-        usersRef,
-        where('personId', '!=', null),
-        orderBy('personId')
-      );
-      
-      const snapshot = await getDocs(q);
+      const snapshot = await getDocs(usersRef);
 
       // Client-side filtering for name matching
       const allUsers = snapshot.docs.map((docSnap) => {
@@ -106,18 +96,28 @@ const RunnerSearchPage: React.FC = () => {
       const filtered = allUsers.filter(user => {
         const firstName = (user.firstName || '').toLowerCase();
         const lastName = (user.lastName || '').toLowerCase();
-        const fullName = `${firstName} ${lastName}`;
-        
-        return firstName.includes(searchLower) || 
-               lastName.includes(searchLower) ||
-               fullName.includes(searchLower);
+        const fullName = `${firstName} ${lastName}`.trim();
+        const displayName = (user.displayName || '').toLowerCase();
+        return (
+          firstName.includes(searchLower) ||
+          lastName.includes(searchLower) ||
+          (fullName && fullName.includes(searchLower)) ||
+          displayName.includes(searchLower)
+        );
       });
       
       // Sort by last name, then first name
       filtered.sort((a, b) => {
-        const lastNameCompare = (a.lastName || '').localeCompare(b.lastName || '');
-        if (lastNameCompare !== 0) return lastNameCompare;
-        return (a.firstName || '').localeCompare(b.firstName || '');
+        const aLast = (a.lastName || '').trim();
+        const bLast = (b.lastName || '').trim();
+        const aFirst = (a.firstName || '').trim();
+        const bFirst = (b.firstName || '').trim();
+        if (aLast || bLast) {
+          const lastNameCompare = aLast.localeCompare(bLast);
+          if (lastNameCompare !== 0) return lastNameCompare;
+          return aFirst.localeCompare(bFirst);
+        }
+        return (a.displayName || '').localeCompare(b.displayName || '');
       });
       
       setResults(filtered);
@@ -141,7 +141,7 @@ const RunnerSearchPage: React.FC = () => {
           Runner Search
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Search for runners who have competed in KUTC events
+          Search for runners registered in RunnersHub
         </Typography>
       </Box>
 
@@ -222,9 +222,7 @@ const RunnerSearchPage: React.FC = () => {
                           </Typography>
                         </Stack>
                       }
-                      secondary={
-                        runner.personId ? `Runner ID: ${runner.personId}` : 'KUTC Participant'
-                      }
+                      secondary={runner.personId ? `Runner ID: ${runner.personId}` : undefined}
                     />
                   </ListItemButton>
                 </ListItem>

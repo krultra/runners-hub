@@ -20,6 +20,8 @@ const AppHeader: React.FC = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [avatarMenuAnchor, setAvatarMenuAnchor] = useState<null | HTMLElement>(null);
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
+  const [kutcMenuAnchor, setKutcMenuAnchor] = useState<null | HTMLElement>(null);
+  const [moMenuAnchor, setMoMenuAnchor] = useState<null | HTMLElement>(null);
   const [userName, setUserName] = useState<string>('');
   const location = useLocation();
   const navigate = useNavigate();
@@ -38,8 +40,21 @@ const AppHeader: React.FC = () => {
   };
   const handleMenuClose = () => {
     setMenuAnchor(null);
+    setKutcMenuAnchor(null);
+    setMoMenuAnchor(null);
   };
-
+  const openKutcMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setKutcMenuAnchor(event.currentTarget);
+  };
+  const closeKutcMenu = () => {
+    setKutcMenuAnchor(null);
+  };
+  const openMoMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setMoMenuAnchor(event.currentTarget);
+  };
+  const closeMoMenu = () => {
+    setMoMenuAnchor(null);
+  };
   // Admin section selection (when on /admin)
   const handleAdminSectionSelect = (sectionKey: string) => {
     window.dispatchEvent(new CustomEvent('setAdminSection', { detail: sectionKey }));
@@ -161,7 +176,51 @@ const AppHeader: React.FC = () => {
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
           >
-            {/* Menu content logic */}
+            {/* Main navigation */}
+            <Box px={2} py={1}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
+                Navigate
+              </Typography>
+            </Box>
+            <MenuItem onClick={() => { navigate('/'); handleMenuClose(); }}>Home</MenuItem>
+            <MenuItem onClick={() => { navigate('/runners/search'); handleMenuClose(); }}>Runner search</MenuItem>
+            <Divider sx={{ my: 0.5 }} />
+            <MenuItem onClick={openKutcMenu}>KUTC</MenuItem>
+            <Menu
+              anchorEl={kutcMenuAnchor}
+              open={Boolean(kutcMenuAnchor)}
+              onClose={closeKutcMenu}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+              keepMounted
+            >
+              <MenuItem onClick={() => { navigate('/kutc'); closeKutcMenu(); handleMenuClose(); }}>Overview</MenuItem>
+              <MenuItem onClick={() => { navigate('/kutc/results'); closeKutcMenu(); handleMenuClose(); }}>Results</MenuItem>
+              <MenuItem onClick={() => { navigate('/kutc/all-time'); closeKutcMenu(); handleMenuClose(); }}>All-time</MenuItem>
+              <MenuItem onClick={() => { navigate('/kutc/records'); closeKutcMenu(); handleMenuClose(); }}>Records</MenuItem>
+            </Menu>
+            <MenuItem onClick={openMoMenu}>MO</MenuItem>
+            <Menu
+              anchorEl={moMenuAnchor}
+              open={Boolean(moMenuAnchor)}
+              onClose={closeMoMenu}
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+              keepMounted
+            >
+              <MenuItem onClick={() => { navigate('/mo'); closeMoMenu(); handleMenuClose(); }}>Overview</MenuItem>
+              <MenuItem onClick={() => { navigate('/mo/results'); closeMoMenu(); handleMenuClose(); }}>Results</MenuItem>
+              <MenuItem onClick={() => { navigate('/mo/all-time'); closeMoMenu(); handleMenuClose(); }}>All-time</MenuItem>
+              <MenuItem onClick={() => { navigate('/mo/records'); closeMoMenu(); handleMenuClose(); }}>Records</MenuItem>
+            </Menu>
+            {isAdmin && (
+              <MenuItem onClick={handleAdminPage}>Admin</MenuItem>
+            )}
+            <Divider sx={{ my: 0.5 }} />
+            <MenuItem onClick={() => { navigate('/about'); handleMenuClose(); }}>About</MenuItem>
+            <Divider sx={{ my: 0.5 }} />
+
+            {/* Auth/Admin */}
             {!user && (
               <MenuItem onClick={handleLogin}>
                 <ListItemIcon><LoginIcon fontSize="small" /></ListItemIcon>
@@ -172,45 +231,6 @@ const AppHeader: React.FC = () => {
               <MenuItem onClick={handleLogout}>
                 Log out
               </MenuItem>
-            )}
-            {user && isAdmin && location.pathname !== '/admin' && (
-              <>
-                <MenuItem onClick={handleAdminPage}>
-                  Admin Page
-                </MenuItem>
-                <MenuItem onClick={() => { navigate('/admin/import-malvikingen'); handleMenuClose(); }}>
-                  MO Import
-                </MenuItem>
-                <Divider sx={{ my: 0.5 }} />
-                <MenuItem onClick={handleLogout} sx={{ fontSize: '0.92rem', opacity: 0.85 }}>
-                  <Typography variant="body2">Log out</Typography>
-                </MenuItem>
-              </>
-            )}
-            {user && isAdmin && location.pathname === '/admin' && (
-              <>
-                <Box px={2} py={1}>
-                  <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                    Admin Features
-                  </Typography>
-                </Box>
-                {adminSections.map((section) => (
-                  <MenuItem
-                    key={section.key}
-                    selected={false} // Optionally highlight the current section
-                    onClick={() => handleAdminSectionSelect(section.key)}
-                  >
-                    {section.label}
-                  </MenuItem>
-                ))}
-                <MenuItem onClick={() => { navigate('/admin/import-malvikingen'); handleMenuClose(); }}>
-                  MO Import
-                </MenuItem>
-                <Divider sx={{ my: 0.5 }} />
-                <MenuItem onClick={handleLogout} sx={{ fontSize: '0.92rem', opacity: 0.85 }}>
-                  <Typography variant="body2">Log out</Typography>
-                </MenuItem>
-              </>
             )}
           </Menu>
 

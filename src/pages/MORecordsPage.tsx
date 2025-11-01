@@ -130,6 +130,9 @@ const MORecordsPage: React.FC = () => {
                 {opts?.showAdjusted && (
                   <TableCell align="center"><strong>Justert tid</strong></TableCell>
                 )}
+                {opts?.showAdjusted && (
+                  <TableCell align="center"><strong>Alder</strong></TableCell>
+                )}
                 <TableCell align="center"><strong>År</strong></TableCell>
               </TableRow>
             </TableHead>
@@ -143,9 +146,20 @@ const MORecordsPage: React.FC = () => {
                     </Stack>
                   </TableCell>
                   <TableCell>
-                    <Typography variant="body2" fontWeight={600}>
-                      {row.fullName}
-                    </Typography>
+                    {row.userId ? (
+                      <Button
+                        variant="text"
+                        size="small"
+                        onClick={() => navigate(`/runners/${row.userId}`)}
+                        sx={{ textTransform: 'none', fontWeight: 600, p: 0, minWidth: 0 }}
+                      >
+                        {row.fullName}
+                      </Button>
+                    ) : (
+                      <Typography variant="body2" fontWeight={600}>
+                        {row.fullName}
+                      </Typography>
+                    )}
                   </TableCell>
                   <TableCell align="center">
                     <Chip label={row.timeDisplay} color="primary" size="small" />
@@ -154,6 +168,9 @@ const MORecordsPage: React.FC = () => {
                     <TableCell align="center">
                       <Chip label={row.adjustedDisplay ?? '—'} color="primary" size="small" />
                     </TableCell>
+                  )}
+                  {opts?.showAdjusted && (
+                    <TableCell align="center">{typeof row.age === 'number' ? row.age : '—'}</TableCell>
                   )}
                   <TableCell align="center">{row.editionYear ?? row.editionId.replace('mo-', '')}</TableCell>
                 </TableRow>
@@ -325,9 +342,20 @@ const MORecordsPage: React.FC = () => {
                       <Grid item xs={12} sm={6} md={4} key={`${item.runnerKey}-runnerup`}>
                         <Card variant="outlined">
                           <CardContent>
-                            <Typography variant="body2" fontWeight={600}>
-                              {item.fullName}
-                            </Typography>
+                            {item.userId ? (
+                              <Button
+                                variant="text"
+                                size="small"
+                                onClick={() => navigate(`/runners/${item.userId}`)}
+                                sx={{ textTransform: 'none', fontWeight: 600, p: 0, minWidth: 0 }}
+                              >
+                                {item.fullName}
+                              </Button>
+                            ) : (
+                              <Typography variant="body2" fontWeight={600}>
+                                {item.fullName}
+                              </Typography>
+                            )}
                             <Typography variant="caption" color="text.secondary">
                               {item.appearances} deltagelser
                             </Typography>

@@ -360,10 +360,6 @@ async function getKUTCParticipations(userId: string, personId: number): Promise<
 }
 
 export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
-  if (looksLikeEmail(userId)) {
-    throw new Error('Runner not found');
-  }
-
   let userSnap = await getDoc(doc(db, 'users', userId));
 
   if (!userSnap.exists()) {
@@ -377,6 +373,33 @@ export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
       const legacySnapshot = await getDocs(legacyQuery);
       if (!legacySnapshot.empty) {
         userSnap = legacySnapshot.docs[0];
+      } else if (looksLikeEmail(userId)) {
+        // Fallback: resolve by email when route param is an email
+        const normalizedEmail = userId.trim().toLowerCase();
+        const emailQuery = query(usersRef, where('email', '==', normalizedEmail), limit(1));
+        const emailSnapshot = await getDocs(emailQuery);
+        if (!emailSnapshot.empty) {
+          userSnap = emailSnapshot.docs[0];
+        } else {
+          const asNumber = Number(userId);
+          if (Number.isFinite(asNumber)) {
+            const pidQuery = query(usersRef, where('personId', '==', asNumber), limit(1));
+            const pidSnapshot = await getDocs(pidQuery);
+            if (!pidSnapshot.empty) {
+              userSnap = pidSnapshot.docs[0];
+            }
+          }
+        }
+      } else {
+        // If userId looks numeric, allow resolving by personId
+        const asNumber = Number(userId);
+        if (Number.isFinite(asNumber)) {
+          const pidQuery = query(usersRef, where('personId', '==', asNumber), limit(1));
+          const pidSnapshot = await getDocs(pidQuery);
+          if (!pidSnapshot.empty) {
+            userSnap = pidSnapshot.docs[0];
+          }
+        }
       }
     }
   }
@@ -386,12 +409,19 @@ export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
   }
 
   const userData = userSnap.data() as FirestoreUser;
+  const sanitizeId = (value: string | null | undefined): string | null => {
+    const normalized = normalizeId(value ?? undefined);
+    if (!normalized) {
+      return null;
+    }
+    return normalized.includes('@') ? null : normalized;
+  };
   const resolvedUid =
-    normalizeId(userData.uid) ??
-    normalizeId(userData.userId) ??
-    (!userSnap.id.includes('@') ? normalizeId(userSnap.id) : null) ??
-    normalizeId(userId) ??
-    userSnap.id;
+    sanitizeId(userData.uid ?? null) ??
+    sanitizeId(userData.userId ?? null) ??
+    sanitizeId(userSnap.id) ??
+    sanitizeId(looksLikeEmail(userId) ? null : userId) ??
+    String(userSnap.id.includes('@') ? userData.personId ?? userSnap.id : userSnap.id);
   const effectiveUserId = resolvedUid || userId;
 
   const firstName = userData.firstName || userData.displayName?.split(' ')[0] || 'Runner';

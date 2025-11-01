@@ -51,6 +51,7 @@ export interface MOEditionResultsOptions {
 
 export interface MOTimeRecordEntry {
   runnerKey: string;
+  userId?: string | null;
   fullName: string;
   gender: MOResultGender | null;
   editionId: string;
@@ -66,6 +67,7 @@ export interface MOTimeRecordEntry {
 
 export interface MOAppearanceRecord {
   runnerKey: string;
+  userId?: string | null;
   fullName: string;
   gender: MOResultGender | null;
   appearances: number;
@@ -694,6 +696,7 @@ export interface MOAllTimeYearDetail {
 
 export interface MOAllTimeParticipant {
   runnerKey: string;
+  userId?: string | null;
   fullName: string;
   gender: MOResultGender | null;
   appearances: number;
@@ -798,6 +801,7 @@ export const getAllTimeLeaderboard = async (): Promise<MOAllTimeLeaderboardResul
 
       return {
         runnerKey,
+        userId: stats.entry.userId ?? null,
         fullName: stats.entry.fullName,
         gender: stats.entry.gender ?? null,
         appearances: stats.appearances,
@@ -850,13 +854,14 @@ const maybePushTimeRecord = (
   entry: MOResultEntry,
   opts: { adjusted?: boolean }
 ) => {
-  const timeSeconds = opts.adjusted ? toNumber(entry.adjustedSeconds) : toNumber(entry.timeSeconds);
-  if (timeSeconds == null || timeSeconds <= 0) {
+  const baseSeconds = toNumber(entry.timeSeconds);
+  const adjSeconds = toNumber(entry.adjustedSeconds);
+  const include = opts.adjusted ? (adjSeconds != null && adjSeconds > 0) : (baseSeconds != null && baseSeconds > 0);
+  if (!include) {
     return;
   }
-  const timeDisplay = opts.adjusted
-    ? entry.adjustedDisplay ?? formatSeconds1d(timeSeconds)
-    : entry.timeDisplay ?? formatSeconds1d(timeSeconds);
+  const timeSeconds = baseSeconds ?? 0;
+  const timeDisplay = baseSeconds != null ? (entry.timeDisplay ?? formatSeconds1d(baseSeconds)) : '—';
 
   const runnerKey = buildRunnerKey(entry);
   if (!runnerKey) {
@@ -865,14 +870,17 @@ const maybePushTimeRecord = (
 
   list.push({
     runnerKey,
+    userId: entry.userId ?? null,
     fullName: entry.fullName,
     gender: entry.gender ?? null,
     editionId: entry.editionId,
     editionYear: entry.editionYear,
     timeSeconds,
     timeDisplay,
-    adjustedSeconds: opts.adjusted ? timeSeconds : entry.adjustedSeconds ?? null,
-    adjustedDisplay: opts.adjusted ? timeDisplay : entry.adjustedDisplay ?? null,
+    adjustedSeconds: opts.adjusted ? (adjSeconds ?? null) : entry.adjustedSeconds ?? null,
+    adjustedDisplay: opts.adjusted
+      ? (entry.adjustedDisplay ?? (adjSeconds != null ? formatSeconds1d(adjSeconds) : null))
+      : entry.adjustedDisplay ?? null,
     status: entry.status,
     age: entry.age ?? null,
     representing: entry.representing ?? null
@@ -993,13 +1001,30 @@ export const getRecords = async (): Promise<MORecordsResult> => {
       })
       .sort((a, b) => a.timeSeconds - b.timeSeconds || a.fullName.localeCompare(b.fullName, 'nb'));
 
+  const sortByAdjusted = (entries: MOTimeRecordEntry[]) =>
+    entries
+      .filter((item, index, self) => {
+        const key = `${item.runnerKey}|${item.editionId}`;
+        return (
+          (item.adjustedSeconds ?? 0) > 0 &&
+          self.findIndex((candidate) => `${candidate.runnerKey}|${candidate.editionId}` === key) === index
+        );
+      })
+      .sort((a, b) => {
+        const av = a.adjustedSeconds ?? Number.POSITIVE_INFINITY;
+        const bv = b.adjustedSeconds ?? Number.POSITIVE_INFINITY;
+        if (av !== bv) return av - bv;
+        return a.fullName.localeCompare(b.fullName, 'nb');
+      });
+
   const fastestMen = sortByTime(timeRecords.men).slice(0, 5);
   const fastestWomen = sortByTime(timeRecords.women).slice(0, 5);
-  const fastestAGG = sortByTime(timeRecords.agg).slice(0, 10);
+  const fastestAGG = sortByAdjusted(timeRecords.agg).slice(0, 10);
 
   const appearanceEntries = Array.from(appearanceMap.entries())
     .map(([runnerKey, stats]) => ({
       runnerKey,
+      userId: stats.entry.userId ?? null,
       fullName: stats.entry.fullName,
       gender: stats.entry.gender ?? null,
       appearances: stats.appearances,

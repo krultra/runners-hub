@@ -8,8 +8,13 @@ export async function getUserIdByPersonId(personId: number): Promise<string | nu
   if (!Number.isFinite(personId)) {
     return null;
   }
-  if (personIdToUserIdCache.has(personId)) {
-    return personIdToUserIdCache.get(personId) ?? null;
+  const cached = personIdToUserIdCache.get(personId);
+  if (cached !== undefined) {
+    if (cached && cached.includes('@')) {
+      personIdToUserIdCache.delete(personId);
+    } else {
+      return cached;
+    }
   }
 
   const usersRef = collection(db, 'users');
@@ -23,7 +28,20 @@ export async function getUserIdByPersonId(personId: number): Promise<string | nu
 
   const docSnap = snapshot.docs[0];
   const data = docSnap.data() as { uid?: string | null; userId?: string | null };
-  const resolved = (data.uid && data.uid.trim()) || (data.userId && data.userId.trim()) || docSnap.id;
+  const trimOrNull = (value?: string | null) => {
+    if (!value) return null;
+    const trimmed = value.trim();
+    return trimmed.length > 0 ? trimmed : null;
+  };
+  const sanitize = (value: string | null) => {
+    if (!value) return null;
+    return value.includes('@') ? null : value;
+  };
+
+  const candidateUid = sanitize(trimOrNull(data.uid));
+  const candidateUserId = sanitize(trimOrNull(data.userId));
+  const docIdCandidate = sanitize(trimOrNull(docSnap.id));
+  const resolved = candidateUid || candidateUserId || docIdCandidate || String(personId);
   const userId = resolved.trim();
   personIdToUserIdCache.set(personId, userId);
   return userId;
