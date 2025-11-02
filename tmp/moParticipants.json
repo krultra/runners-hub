@@ -8,12 +8,12 @@
     "gender": "female",
     "email": "ada.myhren@gmail.com",
     "editions": [
-      "mo-2017",
-      "mo-2018"
+      "mo-2018",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "Jbp3YdtZmMgfWs0rLi3X",
-      "YMsWIaP8NoO3CuxsHjFm"
+      "XWpQPfr1cXjKd2pUxxI7",
+      "mBZA4ezhvCFq2dMNQNxl"
     ],
     "raw": {
       "fullName": null,
@@ -33,7 +33,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "tuqvxYhD74PTyq9AIXUl"
+      "1sH97sWq4SbElJUuDhLT"
     ],
     "raw": {
       "fullName": null,
@@ -54,8 +54,8 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "Ynz0vTRmOxrnovGSIrRF",
-      "jxn5DjqSI6ft1faugfVZ"
+      "0qbi78cty29WdSdkOiDV",
+      "kt5RNlg8zJ3aydeYHI9P"
     ],
     "raw": {
       "fullName": null,
@@ -75,7 +75,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "rfQOkcXMdmayO683PXlj"
+      "EBAMZOZ0yeSHLjS1iQBL"
     ],
     "raw": {
       "fullName": null,
@@ -95,7 +95,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "aD6GKRaEBsLsmycnCO7L"
+      "oKRlQ9VxLh6kQ7CyjGeA"
     ],
     "raw": {
       "fullName": null,
@@ -115,7 +115,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "LLfb3vs8X5uukezaoYVl"
+      "MeLyjBdXw1djju82dCCX"
     ],
     "raw": {
       "fullName": null,
@@ -135,7 +135,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "sLCxDKl8NT5fFdvWbzum"
+      "SBfUHrPRMfAV1Mwkd4Kw"
     ],
     "raw": {
       "fullName": null,
@@ -156,8 +156,8 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "7b290VIgOIOTfvIRRKmO",
-      "pg00EcdZz2Nig8sDDaw3"
+      "RQ2EHSp3R037Hu134bpS",
+      "RXWpnCpWt5AhKpiV2cag"
     ],
     "raw": {
       "fullName": null,
@@ -177,7 +177,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "KXj9g6AKrB6ZNEucszkC"
+      "ZQOZol8Ib50i1ZzlaSlP"
     ],
     "raw": {
       "fullName": null,
@@ -197,7 +197,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "H5g38tOOODJLDLZcLmQI"
+      "bavi4hprb5gFC1f7kDOF"
     ],
     "raw": {
       "fullName": null,
@@ -217,7 +217,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "T0cVEfOae39kI2VF1bCS"
+      "WQxGR5LVz8A2vtEEOoVc"
     ],
     "raw": {
       "fullName": null,
@@ -237,7 +237,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "Wmy0uD0ImtIiNZkkniwY"
+      "PlTPsJ6NMRhBp0fE3dyn"
     ],
     "raw": {
       "fullName": null,
@@ -257,7 +257,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "K6dRfsdHnqr2fW2XEcpr"
+      "bIPi88WCBu5SUkJaJQD3"
     ],
     "raw": {
       "fullName": null,
@@ -277,7 +277,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "nndbQPWaOHjui5kLPYfE"
+      "7pgzq3poh98hCNmD9ciV"
     ],
     "raw": {
       "fullName": null,
@@ -297,7 +297,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "H34XKxzoyBpt3c0FNUYd"
+      "ZLGxRO3T80XWYYoPqwNO"
     ],
     "raw": {
       "fullName": null,
@@ -314,36 +314,36 @@
     "gender": null,
     "email": "anders.kruke@gmail.com",
     "editions": [
-      "mo-2016",
-      "mo-2020",
-      "mo-2012",
-      "mo-2023",
-      "mo-2018",
       "mo-2022",
-      "mo-2021",
-      "mo-2019",
-      "mo-2024",
-      "mo-2011",
+      "mo-2016",
       "mo-2015",
+      "mo-2024",
+      "mo-2012",
+      "mo-2020",
+      "mo-2018",
+      "mo-2023",
+      "mo-2019",
+      "mo-2025",
       "mo-2017",
       "mo-2014",
-      "mo-2025"
+      "mo-2021",
+      "mo-2011"
     ],
     "sourceDocIds": [
-      "4YkM5MwKwofnjpF3XGhd",
-      "7xO57wivQRUTvXrprgyW",
-      "BvVBeznG6uRT0mxIIXn1",
-      "CziCI0E5TYYXprcB6zhT",
-      "I04XDSqF15wyQXoPoJlW",
-      "RkNccecgSx77bg4hQJaQ",
-      "SbkiG2w8a75JFddqLvgx",
-      "X4arR7H67ZBCtyvDJZ6k",
-      "cQQAu9WCcNpqc6H4vdSe",
-      "d12GTEWfcHE3mTUI4Lpa",
-      "h7jjynJO2Kx6Ly4TqBT0",
-      "htfh8ii3nT7kWbaczHBF",
-      "ov4LmUuqVaGTyhIq0SAU",
-      "vAq27cq7FAAgQtpSYbr9"
+      "1rmMm8P2nhtjHyayRocG",
+      "4ItxJXpDpIZBetUOSTsF",
+      "A9mVe8kHBoStPisHhu1Q",
+      "Apg33iA8vDBg6WEJYTE2",
+      "JD6LLNDHNs8chVRhK0M8",
+      "LwQO1Ox6dBqZfo8qIQkt",
+      "Ly1Pqvsd9Ugre5Q0xGVR",
+      "aJxRhotRMfRRQRUiX8Wu",
+      "aL8VUpKdDHzDdJynlpwJ",
+      "csbvgaondpJvrYljagD9",
+      "ehK954lS1uj7Lr4lnppb",
+      "h1wBwL3UfZaKSiI2TWya",
+      "kvaiPVYX9imWb3VuNpGW",
+      "lPnyTE8XT6XTwLgwyfEe"
     ],
     "raw": {
       "fullName": null,
@@ -363,7 +363,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "8gp7E50bOHSd8S6fvpgF"
+      "UG9w92uLdik56v3w0fTY"
     ],
     "raw": {
       "fullName": null,
@@ -383,7 +383,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "403WAlS2LB4ZAcVPRvDy"
+      "qnxpZnTaLGbqaIvCljwI"
     ],
     "raw": {
       "fullName": null,
@@ -403,32 +403,12 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "p9jAcDsvFVHq2oGwJrbz"
+      "qPfUX00CvCeRmgu36eO8"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Anders",
       "lastName": "Stubban"
-    }
-  },
-  {
-    "runnerKey": "andreas myran steen|1968",
-    "fullName": "Andreas Myran Steen",
-    "displayName": "Andreas Myran Steen",
-    "nameSource": "first_last",
-    "yearOfBirth": 1968,
-    "gender": "male",
-    "email": null,
-    "editions": [
-      "mo-2011"
-    ],
-    "sourceDocIds": [
-      "SXF17EIzWc0O4UMeq3iW"
-    ],
-    "raw": {
-      "fullName": null,
-      "firstName": "Andreas Myran",
-      "lastName": "Steen"
     }
   },
   {
@@ -443,11 +423,31 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "ZUF2SGYTLWuGSb0p096X"
+      "lHZ5ak4hRqpH3aUahNzO"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Andreas Myran",
+      "lastName": "Steen"
+    }
+  },
+  {
+    "runnerKey": "andreas steen|1968",
+    "fullName": "Andreas Steen",
+    "displayName": "Andreas Steen",
+    "nameSource": "first_last",
+    "yearOfBirth": 1968,
+    "gender": "male",
+    "email": null,
+    "editions": [
+      "mo-2011"
+    ],
+    "sourceDocIds": [
+      "gugVKpPasyRfQukoZ6cQ"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Andreas",
       "lastName": "Steen"
     }
   },
@@ -460,12 +460,12 @@
     "gender": "female",
     "email": null,
     "editions": [
-      "mo-2019",
-      "mo-2017"
+      "mo-2017",
+      "mo-2019"
     ],
     "sourceDocIds": [
-      "ZxntWsMt4KFrj38cQom1",
-      "tzsTRRKg8xHeXFUDIsvN"
+      "Ilsisaza1m6o7XnoMw14",
+      "cxXSO7JVt2HBD4gpU1Or"
     ],
     "raw": {
       "fullName": null,
@@ -485,7 +485,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "ZWtIbeY1B6ZrLHzjTFE5"
+      "pQTfXp9pJa1wWOiC8enW"
     ],
     "raw": {
       "fullName": null,
@@ -505,7 +505,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "0gJlGdDEHAcEVKE9OHmU"
+      "hfoi9FFAFoBplRkdqmHU"
     ],
     "raw": {
       "fullName": null,
@@ -525,7 +525,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "qNKij7m8aIUakDRKU4RF"
+      "cjUSsKHZlbUNI4OvOpXw"
     ],
     "raw": {
       "fullName": null,
@@ -545,7 +545,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "c9irt134l4aofiEKf1is"
+      "KCGjK5UjQ1RqOGCgcFEm"
     ],
     "raw": {
       "fullName": null,
@@ -565,7 +565,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "RFMpDAMtfkoPlsFGPUJa"
+      "dpbtepkzjwyU2QcUSPti"
     ],
     "raw": {
       "fullName": null,
@@ -585,7 +585,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "VG11rfWHbiQtuOcWRV4S"
+      "qQwbvsaoFJeciKlGiee4"
     ],
     "raw": {
       "fullName": null,
@@ -605,7 +605,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "F2pCOwx4mV8fNMe6ioAd"
+      "5WFMmqogHpH44zVR9oCk"
     ],
     "raw": {
       "fullName": null,
@@ -625,7 +625,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "NWmw5bsulcVm7klXGYVw"
+      "b2oMYwQyCP2niyLf9VTM"
     ],
     "raw": {
       "fullName": null,
@@ -645,7 +645,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "HMWJ4isfrj0NkZvFJzXo"
+      "SzHJMX42vZzpCppnbTsS"
     ],
     "raw": {
       "fullName": null,
@@ -666,8 +666,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "Vp5HZ5qTVf8vRoNtv7XJ",
-      "sM1hnCWfSSbBqCuBKNF6"
+      "MP8cOd994ZsA0luWoU4B",
+      "d47CVNKXef2e7y3OPHQp"
     ],
     "raw": {
       "fullName": null,
@@ -688,8 +688,8 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "YPJ2MrZvo29QQ1jQ5c2K",
-      "mEbyBTXLHkKcQjHHQfEY"
+      "RH4Zsc8zBS4Ol0c17shx",
+      "iD7DdLLXQt2THWs4kFft"
     ],
     "raw": {
       "fullName": null,
@@ -709,7 +709,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "w6IMEhLCnsVN1xZAUE5M"
+      "8sztOydQbMsUMiyG6CVm"
     ],
     "raw": {
       "fullName": null,
@@ -729,7 +729,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "CzotUewfqvgbwXN7smgj"
+      "8yGusmdTNSpKa8rsEsEi"
     ],
     "raw": {
       "fullName": null,
@@ -743,29 +743,29 @@
     "displayName": "Are Malvik",
     "nameSource": "first_last",
     "yearOfBirth": 1992,
-    "gender": "male",
+    "gender": null,
     "email": "aremalvik@outlook.com",
     "editions": [
-      "mo-2018",
-      "mo-2023",
-      "mo-2024",
       "mo-2021",
-      "mo-2022",
-      "mo-2020",
       "mo-2016",
       "mo-2015",
-      "mo-2017"
+      "mo-2022",
+      "mo-2017",
+      "mo-2018",
+      "mo-2024",
+      "mo-2023",
+      "mo-2020"
     ],
     "sourceDocIds": [
-      "9F6Gf2Nuu6XXDsRcEKiX",
-      "BJwKBnfAGl1CoONYtqKi",
-      "JOlarsks10mWW74ywEBU",
-      "bcVjEaw9gfwQRrnLMT56",
-      "ca494KGXCwnm0vKoPIqp",
-      "lc2xc3nTBHBvUXLsW90j",
-      "x5PBgqaD7Pe1WjEe5pw5",
-      "xGMdsKzEL1Up9Y8LCeH7",
-      "yFYDZPd0V4sMzhPOH6Ey"
+      "DxJQefsULBUn1QCOFcUH",
+      "GkaLdrnXwOcaJZgESB8D",
+      "HrevZJL26S85IseWhzoH",
+      "JOInBvtE9hsq4HzGVNmO",
+      "KjhCS6dcR6LKRvcCi8HS",
+      "TrIZchqIL9pqgIzQEzrA",
+      "WOZ3PzmY89GbBmZ3AcDO",
+      "gMfTNukYYGULm0fo5voG",
+      "wA6ZgmuOmKAXhCo4mbFy"
     ],
     "raw": {
       "fullName": null,
@@ -786,8 +786,8 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "1ypndN7m8rvWirZ54PQd",
-      "kZqtgwW9RTQ25IVfdu9z"
+      "3jPANCUduGsC7nPXgr9X",
+      "nRUM8o3Zdn9WqEyDwaS9"
     ],
     "raw": {
       "fullName": null,
@@ -807,7 +807,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "jcNvvgNiwAhMxco9D6Za"
+      "Ti8jO4vdfIBSXXuFrZyr"
     ],
     "raw": {
       "fullName": null,
@@ -827,7 +827,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "bXM6gzpT92PaVgnwluIF"
+      "gWbzFn314pfFQ9YLAWvq"
     ],
     "raw": {
       "fullName": null,
@@ -847,7 +847,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "6ifl9vSwlKygZ5W08TPo"
+      "VvShzi8M0Q5UmFVz0LJC"
     ],
     "raw": {
       "fullName": null,
@@ -864,18 +864,18 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2022",
+      "mo-2024",
+      "mo-2021",
       "mo-2020",
       "mo-2019",
-      "mo-2024",
-      "mo-2021"
+      "mo-2022"
     ],
     "sourceDocIds": [
-      "BML7fDlwRhE4bEdnZWMd",
-      "I3PenQVxGJMGhYib4Obq",
-      "Il0176LWmFwuxAXfJzCo",
-      "OgqmNmVFYOpxMsrxetWK",
-      "vHWHrjK29OxI2pUsqEk7"
+      "IJCyV6fvxzAICLgcucIt",
+      "cTajUmklqRxt3Bi7vMP4",
+      "m9cwCYUw3ETqymnkmgEP",
+      "xoNKrJ90uLekzDZVfPBC",
+      "zjex6sUAzJ2Lx6G9GeHy"
     ],
     "raw": {
       "fullName": null,
@@ -895,7 +895,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "IvSCzb7mJoo5hUtP0EG2"
+      "euAL9Bx0GeYSHF5v7uqR"
     ],
     "raw": {
       "fullName": null,
@@ -915,12 +915,54 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "0oSVEIyxCWspFhfdIZ1c"
+      "pEKdbZ691RUeIMFDnYyr"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Arnt Gunnar",
       "lastName": "Winter"
+    }
+  },
+  {
+    "runnerKey": "arve østgaard|1963",
+    "fullName": "Arve Østgaard",
+    "displayName": "Arve Østgaard",
+    "nameSource": "first_last",
+    "yearOfBirth": 1963,
+    "gender": "male",
+    "email": "arve@sentio.no",
+    "editions": [
+      "mo-2012",
+      "mo-2013"
+    ],
+    "sourceDocIds": [
+      "Weqgvqgz1FJmklSoQwkt",
+      "pyDGDSfWs8wlJQVWFRjV"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Arve",
+      "lastName": "Østgaard"
+    }
+  },
+  {
+    "runnerKey": "arve østgård|1963",
+    "fullName": "Arve Østgård",
+    "displayName": "Arve Østgård",
+    "nameSource": "first_last",
+    "yearOfBirth": 1963,
+    "gender": "male",
+    "email": null,
+    "editions": [
+      "mo-2018"
+    ],
+    "sourceDocIds": [
+      "W4o1NifSnYTFjCaYYKwC"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Arve",
+      "lastName": "Østgård"
     }
   },
   {
@@ -932,16 +974,10 @@
     "gender": "male",
     "email": "arve@sentio.no",
     "editions": [
-      "mo-2018",
-      "mo-2013",
-      "mo-2011",
-      "mo-2012"
+      "mo-2011"
     ],
     "sourceDocIds": [
-      "5VJjvS0ZjYVHeq7EUuCS",
-      "B1q59HbzyMrUlkGrWLux",
-      "anR2hfNH7UYerNQv4VIx",
-      "r2Wain0KslAJXWpQ8rQ2"
+      "1R9uUpoj6QcVUq501eqS"
     ],
     "raw": {
       "fullName": null,
@@ -958,12 +994,12 @@
     "gender": null,
     "email": "arve.storseth@teekay.com",
     "editions": [
-      "mo-2011",
-      "mo-2014"
+      "mo-2014",
+      "mo-2011"
     ],
     "sourceDocIds": [
-      "jrJScwsx8CDfgxBYQWDF",
-      "kUkyNinXQqu14kK0jHKF"
+      "Yz6Bi5ZsDeCJ7CgwiWM3",
+      "oMbfxBiMdHzId4vwJVFo"
     ],
     "raw": {
       "fullName": null,
@@ -983,7 +1019,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "HYQR1k7jkeONZZUFJhBj"
+      "eVTJ9jbMvOJlioMWdAYP"
     ],
     "raw": {
       "fullName": null,
@@ -1003,7 +1039,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "RmQzQPNJ3868QGe22TYy"
+      "OIwXmXS764qQLjpsDjU6"
     ],
     "raw": {
       "fullName": null,
@@ -1023,7 +1059,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "FHZlYciXtRCCiO8flj7A"
+      "0HT6TgbOJoCKSH5cSkMo"
     ],
     "raw": {
       "fullName": null,
@@ -1043,7 +1079,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "Lzv8PPj97GKgMMDMkqdj"
+      "zfZIZfRRjK2yYvoYugVf"
     ],
     "raw": {
       "fullName": null,
@@ -1060,36 +1096,36 @@
     "gender": null,
     "email": "astrid.kruke@gmail.com",
     "editions": [
-      "mo-2018",
-      "mo-2019",
       "mo-2024",
       "mo-2023",
-      "mo-2022",
+      "mo-2019",
       "mo-2013",
-      "mo-2014",
-      "mo-2012",
       "mo-2025",
-      "mo-2021",
-      "mo-2015",
+      "mo-2012",
       "mo-2011",
+      "mo-2018",
+      "mo-2015",
+      "mo-2022",
+      "mo-2021",
+      "mo-2014",
       "mo-2017",
       "mo-2016"
     ],
     "sourceDocIds": [
-      "5zo7Tyqq4l0nzszWHuZZ",
-      "7XqSEgvux3N2QI1gqc4a",
-      "7t47pbhQAT2Vn4iowyaO",
-      "GEehoW5syYsrTeGKRayh",
-      "IyBtXSlNo7zmKvLvPzFz",
-      "JoWcNNnAN1XfCccay0ir",
-      "PCtQHtYlKGlUGdWq7iPD",
-      "ZP0A2aWqUWfwd7q4GkaV",
-      "kma6KiDIG3lWjxomyEIS",
-      "m7RM6yK0rfNFBSipeokr",
-      "mwYgvZybSJ2R9jOnpZh8",
-      "pbNVlqVzKksBjkbYM3hi",
-      "qnQrjsKvlUiqBSVEwbuj",
-      "ti0esfrGNB7nrCaVB0DT"
+      "4SzqSVWQUuXCYTKC6y8o",
+      "4sX7KK4R0vVf2qzQNrfA",
+      "E3i89ktrnseKiHjYnOL3",
+      "FMFkstY8AxhDwncC5F7W",
+      "Gpv0i88IaWRlq6wMTqKq",
+      "KpZ1vbVdz18jLFdgl3gI",
+      "W4i29wIAdNh0tpZCiCuu",
+      "YXIyNz7anQFeG1Zs2W1v",
+      "dRa6tyEohzMmvNtoLHA0",
+      "gRBeykdfEO5hryzFEl2e",
+      "hu5kfMBybbJ8U4ENlr8E",
+      "l1Z9USVQ3tLt0YDtVfEH",
+      "oM6Y1G1SFaRkdHLtI9R2",
+      "tflVzeWlc9b60XaJXVJM"
     ],
     "raw": {
       "fullName": null,
@@ -1111,9 +1147,9 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "BYSzLDEgWsOdoTKuI1Om",
-      "SFDOzSftnp34lP2cwLGh",
-      "Tiv0kPtZ8GU7CaQhb6xj"
+      "28eChunMixcEf6EH13YE",
+      "Wfm3dt27Nm444KAr2UgZ",
+      "mh2QIyUdA1ihj1yIx6lF"
     ],
     "raw": {
       "fullName": null,
@@ -1133,7 +1169,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "2t4ZMnXttV1hwSyZrnO3"
+      "Mx8ESUx6irXOrE23gXQ0"
     ],
     "raw": {
       "fullName": null,
@@ -1153,7 +1189,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "nsMqv9VG8jkClFNzq9hd"
+      "eKWJmYi0CfHaQVZqGbo7"
     ],
     "raw": {
       "fullName": null,
@@ -1170,12 +1206,12 @@
     "gender": "male",
     "email": "august.lunde@icloud.com",
     "editions": [
-      "mo-2019",
-      "mo-2017"
+      "mo-2017",
+      "mo-2019"
     ],
     "sourceDocIds": [
-      "IBw05phRunIXCLv6EURZ",
-      "KnO5dQFOHzDtkHrTqjpR"
+      "8OLevFYeSK3hZ2eyQQeM",
+      "lXM9FsJ5c5mxvrNTXJQr"
     ],
     "raw": {
       "fullName": null,
@@ -1195,7 +1231,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "HEvj23NAbdb7jCiKScVe"
+      "cwrNqWCqoEHAVQQIVVWV"
     ],
     "raw": {
       "fullName": null,
@@ -1212,14 +1248,14 @@
     "gender": "male",
     "email": "bard.nonstad@bntv.no",
     "editions": [
-      "mo-2013",
       "mo-2014",
-      "mo-2011"
+      "mo-2011",
+      "mo-2013"
     ],
     "sourceDocIds": [
-      "44tKUD1B0unYIZ0b3l7k",
-      "XzJD9I5jrn2K5opzjO4U",
-      "qxrY70Q63WQ63QvYgaoQ"
+      "UPBjcrf5lDBgrGD8R2Ks",
+      "mvfFYSfi02qT0WjFppRx",
+      "tY2HQKN7ir7u73jhjKsa"
     ],
     "raw": {
       "fullName": null,
@@ -1239,7 +1275,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "FpLMcNGxKaSzO9rEa57L"
+      "bqF54Yy8z8AUaEEUh1ae"
     ],
     "raw": {
       "fullName": null,
@@ -1259,7 +1295,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "w0iGc8W6DOGdAjyD0Ll2"
+      "fB3NXrFUAlDwef3XH6QN"
     ],
     "raw": {
       "fullName": null,
@@ -1279,7 +1315,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "tPuBOqUTZNEf0nsNwWhx"
+      "9SbEUNs8OqVGMhDmOmWQ"
     ],
     "raw": {
       "fullName": null,
@@ -1296,14 +1332,14 @@
     "gender": "female",
     "email": "tireb_1993@hotmail.com",
     "editions": [
-      "mo-2014",
       "mo-2017",
+      "mo-2014",
       "mo-2013"
     ],
     "sourceDocIds": [
-      "CmPI43xYmH8BCG0DDl4s",
-      "hzNc5Ng2LjSftXRrx9PY",
-      "yvaAfHxG3fbevxPbY7VG"
+      "ZKezW8Dcoi2HkgXIEHb9",
+      "orr16ZNmFwezHeZUfmCW",
+      "y9WkNCMDVacUz0KW9RRU"
     ],
     "raw": {
       "fullName": null,
@@ -1323,7 +1359,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "Erii7UXnvXnz1RcdE5jd"
+      "w7Dcw8A1dKdZrsYCOWZv"
     ],
     "raw": {
       "fullName": null,
@@ -1343,7 +1379,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "d1RK4aFeK5oHpQPY2Ylc"
+      "MHyLAvSj1gKTReV3zzGA"
     ],
     "raw": {
       "fullName": null,
@@ -1360,12 +1396,12 @@
     "gender": null,
     "email": "bjorgmaritlillehaug@outlook.com",
     "editions": [
-      "mo-2014",
-      "mo-2015"
+      "mo-2015",
+      "mo-2014"
     ],
     "sourceDocIds": [
-      "7BbFidMicfAN48xZuZVS",
-      "89tRyaGSp6etVZqVDJDx"
+      "HcVOBUZFscPksYpkpyxs",
+      "SaT5nGIQDd8te3JOlcYz"
     ],
     "raw": {
       "fullName": null,
@@ -1385,7 +1421,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "AgXeQtit5rZL4YkOcbtU"
+      "7xGTEdLPglnLAhGzLILN"
     ],
     "raw": {
       "fullName": null,
@@ -1405,7 +1441,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "zYMEBZX5bHvu9NF4m81k"
+      "0VB45MDPbuYwQMEpTvdv"
     ],
     "raw": {
       "fullName": null,
@@ -1425,7 +1461,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "c5FiVgfRpZt8sL4uYerG"
+      "gyWzsq2br3DtNoKwQwMf"
     ],
     "raw": {
       "fullName": null,
@@ -1445,7 +1481,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "TWX2oS3QGSvyTSM04P6s"
+      "B5xcywYqJCFCXwHnMCNU"
     ],
     "raw": {
       "fullName": null,
@@ -1462,24 +1498,24 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2013",
-      "mo-2012",
-      "mo-2019",
-      "mo-2017",
-      "mo-2014",
-      "mo-2016",
       "mo-2011",
-      "mo-2015"
+      "mo-2014",
+      "mo-2019",
+      "mo-2013",
+      "mo-2015",
+      "mo-2017",
+      "mo-2016",
+      "mo-2012"
     ],
     "sourceDocIds": [
-      "DYy6YfS1s7KWqj2PT5tB",
-      "Jwtnk91af8zXDOQ6ha12",
-      "LT0WwTwJioUVV29G7gDu",
-      "XRvgDDSEPzCVK985VdtK",
-      "fHwrJ8npJr1cvkxMial3",
-      "lCZNrRUzF68GhKjz1CdU",
-      "oK1Gc2rdWFiXUnH8lBd7",
-      "qy1qOn5eA4tOBwnJA1vg"
+      "5OHIpdk2gAm4uDOaPZ42",
+      "Hw9FIr3m23Ao9t6ZuqsZ",
+      "KdDhCWm7bdVwxqdQ3dDB",
+      "NcTBXc2zTpg2IrX4YOe1",
+      "WTwFirXZEOC2HYbqYKMK",
+      "YJUOkYkY9EJlUsQFcrBI",
+      "bsURaJDxaGYLad4p5VnZ",
+      "iXC1sRfhtEkZx7ephK8Z"
     ],
     "raw": {
       "fullName": null,
@@ -1499,7 +1535,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "v9xZLnHRiCJreSlMDNTY"
+      "rYgju20dvXGjn0ZGPbtT"
     ],
     "raw": {
       "fullName": null,
@@ -1519,7 +1555,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "XepumAkVTVT2MU8cWd3X"
+      "zjx55cimiVh6emWIcLZz"
     ],
     "raw": {
       "fullName": null,
@@ -1534,12 +1570,12 @@
     "nameSource": "first_last",
     "yearOfBirth": 1979,
     "gender": "male",
-    "email": "bovan79@gmail.com",
+    "email": null,
     "editions": [
       "mo-2019"
     ],
     "sourceDocIds": [
-      "YVUpM9OJhzpwxAws1xUN"
+      "wwbg0usEEkt6PbLhFiE7"
     ],
     "raw": {
       "fullName": null,
@@ -1559,7 +1595,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "VOQDB6CFkiGfsmUlcQvB"
+      "UK3zTakImm5s7CKalJIh"
     ],
     "raw": {
       "fullName": null,
@@ -1579,7 +1615,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "k8WgV8fx5oUBGXIyDwfB"
+      "C1pnBMeLugrZKeX9eWAS"
     ],
     "raw": {
       "fullName": null,
@@ -1599,7 +1635,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "XD5jnMUwS9nNkUDCczWm"
+      "IEyubbXACnRam2uGYiwB"
     ],
     "raw": {
       "fullName": null,
@@ -1619,7 +1655,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "CDEd7rUtQeKQwe8P861F"
+      "CKLCTmtT5qMJ5bHs8l4N"
     ],
     "raw": {
       "fullName": null,
@@ -1636,14 +1672,14 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2012",
       "mo-2013",
-      "mo-2011"
+      "mo-2011",
+      "mo-2012"
     ],
     "sourceDocIds": [
-      "00cPnSi5iJMS1CJSA6fz",
-      "ODVwjfIFu8hEWh1C3m5l",
-      "xCMcvDUF2l8ipg0l0V1M"
+      "7jm7el4tcFNAo2Fqvra5",
+      "9AE8HWKHQS9HCkuPLM04",
+      "uUtSOET10aYxMQN1ijkW"
     ],
     "raw": {
       "fullName": null,
@@ -1663,7 +1699,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "BUKcyBVSV08gvzy1TdXN"
+      "K5GKbKZfPaKrFB1Y5BCd"
     ],
     "raw": {
       "fullName": null,
@@ -1683,7 +1719,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "ejhUoNludQHswxfJk98s"
+      "bBIx3VdaGRksWlGkXecz"
     ],
     "raw": {
       "fullName": null,
@@ -1703,7 +1739,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "vd5GMZFMgd8YB3j8TXg0"
+      "yJZ0sP1XDk0XLop1xan2"
     ],
     "raw": {
       "fullName": null,
@@ -1723,7 +1759,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "zeq61iAZjRYpiTk67Ksx"
+      "pGcSG8AR6gLJHtqwNsOv"
     ],
     "raw": {
       "fullName": null,
@@ -1743,7 +1779,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "7LfBwR6KXvwUy2n4sxvi"
+      "HAvcsjrcdRAPR7R8PHJM"
     ],
     "raw": {
       "fullName": null,
@@ -1763,7 +1799,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "Cu86JkNp6riehQgLXrah"
+      "E6QZsTWrGzXQF2Wm7k9L"
     ],
     "raw": {
       "fullName": null,
@@ -1783,7 +1819,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "uvzBzDN2iS4Ir0wmXVj6"
+      "PMvG1xLXNjcC4gZxZOpj"
     ],
     "raw": {
       "fullName": null,
@@ -1800,12 +1836,12 @@
     "gender": "male",
     "email": "christerfabian@gmail.com",
     "editions": [
-      "mo-2014",
-      "mo-2015"
+      "mo-2015",
+      "mo-2014"
     ],
     "sourceDocIds": [
-      "A5hOfVWgXT3WZ4fSAW9c",
-      "lm8Yv91IM4kaKEdtjIK2"
+      "gh8pAlm8VgA8UWkf51Nr",
+      "hdkmmyfl9M2S503EO6yP"
     ],
     "raw": {
       "fullName": null,
@@ -1825,7 +1861,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "9PKuIDCNLeAGrWCtqgha"
+      "tWegAmABZYDbMBRj4Y3G"
     ],
     "raw": {
       "fullName": null,
@@ -1845,7 +1881,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "VpKdz4Ej2W52iS6Do4xY"
+      "tB6YVX67MFDdgOtqZc87"
     ],
     "raw": {
       "fullName": null,
@@ -1865,7 +1901,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "wKsNQBB7suvcZqoWyFEh"
+      "7Ru8xKtcZqEdSSjMwNy5"
     ],
     "raw": {
       "fullName": null,
@@ -1885,7 +1921,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "9Dym9aelX4OD2VL2aFFr"
+      "RxP1flJgVuBnCyYIl1Y4"
     ],
     "raw": {
       "fullName": null,
@@ -1905,7 +1941,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "4IS8Vc4nheIviF63kvdl"
+      "f10VaZAexo7M2WwQ506K"
     ],
     "raw": {
       "fullName": null,
@@ -1925,7 +1961,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "PzZjVATwptHdyfTLLPvR"
+      "D5xOiGJwoBhx8S74D6Rv"
     ],
     "raw": {
       "fullName": null,
@@ -1945,7 +1981,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "9owp8Zy3QkVyApMqCQBj"
+      "F2Sbfs2jqxTBuAqQNk8P"
     ],
     "raw": {
       "fullName": null,
@@ -1965,7 +2001,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "qi1G2SxWH65ITk3tjHLg"
+      "9nnvdt9oJ6FUQF0Z4fgY"
     ],
     "raw": {
       "fullName": null,
@@ -1985,7 +2021,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "y1WWIC5pOkcCr6vcfhLz"
+      "bVUQtLtXjboYnNOkilYB"
     ],
     "raw": {
       "fullName": null,
@@ -2005,7 +2041,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "H600bbsefjDpfLD1N6jQ"
+      "v3DpHCZErW5778mM2gHW"
     ],
     "raw": {
       "fullName": null,
@@ -2025,7 +2061,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "KvNm7RLwQZ1QmB1skEC4"
+      "NimCxA92UHJPUP2UclXa"
     ],
     "raw": {
       "fullName": null,
@@ -2045,7 +2081,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "UMByWn9Yk3VhbP3NdJES"
+      "78IZuHzAQi1c0mVuhTzm"
     ],
     "raw": {
       "fullName": null,
@@ -2062,12 +2098,12 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2020",
-      "mo-2019"
+      "mo-2019",
+      "mo-2020"
     ],
     "sourceDocIds": [
-      "Dz35r3lcJoZ5cavs4SaX",
-      "a5L6abLpsa34In1SFiRP"
+      "W52wNVyW9WSSXk2NQjoI",
+      "g9GjQNbVaxhD7Ye3EIk5"
     ],
     "raw": {
       "fullName": null,
@@ -2087,7 +2123,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "qwEStwugndBX6up8oGwQ"
+      "P8DWBCWsMNrspXwdy2iv"
     ],
     "raw": {
       "fullName": null,
@@ -2104,12 +2140,12 @@
     "gender": "male",
     "email": null,
     "editions": [
-      "mo-2016",
-      "mo-2019"
+      "mo-2019",
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "JLk9LLmwh6iHm9UHRP3z",
-      "LmERyuC4i4Bmjes96kSv"
+      "isXEswItxhB0dDRwTyD4",
+      "y2DnoAEDUkcbC37YCzq4"
     ],
     "raw": {
       "fullName": null,
@@ -2129,7 +2165,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "sIs0R8nvCUev5Jfayuah"
+      "XHxenjsmdiktZXQg7OPM"
     ],
     "raw": {
       "fullName": null,
@@ -2146,12 +2182,12 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2021",
-      "mo-2020"
+      "mo-2020",
+      "mo-2021"
     ],
     "sourceDocIds": [
-      "CstjvvSwT2VPd8ttRAa3",
-      "qrEYpjT5Oy5ubE1fxpfE"
+      "JFAuED6LGZ7jcegU0oC5",
+      "zPu9s1n6j6FXvm4rTNaG"
     ],
     "raw": {
       "fullName": null,
@@ -2171,7 +2207,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "JJNBNaUo8ypL8o1sU20P"
+      "2lBw9IxRNjte6wFxCWOz"
     ],
     "raw": {
       "fullName": null,
@@ -2191,7 +2227,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "EjI7ZRLMAou2aXXPf9Ps"
+      "SwXoymTXeq8MjP5feIOP"
     ],
     "raw": {
       "fullName": null,
@@ -2211,7 +2247,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "O4YeZml2OwYHOs6TJlLf"
+      "nJpHl1fu9fVXe50zLsQq"
     ],
     "raw": {
       "fullName": null,
@@ -2231,7 +2267,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "hknd5oFPm0sel9CtmQ8j"
+      "plVjEuqYlyJLaaaKusBo"
     ],
     "raw": {
       "fullName": null,
@@ -2251,7 +2287,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "2hD6jXCuypIGXZ73kYd2"
+      "8LPiik5AtiiiHzLBJ9LL"
     ],
     "raw": {
       "fullName": null,
@@ -2271,7 +2307,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "1EwwCH5xYr8tOOxvP27X"
+      "M2dgxvpHmmK4jt44qfFr"
     ],
     "raw": {
       "fullName": null,
@@ -2291,7 +2327,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "cilIgphmoeTKJZKFFpby"
+      "SgGn7ncrfpM1ZT1jOamt"
     ],
     "raw": {
       "fullName": null,
@@ -2311,7 +2347,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "GYIBmQh2lQlH102Ez2xV"
+      "BldVMrn8p5yAxcKl1af2"
     ],
     "raw": {
       "fullName": null,
@@ -2331,7 +2367,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "ou96lCHBD4xTsxxwSsXc"
+      "orsVa8Cp38px6rtGR1JB"
     ],
     "raw": {
       "fullName": null,
@@ -2351,7 +2387,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "kLKkabOM27XNNfJ4simu"
+      "l2p9T2gbzVgFr7NRETTd"
     ],
     "raw": {
       "fullName": null,
@@ -2372,8 +2408,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "MKw27eJrOpqFenWVLT6i",
-      "parMJ0phtKOajVXyZG8F"
+      "RtgHM45zjtn2dfmmxUHK",
+      "mX17ldW1rMDOJcru9rwV"
     ],
     "raw": {
       "fullName": null,
@@ -2390,17 +2426,17 @@
     "gender": "female",
     "email": "eliseskigirl@gmail.com",
     "editions": [
-      "mo-2017",
-      "mo-2018"
+      "mo-2018",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "9DnhHQVxnLGHBO3MWLNK",
-      "ViecSjOjkLPifPrCJdWB"
+      "I54fevlnKFmJwN4yNRab",
+      "O6RJstanYjE4TGV315BC"
     ],
     "raw": {
       "fullName": null,
-      "firstName": "Elise",
-      "lastName": "Røer Drabløs"
+      "firstName": "Elise Røer",
+      "lastName": "Drabløs"
     }
   },
   {
@@ -2415,7 +2451,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "vpVKToJrRUXwDKM1wWye"
+      "bKiDnWQUmUXdL0GDC4Xx"
     ],
     "raw": {
       "fullName": null,
@@ -2435,7 +2471,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "ruodc45pXrHGsojlCZ8S"
+      "M6u6jSB9JFFKQjVRaUuQ"
     ],
     "raw": {
       "fullName": null,
@@ -2455,7 +2491,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "aj0mvpDcm2CIlWbPvjFf"
+      "fujniKVLgfJ6h8JWBUPE"
     ],
     "raw": {
       "fullName": null,
@@ -2464,34 +2500,34 @@
     }
   },
   {
-    "runnerKey": "emil kristoffer auran",
-    "fullName": "Emil Kristoffer Auran",
-    "displayName": "Emil Kristoffer Auran",
+    "runnerKey": "emil auran",
+    "fullName": "Emil Auran",
+    "displayName": "Emil Auran",
     "nameSource": "first_last",
     "yearOfBirth": null,
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2015",
-      "mo-2021",
-      "mo-2016",
-      "mo-2018",
-      "mo-2017",
       "mo-2014",
-      "mo-2024"
+      "mo-2016",
+      "mo-2015",
+      "mo-2017",
+      "mo-2018",
+      "mo-2024",
+      "mo-2021"
     ],
     "sourceDocIds": [
-      "G3O9vpt1nSmcUp1OiBTg",
-      "diMkkItNWi4iYsok9Dqm",
-      "f2SEj7mYkfnFYXF1p4dR",
-      "i6S5UyXXaIn0JG3i4IKV",
-      "r5wYwWQoudlV6XmSojdp",
-      "sAGb0vhjKSYhtXd8OnQ6",
-      "xYKdUkrEQvxTpB9vXejv"
+      "0jiO3RoNRqgOjV6NcvOF",
+      "AAMVCoWfUtBvqTQsm7Xs",
+      "AFkIlnAbvu43ftgQI2j8",
+      "I0wEB4yLRCtULrvB4Toz",
+      "J4nbizq9Jb5C5RXdPG77",
+      "Psh5WolqPyLCOZovhDk0",
+      "eHPad3b3To9X2M46xz1L"
     ],
     "raw": {
       "fullName": null,
-      "firstName": "Emil Kristoffer",
+      "firstName": "Emil",
       "lastName": "Auran"
     }
   },
@@ -2507,7 +2543,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "BOT46N4tbpOME7OYUwA8"
+      "H64EI2Eu74fnHAzpHcXb"
     ],
     "raw": {
       "fullName": null,
@@ -2527,7 +2563,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "LGL4C4QrZbvTccASuENj"
+      "I9WIATsG2POruVId3qOW"
     ],
     "raw": {
       "fullName": null,
@@ -2547,7 +2583,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "3NKURruzSqIlr4kMxWLZ"
+      "mzDjsXjb0vjQHTxNZzFI"
     ],
     "raw": {
       "fullName": null,
@@ -2567,7 +2603,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "37R1TZbe7UeNpsoW5i9j"
+      "gaVH42Bi7O2bnyLgNTSv"
     ],
     "raw": {
       "fullName": null,
@@ -2587,7 +2623,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "y9XpVTJQQyAunSPPs4sD"
+      "8325kkvoOHZKLrE99G2o"
     ],
     "raw": {
       "fullName": null,
@@ -2607,7 +2643,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "Nd5YJ3CuCBt5lQ6ZBRGW"
+      "Y6A0XWmJPcd74Nddhvgz"
     ],
     "raw": {
       "fullName": null,
@@ -2627,7 +2663,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "kTRAsJywtjRYE8VFPg2n"
+      "wN5LWSnBXe5fB4aoW15f"
     ],
     "raw": {
       "fullName": null,
@@ -2647,7 +2683,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "CQF8e4jkS79qiReawAia"
+      "yiBYxuCkU7sGHB3YnPpy"
     ],
     "raw": {
       "fullName": null,
@@ -2665,13 +2701,13 @@
     "email": "erik_ski97@hotmail.com",
     "editions": [
       "mo-2019",
-      "mo-2017",
-      "mo-2015"
+      "mo-2015",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "IqEMSZW3SuW5Jsku7Z8g",
-      "QnbzFE24QX74nQ5XKgPg",
-      "sSGt3dUlblZBenV4rXv4"
+      "MZrSQZPiIGhxdxEnSY0R",
+      "WJ3oFF86nVR2JzSHLp1j",
+      "kbD5oOSRedq6RjF5j8hs"
     ],
     "raw": {
       "fullName": null,
@@ -2691,7 +2727,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "SL9O8vIQ2jjiTS7NPN4j"
+      "oI3kggM6XJIm0yQb6YFL"
     ],
     "raw": {
       "fullName": null,
@@ -2711,7 +2747,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "fkTcLg4EN772tHG1fcmL"
+      "pgKPP7wmbtSzoyD84dVE"
     ],
     "raw": {
       "fullName": null,
@@ -2731,7 +2767,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "kIsXSztvmhXDaC1jzCBH"
+      "bf8ne0TdcFsgXdtpCvFK"
     ],
     "raw": {
       "fullName": null,
@@ -2751,7 +2787,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "8uc4voLio57GEL1UjmIZ"
+      "bsKgJRRbFGbkOe0ffAhF"
     ],
     "raw": {
       "fullName": null,
@@ -2771,7 +2807,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "6sJZJ64g42RReIuYjqkm"
+      "AzaKXdrR6P7P3BEi0kFY"
     ],
     "raw": {
       "fullName": null,
@@ -2791,7 +2827,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "Vqr4z2pEftkMxUBsHDPN"
+      "AniJ0l6upr3B7f6xMbJH"
     ],
     "raw": {
       "fullName": null,
@@ -2811,7 +2847,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "Y1DGy0dn1E5KoMV1agqm"
+      "RiumkmVUQv3OtFUSA659"
     ],
     "raw": {
       "fullName": null,
@@ -2831,7 +2867,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "xEZEWrQcBEJtDJbW30Y1"
+      "sWsCeibe7ICOUPexQA50"
     ],
     "raw": {
       "fullName": null,
@@ -2851,7 +2887,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "yGXQZfeR4y6aFMRAJgYv"
+      "ULmZin3LdpQZdLkV9WRT"
     ],
     "raw": {
       "fullName": null,
@@ -2871,7 +2907,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "Ly2OU3G19HrFA4yczy6W"
+      "FJI9CTwan68SgLMYbAtt"
     ],
     "raw": {
       "fullName": null,
@@ -2891,7 +2927,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "32WrvtOvWZUj0P43gins"
+      "EXQejDU7EZMCpB3CHWAq"
     ],
     "raw": {
       "fullName": null,
@@ -2911,7 +2947,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "kl8XRoANP9mxFx9R7SHQ"
+      "tAPeLIaadtKaIgNLokx2"
     ],
     "raw": {
       "fullName": null,
@@ -2931,7 +2967,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "X2UcljFvyvIWQD6Wdd7v"
+      "Wj2Vo8qLC9LmDfW0aOt9"
     ],
     "raw": {
       "fullName": null,
@@ -2948,18 +2984,18 @@
     "gender": "male",
     "email": "geir.jakobsen@getmail.no",
     "editions": [
+      "mo-2014",
       "mo-2015",
-      "mo-2024",
       "mo-2013",
       "mo-2019",
-      "mo-2014"
+      "mo-2024"
     ],
     "sourceDocIds": [
-      "0QYce7KSKZMpG3MUSZR1",
-      "2UQDp6BuIcan8zfT7tT0",
-      "SgeBJ4Cdo6Cgsh08dGwk",
-      "iHFlt0CZhkDgmdSsqsws",
-      "mnjL4jhqNCw8EfEW429h"
+      "BfwDhmOPX1ftCALRtXXf",
+      "CQqkvP3Ql9zlKQE3qdMk",
+      "Hm7kwolCeXytSMXfUGAe",
+      "mBhJxaxQB9ooSaE5FFMR",
+      "mKVHaBY4MoEXW4805T63"
     ],
     "raw": {
       "fullName": null,
@@ -2979,7 +3015,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "bcEG0e4gELxbTS9k3N95"
+      "HW5jhPPGh3AmhNdDPKSF"
     ],
     "raw": {
       "fullName": null,
@@ -2999,7 +3035,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "6MlT7U6EpTSQ6HtBYjLv"
+      "iYNesNkKxxmFhXHFAca7"
     ],
     "raw": {
       "fullName": null,
@@ -3016,12 +3052,12 @@
     "gender": "male",
     "email": "gjermund_lofald@hotmail.com",
     "editions": [
-      "mo-2017",
-      "mo-2016"
+      "mo-2016",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "Fmwa2fFwMAmh9nAtyiAV",
-      "c9HN5828g2CVrdRxv3iJ"
+      "hprLX4unBGr1URqdG4ZN",
+      "yLCH08BwGULhTJuSRYV1"
     ],
     "raw": {
       "fullName": null,
@@ -3041,7 +3077,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "CxXYJU9Yj5sgySAliCsN"
+      "IOaInDRqhnEidoNiLbdV"
     ],
     "raw": {
       "fullName": null,
@@ -3061,7 +3097,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "YQLGvBica0M78QuWfaCt"
+      "upByQVf4Hmd06dGDlPRn"
     ],
     "raw": {
       "fullName": null,
@@ -3081,7 +3117,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "CrcmJXG5GTz6Ocikf8GG"
+      "pChbR6UOEhgiAhpH0dGN"
     ],
     "raw": {
       "fullName": null,
@@ -3098,14 +3134,14 @@
     "gender": "male",
     "email": null,
     "editions": [
+      "mo-2011",
       "mo-2013",
-      "mo-2012",
-      "mo-2011"
+      "mo-2012"
     ],
     "sourceDocIds": [
-      "CAQ8goIpmUrvj7lZsaBQ",
-      "lqQ1cB0yQwxmYHW3XSFk",
-      "oZIG3mehsxhxIbPe8UYv"
+      "UsKhI7wHxlIeH8OZZ30s",
+      "ZehlYe1XF9mkJjw1WXxN",
+      "sM858imxIG4jZa4EJ95Y"
     ],
     "raw": {
       "fullName": null,
@@ -3125,7 +3161,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "8wa09v6oJCLpuzJBQb8r"
+      "bVPYbn6EjnWsPP2bqD64"
     ],
     "raw": {
       "fullName": null,
@@ -3145,7 +3181,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "ICtLQeE8u2weL1WRlQXB"
+      "FYrfq0eH5S5dhSxgrVGd"
     ],
     "raw": {
       "fullName": null,
@@ -3165,7 +3201,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "FYo98MOVUwi1YxX1PbFF"
+      "c6OxJXMchbpJUtOQ6iFn"
     ],
     "raw": {
       "fullName": null,
@@ -3185,7 +3221,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "mUg7k3IrXlgBYaLBkJnC"
+      "OoMmC2D5LhClS7ipZBmp"
     ],
     "raw": {
       "fullName": null,
@@ -3205,7 +3241,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "9Bh6WNRgyf6ywrfnDG0c"
+      "eC3ga4CGhsElsUZPSjyX"
     ],
     "raw": {
       "fullName": null,
@@ -3219,13 +3255,13 @@
     "displayName": "Håkon Sjøvold",
     "nameSource": "first_last",
     "yearOfBirth": 1999,
-    "gender": "male",
+    "gender": "Male",
     "email": "haakonsjov@hotmail.com",
     "editions": [
       "mo-2015"
     ],
     "sourceDocIds": [
-      "XGF5X5fDsRFnfTLsY75F"
+      "WC7SerBSajbCQ4V1ZDlT"
     ],
     "raw": {
       "fullName": null,
@@ -3245,7 +3281,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "xTdseeyjpbG685RYggm8"
+      "tYxAaRI06vyC9I3LyZou"
     ],
     "raw": {
       "fullName": null,
@@ -3265,12 +3301,32 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "KWplIDxRvlT7Ij3Kuc2p"
+      "yP9urjeM4nEoXR0pDzxH"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Håkon",
       "lastName": "Toftaker"
+    }
+  },
+  {
+    "runnerKey": "hallgeir lumdemo|1967",
+    "fullName": "Hallgeir Lumdemo",
+    "displayName": "Hallgeir Lumdemo",
+    "nameSource": "first_last",
+    "yearOfBirth": 1967,
+    "gender": "male",
+    "email": null,
+    "editions": [
+      "mo-2025"
+    ],
+    "sourceDocIds": [
+      "BTAEW1311rFK8HqTH08c"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Hallgeir",
+      "lastName": "Lumdemo"
     }
   },
   {
@@ -3282,12 +3338,10 @@
     "gender": "male",
     "email": "hallgeir@26peaks.no",
     "editions": [
-      "mo-2024",
-      "mo-2025"
+      "mo-2024"
     ],
     "sourceDocIds": [
-      "FgNTauY1u8TrxDAbHSf3",
-      "vp1w8Uu4Fj9yGY7dKY0x"
+      "OXlQqImtz5orZsebG2x0"
     ],
     "raw": {
       "fullName": null,
@@ -3304,12 +3358,12 @@
     "gender": "male",
     "email": "hloefald@hotmail.com",
     "editions": [
-      "mo-2016",
-      "mo-2017"
+      "mo-2017",
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "5lsXaUxwyggPLAIj5ZhN",
-      "c25VvZQ378SMCJ8JL9jY"
+      "0iDbMmI6v9EPDBfssKOJ",
+      "rCBbo4jUSBFH4MBPEIgr"
     ],
     "raw": {
       "fullName": null,
@@ -3329,7 +3383,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "feSYPocYoBo3xvGyu0Cg"
+      "PYgORmJs0nA3MaCGhZEi"
     ],
     "raw": {
       "fullName": null,
@@ -3349,7 +3403,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "jCEPyZ1Rf9hX604vORjp"
+      "09HthZEmnWrKsXyjTll1"
     ],
     "raw": {
       "fullName": null,
@@ -3369,7 +3423,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "aPHZIX8bvB6A49cg5nwh"
+      "nakxfdf0y3yI1A7kZMPv"
     ],
     "raw": {
       "fullName": null,
@@ -3389,7 +3443,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "uoot1NO3BtK7yMee4Env"
+      "tCFM6xkeHTeNhPbVIDVk"
     ],
     "raw": {
       "fullName": null,
@@ -3409,7 +3463,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "FxHVgkgdIOoQr2kkyio7"
+      "FU9e61Lrucmjstem5be2"
     ],
     "raw": {
       "fullName": null,
@@ -3429,7 +3483,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "ijbWu95ChCKRKz0NKZBz"
+      "5TnYjGTaSrH69qEF9zFm"
     ],
     "raw": {
       "fullName": null,
@@ -3449,7 +3503,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "OkWmCikDJbzwJKU6KPWY"
+      "1A3U0bSXodU5taNxVbs9"
     ],
     "raw": {
       "fullName": null,
@@ -3469,7 +3523,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "0qj6zfVxLarZ0gp5aIiN"
+      "jmGuFwiZbg4vZ9gCEgPc"
     ],
     "raw": {
       "fullName": null,
@@ -3489,7 +3543,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "JKXVsZiCa9l42ZwCYFDE"
+      "xVAnTImbm2jUCK3eKczz"
     ],
     "raw": {
       "fullName": null,
@@ -3510,8 +3564,8 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "j7KmEvWTLmyCIc1X4drW",
-      "vmQrgMLfsvNMDuqsNrWX"
+      "8stKzv7bOdCSWrAaBo3C",
+      "GimDu3Cjx6DFZ1hzafep"
     ],
     "raw": {
       "fullName": null,
@@ -3531,7 +3585,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "p1nuzx632l5N0Ft0L68N"
+      "fJKlQ1T9kgnCY8OM43Mq"
     ],
     "raw": {
       "fullName": null,
@@ -3551,7 +3605,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "2O6S3ppWSMg197Af2Tu3"
+      "7YxaC7gvZSlu7iGNAlFa"
     ],
     "raw": {
       "fullName": null,
@@ -3571,7 +3625,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "Xt9FrHaTQPB1mly4V9fK"
+      "NFtYjl3VoubgVeassehz"
     ],
     "raw": {
       "fullName": null,
@@ -3592,8 +3646,8 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "HtNRigNr9vfVjeOb6kdJ",
-      "ws72sRJ8o2bdmS9cmKax"
+      "JUHsOp1UH39s5XGlMXAv",
+      "ztYiOQjVMTlR1STin2sJ"
     ],
     "raw": {
       "fullName": null,
@@ -3613,7 +3667,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "vBGYXPw3CFwwVRkNKpRk"
+      "SJbqWrhSmNnEe6DzC925"
     ],
     "raw": {
       "fullName": null,
@@ -3633,7 +3687,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "uRkiM2jmU24CqopAZQ98"
+      "WuEUAv37iemKOIu0ntSp"
     ],
     "raw": {
       "fullName": null,
@@ -3653,7 +3707,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "85Og8D79yV5LPPR7giY4"
+      "RTGuhmL5ST1gzvOeS6Fs"
     ],
     "raw": {
       "fullName": null,
@@ -3670,16 +3724,16 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2025",
-      "mo-2012",
+      "mo-2019",
       "mo-2011",
-      "mo-2019"
+      "mo-2012",
+      "mo-2025"
     ],
     "sourceDocIds": [
-      "7eAeI3LVLSUYI3ePTy7I",
-      "NsPeXqSVp0e9VdpJvZZN",
-      "YJbNVycBWqDtcdZbykUw",
-      "rIzTMvXEhrqFBTsSA56O"
+      "0JauCmAVfZu8Q1tzOnOZ",
+      "QYsjtZNDj6OGNgitmhFZ",
+      "yO7F64KGM1MDAneaHn4p",
+      "yl3RRTP9hmNDpOkF9lgp"
     ],
     "raw": {
       "fullName": null,
@@ -3699,7 +3753,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "4VXOZwuNYgvCsdntY5gd"
+      "j93FfXdRdD9WmXnDtm8e"
     ],
     "raw": {
       "fullName": null,
@@ -3719,7 +3773,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "kuuOC6kBDVRlpfmUIwZk"
+      "0SXhoBw6gvvgTOQmwxzp"
     ],
     "raw": {
       "fullName": null,
@@ -3739,7 +3793,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "kRXUgM0jW1IDhTq13Oa6"
+      "RxeiNKqxhl3WEi7LobQy"
     ],
     "raw": {
       "fullName": null,
@@ -3759,7 +3813,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "yCPgdIWl6ppmwyKeKhe8"
+      "eth8Y1eVzrAm6QSvWai3"
     ],
     "raw": {
       "fullName": null,
@@ -3779,7 +3833,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "vPDCNpGrYcyrikyGdKDK"
+      "CdGgEI3kGPlzlKzHJflS"
     ],
     "raw": {
       "fullName": null,
@@ -3799,7 +3853,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "R137h0KGiHxdrJj8t28t"
+      "yJN4cv64wcvBezcxoc7R"
     ],
     "raw": {
       "fullName": null,
@@ -3819,7 +3873,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "AF6GRrg7DBejBMOhFmYk"
+      "EMpSNmjP2aYyk62MRMrD"
     ],
     "raw": {
       "fullName": null,
@@ -3840,8 +3894,8 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "8bBd8xySC9yGw6vAwtNh",
-      "gSzOoLgFzNQwVKW8DezJ"
+      "VCOX37V2eanWtdiBEgvD",
+      "z8iusDQxLJEbnweTiLvi"
     ],
     "raw": {
       "fullName": null,
@@ -3858,14 +3912,14 @@
     "gender": "female",
     "email": "hilde-birgitte@hotmail.com",
     "editions": [
-      "mo-2015",
       "mo-2018",
-      "mo-2019"
+      "mo-2019",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "258sh6KD7pkcpnKApPXt",
-      "lsp8XjOqMhV2fItJyEHz",
-      "yxwY1np12PSISpQom1qW"
+      "CbzQnteHRQ0V0HJrtsFS",
+      "UEvp4n7U9KwK3KdgyEeS",
+      "dhlLD9M71KPphPSrPWxP"
     ],
     "raw": {
       "fullName": null,
@@ -3885,7 +3939,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "u0TZR97w81eC9oHCaOLV"
+      "8VyvMxRWU6FSjpE1PapH"
     ],
     "raw": {
       "fullName": null,
@@ -3902,14 +3956,14 @@
     "gender": null,
     "email": "hilde@stranden.biz",
     "editions": [
-      "mo-2016",
       "mo-2012",
-      "mo-2015"
+      "mo-2015",
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "cL9sTYvEHL2NGkypiBiv",
-      "nV73tytjseTW5nHgUtxD",
-      "tFUWA33a3xchwtgNUfaw"
+      "7lW6RhznNAhDsfwWucCO",
+      "EaJZGA0EDHTsSrgagQAb",
+      "hMXtLMdqB7B8uASEwfgo"
     ],
     "raw": {
       "fullName": null,
@@ -3929,7 +3983,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "wxnIMathu1rCQiNl7mpU"
+      "YA9qu3KQfUMoA3UMssLy"
     ],
     "raw": {
       "fullName": null,
@@ -3949,7 +4003,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "RdIkLOntMDxLtOle8M9L"
+      "kji3rHWoY9dQHVkR6HD8"
     ],
     "raw": {
       "fullName": null,
@@ -3969,7 +4023,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "K5tgaJS2iDJApXNZOwwn"
+      "dgpTrmfUeIRpQPtGMZ3d"
     ],
     "raw": {
       "fullName": null,
@@ -3989,7 +4043,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "Jt7b7srjOgmgZ6HaXKAs"
+      "yEPJpPYAmrgSbF38jgl8"
     ],
     "raw": {
       "fullName": null,
@@ -4009,7 +4063,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "ExpG0IreMPrUdwJXd79C"
+      "P07x7KEdMYKPp6S0Dg4K"
     ],
     "raw": {
       "fullName": null,
@@ -4023,13 +4077,13 @@
     "displayName": "Inger Gissinger",
     "nameSource": "first_last",
     "yearOfBirth": null,
-    "gender": "female",
+    "gender": "Female",
     "email": null,
     "editions": [
       "mo-2019"
     ],
     "sourceDocIds": [
-      "kzhdQRDjuvPlvnScvJy2"
+      "uQh9q9VMGUfEMtJHosx4"
     ],
     "raw": {
       "fullName": null,
@@ -4049,7 +4103,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "W2pdyEgYbXWGEq8Nd22j"
+      "CR6v75wXAJEYkTPfC7V9"
     ],
     "raw": {
       "fullName": null,
@@ -4069,7 +4123,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "PMiyrPNaHHK1FkFE8sJ2"
+      "0lJBqetrsCe6T9pKb6jD"
     ],
     "raw": {
       "fullName": null,
@@ -4089,7 +4143,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "k70eySpaZOFwtpNANZov"
+      "rcZdzQ9GBUdN81TWum4H"
     ],
     "raw": {
       "fullName": null,
@@ -4109,7 +4163,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "zesoIWjRC8VaZ1a7dzDh"
+      "PigRHMGowwv2A07EkOrw"
     ],
     "raw": {
       "fullName": null,
@@ -4129,7 +4183,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "fyL0nqeKdLp7en0LvqoI"
+      "O5hmJECLmhKNcLRjC5Qc"
     ],
     "raw": {
       "fullName": null,
@@ -4149,7 +4203,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "T3PfiRcrbi8hfogR9jzZ"
+      "bc0iI1r623cGxqfzwBSv"
     ],
     "raw": {
       "fullName": null,
@@ -4170,8 +4224,8 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "ITJOoG81CuEr50vPDUb7",
-      "YhVgWCLZMTczx2RruL27"
+      "ij0LOb6wJI6iykC8KwPO",
+      "oXkBwV0vFJFcFALrWg90"
     ],
     "raw": {
       "fullName": null,
@@ -4191,7 +4245,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "6eM8mLANUZj5DYUcGf19"
+      "MYSwjCQ5mL7Q8V9NzDpO"
     ],
     "raw": {
       "fullName": null,
@@ -4211,7 +4265,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "inw3jEsnunaqzH8bPvV0"
+      "UDKOFKyE7p85Arw9CluG"
     ],
     "raw": {
       "fullName": null,
@@ -4228,14 +4282,14 @@
     "gender": null,
     "email": "jakob.krogsrud@gmail.com",
     "editions": [
-      "mo-2014",
       "mo-2016",
-      "mo-2013"
+      "mo-2013",
+      "mo-2014"
     ],
     "sourceDocIds": [
-      "5QBzFoq2VatJZTRyh4Jv",
-      "utylYMZ0sQcCMsKHTWUW",
-      "xm2gnP9ZDK866ztMSX2I"
+      "FonCCp8jPqJioFSYjeg4",
+      "dzaOehU0hjPs8578kqwx",
+      "rEggxFbznD5AGgGHvTng"
     ],
     "raw": {
       "fullName": null,
@@ -4255,7 +4309,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "8DpnCm3vHphJ4EaEjius"
+      "oltbheEucIRv3lafH1xF"
     ],
     "raw": {
       "fullName": null,
@@ -4275,7 +4329,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "EELqnhkaZqtqghpGoByb"
+      "HOYCXoUupGWEREgiHt2d"
     ],
     "raw": {
       "fullName": null,
@@ -4295,7 +4349,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "HR1cQk8N4lrx6YSL0IBq"
+      "IRNTQMqB0N9VBO8aEv34"
     ],
     "raw": {
       "fullName": null,
@@ -4315,7 +4369,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "dnAIDesCWKya0NaB52PA"
+      "5w6jKWeEfIsFhjgdSVdf"
     ],
     "raw": {
       "fullName": null,
@@ -4335,7 +4389,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "tNEFsWpWTCy37CFlOl9H"
+      "q26l024FGZvqUVpjoCPK"
     ],
     "raw": {
       "fullName": null,
@@ -4355,7 +4409,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "y82CX4NdIvOj8OnLtYyl"
+      "NpbcUahYAzkhcFAvo2cY"
     ],
     "raw": {
       "fullName": null,
@@ -4375,7 +4429,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "NfyNviJQGy1h3le43xT0"
+      "PBXvAFz5qPDYTTdhpJBZ"
     ],
     "raw": {
       "fullName": null,
@@ -4395,7 +4449,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "ojos0ayQ4EwaIrazHhve"
+      "TgC3JImBb48E1ADPqA6f"
     ],
     "raw": {
       "fullName": null,
@@ -4415,7 +4469,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "UztJmnAjAO8spl2pNjPE"
+      "xrBHOeU8gazmO3RN9fFN"
     ],
     "raw": {
       "fullName": null,
@@ -4435,7 +4489,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "8Sd0jRH6WuQ6yureAOUc"
+      "TFn9p25ezVIjXn8CGvmz"
     ],
     "raw": {
       "fullName": null,
@@ -4455,7 +4509,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "v9QTim52WNCUvapr3WYg"
+      "rEOZI1jwwusX7b6pR2Ry"
     ],
     "raw": {
       "fullName": null,
@@ -4475,7 +4529,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "0bPPT9Ahd6I5w57hypjN"
+      "gaBJIuy2ahl4dbw3bPiX"
     ],
     "raw": {
       "fullName": null,
@@ -4495,7 +4549,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "IeRWR6FvF0SrdJgMamaT"
+      "CJj5cjjO88J4KFGS3Fs1"
     ],
     "raw": {
       "fullName": null,
@@ -4515,7 +4569,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "7EziWGsApuls4SbAsgK5"
+      "y6Q0guCfQZNVTKiQAbpo"
     ],
     "raw": {
       "fullName": null,
@@ -4535,7 +4589,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "7ujakXV3MAtg4tSzqB45"
+      "g9FX1rs8HLqKMnEI6XKj"
     ],
     "raw": {
       "fullName": null,
@@ -4555,7 +4609,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "TooSgLuIfBbzaWi3T8xp"
+      "3ltyEFHD7PQc3ATfEOtG"
     ],
     "raw": {
       "fullName": null,
@@ -4575,7 +4629,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "Jpk3xGolDz5ajq14PQCY"
+      "aFEJ0XbStw6IZBOSY1fV"
     ],
     "raw": {
       "fullName": null,
@@ -4592,14 +4646,14 @@
     "gender": null,
     "email": "johan.hjort@online.no",
     "editions": [
-      "mo-2011",
       "mo-2012",
+      "mo-2011",
       "mo-2014"
     ],
     "sourceDocIds": [
-      "0ZSyIez9reytZbZEMsE1",
-      "HEjZQncED31GEK339iy1",
-      "c6Itlc8igDc4nbtSjvEJ"
+      "NJ402JaTthBWCZ8cmvwz",
+      "o0VjZVrAFbe0F78vHIef",
+      "tvLqLR9sVSBRyThoy3cL"
     ],
     "raw": {
       "fullName": null,
@@ -4613,15 +4667,15 @@
     "displayName": "Johan Dybvad",
     "nameSource": "first_last",
     "yearOfBirth": 1998,
-    "gender": null,
+    "gender": "male",
     "email": "johan@dybvad.no",
     "editions": [
-      "mo-2016",
-      "mo-2015"
+      "mo-2015",
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "2bATSDvNDs2xdm7a2L30",
-      "vDbckuuniwQRPhH58e1z"
+      "5ktKu1gkAke18DrA0DIx",
+      "C7qfwoRkXhHYEGzUz2w1"
     ],
     "raw": {
       "fullName": null,
@@ -4641,7 +4695,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "C3yH61Hm3HGJWG8isE6J"
+      "MHNwT2MEcett5SFyxhLy"
     ],
     "raw": {
       "fullName": null,
@@ -4663,9 +4717,9 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "PBmlC03iMAG31Wor4v5w",
-      "cJznbErZ1RymlXWsqiyo",
-      "qZgs0FDqPenccSldsX1y"
+      "2A7LP3aEtQTq55BHwQDS",
+      "JmvUOjLLrDBSsC9hcWbi",
+      "WOV3iQ8WpcxRuMD7yKJC"
     ],
     "raw": {
       "fullName": null,
@@ -4685,7 +4739,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "Q6D1WdLrL0ubt6XszGQj"
+      "M28FzoF8KfrJ0VgpOXd1"
     ],
     "raw": {
       "fullName": null,
@@ -4705,7 +4759,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "jHCoCoT2DjVl9b6eF6g8"
+      "LT1LO2XiAWlJxsAwDDSp"
     ],
     "raw": {
       "fullName": null,
@@ -4722,14 +4776,14 @@
     "gender": null,
     "email": "jrhanssen@gmail.com",
     "editions": [
+      "mo-2017",
       "mo-2016",
-      "mo-2019",
-      "mo-2017"
+      "mo-2019"
     ],
     "sourceDocIds": [
-      "4inqToNBDt0mr5j2Lo5j",
-      "Y0A8oMt1utF4Mgmh8Glh",
-      "fUXi05tFS8qVYZVlRHtl"
+      "EdEKv8KAJabEKxgaMmlq",
+      "Izhj8M1m2CPgyxyy5Ryf",
+      "gQXqCATvptUOcHguXs8O"
     ],
     "raw": {
       "fullName": null,
@@ -4749,7 +4803,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "5s3DSYPVhvc8eLQLfUzX"
+      "xeE8GKlpQ4aEXqcTIopP"
     ],
     "raw": {
       "fullName": null,
@@ -4766,14 +4820,14 @@
     "gender": null,
     "email": "jrhanssen@gmail.com",
     "editions": [
-      "mo-2016",
       "mo-2017",
+      "mo-2016",
       "mo-2019"
     ],
     "sourceDocIds": [
-      "HID1Oa9VIsFbmRb48nlt",
-      "Wc6bIQaBfec2DBGndEda",
-      "qIEvHIQmMH0HNwIho5J7"
+      "OrRwHutrWTyRFM3rakXk",
+      "TCj15qja5jcYSYPruGtM",
+      "dfDtcZZWT02JOeF2nqp3"
     ],
     "raw": {
       "fullName": null,
@@ -4792,14 +4846,14 @@
     "editions": [
       "mo-2015",
       "mo-2019",
-      "mo-2017",
-      "mo-2016"
+      "mo-2016",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "UP4d7Vb4Y7fK6KaezbiF",
-      "rRgFR6VdVSPR3g6nZmt0",
-      "tW2wgkAhhqfuD05izJX1",
-      "zEDXzJ2DUW9BpH0kstzC"
+      "38pRijh8uGm2Uswg0nvq",
+      "FZB72JRBJiNHFsZqF7pk",
+      "cg49izU4E766o893mfe0",
+      "gZIBQOngYW3PHTjXcRQ6"
     ],
     "raw": {
       "fullName": null,
@@ -4819,7 +4873,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "iElaxJShJHHNsANFtiSq"
+      "g9uzmVkms7xvUgYsFeO5"
     ],
     "raw": {
       "fullName": null,
@@ -4834,12 +4888,12 @@
     "nameSource": "first_last",
     "yearOfBirth": 1974,
     "gender": "male",
-    "email": "jon.o.olaussen@hist.no",
+    "email": null,
     "editions": [
       "mo-2012"
     ],
     "sourceDocIds": [
-      "YwgEf2yqCzKA1zY4OHoP"
+      "uaEkvzRyGMh5oxkuaV96"
     ],
     "raw": {
       "fullName": null,
@@ -4859,7 +4913,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "os3lyQqFXxkoE6yyhetO"
+      "2fAWBRvvRqwXX0pqyJ8G"
     ],
     "raw": {
       "fullName": null,
@@ -4879,7 +4933,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "K55iqdo6uOMTbdzRyeFx"
+      "TjVWclDcEzvEg3KmqffT"
     ],
     "raw": {
       "fullName": null,
@@ -4899,7 +4953,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "OE55VPw0G610Mcivp2r4"
+      "Wqq0qymrmeyHFBVUSwxk"
     ],
     "raw": {
       "fullName": null,
@@ -4919,7 +4973,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "ktHtbzrjHolpPW4uh3tZ"
+      "lyxWrLdlbrX2PtvpLNZJ"
     ],
     "raw": {
       "fullName": null,
@@ -4939,7 +4993,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "hBdboFNR7pS9uKyaYxBL"
+      "FPBfLMGbLRUGhrWl7h3r"
     ],
     "raw": {
       "fullName": null,
@@ -4959,7 +5013,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "YpmagPllXlPks5G5xxBn"
+      "sh1e1ChywvMnCDudZoQB"
     ],
     "raw": {
       "fullName": null,
@@ -4979,7 +5033,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "Mz3USZkP0fy0SWg5Aodq"
+      "srA3679NE8BXlr8uCwcY"
     ],
     "raw": {
       "fullName": null,
@@ -4997,13 +5051,13 @@
     "email": "jtemp@lovseth.net",
     "editions": [
       "mo-2018",
-      "mo-2014",
-      "mo-2015"
+      "mo-2015",
+      "mo-2014"
     ],
     "sourceDocIds": [
-      "OTPjOH12NykQmyafQtZW",
-      "U46PYYZUMzHGnftPXQ2Q",
-      "mhVOtZhyJCqIoAviCpYS"
+      "ZIZYztt8QcvJA5s6CfTC",
+      "hwd5WmgxgJF3Hqr5pBNH",
+      "jqM7nkzI0PZWYErcQ2vc"
     ],
     "raw": {
       "fullName": null,
@@ -5023,7 +5077,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "0EyghfvVu3Uw8DM6qQqG"
+      "STvAETSiRLswbGEBAor5"
     ],
     "raw": {
       "fullName": null,
@@ -5043,7 +5097,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "PHNEmD9XNLBCBahfEyAg"
+      "C7fJX1QoFI6046VonKBJ"
     ],
     "raw": {
       "fullName": null,
@@ -5063,7 +5117,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "za61Unr7ZmRCWdsKeI4Y"
+      "wWOi6sOvuZY5Pck9FByR"
     ],
     "raw": {
       "fullName": null,
@@ -5083,7 +5137,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "CPqM9hGbviJ332QjcCI4"
+      "1kvmNP23L1sXEVB5poX4"
     ],
     "raw": {
       "fullName": null,
@@ -5104,8 +5158,8 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "NLzsnyVBRsrQhjE6x3Jz",
-      "zqin0WSJmZNyXd1n3Ln7"
+      "7fDWeU7SyARJbTBF5xeF",
+      "rK2DHL2hY6fqvSqOgk9k"
     ],
     "raw": {
       "fullName": null,
@@ -5125,7 +5179,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "yv7uaYQhFCtLrVDxxjFJ"
+      "9H5V88Xb7ToZdAwlTNxg"
     ],
     "raw": {
       "fullName": null,
@@ -5146,8 +5200,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "LAN4EwnSKD6SjuDBrXgP",
-      "d6EvilHMQTc60C6ius7p"
+      "PZ2mvPZE3xWrj6W6uBnr",
+      "ZH2nR0O6HzsBXi0IX6kn"
     ],
     "raw": {
       "fullName": null,
@@ -5167,7 +5221,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "1oVbyTMxBeig2EN1GFVL"
+      "cyQB858AZ6asTIgcYjB9"
     ],
     "raw": {
       "fullName": null,
@@ -5184,14 +5238,14 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2017",
       "mo-2016",
-      "mo-2014"
+      "mo-2014",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "6IIIuAzUbieop5p4SKeW",
-      "TcgUhMGGQhSly0PRhlAv",
-      "pcNv5yjEMYjQQjBxvsQW"
+      "4b4uCHPcDOl7t4GJYGiR",
+      "6zTHl9o5w7nRgjMUkPJX",
+      "mpuIyhFhyo5phCeH1clc"
     ],
     "raw": {
       "fullName": null,
@@ -5211,7 +5265,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "fRVBRpAjZPZDyzfvKWVu"
+      "mv7qnDYd5i9s287ywcnm"
     ],
     "raw": {
       "fullName": null,
@@ -5228,12 +5282,12 @@
     "gender": null,
     "email": "tove.loberg@hotmail.com",
     "editions": [
-      "mo-2024",
-      "mo-2019"
+      "mo-2019",
+      "mo-2024"
     ],
     "sourceDocIds": [
-      "6CxFnq1Aryajt6BpKadH",
-      "9AldwlN3EzBCryFPRSUQ"
+      "6fgG7svWEaofG8C2smhq",
+      "jMtShbpDuklotVxKov1R"
     ],
     "raw": {
       "fullName": null,
@@ -5250,12 +5304,12 @@
     "gender": "female",
     "email": "jvberg@icloud.com",
     "editions": [
-      "mo-2018",
-      "mo-2019"
+      "mo-2019",
+      "mo-2018"
     ],
     "sourceDocIds": [
-      "2J1Y0Yvtf8CGqNTtI395",
-      "AZIKEywwoxTTYu3AH7Ia"
+      "9eXujzQAQ7AKLXcB3ojW",
+      "jOJJLaSisMObHuok5OwW"
     ],
     "raw": {
       "fullName": null,
@@ -5275,7 +5329,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "KfsHeRVpini6ZwiUoV74"
+      "bSBpIMUfDHd7T7K9DaiW"
     ],
     "raw": {
       "fullName": null,
@@ -5295,7 +5349,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "Wtu3c0V2GpT2AZn6J09V"
+      "nXMWFq628lP9BEKGSRON"
     ],
     "raw": {
       "fullName": null,
@@ -5312,12 +5366,12 @@
     "gender": "male",
     "email": "kgruven@gmail.com",
     "editions": [
-      "mo-2012",
-      "mo-2015"
+      "mo-2015",
+      "mo-2012"
     ],
     "sourceDocIds": [
-      "Tbw7WUF0cgVgsxpn6o4H",
-      "oHra2VsvtB7oW6J0F66o"
+      "96kX1AlzyPvPVG3hOBb7",
+      "iCTyqvf11kn7o9mnWetG"
     ],
     "raw": {
       "fullName": null,
@@ -5337,7 +5391,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "QvO2Aq3vqhuwl2W5Sf8v"
+      "aoP0MCLWB2kxIA6w058H"
     ],
     "raw": {
       "fullName": null,
@@ -5357,7 +5411,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "eAt37OTmPIGbEh3CDWHd"
+      "vZTPjzBnzkaKAQrdAqxb"
     ],
     "raw": {
       "fullName": null,
@@ -5374,12 +5428,12 @@
     "gender": null,
     "email": "kari.aftret.ready@gmail.com",
     "editions": [
-      "mo-2013",
-      "mo-2015"
+      "mo-2015",
+      "mo-2013"
     ],
     "sourceDocIds": [
-      "dMYvGWkFRAhzMBpcZMHK",
-      "oZQsj63fUfQGRgKOXUZD"
+      "50qQ83hnayIQNfjsdKMW",
+      "sBJiFrLEbiIhrGyVRXMm"
     ],
     "raw": {
       "fullName": null,
@@ -5399,7 +5453,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "55I7sX1TIpthz82bFqEh"
+      "jTX8CVXvqMflGDQIilyj"
     ],
     "raw": {
       "fullName": null,
@@ -5420,8 +5474,8 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "4BJSz2PZi59a242eGbkN",
-      "dbyBlh5A4JiJvJ8YCTYm"
+      "QHqWL2oaaudx8lFESVBE",
+      "lKusVaVFel6vsh2q0fD9"
     ],
     "raw": {
       "fullName": null,
@@ -5441,7 +5495,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "VoJWKXlIIXVb1HpwGQKG"
+      "zbXOgPG1gBb4SJRvPZ9H"
     ],
     "raw": {
       "fullName": null,
@@ -5461,7 +5515,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "37WUuOSBdaHTIZdLvPq2"
+      "jtQ387B6AVJ2fAzsCsaW"
     ],
     "raw": {
       "fullName": null,
@@ -5481,7 +5535,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "pXWQbqRJKtO8j5DjBQ6L"
+      "aa7qp01gZM1knoL4ulgP"
     ],
     "raw": {
       "fullName": null,
@@ -5495,17 +5549,17 @@
     "displayName": "Kasper Løberg Aske",
     "nameSource": "first_last",
     "yearOfBirth": 2009,
-    "gender": null,
+    "gender": "male",
     "email": "tove.loberg@hotmail.com",
     "editions": [
+      "mo-2024",
       "mo-2019",
-      "mo-2022",
-      "mo-2024"
+      "mo-2022"
     ],
     "sourceDocIds": [
-      "FW2yB8Vg2s9DXBMRR8uF",
-      "Hv0T1hQl0PNEUzz8Nihv",
-      "lz5yBbj5fq1CYJgkCLng"
+      "ETiMPHuz1co5MlGLyDHP",
+      "KNVUCBjpkuRmtj4oh9kD",
+      "XcaOReLyAHQaGBmeuxUT"
     ],
     "raw": {
       "fullName": null,
@@ -5526,8 +5580,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "0RZd2Wc1ZFxE4zRoPufK",
-      "hycWHW8dqa2pEc34uATS"
+      "BLNeqIQA1aeJHYwxYidX",
+      "QFjbUHmwwnjITdjS540Y"
     ],
     "raw": {
       "fullName": null,
@@ -5547,7 +5601,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "4NkRwA4uztxrPKEds7nS"
+      "LSqPG6okenwFYD4YXNjy"
     ],
     "raw": {
       "fullName": null,
@@ -5567,7 +5621,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "TsV5bsIKS29jxBaJeFpy"
+      "LM4tYOJqf2UdnU7nXld9"
     ],
     "raw": {
       "fullName": null,
@@ -5587,7 +5641,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "q8wsX2QkDuxnodujoHPQ"
+      "UjzVpKrY8VcbyEOq5r0x"
     ],
     "raw": {
       "fullName": null,
@@ -5607,7 +5661,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "rrQvxu0GFWHaeFUmh85l"
+      "tdK3ChDkkPnZZb8dUw3h"
     ],
     "raw": {
       "fullName": null,
@@ -5627,7 +5681,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "wDUoo5DaeA4yk0lYjke5"
+      "vPLWlkLfnDRCo6WPrfjF"
     ],
     "raw": {
       "fullName": null,
@@ -5647,7 +5701,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "AtTF7YbFepSgL2XW3MhQ"
+      "bGmmwyg3Hc8M8kLQJ3EC"
     ],
     "raw": {
       "fullName": null,
@@ -5664,26 +5718,26 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2023",
-      "mo-2019",
-      "mo-2017",
-      "mo-2015",
-      "mo-2025",
-      "mo-2011",
       "mo-2022",
+      "mo-2015",
+      "mo-2017",
+      "mo-2023",
       "mo-2018",
-      "mo-2024"
+      "mo-2011",
+      "mo-2019",
+      "mo-2024",
+      "mo-2025"
     ],
     "sourceDocIds": [
-      "0FdtbHhqWuYuLCqfnLzV",
-      "3XpgurBIiHtpdPzK5kEN",
-      "B6DlY2I4sKAeuMvob02H",
-      "EOJxzsmwv3rzw2HmrIFz",
-      "NJRrhIQgP8pGHZFJ1nEj",
-      "YeeFVaMWPxzIlSNbX8WW",
-      "jBkr8mpHqbSZzHP62Myb",
-      "jI2O1IKXmTU4T8supPRV",
-      "zPdEkPjiYMhigPNlRPCl"
+      "9SeAoYVJ2Xf39MfDlm9s",
+      "C4VOU7Xb8XcLujFM4kk4",
+      "EDvL8TTitYpfyn9Vaa5e",
+      "KmZRQZAsl3aAifu4LlwF",
+      "Qece8dyIFEdgWwlZcNNu",
+      "TbB4LIzMLBaicPDHM5k6",
+      "dlRajjzsbxKoUEwbpmAW",
+      "fVFgaFzIx3qtYtfkvZtW",
+      "p1lV7jCQ5gH6rORYlcS5"
     ],
     "raw": {
       "fullName": null,
@@ -5703,7 +5757,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "8nmNmWgK2b1AfmedM5Rq"
+      "20wCIcIuYR3WknMjeJss"
     ],
     "raw": {
       "fullName": null,
@@ -5723,7 +5777,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "ogE04kGSi919WBfffT7m"
+      "6pcZ7R65K2yMxKKHcSon"
     ],
     "raw": {
       "fullName": null,
@@ -5743,7 +5797,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "3qJGtQMbAcWqBmG6BmO6"
+      "kWIBMpioHmhGH0JUQ9zc"
     ],
     "raw": {
       "fullName": null,
@@ -5763,7 +5817,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "FCywrL5zpx4omXkNk4tF"
+      "zZ1cFpekasL3dI3Mf6Pq"
     ],
     "raw": {
       "fullName": null,
@@ -5780,12 +5834,12 @@
     "gender": "male",
     "email": "kahatlen@gmail.com",
     "editions": [
-      "mo-2015",
-      "mo-2018"
+      "mo-2018",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "0PABoeWg95gf1eGN7E5T",
-      "i1vvT5z9GiFnidQKqyfT"
+      "UMd5DhgEC09t6hqurmpX",
+      "hR02blOe9PfmI1KQSGmv"
     ],
     "raw": {
       "fullName": null,
@@ -5805,7 +5859,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "K8pNMMeok43NEae1VVZ8"
+      "x4ZGS8VLPQRQYvEr8Fkt"
     ],
     "raw": {
       "fullName": null,
@@ -5826,8 +5880,8 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "0XdvHX0BglzorEALkRWx",
-      "0mK1o6hwI7ahTcXvakhJ"
+      "QuHlRW6YnacV6QKdw43x",
+      "j16ZGGqv16aWsijmOVAp"
     ],
     "raw": {
       "fullName": null,
@@ -5844,14 +5898,14 @@
     "gender": null,
     "email": "knut.roflo@fkf.no",
     "editions": [
+      "mo-2012",
       "mo-2019",
-      "mo-2016",
-      "mo-2012"
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "1PBeJSPhJ6gayT3oDxOP",
-      "2mlq3H37HbVcadV40yz0",
-      "AndwfTdXiQK32VL6TOby"
+      "55T2dCcjL4oXIUU8Ilsf",
+      "V8VCAvadXr4edm8xgHLH",
+      "jzsJEe9H2inSSJGCFEBk"
     ],
     "raw": {
       "fullName": null,
@@ -5871,7 +5925,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "hX3R6ctaJZD03puJJQbs"
+      "HcTGVS6wo26EBEj5UL7K"
     ],
     "raw": {
       "fullName": null,
@@ -5891,7 +5945,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "16N0vPsp2xQcu679QLEv"
+      "NbtRiu1brHrKPtA8SL0G"
     ],
     "raw": {
       "fullName": null,
@@ -5908,12 +5962,12 @@
     "gender": "male",
     "email": "k_forbord@hotmail.com",
     "editions": [
-      "mo-2018",
-      "mo-2017"
+      "mo-2017",
+      "mo-2018"
     ],
     "sourceDocIds": [
-      "CFweXXeMZbdvzhsCdnJ7",
-      "sudeVj4u21uTg9o4anfX"
+      "GRpqhGmcTiIIBQfORhkE",
+      "PvRfRjWkfcnSp6MnHVcU"
     ],
     "raw": {
       "fullName": null,
@@ -5933,7 +5987,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "TKSAG2ctgyyUz8uB77Jg"
+      "1QrB4Ys8Q9otW5tHOutu"
     ],
     "raw": {
       "fullName": null,
@@ -5953,7 +6007,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "HicAoDkRxVwS9z6mSh9i"
+      "iI9OThQTJbZMyPjuXeLb"
     ],
     "raw": {
       "fullName": null,
@@ -5973,7 +6027,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "nxvzrEvVyz1XytPsws3c"
+      "VwR7sEKcQNWYQJ8zXbjd"
     ],
     "raw": {
       "fullName": null,
@@ -5993,7 +6047,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "L3DyV2WVlbFxb9OHA4xl"
+      "HrntLW6osWGnIZG10NaB"
     ],
     "raw": {
       "fullName": null,
@@ -6013,7 +6067,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "NA1d9xqxMrIU14E237kq"
+      "BM4aswAHk2QaEAwi4EuL"
     ],
     "raw": {
       "fullName": null,
@@ -6027,13 +6081,13 @@
     "displayName": "Kristian Sundland",
     "nameSource": "first_last",
     "yearOfBirth": 1987,
-    "gender": "male",
+    "gender": "Male",
     "email": "kristian.sundland@em1.no",
     "editions": [
       "mo-2024"
     ],
     "sourceDocIds": [
-      "UDiXbHiqiVfqq3VVoQ8E"
+      "0KIJSs60UQHRuRVnDBq1"
     ],
     "raw": {
       "fullName": null,
@@ -6054,8 +6108,8 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "3EXY3GwqpGMFK1ixhVa0",
-      "npn5BHLxD6JYAA1mRSb6"
+      "9tH9ffHZF2ZUDo7QAW8i",
+      "NzlNMxmhLGgBoPK5fwq5"
     ],
     "raw": {
       "fullName": null,
@@ -6075,7 +6129,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "kiJTnRLGFZCePiv5cYM0"
+      "8kUofz8biEu4PSobx5oa"
     ],
     "raw": {
       "fullName": null,
@@ -6095,7 +6149,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "PI7ARYV3hdBBgiOsIN30"
+      "vB0XZufJog4X2kWDywSF"
     ],
     "raw": {
       "fullName": null,
@@ -6115,7 +6169,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "TaUv01O79F96WNj7alks"
+      "jptTiJhwFv5twtxtGK7A"
     ],
     "raw": {
       "fullName": null,
@@ -6133,13 +6187,13 @@
     "email": "kr.lamoy@gmail.com",
     "editions": [
       "mo-2014",
-      "mo-2015",
-      "mo-2013"
+      "mo-2013",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "7PqZK81gqKcg1DDvFAWP",
-      "IyPHy1Nrf7H3eymYmrHc",
-      "b588ceRI1fvYjE6mUwwK"
+      "b7p5Kh17qkYRzYIgvdef",
+      "i5Q2Rj5QoLwZqnm7xWn2",
+      "u43bVhLSDhf1V95NSqMz"
     ],
     "raw": {
       "fullName": null,
@@ -6153,37 +6207,37 @@
     "displayName": "Kyrre Auran",
     "nameSource": "first_last",
     "yearOfBirth": 1970,
-    "gender": "male",
-    "email": "kyrre.auran@gmail.com",
+    "gender": null,
+    "email": "kyrre.auran@glommapapp.no",
     "editions": [
-      "mo-2012",
-      "mo-2022",
-      "mo-2021",
-      "mo-2018",
-      "mo-2025",
-      "mo-2013",
-      "mo-2016",
-      "mo-2023",
       "mo-2019",
-      "mo-2015",
       "mo-2024",
+      "mo-2022",
+      "mo-2013",
+      "mo-2025",
+      "mo-2021",
       "mo-2017",
-      "mo-2014"
+      "mo-2014",
+      "mo-2023",
+      "mo-2018",
+      "mo-2012",
+      "mo-2016",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "5FoUNpddBmpePsAVRgZ3",
-      "9Z25RboIjiQBYjcGkkGZ",
-      "Ete0xtbHvPQnLgeiLmfn",
-      "FcITVmbWjG39H2clWHhD",
-      "R7IDggu4mai7YxMLBBDd",
-      "Tsug1G8Os0uGlLl3E4LJ",
-      "XfqkmvIftuMGwaGRrH88",
-      "aJgDrNJPkoMpIHDaZHCQ",
-      "bmhjPuZLV5qrvIvBhBRl",
-      "c6e4eQAn30DLdoA89RFe",
-      "gmW94dMZgEUX7wXbUKXT",
-      "jZTXJc5U5kOXbDqYj3Ub",
-      "lCRQGD2NwIDy2a4k4c6N"
+      "EyvIEPeEW66szBQn0Tfr",
+      "RZXyNRxiUXA0YfeOWv2i",
+      "TUOw63AuukczJuEWcSOH",
+      "TqbI82wsYQZyA4980q1W",
+      "U8ZOM6n1UtNLqBZWNa4P",
+      "WEpbp7IxQL20NF7dCrQ5",
+      "YZrFiEelwidfb18HS8p3",
+      "c8xY7z4ji5imLB6MpkU5",
+      "jf9qJiewQRFt7CwyV6AC",
+      "o1vvGENO8sE9IiJtJZI5",
+      "pFx0GqoIJRUYCXafbBZE",
+      "uyaiFGnpMri246xX9XqN",
+      "wCjKyiu0CPRk7ilBW9wF"
     ],
     "raw": {
       "fullName": null,
@@ -6203,7 +6257,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "lZ7NJmCjZO7BqEk2wwWG"
+      "L8xw28wthzUbpNm211Pk"
     ],
     "raw": {
       "fullName": null,
@@ -6223,7 +6277,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "SHc0cHVHlYfSYcj86Ehs"
+      "jUeNtL5HFrWRV4p5uWwM"
     ],
     "raw": {
       "fullName": null,
@@ -6243,7 +6297,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "a9J3EWCgdcqW7YzXMiIU"
+      "PnLGRIB2SAnTcX8SZwM9"
     ],
     "raw": {
       "fullName": null,
@@ -6265,9 +6319,9 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "LrIHYYfgYPk5RYtGCusU",
-      "jgHAVeAWKd63BDAkn6KR",
-      "kcOKvhCMLLKubXgHPMIP"
+      "9iPh1H7xXP9HmOxxKGhB",
+      "AX6Td1YIbZWgaivnIkBv",
+      "B0OnStaROvBJLknqVrZh"
     ],
     "raw": {
       "fullName": null,
@@ -6287,7 +6341,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "N01W2dUOKlaH75QJ8dqu"
+      "2H5WaJFPQnoGYiHmxAJL"
     ],
     "raw": {
       "fullName": null,
@@ -6308,8 +6362,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "RdXah6TaJAB8ie7Sah6g",
-      "bqhGSWfPQz1ZoXaqPfOk"
+      "2EsPjY3CZXvwGIkUCYeJ",
+      "jssguYhWzouK1Rp7OUjd"
     ],
     "raw": {
       "fullName": null,
@@ -6330,8 +6384,8 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "QxGFCkxEZIEidpff0uPq",
-      "xqgUycGZgZleT8kjMPYZ"
+      "F5Uoj6Rr3R1FzOlp9UBZ",
+      "yvqjt9kFa5drTTucQcTJ"
     ],
     "raw": {
       "fullName": null,
@@ -6352,8 +6406,8 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "0M4ThzD2r2U4hNKJuAKT",
-      "eN81mgWxdJ5XJNO2FOe3"
+      "aAOsIx6BipSJpXL4dFg8",
+      "yffxA0eqteSTa1rXmQV6"
     ],
     "raw": {
       "fullName": null,
@@ -6374,8 +6428,8 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "OCrs4Dg6xDukvBfZRhMj",
-      "xIEIzFsXxfONRSdmHBEn"
+      "PQc4Hiomw6Moq7L4pjKp",
+      "lI1uKMSGGUxcgx6Wnj9F"
     ],
     "raw": {
       "fullName": null,
@@ -6395,7 +6449,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "jVNsl2EREicUEXzbafDN"
+      "DrAkjUDbOsmlqPGv8Mla"
     ],
     "raw": {
       "fullName": null,
@@ -6409,13 +6463,13 @@
     "displayName": "Lars Skarsbakk",
     "nameSource": "first_last",
     "yearOfBirth": 2007,
-    "gender": "male",
+    "gender": "Male",
     "email": "larsska@icloud.com",
     "editions": [
       "mo-2024"
     ],
     "sourceDocIds": [
-      "eas6hP67nh5SS6ZprTmO"
+      "cHgAbxv1ZsPrPLSn5qwY"
     ],
     "raw": {
       "fullName": null,
@@ -6435,7 +6489,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "TRFKcpc0LhbIo6sRGUlO"
+      "SFeUpHWs3OeOWB6cVlN1"
     ],
     "raw": {
       "fullName": null,
@@ -6455,7 +6509,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "H2SQepVp5UeK3nJSkM3R"
+      "ZzTLMwbqhPbw17s2w2jX"
     ],
     "raw": {
       "fullName": null,
@@ -6475,7 +6529,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "RCukvDnMFRMq2qAFMpX7"
+      "4BOaojtxuF6VtwOWM0j9"
     ],
     "raw": {
       "fullName": null,
@@ -6496,8 +6550,8 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "8J5qngm15O3PWOzDil2I",
-      "ARADSOCCyoUImvUGh4SX"
+      "nTT7vo9jLNNTVAkn8TwV",
+      "wKKXIhuIjEB1iNm9pfvF"
     ],
     "raw": {
       "fullName": null,
@@ -6517,7 +6571,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "dkZNBQgIcLViPK70b6Ho"
+      "wGd0wFJrNZL4q8u9tgbU"
     ],
     "raw": {
       "fullName": null,
@@ -6537,7 +6591,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "yxLNZoVR8qHyubrN5gN6"
+      "zMrmfvR55xYmFeIW4Ijg"
     ],
     "raw": {
       "fullName": null,
@@ -6557,7 +6611,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "qVgWXh9B5o1Ealr8LDsR"
+      "i1ZZ0s1D4jXoQvAkRcx1"
     ],
     "raw": {
       "fullName": null,
@@ -6577,7 +6631,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "WXTzSQHa0wmMP80Qr7c1"
+      "8HhWjVua019vvcdPTy1a"
     ],
     "raw": {
       "fullName": null,
@@ -6597,7 +6651,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "z5etJ41AQrXqxAKXnW2U"
+      "2b99d6weNfKD9w3tBZfY"
     ],
     "raw": {
       "fullName": null,
@@ -6617,7 +6671,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "miljPVCC7PAVtBPPJk2v"
+      "yP6gAmCbqNKtsUcIeR3G"
     ],
     "raw": {
       "fullName": null,
@@ -6637,7 +6691,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "hUWGQHoVTvD58y2Lss0e"
+      "yIlcCHj4SILu31DMowlv"
     ],
     "raw": {
       "fullName": null,
@@ -6657,7 +6711,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "bYqFqyrTRhYdAvFys41S"
+      "Ky7kXaZsr46Vf2ndxAZd"
     ],
     "raw": {
       "fullName": null,
@@ -6677,7 +6731,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "nfRgc8sTDLFIXns4X6w3"
+      "As4KtaxOpSYb1Lg1XWCs"
     ],
     "raw": {
       "fullName": null,
@@ -6691,13 +6745,13 @@
     "displayName": "Lisa Bøe",
     "nameSource": "first_last",
     "yearOfBirth": 2002,
-    "gender": "female",
+    "gender": "Female",
     "email": "lisaboee@icloud.com",
     "editions": [
       "mo-2024"
     ],
     "sourceDocIds": [
-      "2IkZOSxOLbhwFELsKH2N"
+      "iXPbox7kRWwCao27pj1f"
     ],
     "raw": {
       "fullName": null,
@@ -6714,14 +6768,14 @@
     "gender": "female",
     "email": "lvol@statoil.com",
     "editions": [
-      "mo-2015",
       "mo-2017",
+      "mo-2015",
       "mo-2016"
     ],
     "sourceDocIds": [
-      "YP6ZSuJ6pPp1cLHgc0zq",
-      "eo6HiEoOsEoU3bYwUWmV",
-      "nChMljzeJ1CPJ3IsAleK"
+      "0ab1FOF42f6h0oBQ339d",
+      "U9oE0y7CHP07P9eLzun4",
+      "ZppVaYYrNV9oTvHeen29"
     ],
     "raw": {
       "fullName": null,
@@ -6741,7 +6795,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "Eory3NnmN32EyNZiGoEn"
+      "mALRI7iidJXqpyh60eE2"
     ],
     "raw": {
       "fullName": null,
@@ -6758,12 +6812,12 @@
     "gender": "female",
     "email": "lottedkl@gmail.com",
     "editions": [
-      "mo-2018",
-      "mo-2017"
+      "mo-2017",
+      "mo-2018"
     ],
     "sourceDocIds": [
-      "KTKZSCOaL21Z7sV2PhPg",
-      "ouKy7Y39WJW9tuMftIHz"
+      "Wiol9ZXeAbNtQLeCmIXP",
+      "yxxAppUyEMFu6P9cLxDR"
     ],
     "raw": {
       "fullName": null,
@@ -6784,8 +6838,8 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "EvcnG8rdieECqG4q0qxE",
-      "MRjdin3EPAUGTZEqfPWo"
+      "Yv6oyhWP4Oq5sPKzIALp",
+      "uH86mPAeTLaNSZ74NIqV"
     ],
     "raw": {
       "fullName": null,
@@ -6802,14 +6856,14 @@
     "gender": "male",
     "email": "zetor-96@hotmail.com",
     "editions": [
-      "mo-2013",
       "mo-2016",
-      "mo-2014"
+      "mo-2014",
+      "mo-2013"
     ],
     "sourceDocIds": [
-      "NH7Wr4ECBSOLsEMMRxKQ",
-      "Vs9xeVccGa3MAmcig1vt",
-      "rYaTv8ITwOUVlDjBUKzj"
+      "1Cn6tXXcWzYgVxm9s6Hd",
+      "Qw6mPnXbRF9VDsmcQk9Q",
+      "SNld6JsDwblFvKfHg7eg"
     ],
     "raw": {
       "fullName": null,
@@ -6829,7 +6883,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "1zVFOTNJh7sm6kRBgh7o"
+      "IZUkuB1AK7wryXrXJiKC"
     ],
     "raw": {
       "fullName": null,
@@ -6846,12 +6900,12 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2015",
-      "mo-2014"
+      "mo-2014",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "RuOi02NSCeuNoHf58p17",
-      "YrXJHLOD8o9i4bidGSJd"
+      "Iog91JX9Fx1qQqiZ2NCQ",
+      "wsM0M9Frk4XpgzuowAj6"
     ],
     "raw": {
       "fullName": null,
@@ -6871,7 +6925,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "WTVELi5GjOsCEtSwWeTZ"
+      "c3UcMRvkSCZWx8joPOzX"
     ],
     "raw": {
       "fullName": null,
@@ -6888,12 +6942,12 @@
     "gender": "male",
     "email": "magne.undebakke@live.no",
     "editions": [
-      "mo-2016",
-      "mo-2013"
+      "mo-2013",
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "9D5JUUB0z7zlySvEoBbt",
-      "ufJpRkzPGVITFv7X5xFE"
+      "F4JudSZTACetIOIaLg4K",
+      "bdWYUERchixVTNfrkOmO"
     ],
     "raw": {
       "fullName": null,
@@ -6913,7 +6967,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "61PqT95G9dRgNvtOtTkH"
+      "HrNcWrT9LxeInD2pWSff"
     ],
     "raw": {
       "fullName": null,
@@ -6933,7 +6987,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "5P9FXd6rV247TemqKUcl"
+      "dER3DQDN0AOs8XjFVaXG"
     ],
     "raw": {
       "fullName": null,
@@ -6954,8 +7008,8 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "GMn4xvxdhppcAjn1pEZl",
-      "wL8RTjuCzRxtXmL9rliF"
+      "dE7bf7wMAY5RyeQxIrqo",
+      "gUMrYi5OsXrHQGY8v6oB"
     ],
     "raw": {
       "fullName": null,
@@ -6972,20 +7026,20 @@
     "gender": null,
     "email": "magnus18@live.no",
     "editions": [
-      "mo-2017",
-      "mo-2016",
-      "mo-2012",
       "mo-2015",
+      "mo-2022",
       "mo-2011",
-      "mo-2022"
+      "mo-2012",
+      "mo-2016",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "2RJLV0i5AZuyZmKQ4Gbx",
-      "7JBEnYmtfNKi1YgvWDEc",
-      "ATLDHETNjC46vRGhxR6Y",
-      "OGJoGbNR577Adq85EOi5",
-      "ilKsx2814n0NIgBMsEFD",
-      "lpoQkooGIxv1VHx03k2L"
+      "FCEfaBQJz3CHXV9vaJGN",
+      "TVGTfVv7ZcbKKq1v17Dd",
+      "iH20Zx93Zk8S2d8x2NV3",
+      "ngLTQL81PXOYA66JwGf7",
+      "nkBybsSCd6z1BlcYDupH",
+      "xorvwjcYhhuM0F8wj73N"
     ],
     "raw": {
       "fullName": null,
@@ -7005,7 +7059,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "qLxwbNDH6MADuHiZ8KGQ"
+      "FZnoYj1FQi4jv7aHVYML"
     ],
     "raw": {
       "fullName": null,
@@ -7022,12 +7076,12 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2018",
-      "mo-2017"
+      "mo-2017",
+      "mo-2018"
     ],
     "sourceDocIds": [
-      "Ewx1HpSnHmNX03k6RhJH",
-      "YlT7puW5y0GXBEN6olmZ"
+      "QWxoTfs9NN6ehfxGZnHN",
+      "VOOcaTrWqbdZikbOmzFq"
     ],
     "raw": {
       "fullName": null,
@@ -7047,7 +7101,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "qes5K1Y6NgF2PUBszV4J"
+      "sTDHWJF64jtKxrWrXQdz"
     ],
     "raw": {
       "fullName": null,
@@ -7067,7 +7121,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "JALpwTPd6b8Fzd49XibJ"
+      "UyukFU9TOMlZB7uBgCC1"
     ],
     "raw": {
       "fullName": null,
@@ -7087,7 +7141,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "9W6LkUN6SJW5Epg8UNZu"
+      "2i7JnwI56ja9epmgIZqe"
     ],
     "raw": {
       "fullName": null,
@@ -7107,7 +7161,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "HGFOBkXGFByvINvogoOQ"
+      "23g6am47ibEn2iJMwwqb"
     ],
     "raw": {
       "fullName": null,
@@ -7127,7 +7181,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "D59eC7aPLXmBw4p95SVH"
+      "WJsKkY3I3im42F1UpyVQ"
     ],
     "raw": {
       "fullName": null,
@@ -7147,7 +7201,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "ZEKBJAl6x361NoTPSTbv"
+      "Ff6Yd1koFi2hMFGwzHI4"
     ],
     "raw": {
       "fullName": null,
@@ -7167,7 +7221,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "GeIbtGTNPIGh1aA4FAIR"
+      "zjJaUOGqOqeHhuOMtBHr"
     ],
     "raw": {
       "fullName": null,
@@ -7184,18 +7238,18 @@
     "gender": "female",
     "email": "marlyn@vegvesen.no",
     "editions": [
-      "mo-2014",
-      "mo-2011",
       "mo-2015",
+      "mo-2011",
       "mo-2017",
-      "mo-2013"
+      "mo-2013",
+      "mo-2014"
     ],
     "sourceDocIds": [
-      "19aylrEcd0EHzxMsLUFg",
-      "VFVPfp71KsFnNUiPsamr",
-      "gZwBNXjfRbTJOJjdnVFl",
-      "rBaDQ2SqSsAWlbWriRYZ",
-      "zrcOaMly2QW6GAka3jJD"
+      "3DpSC7VfS34a7RcxTkgQ",
+      "mV1UUptwdA64HuhE5eFD",
+      "ukZJhdGLH8hz6BiZ5jFQ",
+      "uuFeZCRjUwBtMbfWT7FA",
+      "vsJPGa8PP2tnaYVjr0I9"
     ],
     "raw": {
       "fullName": null,
@@ -7215,7 +7269,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "bfexDSBw3MUpdRN7cvzP"
+      "FL2rFT0H6Mzay3udKICc"
     ],
     "raw": {
       "fullName": null,
@@ -7235,7 +7289,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "pwMqBHLutCp212DwQXy6"
+      "SlGfyexM00ZPwihjnNac"
     ],
     "raw": {
       "fullName": null,
@@ -7255,7 +7309,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "zJGUEQZQuPxodxSQ5y3P"
+      "5xCpd4UK52e8oFgodEpv"
     ],
     "raw": {
       "fullName": null,
@@ -7276,8 +7330,8 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "Zb5g333ZCT9mU9ZbHpEe",
-      "kTlaqknrP2ZWOWFyhCCN"
+      "JNQTxJvAgFMcqFYGr8uO",
+      "LmFyNQzS3vneSs13fvQM"
     ],
     "raw": {
       "fullName": null,
@@ -7298,8 +7352,8 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "8zLvafRJVhR75lNpviFs",
-      "kQ7zzNfPoKZumEUBem0v"
+      "bsXZuOpTnYwoZx3rhkSl",
+      "rJ4Rei9Av1g8k4Qp9lGY"
     ],
     "raw": {
       "fullName": null,
@@ -7319,7 +7373,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "STVrMeFlfel29Z21zx5T"
+      "sJyDD3uvwmGFCHqgu1jA"
     ],
     "raw": {
       "fullName": null,
@@ -7336,36 +7390,36 @@
     "gender": null,
     "email": "marit.fosmo@malvik.kommune.no",
     "editions": [
-      "mo-2019",
-      "mo-2022",
-      "mo-2011",
-      "mo-2020",
-      "mo-2024",
-      "mo-2025",
-      "mo-2023",
-      "mo-2018",
-      "mo-2017",
       "mo-2014",
-      "mo-2013",
-      "mo-2012",
       "mo-2016",
+      "mo-2025",
+      "mo-2018",
+      "mo-2024",
+      "mo-2023",
+      "mo-2020",
+      "mo-2013",
+      "mo-2019",
+      "mo-2011",
+      "mo-2012",
+      "mo-2022",
+      "mo-2017",
       "mo-2021"
     ],
     "sourceDocIds": [
-      "012SVdBDdxgup3Yaxdjg",
-      "1Y7NG99RRb9zHZdsCMat",
-      "1dWj24gNzOfx5lAsk5P6",
-      "3VwcZwg3Xmt9TG41Yec9",
-      "9ACikmBX4AZtJpeQOYIP",
-      "A7mAOum31ZKdhpuRMgj5",
-      "AHuTWKB6LH78mkJwxoZX",
-      "H0tbRfTpkOYMFZkfYQz1",
-      "MTlXu1IUJAkR34br5rIB",
-      "j4JFxwfS5FI3kG8xBOKa",
-      "jXVoMcvEbjWHQAqdc6pK",
-      "myw169ASXCT3TKYcGir9",
-      "qGQiFIrqxw8upzE3qsic",
-      "sIOBxhGdRZBLv6N3M00I"
+      "3tm42swLLQN89AKC3MVa",
+      "4SygPuP73rrcvwuqttPR",
+      "Aiup2vIoiVBEu0r8hU3c",
+      "E0VFOOnsCBNTXEu7hmhW",
+      "GcGcgz6tXcLh69XaskUR",
+      "SdovyvtuQHuQi5aDEvXD",
+      "Wt2Fz0ete4xGPXaQ1JGF",
+      "aGNXduu8LJEI6kpE92B2",
+      "eFu8Jyn06BeVOOYUGyIg",
+      "lXYrjzIQ74pwozgVxslk",
+      "mqZ2fswZGEqpVSmquFBT",
+      "n3RdmID7BiUqBL6x1YQm",
+      "uLEYBEsMykHZhTHQpkJn",
+      "yTfzLrxRz5MMcXlfZM6T"
     ],
     "raw": {
       "fullName": null,
@@ -7382,14 +7436,14 @@
     "gender": null,
     "email": null,
     "editions": [
+      "mo-2019",
       "mo-2021",
-      "mo-2020",
-      "mo-2019"
+      "mo-2020"
     ],
     "sourceDocIds": [
-      "DLKSRYh9HMCLQjdrTvSL",
-      "cv7gGdZuTagBxLglbIOP",
-      "kC6P9B2W3a9thbr1P8Ar"
+      "Hc5nPUM6MY2Kmn93oF6d",
+      "I3YXa6NueFbQFtfy0JIe",
+      "RyulcecCtUL3li9VDYrY"
     ],
     "raw": {
       "fullName": null,
@@ -7409,7 +7463,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "Q0tRocc6Xzt5xODJsvZ5"
+      "TsiXuOTiCXRcCsz1StLb"
     ],
     "raw": {
       "fullName": null,
@@ -7429,7 +7483,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "cxcH2t2igu8zTdgbwO0u"
+      "2Sf4IJQeAJpUXogNDunk"
     ],
     "raw": {
       "fullName": null,
@@ -7449,7 +7503,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "etlgDmrLkJpIuxBJG7ve"
+      "Ix47z7pfjv4ishyGFEK6"
     ],
     "raw": {
       "fullName": null,
@@ -7469,7 +7523,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "u4A7TkDU634Gjl6UcFZK"
+      "aX40L7FPBFXnqOHhwZkA"
     ],
     "raw": {
       "fullName": null,
@@ -7490,8 +7544,8 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "LAdvXSZnuckYIHqoB1kV",
-      "vGc0L4GPN1MDV4dvyj1d"
+      "23KaLXuW2DSmNaPsvwa6",
+      "4UVXfQHbc1dYyqc6cVqq"
     ],
     "raw": {
       "fullName": null,
@@ -7511,7 +7565,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "1ty2AgAP0pWSXNxPbM5H"
+      "NlQQh6HNZh4Mcg1x4Z3f"
     ],
     "raw": {
       "fullName": null,
@@ -7528,14 +7582,14 @@
     "gender": "male",
     "email": "maunaas@gmail.com",
     "editions": [
-      "mo-2024",
       "mo-2022",
-      "mo-2015"
+      "mo-2015",
+      "mo-2024"
     ],
     "sourceDocIds": [
-      "21khCxQe8AClTcNuEfLI",
-      "KmW0A6Ll5OfNrlLxsrsY",
-      "osX8GGIckLva6aO9WvYu"
+      "7mt2hS66VYO3uTBgNeLb",
+      "CCUMJjQ55H4YOX4hWYxI",
+      "WVokcnO8bLB4kvo76rEF"
     ],
     "raw": {
       "fullName": null,
@@ -7552,18 +7606,18 @@
     "gender": null,
     "email": "maunaas@gmail.com",
     "editions": [
-      "mo-2011",
       "mo-2017",
       "mo-2012",
-      "mo-2021",
-      "mo-2016"
+      "mo-2016",
+      "mo-2011",
+      "mo-2021"
     ],
     "sourceDocIds": [
-      "7hIOvEGO4uLdvgnBDtlL",
-      "FwKaKKuqkENcP1mgNBiX",
-      "KCvGYHeJKregXe4GRlre",
-      "afFnaoY9FiZw8QRzkKp7",
-      "yV62zYAUcunyXEP49kzh"
+      "4CNoLRqVPgbR0FajtkMo",
+      "BjNuVUwcQBui0IuMIax1",
+      "Fo4pZC91t0F2TR3MuUXF",
+      "KavEiYrkcGEyaBBRC4Ak",
+      "M0fWcU4VfFwXj9N69gKu"
     ],
     "raw": {
       "fullName": null,
@@ -7583,7 +7637,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "OqEhlkWT94VloiiYRF7s"
+      "PzzT6VubV0q5aB4WrLvq"
     ],
     "raw": {
       "fullName": null,
@@ -7603,7 +7657,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "kYbfzagLHNmiJaAWlMZ1"
+      "ifUYXJ8CCcFEweOxC9Eg"
     ],
     "raw": {
       "fullName": null,
@@ -7623,7 +7677,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "Kniah6KhP61BwsffjPlg"
+      "RLDptlProBBlVAQViAFa"
     ],
     "raw": {
       "fullName": null,
@@ -7644,8 +7698,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "21ndpBYHQeyhCuUJ1fYu",
-      "D1NJmAhLaQO35WynYCfk"
+      "tevrLvV93s64TcsNbBlT",
+      "xOA27G7STFrx5xjoqMm7"
     ],
     "raw": {
       "fullName": null,
@@ -7665,7 +7719,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "d3GsHh3OKKWJjyyil6sa"
+      "6OSlmqbVnVojaEDuldo9"
     ],
     "raw": {
       "fullName": null,
@@ -7685,7 +7739,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "kyzNbiKrHsJFWZraJVsv"
+      "7d4iMzqrFu8MrRjGc1ls"
     ],
     "raw": {
       "fullName": null,
@@ -7705,7 +7759,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "UDFJjHVfRU1y5ydCNNDo"
+      "AW907cQau6LNWA28FoON"
     ],
     "raw": {
       "fullName": null,
@@ -7725,7 +7779,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "XJjDOZRo6sM9wnZAyhZo"
+      "fcNNwLCzQYLxBGHBUjCA"
     ],
     "raw": {
       "fullName": null,
@@ -7745,7 +7799,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "Gf125eVwNXReJkiqzPF3"
+      "qvtTMnQiVX3WAsTqPtD6"
     ],
     "raw": {
       "fullName": null,
@@ -7763,15 +7817,15 @@
     "email": "marthefoes@gmail.com",
     "editions": [
       "mo-2018",
+      "mo-2015",
       "mo-2021",
-      "mo-2012",
-      "mo-2015"
+      "mo-2012"
     ],
     "sourceDocIds": [
-      "8MsZQNbLMukVnQb3Z6lp",
-      "drOU7fTRUwUMwksiAJ5K",
-      "m1YIl79LdKL2huqfTjKJ",
-      "qPEf4ovgTCAqy6SybvfS"
+      "f508Tsm8MaAgncmYXNjW",
+      "mJq6a6NJeLRUI7URAdlI",
+      "nqiO1zGBWk4PvX6UdH17",
+      "z7vn9kyhrVXicPglGMvk"
     ],
     "raw": {
       "fullName": null,
@@ -7791,7 +7845,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "V9sKjo1ym0pWpvO4yjgY"
+      "I37Q3gSJ6R3VjJYrTNRU"
     ],
     "raw": {
       "fullName": null,
@@ -7808,12 +7862,12 @@
     "gender": "male",
     "email": "mcepelka@hotmail.com",
     "editions": [
-      "mo-2025",
-      "mo-2024"
+      "mo-2024",
+      "mo-2025"
     ],
     "sourceDocIds": [
-      "LZMauvAnWV8E7W3ZWVcb",
-      "LozyQpw6eIOdLJR6fGQm"
+      "4cq19sE8o4MJvCrNjrQS",
+      "gXF9M0C76QHjNOJ61a2x"
     ],
     "raw": {
       "fullName": null,
@@ -7833,7 +7887,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "ZMgSHpkRYD7TbvYEJnEE"
+      "zADojPsOOYmSGHmQiumg"
     ],
     "raw": {
       "fullName": null,
@@ -7847,13 +7901,13 @@
     "displayName": "Martin Kåsbøl",
     "nameSource": "first_last",
     "yearOfBirth": 1996,
-    "gender": "male",
+    "gender": "Male",
     "email": "maka96@live.no",
     "editions": [
       "mo-2013"
     ],
     "sourceDocIds": [
-      "A2Nha1t8z1qT0uutGtiH"
+      "5eGqmN4Ohsmn4OOMOUhM"
     ],
     "raw": {
       "fullName": null,
@@ -7874,8 +7928,8 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "i2n46Ifjx0lc2LL7jl3h",
-      "pPx1Ks8LuPsTeRNs7RNg"
+      "1wPzdeMeAhyqeWxfk2fh",
+      "II56iIKPrRU7yH1rHTFk"
     ],
     "raw": {
       "fullName": null,
@@ -7895,7 +7949,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "4p2p39vbK8UTFfjh3XEM"
+      "lM1eabWHiFvLMZdAz9hW"
     ],
     "raw": {
       "fullName": null,
@@ -7915,7 +7969,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "5TgmScCC3phDyhXWxL7E"
+      "Dm0hQJjPTTWh3wB4zGc1"
     ],
     "raw": {
       "fullName": null,
@@ -7935,7 +7989,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "Bd8yDdfJxbMKocvqZwvO"
+      "QdULgCl89tleoIrlVTCm"
     ],
     "raw": {
       "fullName": null,
@@ -7955,7 +8009,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "PSWmouJlDhI2ch7QnvtG"
+      "jjSl2sUzDs0JG4alzDU7"
     ],
     "raw": {
       "fullName": null,
@@ -7975,7 +8029,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "Lfrc61U5K3h4P75CnuwD"
+      "VVJxgLrGd1tcExfROmii"
     ],
     "raw": {
       "fullName": null,
@@ -7995,7 +8049,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "yCDLXFPpb8fPcV5UxX4Q"
+      "nQ5Q27GW3sd9FazPHI3h"
     ],
     "raw": {
       "fullName": null,
@@ -8015,7 +8069,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "meSrTJJnVn93HgcJbqDD"
+      "GrNXAO7RogFAuatKsZ9U"
     ],
     "raw": {
       "fullName": null,
@@ -8036,8 +8090,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "PE2Ag5Jsc4paq2oVWtQE",
-      "oA5qaHPy3pHNrxUmaVzZ"
+      "0Chl6d50TtqDILqZjoRO",
+      "pHWHiAJJ0wSPw0lfboc2"
     ],
     "raw": {
       "fullName": null,
@@ -8057,7 +8111,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "5rBFwGFu6XUme2WJIH6W"
+      "tpakVuOMzV66FvscBELR"
     ],
     "raw": {
       "fullName": null,
@@ -8077,7 +8131,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "3dh0XgygRP9Bkcqqa2Fl"
+      "6NGWwroX1rQXfsjQw4SU"
     ],
     "raw": {
       "fullName": null,
@@ -8097,7 +8151,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "uT0hAWCSxgHCMFfjCMOf"
+      "iUpPWcDsMG244aTe58nx"
     ],
     "raw": {
       "fullName": null,
@@ -8117,7 +8171,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "gctuQsS8L9C16Xin5isy"
+      "CUdkDMBMdJFalWZFfCOw"
     ],
     "raw": {
       "fullName": null,
@@ -8137,7 +8191,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "i6ZjJuYL7rH24HZq7ow7"
+      "h7ATZb26QPfOB93cmHMv"
     ],
     "raw": {
       "fullName": null,
@@ -8157,7 +8211,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "i7C9tEjDT5gnjA3HsMVi"
+      "w3v4J6TApAEqNNuInlxC"
     ],
     "raw": {
       "fullName": null,
@@ -8177,7 +8231,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "7ZOhDNxNuevupazweJ1I"
+      "T9eskkjh9TPB6kBgpges"
     ],
     "raw": {
       "fullName": null,
@@ -8197,7 +8251,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "JPFayBRrdxicOpeLi4Gp"
+      "xIHulFUo4YvjzVcc805q"
     ],
     "raw": {
       "fullName": null,
@@ -8219,9 +8273,9 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "CtmIV5GuwkhWyFzAvh7V",
-      "HB6QLUqEU0blJi9U6EYk",
-      "uJzCkL3HZx2b24n693V8"
+      "UCPD8VtiHixp0zGE471j",
+      "UydvAcje3hJSEosTKpcw",
+      "jBylqtiHt2bA35a2BY9p"
     ],
     "raw": {
       "fullName": null,
@@ -8241,7 +8295,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "w2h65vBrgXirgqzz78f2"
+      "AoqSXZN0ffSQgfhUmMpq"
     ],
     "raw": {
       "fullName": null,
@@ -8262,8 +8316,8 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "7XWnXzGZCyrHclagxalu",
-      "CWwa9GgtXosIuXCZ6R8V"
+      "HDA8p3jwNIQe2nJxFpS2",
+      "QGZeJP5bq2MyooZwkpLF"
     ],
     "raw": {
       "fullName": null,
@@ -8283,7 +8337,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "uRij4Kc6d7gOSxSLxerV"
+      "tu5alWsmKDX5Y3JN1CdF"
     ],
     "raw": {
       "fullName": null,
@@ -8303,72 +8357,12 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "JOvr9uBbBj5u8ARYBn32"
+      "HIzk0VOeEJ6BTgvWmbCb"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Morten",
       "lastName": "Rognes"
-    }
-  },
-  {
-    "runnerKey": "morten svinsås torvik|1991",
-    "fullName": "Morten Svinsås Torvik",
-    "displayName": "Morten Svinsås Torvik",
-    "nameSource": "first_last",
-    "yearOfBirth": 1991,
-    "gender": "male",
-    "email": null,
-    "editions": [
-      "mo-2012"
-    ],
-    "sourceDocIds": [
-      "D471ZMgu5YXK4ih49RPp"
-    ],
-    "raw": {
-      "fullName": null,
-      "firstName": "Morten Svinsås",
-      "lastName": "Torvik"
-    }
-  },
-  {
-    "runnerKey": "morten svinsås torvik|1993",
-    "fullName": "Morten Svinsås Torvik",
-    "displayName": "Morten Svinsås Torvik",
-    "nameSource": "first_last",
-    "yearOfBirth": 1993,
-    "gender": "male",
-    "email": null,
-    "editions": [
-      "mo-2016"
-    ],
-    "sourceDocIds": [
-      "EN8yM7yt5KgCoivpqOU3"
-    ],
-    "raw": {
-      "fullName": null,
-      "firstName": "Morten Svinsås",
-      "lastName": "Torvik"
-    }
-  },
-  {
-    "runnerKey": "morten svinsås torvik|1996",
-    "fullName": "Morten Svinsås Torvik",
-    "displayName": "Morten Svinsås Torvik",
-    "nameSource": "first_last",
-    "yearOfBirth": 1996,
-    "gender": "male",
-    "email": "mortentorvik@msn.no",
-    "editions": [
-      "mo-2013"
-    ],
-    "sourceDocIds": [
-      "CZbRMhgaGFAFZU207pDa"
-    ],
-    "raw": {
-      "fullName": null,
-      "firstName": "Morten Svinsås",
-      "lastName": "Torvik"
     }
   },
   {
@@ -8383,12 +8377,72 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "Iw2RT7CouXHcM4grRqqE"
+      "tq9RPLRykg8IFML2qQNd"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Morten",
       "lastName": "Svinsås"
+    }
+  },
+  {
+    "runnerKey": "morten torvik|1991",
+    "fullName": "Morten Torvik",
+    "displayName": "Morten Torvik",
+    "nameSource": "first_last",
+    "yearOfBirth": 1991,
+    "gender": "male",
+    "email": null,
+    "editions": [
+      "mo-2012"
+    ],
+    "sourceDocIds": [
+      "Mzy35wsgm24p5JyusIaJ"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Morten",
+      "lastName": "Torvik"
+    }
+  },
+  {
+    "runnerKey": "morten torvik|1993",
+    "fullName": "Morten Torvik",
+    "displayName": "Morten Torvik",
+    "nameSource": "first_last",
+    "yearOfBirth": 1993,
+    "gender": "male",
+    "email": null,
+    "editions": [
+      "mo-2016"
+    ],
+    "sourceDocIds": [
+      "Nd8gVsQUVfKPdRdaXb1C"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Morten",
+      "lastName": "Torvik"
+    }
+  },
+  {
+    "runnerKey": "morten torvik|1996",
+    "fullName": "Morten Torvik",
+    "displayName": "Morten Torvik",
+    "nameSource": "first_last",
+    "yearOfBirth": 1996,
+    "gender": "male",
+    "email": "mortentorvik@msn.no",
+    "editions": [
+      "mo-2013"
+    ],
+    "sourceDocIds": [
+      "AkVfyfMWR8CfqdTBnEwn"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Morten",
+      "lastName": "Torvik"
     }
   },
   {
@@ -8403,7 +8457,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "ssfEmEIag5eDXiBhnll2"
+      "Vikn9syML9bfg1rsrfX9"
     ],
     "raw": {
       "fullName": null,
@@ -8420,12 +8474,12 @@
     "gender": null,
     "email": "narve98@gmail.com",
     "editions": [
-      "mo-2019",
-      "mo-2024"
+      "mo-2024",
+      "mo-2019"
     ],
     "sourceDocIds": [
-      "dQdHCQzCfubY0Y9T54xB",
-      "nFcutwwk0rg8tZXDBJXd"
+      "Ude9nd3ubhBkAQsWaRRD",
+      "unRaOQQx4MhxocQ6WnEW"
     ],
     "raw": {
       "fullName": null,
@@ -8445,7 +8499,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "b97FlxFxHfcarjLGQT4t"
+      "c6mvBRctFaRVR9OqniKc"
     ],
     "raw": {
       "fullName": null,
@@ -8465,7 +8519,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "aUwCMNc8C38CctYPIWMw"
+      "Yqnn0dUi3Mp5kGqv2wW0"
     ],
     "raw": {
       "fullName": null,
@@ -8485,7 +8539,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "MGuHKU6QaxtJlBcCiIUb"
+      "hYCPvCxtxiFj2LnsEDIY"
     ],
     "raw": {
       "fullName": null,
@@ -8506,8 +8560,8 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "DfIeEbuzGLWodK2bN5TO",
-      "Tbdx8W8VIJW8x8Kj4TOl"
+      "ETmnGX1KCeWVXpbmLFtk",
+      "OSu7Pnt2qbAeF7cDaujM"
     ],
     "raw": {
       "fullName": null,
@@ -8524,12 +8578,12 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2013",
-      "mo-2015"
+      "mo-2015",
+      "mo-2013"
     ],
     "sourceDocIds": [
-      "W0qpdF9BGQTWaGJZmq1w",
-      "vNSSbUeSQAz22mnBOdHO"
+      "3QT9P3jQP5tcM5lT2sHO",
+      "HRtsme9IzTLrdywxFIQg"
     ],
     "raw": {
       "fullName": null,
@@ -8549,7 +8603,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "WF8gr280oGxfbWmzOghP"
+      "uU06FkYWOW1nBuvygFIj"
     ],
     "raw": {
       "fullName": null,
@@ -8569,7 +8623,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "J76l94pv5GG5Q9Wcx5ea"
+      "BV3MvIBC34g2duS3FDCi"
     ],
     "raw": {
       "fullName": null,
@@ -8589,7 +8643,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "y5Az6GuaDULE1NaZGDHp"
+      "zwdVnxfpZ8Ur9l46t0RB"
     ],
     "raw": {
       "fullName": null,
@@ -8609,7 +8663,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "fZMp3mIIezrUtrsgnlSm"
+      "u14dT8kf1JY1XgLAlKIg"
     ],
     "raw": {
       "fullName": null,
@@ -8629,7 +8683,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "UHR2CGh9us9hkKbpJvBN"
+      "1In7hIlcLbsFKl68Qf2W"
     ],
     "raw": {
       "fullName": null,
@@ -8649,7 +8703,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "c5KDUs9Eg1m2UDgjMH56"
+      "EOrIbBnwgKuzKLRJl72h"
     ],
     "raw": {
       "fullName": null,
@@ -8669,7 +8723,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "v29CVHTEAjpBLSmwLbx2"
+      "FwBjaUwqzkCbUc0FQFed"
     ],
     "raw": {
       "fullName": null,
@@ -8689,7 +8743,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "LVX0P1iL01alHdQ2YLk4"
+      "a5pAMr9001Irf7i4atjc"
     ],
     "raw": {
       "fullName": null,
@@ -8708,14 +8762,14 @@
     "editions": [
       "mo-2024",
       "mo-2018",
-      "mo-2017",
-      "mo-2020"
+      "mo-2020",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "BcttzD7pdiGIBeP1azQv",
-      "IikFLxj1J8hgXYT8dw5Z",
-      "k01appTxKPFgXQoAmf6T",
-      "qdzfALnHCPsqKhfMkp3N"
+      "Z9I2OCWmk7yDd3ShtpVb",
+      "clW3IyKVqlanREM5Hn2f",
+      "sbmbSXDXUpJ5cl1n5yQm",
+      "yznV9A65a2IR4aSK4Cqv"
     ],
     "raw": {
       "fullName": null,
@@ -8735,7 +8789,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "RDjv4ftZyKHakqvdtH4W"
+      "IZpwUmkJLMzKqRIksoDk"
     ],
     "raw": {
       "fullName": null,
@@ -8755,7 +8809,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "tPzOJgISZDzkuR3BMwRq"
+      "GeVoIf8ozpkW8WlGGHGJ"
     ],
     "raw": {
       "fullName": null,
@@ -8775,7 +8829,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "WcC1f08f7iYydVtXPd3v"
+      "j2wpWluE8eaJlZragAZ2"
     ],
     "raw": {
       "fullName": null,
@@ -8795,7 +8849,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "biaMPiyhT88DWaBm26Qm"
+      "uVPr6kCIuJtM9LAyXGmJ"
     ],
     "raw": {
       "fullName": null,
@@ -8815,7 +8869,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "uMwBq59wPgs7zldQ8IJp"
+      "2sZZX2nMsEXn5RvswT1r"
     ],
     "raw": {
       "fullName": null,
@@ -8832,12 +8886,12 @@
     "gender": "male",
     "email": "oivindaun@hotmail.com",
     "editions": [
-      "mo-2024",
-      "mo-2014"
+      "mo-2014",
+      "mo-2024"
     ],
     "sourceDocIds": [
-      "JcGV4LH2s8ZUULIGXIg8",
-      "YGJcZcx0fYsAMdhTMyhD"
+      "6Nb3QDdP82AgPbDLeFgm",
+      "9CTV1muNJ69hLmw0cyKx"
     ],
     "raw": {
       "fullName": null,
@@ -8857,7 +8911,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "bWTM8hZm8rkP2gkJAy4n"
+      "uoVD2nioUTz5g8g8H3Du"
     ],
     "raw": {
       "fullName": null,
@@ -8877,7 +8931,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "ENHg8RDknhKx4PRTsKIU"
+      "rdHeUDNfmNor6sqiQQxF"
     ],
     "raw": {
       "fullName": null,
@@ -8897,7 +8951,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "FRo4hiHyvq7eODAe0wjb"
+      "kFqa85Cdp6LDE82PEbG1"
     ],
     "raw": {
       "fullName": null,
@@ -8917,7 +8971,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "nZ3pMoFMcqGzWI7Xk2LL"
+      "MmbKayZrG7MYylg9UQ6C"
     ],
     "raw": {
       "fullName": null,
@@ -8934,12 +8988,12 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2017",
-      "mo-2011"
+      "mo-2011",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "G9UJh2YueUBHkm7rYEMY",
-      "HWGFLdUvTIokadshbssX"
+      "iifiMxIIwFdqdu5DQuZY",
+      "pucEaK7ZDNd4SrX4Ip17"
     ],
     "raw": {
       "fullName": null,
@@ -8959,7 +9013,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "LbLOwJo1TZndUCaa9Vq6"
+      "uJTZGeXypQrXvD8HLX8i"
     ],
     "raw": {
       "fullName": null,
@@ -8979,7 +9033,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "FycUBufTc7T8uNcKssUJ"
+      "WwnbILWskhdFhylBpY5k"
     ],
     "raw": {
       "fullName": null,
@@ -8996,12 +9050,12 @@
     "gender": "male",
     "email": "sirole@gmail.com",
     "editions": [
-      "mo-2023",
-      "mo-2024"
+      "mo-2024",
+      "mo-2023"
     ],
     "sourceDocIds": [
-      "1wtBziqz4PVhtZwMd1pV",
-      "GqxvJn3qLCjeaK7i79Dl"
+      "G8TVfQP2JNbNKPeraMv0",
+      "ck7GSXKMTWoGl6VjeGdZ"
     ],
     "raw": {
       "fullName": null,
@@ -9021,12 +9075,32 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "LVFucKvYbmNqbCWBgVTN"
+      "MpjRTD0VsoNkg2lo1WDo"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Ole Gunnar",
       "lastName": "Kjøsnes"
+    }
+  },
+  {
+    "runnerKey": "ole jacob forsmo|1998",
+    "fullName": "Ole Jacob Forsmo",
+    "displayName": "Ole Jacob Forsmo",
+    "nameSource": "first_last",
+    "yearOfBirth": 1998,
+    "gender": "male",
+    "email": "o_forsmo98@hotmail.com",
+    "editions": [
+      "mo-2016"
+    ],
+    "sourceDocIds": [
+      "vxUyObedaIYJS9kLPXHH"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Ole Jacob",
+      "lastName": "Forsmo"
     }
   },
   {
@@ -9036,14 +9110,12 @@
     "nameSource": "first_last",
     "yearOfBirth": 1998,
     "gender": "male",
-    "email": "o_forsmo98@hotmail.com",
+    "email": null,
     "editions": [
-      "mo-2016",
       "mo-2018"
     ],
     "sourceDocIds": [
-      "Tt5vNGWpVc9xPIMLo40k",
-      "WkUWq2eG2hVDObqlLJrb"
+      "7s8FPExV3m3G7ALKuWli"
     ],
     "raw": {
       "fullName": null,
@@ -9063,7 +9135,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "JRPIxAbEcV9FiinLP0XO"
+      "y3anFQKE9uZfCgGXG9CL"
     ],
     "raw": {
       "fullName": null,
@@ -9083,7 +9155,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "ubZPykrJ9cPRvg37QG4a"
+      "juOGkzNesv3KRu1umtWm"
     ],
     "raw": {
       "fullName": null,
@@ -9103,7 +9175,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "mEFPpAq1KlcBwrnp7ls3"
+      "sCnBUn1gegGwULvAargp"
     ],
     "raw": {
       "fullName": null,
@@ -9120,32 +9192,32 @@
     "gender": null,
     "email": "ole.vaagland@gmail.com",
     "editions": [
-      "mo-2021",
-      "mo-2012",
       "mo-2014",
-      "mo-2024",
-      "mo-2025",
-      "mo-2011",
       "mo-2019",
+      "mo-2012",
+      "mo-2017",
+      "mo-2023",
       "mo-2020",
       "mo-2022",
-      "mo-2023",
-      "mo-2017",
-      "mo-2016"
+      "mo-2024",
+      "mo-2016",
+      "mo-2025",
+      "mo-2021",
+      "mo-2011"
     ],
     "sourceDocIds": [
-      "05B6Dmc67DLX7H68iEai",
-      "118uGSPeGbEHuIST1ddP",
-      "1CFYCXmzOPDCGwpNttOr",
-      "2mAm5dgDTe2VnVtdmmbj",
-      "8D8gJfqQHj7txpgWqkRv",
-      "RRs7jM5Jq9QwclMWsuUX",
-      "bbeDJLDJ54AvOy1Q7oj7",
-      "dUqGk6ZDJXA1wzgLfbLD",
-      "hXwk520oenMnFrJf4Jc5",
-      "jBwbkaGTCnZBjHCrFEzg",
-      "qpQUZxS69hsZhbTlF9Wk",
-      "rOvgxGlwIQoeZodTmhau"
+      "EVrRLE9D42or3UXBUO5T",
+      "FB7DyKd8MkcIFe0mVLdJ",
+      "GoCMdSW97YMJzO6Bp4Fc",
+      "H8PzuQC8ZwziOV11Sn01",
+      "M9P5pTRlnmpy5DYnOCFi",
+      "O9agT7MpirY3BxhPuus7",
+      "OkMlIfLSJ5LSiRMvh8YS",
+      "QEdRFQMqyq7AHK2cZ8aF",
+      "eHFkUHK0LstwAgOQPR2z",
+      "fXsiaWVdCo8ly7JlzbEb",
+      "mcE8I2ab3O74rBxg1RPl",
+      "yrHvK2hIYtL9HaEvJkPW"
     ],
     "raw": {
       "fullName": null,
@@ -9165,7 +9237,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "cqCLYv0ELJmWYlJR77PA"
+      "BV6riAlD8Ss9Yy5R6Kw6"
     ],
     "raw": {
       "fullName": null,
@@ -9185,7 +9257,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "M3C4EoAdk5Tj3IFlhcyQ"
+      "foaXPDgz4UkwiI0lW7iA"
     ],
     "raw": {
       "fullName": null,
@@ -9205,7 +9277,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "u0BhepKaBTS0OEXsS4rK"
+      "1B8m72gCoiSX7WwoUuqi"
     ],
     "raw": {
       "fullName": null,
@@ -9225,7 +9297,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "Z9X0jyP2lp9TQgjgxZdE"
+      "5MdhPNzC46Wh7IcsAaR6"
     ],
     "raw": {
       "fullName": null,
@@ -9245,7 +9317,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "EbjJFhFEpTyD8gatwLAx"
+      "WJwQZX0t7nAGBRQTHeMq"
     ],
     "raw": {
       "fullName": null,
@@ -9265,7 +9337,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "lwjEzZXalkvRprLK88xo"
+      "U8sg2xMoqvIlRi1DSD7w"
     ],
     "raw": {
       "fullName": null,
@@ -9285,7 +9357,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "5Mox4YNXbMPOKdmRFsW3"
+      "ucq25F1JN1zNtK2BNutl"
     ],
     "raw": {
       "fullName": null,
@@ -9305,7 +9377,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "OpE5cV6fuIuUdEpBxywJ"
+      "E6sdFZWYKAYhF8vQgMWS"
     ],
     "raw": {
       "fullName": null,
@@ -9326,8 +9398,8 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "6zMlAbZln5IObbyz7WZC",
-      "XqBVb1CuPHWhLB7RaOx2"
+      "AuGdr5Gr0PNFYU7YpWn0",
+      "y5Mv1ou1ozKO0nNe7BOt"
     ],
     "raw": {
       "fullName": null,
@@ -9347,7 +9419,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "bIPJ4aqmEm7eOPauJCms"
+      "QDvZeDn6Q44L1yOvbaBk"
     ],
     "raw": {
       "fullName": null,
@@ -9364,38 +9436,38 @@
     "gender": "male",
     "email": "paalmaas@online.no",
     "editions": [
+      "mo-2025",
+      "mo-2021",
+      "mo-2016",
+      "mo-2018",
       "mo-2024",
       "mo-2017",
-      "mo-2015",
       "mo-2014",
+      "mo-2022",
+      "mo-2013",
+      "mo-2015",
+      "mo-2019",
+      "mo-2023",
       "mo-2020",
       "mo-2012",
-      "mo-2013",
-      "mo-2025",
-      "mo-2018",
-      "mo-2023",
-      "mo-2022",
-      "mo-2016",
-      "mo-2019",
-      "mo-2011",
-      "mo-2021"
+      "mo-2011"
     ],
     "sourceDocIds": [
-      "1IPa796xNJf6v7fbfKT8",
-      "9pkaoRKgA0qTNSb2yzla",
-      "Bmd7UsMkyitTR0m9rqvE",
-      "Fu1Y1QRoNQRa2bLX8IH5",
-      "JcOtkq6Gebndie459izJ",
-      "WLiPw8x69HInr7JNy4U5",
-      "X1665eSjAv25B65GQHCp",
-      "XaSq4Xx7r5il7AdvGEWt",
-      "ZfrHaz5UEnCLgzo4c9dD",
-      "bvIyNzWn6I4oU2U0EqiI",
-      "cMg8ywnMTS2YFProTAuE",
-      "dh9XQq0ESjsOvidDQUIa",
-      "nlSOmzKEC3d0X3wlePRD",
-      "xUyB9HAi6kdH4HD7elzZ",
-      "xnpnLAGZypEDhEZcEEfe"
+      "3R8mAU1qRCOzaOk13zP8",
+      "3zfZRnt11aqs9UCN2mMc",
+      "4W73DH5fytaD0OK6rNTw",
+      "7DdGPhACAlAkeWoLSYBB",
+      "8I32YQR9nvlasif9rgi7",
+      "8ekKOUQ3VJDclD6bBE4R",
+      "9QVTIMxg6V1aiIOjqhCF",
+      "AYraLKToc7X847U1afWe",
+      "JsT9hImUlj8v9K8uD4Fu",
+      "NVZlVlfe54nE91jdWlVI",
+      "Ox7AuVHxBmcKG5GHGaR9",
+      "WZrb4gKB4v3PzDPrKWB4",
+      "ZqKr91GFM0sUUfn1XU18",
+      "lYoYJaBLeHlbKdOnCK4q",
+      "vpdIPLIxoF0dHUp9vuYa"
     ],
     "raw": {
       "fullName": null,
@@ -9415,7 +9487,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "wDVM6K5L2Z9903Xm5NAc"
+      "zhEvyXPbFovWblPqyuXG"
     ],
     "raw": {
       "fullName": null,
@@ -9435,7 +9507,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "fy6JJAMkyHMTqCCXpEuw"
+      "NYJcHew0A0ZRZZG56qt3"
     ],
     "raw": {
       "fullName": null,
@@ -9455,7 +9527,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "LXTaAdwT7EwXx0oUDmXL"
+      "3n8r3YgRP7WnN0Z2qGJM"
     ],
     "raw": {
       "fullName": null,
@@ -9475,7 +9547,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "Oqw9p1cF0AFf6Fx38q6V"
+      "rt94QSBTS4XXQXqqpRbz"
     ],
     "raw": {
       "fullName": null,
@@ -9492,12 +9564,12 @@
     "gender": "male",
     "email": "per.harald.skogstad@gmail.com",
     "editions": [
-      "mo-2015",
-      "mo-2014"
+      "mo-2014",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "AR5raSeq7Yki3ueOlMVy",
-      "QNKyBLFwgNvu11NvlOPJ"
+      "AeWDYKc5ZgN7mloQ3o8j",
+      "MZ3l6sXtWPOOWbBQQPra"
     ],
     "raw": {
       "fullName": null,
@@ -9517,7 +9589,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "OP3hYIMdpnrmVQHeonhX"
+      "FsE0CJtlEYPxcU6wjy2W"
     ],
     "raw": {
       "fullName": null,
@@ -9534,20 +9606,20 @@
     "gender": "male",
     "email": "jamticom@hotmail.com",
     "editions": [
-      "mo-2022",
-      "mo-2018",
-      "mo-2019",
-      "mo-2025",
       "mo-2024",
-      "mo-2021"
+      "mo-2025",
+      "mo-2022",
+      "mo-2021",
+      "mo-2018",
+      "mo-2019"
     ],
     "sourceDocIds": [
-      "7NQR4D69rUtcRg4VGoQp",
-      "GjIfzugs5Pnyx67U0RRJ",
-      "VubmXvCogOGhoguPE5Gg",
-      "ZjL5SDzCKI586H3f3ylm",
-      "pxKhE2DPeCMyWCdxRwQk",
-      "uWFbl5ym8XvkPr6WcVwk"
+      "13tApSQY1ACnMSK7ERqK",
+      "FdWL4UhMpYMIReN2PmRU",
+      "T5J1mi5nIeaCofY5AUQE",
+      "Y8T6OFhDVdfuzR9Yh2vy",
+      "fmtNqjbUwGkn0qVrQnqP",
+      "iQdesgzQRbBrHV7By1M1"
     ],
     "raw": {
       "fullName": null,
@@ -9567,7 +9639,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "R5ww2X1DvpALJTxJUno3"
+      "XazCyqGvRCp7FnL02i63"
     ],
     "raw": {
       "fullName": null,
@@ -9587,7 +9659,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "P7wrVy7dURYjqv2aEU1l"
+      "tmEiJ4Fxzlsj9LjxaDm1"
     ],
     "raw": {
       "fullName": null,
@@ -9607,7 +9679,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "BClmRoDhULFlBtavt1jR"
+      "j8UnMI4OEzRDjWY6Q7M0"
     ],
     "raw": {
       "fullName": null,
@@ -9627,7 +9699,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "AiERBwtLIYm9FHzbuBBZ"
+      "oHuTdfQvIsO37wK1Za0Y"
     ],
     "raw": {
       "fullName": null,
@@ -9647,7 +9719,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "AN7D4BAJTGtlGMBI71r5"
+      "bHgXpD07l0K5iM57c2TY"
     ],
     "raw": {
       "fullName": null,
@@ -9656,33 +9728,33 @@
     }
   },
   {
-    "runnerKey": "ragnhild a. hansen",
-    "fullName": "Ragnhild A. Hansen",
-    "displayName": "Ragnhild A. Hansen",
+    "runnerKey": "ragnhild a hansen",
+    "fullName": "Ragnhild A Hansen",
+    "displayName": "Ragnhild A Hansen",
     "nameSource": "first_last",
     "yearOfBirth": null,
     "gender": null,
     "email": null,
     "editions": [
       "mo-2020",
-      "mo-2019",
-      "mo-2021"
+      "mo-2021",
+      "mo-2019"
     ],
     "sourceDocIds": [
-      "9p9igkCmuayPxhQ5Hj6P",
-      "dnaxkf4y1i43Gy9G43q6",
-      "kXujf0tDOSNXnjVZJX6L"
+      "H4tYPdNT3UuViSuHW1xI",
+      "W7MbJHpudPFxiIjbKbC5",
+      "r6xpFLF5K0Ntex8Ph4FY"
     ],
     "raw": {
       "fullName": null,
-      "firstName": "Ragnhild A.",
+      "firstName": "Ragnhild A",
       "lastName": "Hansen"
     }
   },
   {
-    "runnerKey": "ragnhild a. hansen|2007",
-    "fullName": "Ragnhild A. Hansen",
-    "displayName": "Ragnhild A. Hansen",
+    "runnerKey": "ragnhild hansen|2007",
+    "fullName": "Ragnhild Hansen",
+    "displayName": "Ragnhild Hansen",
     "nameSource": "first_last",
     "yearOfBirth": 2007,
     "gender": "female",
@@ -9691,11 +9763,11 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "H3flg5uQWHdKsQK26MCM"
+      "qFX58Xj66WwRY532U0vH"
     ],
     "raw": {
       "fullName": null,
-      "firstName": "Ragnhild A.",
+      "firstName": "Ragnhild",
       "lastName": "Hansen"
     }
   },
@@ -9709,15 +9781,15 @@
     "email": "p-leista@online.no",
     "editions": [
       "mo-2013",
-      "mo-2011",
+      "mo-2012",
       "mo-2022",
-      "mo-2012"
+      "mo-2011"
     ],
     "sourceDocIds": [
-      "XPAVlH2pAHjXOM33cwS1",
-      "fK5kEJdJ1qbDcKb4RB6F",
-      "lNInTiTNvpECHJdbhpau",
-      "qfkMRZ9urmk7q5LIBkeF"
+      "3VUscrgCZk71rg3ISHqM",
+      "aTcMkIRjpWW5A8UCuBU8",
+      "j6zoXvN53eUQwWoT51jv",
+      "od2rnT09AKxEMdcwYwZg"
     ],
     "raw": {
       "fullName": null,
@@ -9737,7 +9809,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "uitOk78A2kdiWfC2mlOg"
+      "QqI1xImGFJaiNBesmKOs"
     ],
     "raw": {
       "fullName": null,
@@ -9754,18 +9826,18 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2022",
-      "mo-2019",
       "mo-2021",
+      "mo-2023",
+      "mo-2019",
       "mo-2020",
-      "mo-2023"
+      "mo-2022"
     ],
     "sourceDocIds": [
-      "ADPQtrVJ9HjJg4o6O4nT",
-      "IyuBRKgypcnDO8XkdlPD",
-      "Nr7qoBvNCpilDsyO1Udo",
-      "gMZnrcrG1VnQGS5KAYZy",
-      "gtdjSfCp5hQFsmkl3uQ9"
+      "2JdPUEw2FnIzy9sCmLrb",
+      "JcrOx2TWeNlQW12oEONW",
+      "ZVneR4dUNjHHotQwWnEm",
+      "amgVWxD6YcgnBGJrpxct",
+      "nVq6DXaYggmsgliM6F3K"
     ],
     "raw": {
       "fullName": null,
@@ -9785,32 +9857,12 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "671SYqNMdSkPMEyvjubn"
+      "gO77COd7XsS0WGXRr4k8"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Randi",
       "lastName": "Raaen"
-    }
-  },
-  {
-    "runnerKey": "rånes michael|2008",
-    "fullName": "Rånes Michael",
-    "displayName": "Rånes Michael",
-    "nameSource": "first_last",
-    "yearOfBirth": 2008,
-    "gender": "male",
-    "email": "magnus.stensaas@hotmail.com",
-    "editions": [
-      "mo-2022"
-    ],
-    "sourceDocIds": [
-      "ZQkSxTdAfiR6Hw9WBcTJ"
-    ],
-    "raw": {
-      "fullName": null,
-      "firstName": "Rånes",
-      "lastName": "Michael"
     }
   },
   {
@@ -9825,7 +9877,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "ypEYhr1PHSQyOvfNOJFI"
+      "ZgKN51jtlXVuerx1fsul"
     ],
     "raw": {
       "fullName": null,
@@ -9846,8 +9898,8 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "5uyX3HoAxMmILF58gtxM",
-      "B8a0ZawBiVxGhrz68GWH"
+      "Pqw8k7Rw7Wue70Hoefgf",
+      "bxE8xzDar8U4bPs9Ko4I"
     ],
     "raw": {
       "fullName": null,
@@ -9867,7 +9919,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "U080kxi7W1HoepJTvCjt"
+      "VUs9OaSa3vmsdheiWVCn"
     ],
     "raw": {
       "fullName": null,
@@ -9887,7 +9939,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "vZ1KiuRC466FuE0ui33V"
+      "0jnukvqBAFbRSo9LmE2y"
     ],
     "raw": {
       "fullName": null,
@@ -9907,7 +9959,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "YvjUyjVfVFrUYazxvjoX"
+      "dWF7RQkVt1Tv3jk6kw4l"
     ],
     "raw": {
       "fullName": null,
@@ -9927,7 +9979,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "AIMz6oDFgpVszGzbyFxH"
+      "6SyZz9sUGSyVUI2nEmkG"
     ],
     "raw": {
       "fullName": null,
@@ -9947,7 +9999,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "DSOh06DJLmU4LdWciUyi"
+      "5zx9rZb78iNPRZu5JMTf"
     ],
     "raw": {
       "fullName": null,
@@ -9967,7 +10019,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "uDZI8NPWWWwtXRaObT8l"
+      "z7Tos6La5i20t1mtxjKG"
     ],
     "raw": {
       "fullName": null,
@@ -9987,7 +10039,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "sVVxUdMyKgf0omcitebD"
+      "LFJSV6TG5BtgqEKVXzP3"
     ],
     "raw": {
       "fullName": null,
@@ -10007,7 +10059,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "xeiFcsRT5GgGxFajvRph"
+      "UzEiRvoQx4GhfrO0UoY9"
     ],
     "raw": {
       "fullName": null,
@@ -10027,7 +10079,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "dqeI45V01WKNfqYI4wGE"
+      "Bj1mefkE5ulzKlmL5Oab"
     ],
     "raw": {
       "fullName": null,
@@ -10047,7 +10099,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "M1Dg4Y65gFJrobYenR0m"
+      "iiZSk0rXsivfRRKZPqno"
     ],
     "raw": {
       "fullName": null,
@@ -10064,12 +10116,12 @@
     "gender": "male",
     "email": "ansnes_89@hotmail.com",
     "editions": [
-      "mo-2015",
-      "mo-2014"
+      "mo-2014",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "1deF2ilU1JiabJ2Ehj2d",
-      "HwX48tmn5PwykhH3BM1l"
+      "7tui0Q6bDjh05q0XHVHX",
+      "yqMdk0OSaPK7tEAOCBOX"
     ],
     "raw": {
       "fullName": null,
@@ -10089,7 +10141,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "dn4VnLpgsSd8989rGN43"
+      "8sMlQK22GnGnb9ClFKVj"
     ],
     "raw": {
       "fullName": null,
@@ -10110,8 +10162,8 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "S9K2xoucKzwSuj543rOb",
-      "yLFQoLMCO1o7IsaZQ6m3"
+      "evWwiXmfTsdykJPVXHr0",
+      "xuqhhxuCq8joXrW1n82J"
     ],
     "raw": {
       "fullName": null,
@@ -10131,7 +10183,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "biP5F0RWzYKU25jEg5e4"
+      "LxuR5gV376maQ6S8e3US"
     ],
     "raw": {
       "fullName": null,
@@ -10151,7 +10203,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "6WJYrC6BoV2N84pdyc1A"
+      "uTmvekcHVf5pfh1IDTys"
     ],
     "raw": {
       "fullName": null,
@@ -10171,7 +10223,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "C70ku62FEGRN0XxNkWAT"
+      "p73gnrGzeYeQ3Vgn9Bcj"
     ],
     "raw": {
       "fullName": null,
@@ -10191,7 +10243,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "0yYevxs8P9ors6wHzVsu"
+      "Ur2pgpgurscpNehl2Apt"
     ],
     "raw": {
       "fullName": null,
@@ -10211,7 +10263,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "QeYU6EfcnCa3lcv2H4cZ"
+      "NM4bjpaOFVRUtBxrKZYV"
     ],
     "raw": {
       "fullName": null,
@@ -10231,7 +10283,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "mzMu8FwSOTEA8okZhHwH"
+      "dOfiE87wEySGHHYpQyC5"
     ],
     "raw": {
       "fullName": null,
@@ -10252,8 +10304,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "CyBDwyk5iA2Vek3U15F1",
-      "zy7KhIMaQdJ2f1Dupctn"
+      "HiGowE6DPvKNgh1gdmdh",
+      "Ucue2p0BFDPb4BSbiRJE"
     ],
     "raw": {
       "fullName": null,
@@ -10273,7 +10325,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "Uauwrsf2dvDeZ8QZggpU"
+      "Z1qmaKxBYn0LyoK05sYh"
     ],
     "raw": {
       "fullName": null,
@@ -10293,7 +10345,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "5tYBFBuFbO2qmi5P1X8V"
+      "WPAS3bOYxWLq0xStu8wm"
     ],
     "raw": {
       "fullName": null,
@@ -10313,7 +10365,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "CyBm371ujuagxgYjItAR"
+      "FxYgXHElUKBWt7qNPzTp"
     ],
     "raw": {
       "fullName": null,
@@ -10333,7 +10385,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "zN5fOeljJEobCjqybfqS"
+      "fQMFte5z0Vr0pc9VONOx"
     ],
     "raw": {
       "fullName": null,
@@ -10353,7 +10405,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "tmtIbCDdEsNeeD7whE9s"
+      "mPHMBtF9h0ByowLKnHqM"
     ],
     "raw": {
       "fullName": null,
@@ -10373,7 +10425,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "COPjyrGopGzS51zL7sEN"
+      "8qP0Nu171ZgPG1monMaG"
     ],
     "raw": {
       "fullName": null,
@@ -10387,15 +10439,15 @@
     "displayName": "Simen Larsen",
     "nameSource": "first_last",
     "yearOfBirth": 1996,
-    "gender": null,
+    "gender": "male",
     "email": "simen9977@gmail.com",
     "editions": [
-      "mo-2015",
-      "mo-2013"
+      "mo-2013",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "bp8cZsRxWqNSATps6mmY",
-      "uH8wbesCFRhl4dQMaWm7"
+      "fxM4jAkv1yUIHc5Qv2Pi",
+      "o1qXvdkPSa5FNG4yGJen"
     ],
     "raw": {
       "fullName": null,
@@ -10415,7 +10467,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "Uu16mCP462hhbGn0coT8"
+      "DVIPYDijSJI94dGQ7gep"
     ],
     "raw": {
       "fullName": null,
@@ -10435,7 +10487,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "JNBqUqkZFQapaEpYdcQL"
+      "BhKJvzfvV2EmU8TAZKUP"
     ],
     "raw": {
       "fullName": null,
@@ -10455,7 +10507,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "xIW7NU7KZFpYcAOW2hMj"
+      "S5MyevAZHBHkZkdnx9P7"
     ],
     "raw": {
       "fullName": null,
@@ -10475,7 +10527,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "Zwr5TQNsHuOD2u6SP6tL"
+      "ks9hofpkAfeGdpiOsrsw"
     ],
     "raw": {
       "fullName": null,
@@ -10495,7 +10547,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "lR53yhxd6EJlnYrVzt1H"
+      "R1kT2xsvf9JEjGKyxa2d"
     ],
     "raw": {
       "fullName": null,
@@ -10509,21 +10561,21 @@
     "displayName": "Sindre Johannessen",
     "nameSource": "first_last",
     "yearOfBirth": 1993,
-    "gender": "male",
+    "gender": null,
     "email": "sindrevj@hotmail.com",
     "editions": [
-      "mo-2013",
-      "mo-2012",
       "mo-2016",
       "mo-2019",
+      "mo-2013",
+      "mo-2012",
       "mo-2018"
     ],
     "sourceDocIds": [
-      "0tzf4vXE5Z2Yjj9D6erE",
-      "HsBHcyhwp6qiBc6qvh2V",
-      "LkNmGHYvPF1x2VSewVwe",
-      "ebruQQmLifUpnUfuOGnD",
-      "kt5lUYBzL7n7BF5xNkV7"
+      "38zgfBOArFJw66wyKLVN",
+      "UfnTm10Qflx1ZHBAdg0B",
+      "VW5omVryPiJqVCzRJjZJ",
+      "itu2FpILyJcyAb5YnVyw",
+      "jSxYUSztXRlG0mXptbO6"
     ],
     "raw": {
       "fullName": null,
@@ -10543,7 +10595,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "m5oPLQCRoWGIhgPqnyVN"
+      "e3gkws2v6Stc6kSBC5HF"
     ],
     "raw": {
       "fullName": null,
@@ -10563,7 +10615,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "01YlAGRtJ3BLsyoi4omw"
+      "OYjbt5izwHxXwRGrz0c2"
     ],
     "raw": {
       "fullName": null,
@@ -10583,7 +10635,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "26P1mcVyc8zndQB1VYxr"
+      "LEsYRpbfU83la7tkBDiL"
     ],
     "raw": {
       "fullName": null,
@@ -10603,7 +10655,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "F0XQUcWaY7gn2kcW2oLI"
+      "5FXnlDM4VR2xKhOtLZk7"
     ],
     "raw": {
       "fullName": null,
@@ -10625,9 +10677,9 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "9t4NrrofpFL4LyzeEhML",
-      "DaoLn0Sdrz31RCA1kMKZ",
-      "XCxI783A4VzCukuGWERE"
+      "RnxpJ0WSYmAHnNj9J3VO",
+      "b6pRn9uPRCgLBv19erwQ",
+      "pev7UwbeSsy2bHdYmDqR"
     ],
     "raw": {
       "fullName": null,
@@ -10647,7 +10699,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "ObcEjyjyhqjctJI5YzIa"
+      "qoXffnn2DQwRAk1WzPTU"
     ],
     "raw": {
       "fullName": null,
@@ -10664,12 +10716,12 @@
     "gender": "male",
     "email": "sivert.g.eriksen@gmail.com",
     "editions": [
-      "mo-2018",
-      "mo-2017"
+      "mo-2017",
+      "mo-2018"
     ],
     "sourceDocIds": [
-      "3y39xFYEtHjFOVnY7q7D",
-      "DqJD3eLrJTL1n6UgebfZ"
+      "TqPHJu5o8Uuj13j3kEEk",
+      "j5G4PoJV378bkpgwW69G"
     ],
     "raw": {
       "fullName": null,
@@ -10690,8 +10742,8 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "oREj8H1kI5yqMQ4h2qDv",
-      "ySq6p3X9mHUjRhCFzrOS"
+      "DX2tsokp8tpcBwTebLFr",
+      "hcKzU4MXpdone1FEUTAT"
     ],
     "raw": {
       "fullName": null,
@@ -10711,7 +10763,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "PMKuHp96X8ETpaR0DubO"
+      "ZKRXOcbTkZDVHYDcUrf0"
     ],
     "raw": {
       "fullName": null,
@@ -10728,16 +10780,16 @@
     "gender": "male",
     "email": "arve.storseth@teekay.com",
     "editions": [
-      "mo-2012",
+      "mo-2013",
       "mo-2014",
-      "mo-2011",
-      "mo-2013"
+      "mo-2012",
+      "mo-2011"
     ],
     "sourceDocIds": [
-      "ZiIDpbFaS9GhRCGZjirR",
-      "iNB0EArQHE544pQWbhl7",
-      "qmdTM4fEwbs3EHpxqlSC",
-      "zDdp96eeUKpAyXcWPj1K"
+      "JsJqlYpmUItWaGnihjpm",
+      "aZYlncIqPa68AGRWLKOZ",
+      "fXgu21YQemFtb8Gxlfn7",
+      "mHeSpT15kXegwQTnsm8R"
     ],
     "raw": {
       "fullName": null,
@@ -10757,7 +10809,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "3FDJnuS7qGUmZBNQPHaZ"
+      "U3hO968EpmzhIZC9m0qH"
     ],
     "raw": {
       "fullName": null,
@@ -10777,7 +10829,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "aYmUKK0M4MXdnMuxhkxN"
+      "i7tG3peBzL74l7Rib0IV"
     ],
     "raw": {
       "fullName": null,
@@ -10797,7 +10849,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "QYuikFFTWKETC1ZWHdWT"
+      "D96T1i2p7l0pM1wT3ifU"
     ],
     "raw": {
       "fullName": null,
@@ -10817,7 +10869,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "RTbr5UktcrNkjW40NCfo"
+      "a5ZzcxMhaLai3hmax82k"
     ],
     "raw": {
       "fullName": null,
@@ -10834,14 +10886,14 @@
     "gender": null,
     "email": "sog@statoil.com",
     "editions": [
+      "mo-2012",
       "mo-2021",
-      "mo-2013",
-      "mo-2012"
+      "mo-2013"
     ],
     "sourceDocIds": [
-      "AdWDTWOQNecxg3OVegRV",
-      "H5P2xhkACMLPLxKOKnFN",
-      "u5Efxr5HJHdYMCZLgF0P"
+      "2CkJwRiEHsECTBc2NfBh",
+      "4EtisLQQVnKyiG0rt6ng",
+      "78VOLLwDiA6Q14MTobjk"
     ],
     "raw": {
       "fullName": null,
@@ -10861,7 +10913,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "cV5gEHrJDFNGWTdQI94i"
+      "tghHTS1g8KktnrhNUV1y"
     ],
     "raw": {
       "fullName": null,
@@ -10878,16 +10930,16 @@
     "gender": "male",
     "email": "frank@tradeway.no",
     "editions": [
+      "mo-2012",
       "mo-2014",
       "mo-2013",
-      "mo-2012",
       "mo-2011"
     ],
     "sourceDocIds": [
-      "0HqOYhhHZhq8tQUKhTR4",
-      "Hj2vZ8sNRwAINkDwKHqo",
-      "pSuwI9JwpkkHFR5QQWk4",
-      "ya5tEePNqGaG5KX3NMQu"
+      "3ebouYhtiCqR4HZ8QvS3",
+      "4oBqogBh6ILZWSOCBkCY",
+      "QCoZMmws1GFbhrOpSoDU",
+      "uczpBmUUI10e5pytvG7N"
     ],
     "raw": {
       "fullName": null,
@@ -10907,7 +10959,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "jkNttyB46gOzSOVlUIKO"
+      "zoWNoynWG5ZPeOZPqCZj"
     ],
     "raw": {
       "fullName": null,
@@ -10927,7 +10979,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "SFPg3Vw8BgCRiFaPSsU2"
+      "FzbJNXkxkizFc50s4Rjr"
     ],
     "raw": {
       "fullName": null,
@@ -10948,8 +11000,8 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "atUCuSUQs1ir7oECqq2G",
-      "z8DGTknSzdw871vRhEZP"
+      "ESm488mIdI6dioh6kEkS",
+      "O1Gnm1h8h4bchFKWfY9X"
     ],
     "raw": {
       "fullName": null,
@@ -10969,7 +11021,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "aPlzEd6KwVOqIAksnPia"
+      "wm1EXwkTFm8SmD3fWbWq"
     ],
     "raw": {
       "fullName": null,
@@ -10986,22 +11038,22 @@
     "gender": null,
     "email": "ste-fosm@online.no",
     "editions": [
-      "mo-2017",
-      "mo-2015",
-      "mo-2013",
       "mo-2019",
-      "mo-2018",
+      "mo-2017",
+      "mo-2013",
       "mo-2016",
-      "mo-2014"
+      "mo-2014",
+      "mo-2015",
+      "mo-2018"
     ],
     "sourceDocIds": [
-      "5OK3jCi0mxRV89b9OoHe",
-      "9ODVorFGEcLGpiuQ4F3R",
-      "T1dpbkZHATFzSf0aLzF5",
-      "kN924f2uUno0LC6C0hCV",
-      "o4jmK9FdV7plAfbmYWKH",
-      "s7AKtD0bHuIgqvEM4hhG",
-      "wr55RClP2MSzCHulrg85"
+      "4MsmiQq7cU6SAqhD11vC",
+      "AjcMHPAopMoPEKEAQ9Eq",
+      "DHul8zwghEER2quUo8Km",
+      "GI6VKVI8mhAxpw22T360",
+      "M5FUndVpKqepEawEor3X",
+      "MhbF3297b1FVG3WN6rUz",
+      "pgKNXF5txOElZONmE2cH"
     ],
     "raw": {
       "fullName": null,
@@ -11018,33 +11070,33 @@
     "gender": null,
     "email": "stein.hoem@gmail.com",
     "editions": [
-      "mo-2017",
+      "mo-2011",
       "mo-2012",
-      "mo-2013",
       "mo-2023",
       "mo-2025",
-      "mo-2016",
-      "mo-2015",
-      "mo-2011",
+      "mo-2017",
+      "mo-2022",
       "mo-2014",
+      "mo-2015",
+      "mo-2013",
       "mo-2018",
       "mo-2024",
-      "mo-2022"
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "7pFuvRYtCKtt9VlH96KD",
-      "aNcL7xH7R6jXj3VwlVsg",
-      "dusRnkJUq1wY8JjWbh1i",
-      "gIzYsFdleAPefOMBeN9r",
-      "ggbYLOKjBFnIqndlQCtF",
-      "gz2BRk4vuOlyhYEG28EG",
-      "ndscIaGsVQ97iwjma3L8",
-      "pOn2YhVSbgHsJohCKWxq",
-      "qQuWbqAD1yhVyndFBCWk",
-      "rldWoGXXMsJmyfFeIGgV",
-      "t8XNybIzGMr9dWFTepMX",
-      "tiz0Lq3AgcOaIvfopiO4",
-      "vGkJyLipGQwMK6zW4hQh"
+      "46UE51YeHjyh0mYBSLVi",
+      "6UOqFXIZx0SqvGavgkwZ",
+      "JCMUea7cxwOm3mbIbQqD",
+      "MRdlrN9H5XjriZEZZ7hz",
+      "Rgq7253A7DUul4rntTK8",
+      "d1k4HZTaasCXOSru4jcb",
+      "e3LF5VaPD0Z4b1OBo1NE",
+      "kki6bAPfJH0gFXb552q3",
+      "lROx5Mx1oNtcEtNfzl9W",
+      "mdNFKGX2HMIpnBDqfnbI",
+      "sJBJ8NZFdIrYMkOUFXaz",
+      "wdjvFdW1M4ev1dW5bEKd",
+      "xXnRxPAt6PzeSpd94geV"
     ],
     "raw": {
       "fullName": null,
@@ -11064,7 +11116,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "OwkQG7iuXnFoqzovd7wR"
+      "JRzPevW9p14QWNKObqbn"
     ],
     "raw": {
       "fullName": null,
@@ -11078,21 +11130,21 @@
     "displayName": "Steinar Aalbu",
     "nameSource": "first_last",
     "yearOfBirth": 1975,
-    "gender": "male",
+    "gender": null,
     "email": "steinar.aalbu@gmail.com",
     "editions": [
-      "mo-2019",
-      "mo-2016",
-      "mo-2014",
+      "mo-2021",
       "mo-2015",
-      "mo-2021"
+      "mo-2014",
+      "mo-2016",
+      "mo-2019"
     ],
     "sourceDocIds": [
-      "3JOswGgklX5jxOWx1gXC",
-      "9oMPCT3np10jgyaRcVPQ",
-      "inZFxcWkEy0qR9lj3EWn",
-      "kZTYSpEvkrHxi29mLOjZ",
-      "sAjRbBjV14pzsLF72D29"
+      "3fqho9jqAJjQ5nlRjrZE",
+      "GBOX3ZISvIuWdBGTf0Ii",
+      "LwAnDIrgk7uld90PNPZm",
+      "gBwXxUWOYV8F9W5etCET",
+      "w1rkJwsk7dVzmmy67oID"
     ],
     "raw": {
       "fullName": null,
@@ -11112,7 +11164,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "BZ24Ba02yecljcQBRG9v"
+      "Rr9Qa1dzSvSClWP1hpdf"
     ],
     "raw": {
       "fullName": null,
@@ -11132,7 +11184,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "mkhvdULrgYdFNAGDeJjK"
+      "JtmcuIRWisNBQDDPJb9R"
     ],
     "raw": {
       "fullName": null,
@@ -11153,8 +11205,8 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "jIN95JA0gO7DK6wgIzRB",
-      "o2icG9rEivcr7HPBX8Vg"
+      "4fkbR1oXphlxfRRAWnbm",
+      "DvmQ1fwzFAqcQzA8AHaN"
     ],
     "raw": {
       "fullName": null,
@@ -11174,7 +11226,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "o0yZgQ1eS7SnUmE3PXZF"
+      "qNDHq1zIUoMT2XIeV90y"
     ],
     "raw": {
       "fullName": null,
@@ -11195,8 +11247,8 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "euR7TvrqpPNSYfqtPviQ",
-      "fmA2TFJhej00iNklWATe"
+      "iNmzl7vtVD7gLpMpyt2I",
+      "yYqvm8Z9iIQO4YWIZlkH"
     ],
     "raw": {
       "fullName": null,
@@ -11216,7 +11268,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "cUGLjyRt4dQV80gy7MdV"
+      "bBO7EuRHIOQbJ7zKaX44"
     ],
     "raw": {
       "fullName": null,
@@ -11236,7 +11288,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "HOotMTTgRTi55YPnoGF2"
+      "OeeZptwZMIJQrEw40dCq"
     ],
     "raw": {
       "fullName": null,
@@ -11256,7 +11308,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "Xgz2d7ykZi2g9xvXZ87q"
+      "5QUNnlEajboHxXDsE1ew"
     ],
     "raw": {
       "fullName": null,
@@ -11277,8 +11329,8 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "L3mmzKpPDAukCJ9l82D0",
-      "vVhBsXLG8YqRwN6pOALr"
+      "H2VjF3HDpkqORG9K3XaY",
+      "QVGG5s7B8jDLgiLjf1q9"
     ],
     "raw": {
       "fullName": null,
@@ -11298,7 +11350,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "8DhNmBrCYiB4at0P4yZr"
+      "i63r1RtgQh6pEaaWpjF1"
     ],
     "raw": {
       "fullName": null,
@@ -11318,7 +11370,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "rHyy51jb5ZTKvmOgs20I"
+      "swdeCIYOsrJ4rKhgdzFb"
     ],
     "raw": {
       "fullName": null,
@@ -11338,7 +11390,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "lpqwxRlqBNZEVezXdvme"
+      "qThL2ZZt7Sw9HsNqiCzC"
     ],
     "raw": {
       "fullName": null,
@@ -11358,7 +11410,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "7Frk06JR8JKfpbMnWbZn"
+      "w13ORkzZhbozv2A20KqU"
     ],
     "raw": {
       "fullName": null,
@@ -11378,7 +11430,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "eXzp8cwbBc5Acky4zWz7"
+      "iJIzOMaxKAGD4ChG1tqv"
     ],
     "raw": {
       "fullName": null,
@@ -11395,12 +11447,12 @@
     "gender": null,
     "email": "stinedal@hotmail.com",
     "editions": [
-      "mo-2012",
-      "mo-2011"
+      "mo-2011",
+      "mo-2012"
     ],
     "sourceDocIds": [
-      "LNoYOhuUMhDdrcju38sM",
-      "tjWCwZuPpfH0YXMlzwul"
+      "9SQSNlA4faPHGIytqhNV",
+      "kDMm5ttukdYHG2ucEtwD"
     ],
     "raw": {
       "fullName": null,
@@ -11420,12 +11472,32 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "AX9xdHyRPtTGe2ZOIjtO"
+      "htut1P5qkIcnZAnDjBNu"
     ],
     "raw": {
       "fullName": null,
       "firstName": "Svein",
       "lastName": "Berg Fines"
+    }
+  },
+  {
+    "runnerKey": "sven nevin|2007",
+    "fullName": "Sven Nevin",
+    "displayName": "Sven Nevin",
+    "nameSource": "first_last",
+    "yearOfBirth": 2007,
+    "gender": null,
+    "email": "nivenenna@gmail.com",
+    "editions": [
+      "mo-2018"
+    ],
+    "sourceDocIds": [
+      "bofjBTFkTHkI2ni76L84"
+    ],
+    "raw": {
+      "fullName": null,
+      "firstName": "Sven",
+      "lastName": "Nevin"
     }
   },
   {
@@ -11440,7 +11512,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "zYDJrBwRGYSXZw6ogDrw"
+      "ecn4LHmctGpJmK6eBSmx"
     ],
     "raw": {
       "fullName": null,
@@ -11460,7 +11532,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "PRECUBqasZQH5AhBM3ps"
+      "x340j2iHpsuK1EBRWnVP"
     ],
     "raw": {
       "fullName": null,
@@ -11480,7 +11552,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "TIZZGrr6yqm7D8lBLiJ4"
+      "z1NsNTvwPzWsx30eKJAA"
     ],
     "raw": {
       "fullName": null,
@@ -11500,7 +11572,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "IGliWeBYbBSuJOpIo9Vh"
+      "MMWger7kHN0wchAKVH9Q"
     ],
     "raw": {
       "fullName": null,
@@ -11517,14 +11589,14 @@
     "gender": "male",
     "email": "tnygaar3@online.no",
     "editions": [
+      "mo-2022",
       "mo-2025",
-      "mo-2024",
-      "mo-2022"
+      "mo-2024"
     ],
     "sourceDocIds": [
-      "IQdNQYRZWyc4zERShOMZ",
-      "irDH8ucBT91b8XI8NKxj",
-      "tLmqKBCodO51oDVOlRDB"
+      "0uyYFoGqejbEDzIeCT2m",
+      "1QjEEhjUE9WmPwaFAXLK",
+      "hG2W0RZxmYkw9ytRgY8J"
     ],
     "raw": {
       "fullName": null,
@@ -11544,7 +11616,7 @@
       "mo-2023"
     ],
     "sourceDocIds": [
-      "DbtNyjLSTmZK6JdFVqDo"
+      "v5hO6e7heptWifL7PSvL"
     ],
     "raw": {
       "fullName": null,
@@ -11564,7 +11636,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "TT205NKyRKyJAUWma9qw"
+      "wB1In4Zr7jkUavGCeCTj"
     ],
     "raw": {
       "fullName": null,
@@ -11584,7 +11656,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "RBhx42af3Mdw4wSqR2Yo"
+      "Q31aYH4s7I6bT9exXdCc"
     ],
     "raw": {
       "fullName": null,
@@ -11601,12 +11673,12 @@
     "gender": "male",
     "email": "thomas.kjetland@gmail.com",
     "editions": [
-      "mo-2018",
-      "mo-2025"
+      "mo-2025",
+      "mo-2018"
     ],
     "sourceDocIds": [
-      "HPo1hpsutDJqeHNoLnDe",
-      "wg20dihc8EbRlXNW9G22"
+      "3Cin0eFebHhNkJLxiwgZ",
+      "9NfrN4T809zFAK2bUgN4"
     ],
     "raw": {
       "fullName": null,
@@ -11626,7 +11698,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "iQRktJIaOojzckC5bEOG"
+      "hsfm5mjxSdBOGClLdWFw"
     ],
     "raw": {
       "fullName": null,
@@ -11646,7 +11718,7 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "z3syXcDD8z1SU9kanOp1"
+      "gxYXP7E8YCZy5P384OaF"
     ],
     "raw": {
       "fullName": null,
@@ -11667,8 +11739,8 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "WVlgjDFCaG9gtcNz5LbK",
-      "m85L4xMu7iWxvSNFh1Es"
+      "9KE6r4TpfVSmgW3XvhnA",
+      "FRaqU8KziNJJrSxVylQc"
     ],
     "raw": {
       "fullName": null,
@@ -11685,14 +11757,14 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2016",
+      "mo-2019",
       "mo-2017",
-      "mo-2019"
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "BayEpqOfPvmmpbVQYpmd",
-      "DjoBhlocFdaS12k7Xd5x",
-      "Ja0zaiHLpC4vt7kBB51s"
+      "Hzre0wAD1MehSDuJsE7d",
+      "SxeWOB1a5OTO4LEBJftH",
+      "hY9nGDK7qKmHPBUQYRlm"
     ],
     "raw": {
       "fullName": null,
@@ -11709,16 +11781,16 @@
     "gender": null,
     "email": null,
     "editions": [
-      "mo-2013",
       "mo-2011",
       "mo-2017",
-      "mo-2012"
+      "mo-2012",
+      "mo-2013"
     ],
     "sourceDocIds": [
-      "443EggpZACrmfu4sXbr6",
-      "BgMZGA4mqlVSN6CB02QE",
-      "GuHnd4Akz4ft3v1KVROl",
-      "JhbPp4yiD0a18NYA0R31"
+      "LrGcG3rEiP59g6ldAc2S",
+      "hPWxdStvAHSz8PANlSFY",
+      "iOeeyeMGdFO37BHCE0fT",
+      "s17TtRD8j2FX7qyMWjXn"
     ],
     "raw": {
       "fullName": null,
@@ -11739,8 +11811,8 @@
       "mo-2025"
     ],
     "sourceDocIds": [
-      "s7kGnBphdZvYqsd957Yx",
-      "tiZQfsW71BfVmG2agKRU"
+      "DFRm4Nxk1AnakbZkRMRh",
+      "xTv6BUT3Hx4TKDuivGYT"
     ],
     "raw": {
       "fullName": null,
@@ -11760,7 +11832,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "QGcIBt2dQQ6AEUC68B7C"
+      "i2B6nRe6ghd3OPrR9uKS"
     ],
     "raw": {
       "fullName": null,
@@ -11780,7 +11852,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "8AEoFVg52zuYIZZGS1FV"
+      "JTQtzWNI7c00C7ghLKNc"
     ],
     "raw": {
       "fullName": null,
@@ -11797,12 +11869,12 @@
     "gender": "female",
     "email": "johnrena@online.no",
     "editions": [
-      "mo-2017",
-      "mo-2018"
+      "mo-2018",
+      "mo-2017"
     ],
     "sourceDocIds": [
-      "NHUdD7mTQ5eQPDGGg1uK",
-      "vvlMSzlDpxo4CIv8P8wA"
+      "WGYHP11puAkpO7LM3KWU",
+      "hGyCwGUwQkMsjAthL2fz"
     ],
     "raw": {
       "fullName": null,
@@ -11822,7 +11894,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "UPiUCoy2sEka4UH3mw62"
+      "PEpfopSWUHuoPhxbKO1m"
     ],
     "raw": {
       "fullName": null,
@@ -11842,7 +11914,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "6T0nWWFyEsXA8fZwq4id"
+      "QTeiIuNiXYQtD7lilg54"
     ],
     "raw": {
       "fullName": null,
@@ -11863,8 +11935,8 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "cdD6G7X6YjMnURuR9Lzi",
-      "pk7UcHkqOjzSbZUsmwyL"
+      "CokGeF7g1iq3trh1LAyf",
+      "mgOuqOhSPjl6PRs2r48b"
     ],
     "raw": {
       "fullName": null,
@@ -11884,7 +11956,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "UOSCRU8HmH5F6NkGveja"
+      "MuFI5q25pfHyZ1alG3Fc"
     ],
     "raw": {
       "fullName": null,
@@ -11904,7 +11976,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "pTLFGfizl7VZaUOAgGFk"
+      "LYS4rAyLfldhnEGCRAge"
     ],
     "raw": {
       "fullName": null,
@@ -11924,7 +11996,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "k382WLyCkZGkL15NOxt8"
+      "EWufAcwiafnrl7TGmbBe"
     ],
     "raw": {
       "fullName": null,
@@ -11944,7 +12016,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "hQ6eSMaj8dk9ajdzP4Kn"
+      "D72S37OoDEjy2ehTKrRm"
     ],
     "raw": {
       "fullName": null,
@@ -11965,8 +12037,8 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "dEWraEKMfxbUjt6u8ItG",
-      "vUsMkbMlbxlFMMcVcgL0"
+      "N27VCNeHPB9WXjq2rF0g",
+      "nGaEDZavxpqfhTK2sVM3"
     ],
     "raw": {
       "fullName": null,
@@ -11986,7 +12058,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "TdP3TWEICco5weDVL5Kk"
+      "CegNQszLjI8CioauVONn"
     ],
     "raw": {
       "fullName": null,
@@ -12006,7 +12078,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "t7rL8ZmLg3FUnjxk2pjf"
+      "oWNKP2HRBBCUN0729Jzs"
     ],
     "raw": {
       "fullName": null,
@@ -12026,7 +12098,7 @@
       "mo-2021"
     ],
     "sourceDocIds": [
-      "XpBidQyKJEhzVwjSOb0H"
+      "vQm4vSX2RmzGVUuCXjMX"
     ],
     "raw": {
       "fullName": null,
@@ -12046,7 +12118,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "SoRbEVJOXy3R6M8Bc0u8"
+      "NLnWi37lA4OQie7yhkxI"
     ],
     "raw": {
       "fullName": null,
@@ -12063,39 +12135,41 @@
     "gender": null,
     "email": "torgeir.kruke@gmail.com",
     "editions": [
+      "mo-2016",
       "mo-2023",
-      "mo-2014",
-      "mo-2018",
-      "mo-2012",
-      "mo-2013",
-      "mo-2022",
-      "mo-2019",
       "mo-2017",
-      "mo-2025",
       "mo-2020",
-      "mo-2021",
-      "mo-2024",
+      "mo-2025",
+      "mo-2022",
+      "mo-2012",
       "mo-2011",
-      "mo-2015",
-      "mo-2016"
+      "mo-2018",
+      "mo-2019",
+      "mo-2021",
+      "mo-2014",
+      "mo-2013",
+      "mo-2024",
+      "mo-2015"
     ],
     "sourceDocIds": [
-      "11OX4qe4ZR4a5L5LZIJ9",
-      "6xZ8KMlvXV76wQwCnE1K",
-      "A0zZfzZSTGHN44hpbb7y",
-      "Ae8p0uSxQ1DAxIxrwpU9",
-      "DeDBQP8527asN2HZEBNf",
-      "EIDCOIljdlffRuuHy3Ys",
-      "HESz2186cpzQguUbsE5c",
-      "J8M1AM0M5AI4tBqc6gEd",
-      "Kr9RkjGFj8lDtV4hwdKS",
-      "PtbalrSrWkJdHXeH21Er",
-      "hYsr5hsQboaRnuxNblxc",
-      "poUUXWv0Qu1FDX1dJLyz",
-      "qsVYCxvnyJcnfKTlQRMz",
-      "uhRGFS40oDgVxCrVCp9d",
-      "xm0feXz4IsdzeIMTzG2d",
-      "zqWHonRsKR0jm75EEG0O"
+      "54PjPsnfiaAMh64ISn9O",
+      "9VCeNGGp5hvyo7XlTaLb",
+      "9WcXmvLxA0K5h0jgkOVo",
+      "JlBsWUnQ8LLXZdZJrZoF",
+      "LDWt4ZL5nbad7ZFws6gW",
+      "O4TgSOpCeSwHqVY2yV5j",
+      "OPzpKgNYHBcZDvVpuGgH",
+      "SsEp3HspeaXXMWVLltti",
+      "WGR7FGYTTD4gqbq6uTiD",
+      "WS6m3wfMiH2Bor13C4ep",
+      "biCUANpxXZqeDqBol2ER",
+      "d3wqtKoMTGwPFvbugONT",
+      "gQJTGo3C10GdIKgRNHOc",
+      "pZWdc2QzvLMBEi1iwy3D",
+      "rJfySFNV0CmAkHFXpktC",
+      "umn0qAqyCVMYePy3EXBX",
+      "xDcH04ZmElNYP5QXZEfd",
+      "zWLsr0Yg6syhZVVVam7M"
     ],
     "raw": {
       "fullName": null,
@@ -12115,7 +12189,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "HS9CX61xJYcg5K7LkvJN"
+      "EKz7tIwveWv0cxHCvs25"
     ],
     "raw": {
       "fullName": null,
@@ -12135,7 +12209,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "7C4eKeBkBsMIIpMC79ys"
+      "3KhrcK5d4XFnIs6f12CA"
     ],
     "raw": {
       "fullName": null,
@@ -12155,7 +12229,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "e8g0S5nKEcNywzdXBPTR"
+      "iHv6YtquS0PsBDGE6hZf"
     ],
     "raw": {
       "fullName": null,
@@ -12172,36 +12246,36 @@
     "gender": null,
     "email": "trine.fosmo@ntebb.no",
     "editions": [
-      "mo-2013",
       "mo-2017",
-      "mo-2023",
-      "mo-2021",
-      "mo-2020",
-      "mo-2019",
-      "mo-2015",
-      "mo-2022",
-      "mo-2012",
-      "mo-2025",
-      "mo-2014",
-      "mo-2018",
       "mo-2016",
-      "mo-2024"
+      "mo-2019",
+      "mo-2012",
+      "mo-2023",
+      "mo-2014",
+      "mo-2024",
+      "mo-2013",
+      "mo-2020",
+      "mo-2021",
+      "mo-2015",
+      "mo-2025",
+      "mo-2022",
+      "mo-2018"
     ],
     "sourceDocIds": [
-      "0QO3YYPdqVDb23IlA3X1",
-      "CSnGsplABDRzfNvPTFVs",
-      "DKdNAcx6NVOMRJLl9fUb",
-      "Ns84t6qhbzE0XjpkT6cA",
-      "RFMD019gzwaIiKl5xlIm",
-      "RPf2vDleGBssosperlbo",
-      "SlY7fywpBV1BXgfpCKjW",
-      "V2baPYT39ltZfA8bs4Lp",
-      "clpJ4J7yBSsH84Y31Cz6",
-      "eisVCOxq4OxP8bokx2Ed",
-      "nPACEzOlKt3YHboXLszz",
-      "roWeIcj9rYoIDiTB44OW",
-      "tRBGj7LSzhmbhPZH1BPG",
-      "ymjGEz9FRZchybdrOwaI"
+      "3CwUbx1DlJuyce8GTsCe",
+      "4P4mW2hTv0nL4PIgFBX0",
+      "6qZchMJ6GuUu92elkOyW",
+      "7JWSpS3YZXuJUXfy2XRr",
+      "7KQ5k4ikdfRh7wVlJcVy",
+      "7cyCfSagJ02mhIDk8X9P",
+      "KwZmUwkT5D6iw8LluwZh",
+      "LwElgafDDvfDLieMG3nN",
+      "SX1bmWaxfyhiliywzE4G",
+      "ZwyHBPQKkONpY7ygWD7z",
+      "iIynfnScMb4bVPkrHVYs",
+      "jhPmhwvz4S19AUpvS6TK",
+      "sBmZUEEZ2YWgcjacgupG",
+      "yYmDusYWNaT41gCA1XuZ"
     ],
     "raw": {
       "fullName": null,
@@ -12221,7 +12295,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "xfpZMJzOKAkFm2lBjft1"
+      "1uCxUbdlZvYPwUvCe3qS"
     ],
     "raw": {
       "fullName": null,
@@ -12241,7 +12315,7 @@
       "mo-2022"
     ],
     "sourceDocIds": [
-      "YiWFH77MMr3AizrqHQCU"
+      "RJWznoX1LPeruQdG3lKo"
     ],
     "raw": {
       "fullName": null,
@@ -12261,7 +12335,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "9IWS8luzo1d7Sw9ncokG"
+      "rrXramSieLt0C5NaQlOX"
     ],
     "raw": {
       "fullName": null,
@@ -12281,7 +12355,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "jPRQtMTrj9FwpXc80UYb"
+      "aD5zUvZ5v5wRtUcKKYTE"
     ],
     "raw": {
       "fullName": null,
@@ -12301,7 +12375,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "84XdcpEq1sfQKCviaEtR"
+      "O72doeSYriIpvmZlEQxt"
     ],
     "raw": {
       "fullName": null,
@@ -12321,7 +12395,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "ZKMjWW9QH5Q1KlAXs38a"
+      "U3dXbBxzBSJj2yVOqxaM"
     ],
     "raw": {
       "fullName": null,
@@ -12342,8 +12416,8 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "BTSqMdslJMYgRRLZ9Sgi",
-      "JKRJlTOB5XTKkq9iEput"
+      "aYNQauFPly7Ha8coAAjO",
+      "r9WACt8dd7q3UL4THQAR"
     ],
     "raw": {
       "fullName": null,
@@ -12363,7 +12437,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "ePkhSHmmpA3Tjztjv1wE"
+      "w1aWXOW2g1zNZBS671Lu"
     ],
     "raw": {
       "fullName": null,
@@ -12383,7 +12457,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "tTUE1IEBm9pLg6nXpXdL"
+      "kpgq2DhzcVqLbK9TZMV6"
     ],
     "raw": {
       "fullName": null,
@@ -12400,37 +12474,37 @@
     "gender": null,
     "email": "vegar.kruke@gmail.com",
     "editions": [
-      "mo-2021",
-      "mo-2024",
-      "mo-2018",
       "mo-2012",
       "mo-2022",
+      "mo-2019",
+      "mo-2011",
       "mo-2023",
       "mo-2013",
-      "mo-2014",
-      "mo-2019",
-      "mo-2016",
-      "mo-2025",
       "mo-2017",
-      "mo-2011"
+      "mo-2018",
+      "mo-2021",
+      "mo-2024",
+      "mo-2014",
+      "mo-2025",
+      "mo-2016"
     ],
     "sourceDocIds": [
-      "3Cogn3XzQRVkaSQG6YrS",
-      "4aN9FYpSbAyRizEiEOZl",
-      "8GDxScSqnOPPILxj3Qpj",
-      "CF7vIu4p5xPiotUFIpO1",
-      "Dn2ZC3accfj2Gm7twuaA",
-      "GAsy41zSRSZ3bKPXx36z",
-      "JEjiPl3ZdrSUVyTRQceo",
-      "JS1foMFKC493LinUniG7",
-      "Lh3cUBHCfJacnRVr8Cyo",
-      "MbzZQwJ55bFFfqkZHMnM",
-      "TCfHZ1UYLvYWy9YwQYeD",
-      "Xyt2B26rLn2Oemf9y55N",
-      "bbIfGwTdz7tajWwOc5oH",
-      "gK8Q9OqGiuM61c6Jfttx",
-      "pWrdBxBh209sIU4EMH4A",
-      "ybLozGzsrUoRmqSjpfI6"
+      "18ymWyWHhUOexYRIur3G",
+      "2SZD8jl3IyPpXsMQPDY1",
+      "7PaK9h0CUEVU9oW8mP65",
+      "8eXRu4EgUgdoAeX2NnCi",
+      "FL07EWRFjnIKgrd1TXGH",
+      "JHB7MfAxM803RtHp52MN",
+      "OndtvK2JEAs2dI85yKG1",
+      "SzWpSDpfH8RpHTm5iOq2",
+      "WuXuloDq8wXR9CpxjclW",
+      "bF6U8Q2NShK34uvQFhqI",
+      "jUd7aS9iUBKywVmruORU",
+      "nJPq41vBTtiH6AGHoYYX",
+      "oApIHaqL0btMYJkHkFVz",
+      "oBxkQ3JzUO26MQiHYVL0",
+      "ypGbHTb0SvaKQWKvZu8O",
+      "z9PVPFumjmGaVHFZ2RyY"
     ],
     "raw": {
       "fullName": null,
@@ -12450,7 +12524,7 @@
       "mo-2018"
     ],
     "sourceDocIds": [
-      "npXerTUR7pvGVtfAN1MR"
+      "AW9KEDj8m59Ns88qpbOj"
     ],
     "raw": {
       "fullName": null,
@@ -12470,7 +12544,7 @@
       "mo-2014"
     ],
     "sourceDocIds": [
-      "XuleexW3w8Xu8CqWcxEL"
+      "uBnTiipUv6dk4HQuBl1J"
     ],
     "raw": {
       "fullName": null,
@@ -12490,7 +12564,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "4RXPHBfabtTa0xaHudg7"
+      "sPvrBuMoni9GZgyOqCPy"
     ],
     "raw": {
       "fullName": null,
@@ -12510,7 +12584,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "wTZTQ8mLDJnaNAi6IRMu"
+      "7mTfBNaUa0PLZDEJeLkz"
     ],
     "raw": {
       "fullName": null,
@@ -12530,7 +12604,7 @@
       "mo-2012"
     ],
     "sourceDocIds": [
-      "wX4c5H6YqKSIbJcozEDL"
+      "hSBRMKqZKjbezANHhiig"
     ],
     "raw": {
       "fullName": null,
@@ -12550,7 +12624,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "vmfumZPrasMK0lE7kMh2"
+      "gaeG9oWmxGalCV9HY4O2"
     ],
     "raw": {
       "fullName": null,
@@ -12567,12 +12641,12 @@
     "gender": "male",
     "email": "vegard.olsvik@hotmail.com",
     "editions": [
-      "mo-2013",
-      "mo-2015"
+      "mo-2015",
+      "mo-2013"
     ],
     "sourceDocIds": [
-      "X1UDtwRKnxMrNZ7BOLYO",
-      "eFICflFFdAoWvCLlJdqI"
+      "2AD8IXbavi34od30oTfo",
+      "QcCpg1BM5Y2RlcrA7RAo"
     ],
     "raw": {
       "fullName": null,
@@ -12592,7 +12666,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "OrbI7kRdxF9jImVsTKI7"
+      "QtfevbgFc3kqjy0Zoj2E"
     ],
     "raw": {
       "fullName": null,
@@ -12612,7 +12686,7 @@
       "mo-2016"
     ],
     "sourceDocIds": [
-      "E2dRMA2CMPGFiaxCNRMR"
+      "c6n9OHCUu3KZkLo3YL8v"
     ],
     "raw": {
       "fullName": null,
@@ -12632,7 +12706,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "y0MQiQp7B4ydUtrOMyZP"
+      "BON9qawoMGw30n6eK0U0"
     ],
     "raw": {
       "fullName": null,
@@ -12653,8 +12727,8 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "bgddT7CaXipasyOsICmJ",
-      "evVrzV5BkPcM78C3mE3P"
+      "ZdapyR18lDRYaSZX1Weh",
+      "iUhLGuftWYaXgyxIpnpe"
     ],
     "raw": {
       "fullName": null,
@@ -12676,9 +12750,9 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "esqg9IZhMjftzCmveJf3",
-      "k8PeQHbXF786fadFhcLa",
-      "vxdUOLczoq8npNj23SKM"
+      "X5COxA7BvDlJu4yjERld",
+      "YZIA3us9ULy9ERY92Jy3",
+      "ujZwsvSEVrS3ha6jB527"
     ],
     "raw": {
       "fullName": null,
@@ -12698,7 +12772,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "hZGVy3Nf9W24QQ0RLY7l"
+      "Fb9Vhv3fXUCjZ3fk3O4C"
     ],
     "raw": {
       "fullName": null,
@@ -12718,7 +12792,7 @@
       "mo-2015"
     ],
     "sourceDocIds": [
-      "MeML1Kf41EioJmqJrshI"
+      "Y6wQmlhkHalUi6KjbLA1"
     ],
     "raw": {
       "fullName": null,
@@ -12738,7 +12812,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "2neVcrcLXt1Yz51zepnC"
+      "Y9kaRaN9j8joxlQ7GfXl"
     ],
     "raw": {
       "fullName": null,
@@ -12758,7 +12832,7 @@
       "mo-2024"
     ],
     "sourceDocIds": [
-      "QgqY6KZDOjKYPoQi0Dmo"
+      "ZwYld6pwGwiMTc90aeii"
     ],
     "raw": {
       "fullName": null,
@@ -12778,7 +12852,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "0foPyaTRCMC4sYvcYnVE"
+      "ALSocjD1YjfcjQwU86p2"
     ],
     "raw": {
       "fullName": null,
@@ -12798,7 +12872,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "NFYmg42uMDjv7Yaa6rbw"
+      "qjkblayyAOGD6pysHbGQ"
     ],
     "raw": {
       "fullName": null,
@@ -12818,7 +12892,7 @@
       "mo-2019"
     ],
     "sourceDocIds": [
-      "PQnTFHE5DfzVlc6mdW0l"
+      "GBHTTnlv7WAK9blyzyk3"
     ],
     "raw": {
       "fullName": null,
@@ -12838,7 +12912,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "FRY5ELY55R9ah8jr8yau"
+      "85TfRU8xSPBzu34M9FiM"
     ],
     "raw": {
       "fullName": null,
@@ -12858,7 +12932,7 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "5igQKTlmvIgWgnuTCx5a"
+      "oqLJHaAENOeHWaADcX0Q"
     ],
     "raw": {
       "fullName": null,
@@ -12872,13 +12946,13 @@
     "displayName": "Wenche Aune Snildalsli",
     "nameSource": "first_last",
     "yearOfBirth": 34397,
-    "gender": "female",
+    "gender": "Female",
     "email": "w_snildalsli@hotmail.no",
     "editions": [
       "mo-2019"
     ],
     "sourceDocIds": [
-      "u65LzGmuaVsLW9QPMUUJ"
+      "L8FeWWDj8DTmuA5dhd7S"
     ],
     "raw": {
       "fullName": null,
@@ -12899,8 +12973,8 @@
       "mo-2017"
     ],
     "sourceDocIds": [
-      "Ams8Gmj0IrSxUt1yPD81",
-      "stgu2zrsXX59K3SCl1Pt"
+      "CzGrcBoUBrydJZQfHl6m",
+      "y23FWwJFl4ziYVCGYiaX"
     ],
     "raw": {
       "fullName": null,
@@ -12917,12 +12991,12 @@
     "gender": null,
     "email": "willy.wollo@gmail.com",
     "editions": [
-      "mo-2014",
-      "mo-2019"
+      "mo-2019",
+      "mo-2014"
     ],
     "sourceDocIds": [
-      "hPT1NNvc6hkyxcNeHz38",
-      "rWaD6c26g7igNbicHsEn"
+      "ETx9bgzjm1BRYhFDWiSY",
+      "RmKeqkUwHlBm9MdWUHN6"
     ],
     "raw": {
       "fullName": null,
@@ -12942,7 +13016,7 @@
       "mo-2013"
     ],
     "sourceDocIds": [
-      "MVp1ji7RkNlTsX7lDUHj"
+      "KNj5cotSsMV6zd7Gvf3R"
     ],
     "raw": {
       "fullName": null,
@@ -12962,7 +13036,7 @@
       "mo-2011"
     ],
     "sourceDocIds": [
-      "Nh46wHSmsFPNWZ4zslHK"
+      "W2JoEyuBJn78uRplZpg0"
     ],
     "raw": {
       "fullName": null,

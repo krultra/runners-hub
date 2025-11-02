@@ -10,7 +10,7 @@
     "userId": "3DThrpOtvwhLNV4Q8V2Ko3G1FKS2",
     "fullName": "",
     "yearOfBirth": null,
-    "gender": null,
+    "gender": "M",
     "email": "tok@brreg.no"
   },
   {
@@ -133,13 +133,6 @@
     "email": "jes.gitz.holler@gmail.com"
   },
   {
-    "userId": "PZpJvp3cS9X34R3ttizBsRB7Dzy2",
-    "fullName": "",
-    "yearOfBirth": null,
-    "gender": null,
-    "email": "torgeir.kruke@gmail.com"
-  },
-  {
     "userId": "QqPwHM3DtGezbraHMCdsSheIT2U2",
     "fullName": "",
     "yearOfBirth": null,
@@ -199,7 +192,7 @@
     "userId": "WBUZYeb32XM8Omy9keVT3Daj6sh2",
     "fullName": "",
     "yearOfBirth": null,
-    "gender": null,
+    "gender": "M",
     "email": "torgeir.kruke@krultra.no"
   },
   {
@@ -392,6 +385,13 @@
     "email": "evy.gjedrem@hotmail.no"
   },
   {
+    "userId": "f9g7B2xZWDUyTfFfOyfE",
+    "fullName": "",
+    "yearOfBirth": 1919,
+    "gender": "Female",
+    "email": "uid@krultra.no"
+  },
+  {
     "userId": "filipa.barros@live.com.pt",
     "fullName": "",
     "yearOfBirth": 1990,
@@ -441,6 +441,13 @@
     "email": "aebirk@online.no"
   },
   {
+    "userId": "jacknaess@gmail.com",
+    "fullName": "",
+    "yearOfBirth": 1971,
+    "gender": "Male",
+    "email": "jacknaess@gmail.com"
+  },
+  {
     "userId": "jan.eirik.kolstad@gmail.com",
     "fullName": "",
     "yearOfBirth": 1973,
@@ -467,6 +474,13 @@
     "yearOfBirth": 1996,
     "gender": "Male",
     "email": "joarbohman@gmail.com"
+  },
+  {
+    "userId": "johnny.wallenius@fornebuporten.no",
+    "fullName": "",
+    "yearOfBirth": 1982,
+    "gender": "Male",
+    "email": "johnny.wallenius@fornebuporten.no"
   },
   {
     "userId": "jonandrejoh@yahoo.no",
@@ -616,6 +630,13 @@
     "email": "adrian_wenaas@hotmail.com"
   },
   {
+    "userId": "olav96@gmail.com",
+    "fullName": "",
+    "yearOfBirth": 1996,
+    "gender": "Male",
+    "email": "olav96@gmail.com"
+  },
+  {
     "userId": "ole.rabanal@gmail.com",
     "fullName": "",
     "yearOfBirth": 1989,
@@ -658,11 +679,25 @@
     "email": "peterlangegbg@gmail.com"
   },
   {
+    "userId": "psykologhoksnes@gmail.com",
+    "fullName": "",
+    "yearOfBirth": 1985,
+    "gender": "Male",
+    "email": "psykologhoksnes@gmail.com"
+  },
+  {
     "userId": "pvqSrRYvtlRIFb2Qqk51NgylYlo1",
     "fullName": "",
     "yearOfBirth": null,
     "gender": "Male",
     "email": "tage.rosten@gmail.com"
+  },
+  {
+    "userId": "pweiss26@hotmail.com",
+    "fullName": "",
+    "yearOfBirth": 1986,
+    "gender": "Female",
+    "email": "pweiss26@hotmail.com"
   },
   {
     "userId": "q2dkDFw2J1fg1rHc1U92zgZscsN2",

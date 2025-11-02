@@ -80,3 +80,22 @@
 - **Finalize**
   - Re-run coverage check to confirm zero missing `K` entries.
   - Optionally clone validated collections from test → prod via `scripts/cloneFirestoreProject.js` instead of re-importing.
+
+## Production rollout log — 2025-11-02
+- **Imports executed (prod)**
+  - Competition results via `npm run import:mo-competition -- --env prod --file "public/data/Eksport til RunnersHub.csv" --start-year 2011 --end-year 2025 --include-validation` (dry-run first).
+  - Participation results via `npm run import:mo-participation -- --env prod --file "public/data/Adelskalender.csv" --start-year 2011 --end-year 2025 --types tur,trim,volunteer` (dry-run first).
+- **Coverage reconciliation**
+  - Generated report with `npm run check:mo-coverage -- --env prod --file "public/data/Adelskalender.csv" --start-year 2011 --end-year 2025 --output coverage-report-prod.json`.
+  - Resolved 29 gaps using `npx ts-node --transpile-only --project tsconfig.scripts.json scripts/reconcileMoCompetitionCoverage.ts --env prod --report coverage-report-prod.json --output reconciliation-report-prod.json --max-candidates 5`.
+  - Applied DNS classifications via `npx ts-node --project tsconfig.scripts.json scripts/addMoDnsResults.ts --env prod --report reconciliation-report-prod.json` (with preceding dry-run).
+- **Participant/user staging**
+  - Populated `moParticipantStaging/` and `moMatchCandidates/` using `TS_NODE_TRANSPILE_ONLY=1 npx ts-node --project tsconfig.scripts.json scripts/reconcileMoParticipants.ts --env prod --upload` after aligning Firestore indexes/rules with test.
+  - Approved matches in the Admin UI (Reconcile MO Participants) and applied them with `node scripts/applyMoParticipantMatches.js --env=prod`.
+  - Seeded MO users via `node scripts/seedUsersFromMoParticipants.js --env=prod`, then generated duplicate candidates with `node scripts/generateDuplicateUserCandidates.js --env=prod --minScore=0.85` and resolved 12 duplicates through the User Duplicates panel.
+- **Post-import hygiene**
+  - Re-ran `npm run backfill:uids -- --env prod` and `npm run sync:users` for recent editions (ensure registration parity).
+  - Confirmed MO runner profiles display editions, green tables, and navigation parity with KUTC.
+- **Next validation**
+  - Spot-check `/mo/results/:editionId`, `/mo/all-time`, `/mo/records`, and representative runner profiles.
+  - Verify admin dashboards (Reconcile, User Duplicates) show zero pending items after merge pass.

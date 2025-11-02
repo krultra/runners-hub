@@ -71,7 +71,11 @@
     "backfill:uids": "node scripts/backfillUserUids.js",
     "sync:users": "node scripts/syncUsersFromRegistrations.js",
     "clone:firestore:prod-to-test": "node scripts/cloneFirestoreProject.js --confirm",
-    "clone:firestore:prod-to-test:kutc": "node scripts/cloneFirestoreProject.js --confirm --include codeLists,eventEditions,resultsSummary,resultsAggregates,allTime"
+    "clone:firestore:prod-to-test:kutc": "node scripts/cloneFirestoreProject.js --confirm --include codeLists,eventEditions,resultsSummary,resultsAggregates,allTime",
+    "import:mo-competition": "ts-node --project tsconfig.scripts.json scripts/importMoCompetitionResults.ts",
+    "import:mo-participation": "ts-node --project tsconfig.scripts.json scripts/importMoParticipationResults.ts",
+    "check:mo-coverage": "ts-node --project tsconfig.scripts.json scripts/checkMoCompetitionCoverage.ts"
+
   },
   "eslintConfig": {
     "extends": [

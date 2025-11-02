@@ -1,0 +1,1463 @@
+{
+  "emailDupes": [
+    {
+      "email": "oddvarronning@hotmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "1D7zkzlLWrfuJMwmL8Vp",
+          "displayName": "Stian Rønning",
+          "firstName": "Stian",
+          "lastName": "Rønning",
+          "yearOfBirth": 2006
+        },
+        {
+          "id": "nKoeYUCmrTAWzjOttynx",
+          "displayName": "Oddvar Rønning",
+          "firstName": "Oddvar",
+          "lastName": "Rønning",
+          "yearOfBirth": 1980
+        }
+      ]
+    },
+    {
+      "email": "tinelerbakk@yahoo.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "25ynDjHj1XyOvuQ6qnwX",
+          "displayName": "Tine Lerbakk",
+          "firstName": "Tine",
+          "lastName": "Lerbakk",
+          "yearOfBirth": 1991
+        },
+        {
+          "id": "AaBbktCHq9uLNSLUejAk",
+          "displayName": "Ludvik Lerbakk Halvorsen",
+          "firstName": "Ludvik",
+          "lastName": "Lerbakk Halvorsen",
+          "yearOfBirth": 2016
+        }
+      ]
+    },
+    {
+      "email": "ingridkunzendorf@hotmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "2HcmUnSsKh37tNUXcdxU",
+          "displayName": "Anna Bolstad Kunzendorf",
+          "firstName": "Anna Bolstad",
+          "lastName": "Kunzendorf",
+          "yearOfBirth": 2002
+        },
+        {
+          "id": "V0TYzjrjRQHZjuLxgIZI",
+          "displayName": "Ingrid Bolstad Kunzendorf",
+          "firstName": "Ingrid Bolstad",
+          "lastName": "Kunzendorf",
+          "yearOfBirth": 1962
+        }
+      ]
+    },
+    {
+      "email": "lars.engvik@gmail.com",
+      "count": 4,
+      "users": [
+        {
+          "id": "3Cf4XzbUPpmXgLLaMuco",
+          "displayName": "Lars Engvik",
+          "firstName": "Lars",
+          "lastName": "Engvik",
+          "yearOfBirth": 1966
+        },
+        {
+          "id": "51AtlAdB5sn0xDrM0wgk",
+          "displayName": "Ane Engvik",
+          "firstName": "Ane",
+          "lastName": "Engvik",
+          "yearOfBirth": 1970
+        },
+        {
+          "id": "Zylvw4zbbWh5Gr510ND4",
+          "displayName": "Idun Marie Engvik",
+          "firstName": "Idun Marie",
+          "lastName": "Engvik",
+          "yearOfBirth": 2009
+        },
+        {
+          "id": "gAG6j7tiPUdK7jVcbq3P",
+          "displayName": "Ånund Olav Engvik",
+          "firstName": "Ånund Olav",
+          "lastName": "Engvik",
+          "yearOfBirth": 2004
+        }
+      ]
+    },
+    {
+      "email": "tok@brreg.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "3DThrpOtvwhLNV4Q8V2Ko3G1FKS2",
+          "displayName": ""
+        },
+        {
+          "id": "W1qpPHwldXSjZVFjXESsEvTBA502",
+          "displayName": ""
+        }
+      ]
+    },
+    {
+      "email": "julianneaarli@icloud.com",
+      "count": 4,
+      "users": [
+        {
+          "id": "4TQ8ebMvDRHMc2ERXC8d",
+          "displayName": "Julianne Aarli",
+          "firstName": "Julianne",
+          "lastName": "Aarli",
+          "yearOfBirth": 1977
+        },
+        {
+          "id": "4dj3XiqRkE0FKFp8Jxpu",
+          "displayName": "Alf Erik Aarli",
+          "firstName": "Alf Erik",
+          "lastName": "Aarli",
+          "yearOfBirth": 1971
+        },
+        {
+          "id": "hfhHP3q3WPbQFy7i7F4Y",
+          "displayName": "Emrik Aarli",
+          "firstName": "Emrik",
+          "lastName": "Aarli",
+          "yearOfBirth": 2006
+        },
+        {
+          "id": "wm0PhLvtqRFlPlOXnbT7",
+          "displayName": "Andy Aarli",
+          "firstName": "Andy",
+          "lastName": "Aarli",
+          "yearOfBirth": 2009
+        }
+      ]
+    },
+    {
+      "email": "lestro@online.no",
+      "count": 3,
+      "users": [
+        {
+          "id": "4YXG6jbqTSTevTnQLSaG",
+          "displayName": "Ludvig Strømsnes",
+          "firstName": "Ludvig",
+          "lastName": "Strømsnes",
+          "yearOfBirth": null
+        },
+        {
+          "id": "QzqWqCwCC6NaqH0UufG2",
+          "displayName": "Tina Williams",
+          "firstName": "Tina",
+          "lastName": "Williams",
+          "yearOfBirth": null
+        },
+        {
+          "id": "VZEDSifudmTuc3YUHn53",
+          "displayName": "Lars Erik Strømsnes",
+          "firstName": "Lars Erik",
+          "lastName": "Strømsnes",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "gorill.gyllan@gmail.com",
+      "count": 3,
+      "users": [
+        {
+          "id": "5awNl1Y7FyK92LYk060j",
+          "displayName": "Brage Romulslie",
+          "firstName": "Brage",
+          "lastName": "Romulslie",
+          "yearOfBirth": 2005
+        },
+        {
+          "id": "QdLlbgvd1XNc3vLHzi5V",
+          "displayName": "Hedda Romulslie",
+          "firstName": "Hedda",
+          "lastName": "Romulslie",
+          "yearOfBirth": 2007
+        },
+        {
+          "id": "q8IgZFfBucrKR1NddTMo",
+          "displayName": "Gørill Gyllan",
+          "firstName": "Gørill",
+          "lastName": "Gyllan",
+          "yearOfBirth": 1973
+        }
+      ]
+    },
+    {
+      "email": "havard.stjern@bntv.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "5v5r45JOR7U2RragmN1a",
+          "displayName": "Vegard Fosli Stjern",
+          "firstName": "Vegard Fosli",
+          "lastName": "Stjern",
+          "yearOfBirth": 1999
+        },
+        {
+          "id": "HTFoKveJuHPKmXwoUfIv",
+          "displayName": "Håvard Stjern",
+          "firstName": "Håvard",
+          "lastName": "Stjern",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "sog@statoil.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "6V8tFIITAkHzcbYLI79b",
+          "displayName": "Solvor Gåsvær",
+          "firstName": "Solvor",
+          "lastName": "Gåsvær",
+          "yearOfBirth": null
+        },
+        {
+          "id": "WARofwrubQhDvTkxuoU9",
+          "displayName": "Ola Martin Gåsvær",
+          "firstName": "Ola Martin",
+          "lastName": "Gåsvær",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "maunaas@gmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "6VjG2vqTNUQqavuLeF5H",
+          "displayName": "Marius Aunaas",
+          "firstName": "Marius",
+          "lastName": "Aunaas",
+          "yearOfBirth": 1976
+        },
+        {
+          "id": "I1URjwNN0vbmd8rnxscI",
+          "displayName": "Marius Aunaas",
+          "firstName": "Marius",
+          "lastName": "Aunaas",
+          "yearOfBirth": 1998
+        }
+      ]
+    },
+    {
+      "email": "maritmia.bjornstad@gmail.com",
+      "count": 3,
+      "users": [
+        {
+          "id": "7f1xAVsHPGWQYmBHVudb",
+          "displayName": "Sindre Haugerud Wold",
+          "firstName": "Sindre",
+          "lastName": "Haugerud Wold",
+          "yearOfBirth": 1988
+        },
+        {
+          "id": "FLvfVI9IVaWvOCDVSMyM",
+          "displayName": "Aksel Bjørnstad-Wold",
+          "firstName": "Aksel",
+          "lastName": "Bjørnstad-Wold",
+          "yearOfBirth": 2021
+        },
+        {
+          "id": "FmPDgftz6hTFewIHGTnz",
+          "displayName": "Johan Fredrik Bjørnstad-Wold",
+          "firstName": "Johan Fredrik",
+          "lastName": "Bjørnstad-Wold",
+          "yearOfBirth": 2018
+        }
+      ]
+    },
+    {
+      "email": "gorilt@gmail.com",
+      "count": 5,
+      "users": [
+        {
+          "id": "8KAM3RO6YvY45ejtmgiD",
+          "displayName": "Buvarp Charlotte",
+          "firstName": "Buvarp",
+          "lastName": "Charlotte",
+          "yearOfBirth": 2007
+        },
+        {
+          "id": "KaYFSSAUrI31wruZEdmi",
+          "displayName": "Pedersen Gunnar Evald",
+          "firstName": "Pedersen",
+          "lastName": "Gunnar Evald",
+          "yearOfBirth": 1976
+        },
+        {
+          "id": "NzoJzdHs5UjEw568sr1o",
+          "displayName": "Skarsbakk Signe",
+          "firstName": "Skarsbakk",
+          "lastName": "Signe",
+          "yearOfBirth": 2011
+        },
+        {
+          "id": "XgKdwsDL8en76exJsHFF",
+          "displayName": "Tronslien Gøril",
+          "firstName": "Tronslien",
+          "lastName": "Gøril",
+          "yearOfBirth": 1978
+        },
+        {
+          "id": "oDdhJ5h1TlIxluq9Q504",
+          "displayName": "Buvarp Amalie",
+          "firstName": "Buvarp",
+          "lastName": "Amalie",
+          "yearOfBirth": 2001
+        }
+      ]
+    },
+    {
+      "email": "robertkillingberg@hotmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "8QRGGWP2kUKY3cs3hZrZ",
+          "displayName": "Robert Killingberg",
+          "firstName": "Robert",
+          "lastName": "Killingberg",
+          "yearOfBirth": 1992
+        },
+        {
+          "id": "Nds5UWIwkCuThMT4uVLV",
+          "displayName": "Robert Killingberg",
+          "firstName": "Robert",
+          "lastName": "Killingberg",
+          "yearOfBirth": 1985
+        }
+      ]
+    },
+    {
+      "email": "w_snildalsli@hotmail.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "8mAUWoB3KtIiyJ3Av8C1",
+          "displayName": "Wenche Aune Snildalsli",
+          "firstName": "Wenche Aune",
+          "lastName": "Snildalsli",
+          "yearOfBirth": 34397
+        },
+        {
+          "id": "daBtb0SNFNAGG2GmDGDP",
+          "displayName": "Wenche Aune Snildalsli",
+          "firstName": "Wenche Aune",
+          "lastName": "Snildalsli",
+          "yearOfBirth": 1994
+        }
+      ]
+    },
+    {
+      "email": "kari.aftret.ready@gmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "9bifwSp1KfH87z1RaA23",
+          "displayName": "Kari Aftret Ready",
+          "firstName": "Kari Aftret",
+          "lastName": "Ready",
+          "yearOfBirth": null
+        },
+        {
+          "id": "xE9UmcvD0j3dSTqO63ab",
+          "displayName": "Emma Aftret Ready",
+          "firstName": "Emma Aftret",
+          "lastName": "Ready",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "jrhanssen@gmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "9nTYkhKTh7TUL0Cna08w",
+          "displayName": "John Richard Hanssen",
+          "firstName": "John Richard",
+          "lastName": "Hanssen",
+          "yearOfBirth": 1975
+        },
+        {
+          "id": "z3g8NnCkAC64I7COeFFl",
+          "displayName": "Johanne Bjerregård Hanssen",
+          "firstName": "Johanne Bjerregård",
+          "lastName": "Hanssen",
+          "yearOfBirth": 2012
+        }
+      ]
+    },
+    {
+      "email": "arnstein.hansen@outlook.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "AVj9viaoHdPqOdUYuT5p",
+          "displayName": "Arnstein Hansen",
+          "firstName": "Arnstein",
+          "lastName": "Hansen",
+          "yearOfBirth": 1974
+        },
+        {
+          "id": "hcXPhEYOsk1cqhT1vCyd",
+          "displayName": "Ragnhild Hansen",
+          "firstName": "Ragnhild",
+          "lastName": "Hansen",
+          "yearOfBirth": 2007
+        }
+      ]
+    },
+    {
+      "email": "odahp90@gmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "AcPjFHDKxZXCExDfFfgJ",
+          "displayName": "Oda Hammernes Pedersen",
+          "firstName": "Oda Hammernes",
+          "lastName": "Pedersen",
+          "yearOfBirth": 1990
+        },
+        {
+          "id": "QMnFDGNWaBey4LxM0iSZ",
+          "displayName": "Ørjan Kristoffersen",
+          "firstName": "Ørjan",
+          "lastName": "Kristoffersen",
+          "yearOfBirth": 1989
+        }
+      ]
+    },
+    {
+      "email": "arve@sentio.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "Av7bRk4MhQJJeVOjzegZ",
+          "displayName": "Arve Østgaard",
+          "firstName": "Arve",
+          "lastName": "Østgaard",
+          "yearOfBirth": 1963
+        },
+        {
+          "id": "qgzjwoK6iIlUOpE5GcaP",
+          "displayName": "Arve Petter Østgaard",
+          "firstName": "Arve Petter",
+          "lastName": "Østgaard",
+          "yearOfBirth": 1963
+        }
+      ]
+    },
+    {
+      "email": "kristina.mjos@gmail.com",
+      "count": 3,
+      "users": [
+        {
+          "id": "BEvX3A1f21vFCQXA50Bx",
+          "displayName": "Karen Raaen Roland",
+          "firstName": "Karen Raaen",
+          "lastName": "Roland",
+          "yearOfBirth": 1979
+        },
+        {
+          "id": "OEw4DxoaQmXRBb6VXZa8",
+          "displayName": "Marius Raaen Mjøs",
+          "firstName": "Marius Raaen",
+          "lastName": "Mjøs",
+          "yearOfBirth": 2008
+        },
+        {
+          "id": "cLM0OpIVBxV0e5QmgbyK",
+          "displayName": "Kristina Raaen Mjøs",
+          "firstName": "Kristina Raaen",
+          "lastName": "Mjøs",
+          "yearOfBirth": 1982
+        }
+      ]
+    },
+    {
+      "email": "havard_t@msn.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "BUt4c1u8A32tpcFsV5qF",
+          "displayName": "Håvard Marius Tømmerdal",
+          "firstName": "Håvard Marius",
+          "lastName": "Tømmerdal",
+          "yearOfBirth": 1993
+        },
+        {
+          "id": "rQNWGRxEZToVnoZM9YzN",
+          "displayName": "Håvard Tømmerdal",
+          "firstName": "Håvard",
+          "lastName": "Tømmerdal",
+          "yearOfBirth": 1993
+        }
+      ]
+    },
+    {
+      "email": "arve.storseth@teekay.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "C8UJZUQSCRNNj0gHSKna",
+          "displayName": "Sivert Størseth",
+          "firstName": "Sivert",
+          "lastName": "Størseth",
+          "yearOfBirth": 1997
+        },
+        {
+          "id": "bQ4NF83thdm5yiQUY5yO",
+          "displayName": "Arve Størseth",
+          "firstName": "Arve",
+          "lastName": "Størseth",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "k_forbord@hotmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "D2jF5wtg1NSTXdZJTOQg",
+          "displayName": "Kristian Engen Forbord",
+          "firstName": "Kristian Engen",
+          "lastName": "Forbord",
+          "yearOfBirth": 1989
+        },
+        {
+          "id": "fbhyCp9ikhq2ln23nIJK",
+          "displayName": "Kristian Engen Forbord",
+          "firstName": "Kristian Engen",
+          "lastName": "Forbord",
+          "yearOfBirth": 1988
+        }
+      ]
+    },
+    {
+      "email": "nivenenna@gmail.com",
+      "count": 3,
+      "users": [
+        {
+          "id": "F3q1MOfx0JJoZSeKZG0a",
+          "displayName": "Sven Nevin",
+          "firstName": "Sven",
+          "lastName": "Nevin",
+          "yearOfBirth": 2007
+        },
+        {
+          "id": "c1MXapyFYoa9ROAl6Ani",
+          "displayName": "Selma Nevin",
+          "firstName": "Selma",
+          "lastName": "Nevin",
+          "yearOfBirth": 2004
+        },
+        {
+          "id": "eQIFLMjAxUEIct9Uu2Qq",
+          "displayName": "Anne Nevin",
+          "firstName": "Anne",
+          "lastName": "Nevin",
+          "yearOfBirth": 1973
+        }
+      ]
+    },
+    {
+      "email": "oivindaun@hotmail.com",
+      "count": 4,
+      "users": [
+        {
+          "id": "FtTbmAWoXoZapo6fmZm5",
+          "displayName": "Øivind Aunøien",
+          "firstName": "Øivind",
+          "lastName": "Aunøien",
+          "yearOfBirth": 1979
+        },
+        {
+          "id": "HPfGO1ZHqwNjulD1tM4a",
+          "displayName": "Signe Hennum Aunøien",
+          "firstName": "Signe Hennum",
+          "lastName": "Aunøien",
+          "yearOfBirth": 2015
+        },
+        {
+          "id": "QzYoUPfZeKLP2paJAmDb",
+          "displayName": "Magnhild Asheim Hennum",
+          "firstName": "Magnhild Asheim",
+          "lastName": "Hennum",
+          "yearOfBirth": 1981
+        },
+        {
+          "id": "p4g0vGwTdtHGRP4rVIqI",
+          "displayName": "Johanne Hennum Aunøien",
+          "firstName": "Johanne Hennum",
+          "lastName": "Aunøien",
+          "yearOfBirth": 2017
+        }
+      ]
+    },
+    {
+      "email": "stein.hoem@gmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "FvNbQP79oQJb0x3cAtUz",
+          "displayName": "Josefine Hoem",
+          "firstName": "Josefine",
+          "lastName": "Hoem",
+          "yearOfBirth": null
+        },
+        {
+          "id": "Vr7Wy81uaS8XJOjH6Ttb",
+          "displayName": "Stein Hoem",
+          "firstName": "Stein",
+          "lastName": "Hoem",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "magnus18@live.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "GEBhDMgq5fclMY2YhAWh",
+          "displayName": "Magnus Fosmo Hanser",
+          "firstName": "Magnus Fosmo",
+          "lastName": "Hanser",
+          "yearOfBirth": 2000
+        },
+        {
+          "id": "OPUw7x8rp4hjnyUiXhQU",
+          "displayName": "Magnus Fosmo Hanser",
+          "firstName": "Magnus Fosmo",
+          "lastName": "Hanser",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "larsska@icloud.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "Gb1CIOPcAW1YVaIXIvLF",
+          "displayName": "Lars Skarsbakk",
+          "firstName": "Lars",
+          "lastName": "Skarsbakk",
+          "yearOfBirth": 2007
+        },
+        {
+          "id": "fnWh1TWKqiJUZ5Fjb21I",
+          "displayName": "Skarsbakk Lars",
+          "firstName": "Skarsbakk",
+          "lastName": "Lars",
+          "yearOfBirth": 2007
+        }
+      ]
+    },
+    {
+      "email": "heigul@detnor.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "H4NcUN2Jeiz4qOCAjeXE",
+          "displayName": "Heidi Gulbrandsen",
+          "firstName": "Heidi",
+          "lastName": "Gulbrandsen",
+          "yearOfBirth": 1981
+        },
+        {
+          "id": "JOcd30WXY76IjVcbK1iC",
+          "displayName": "Emilie Berntsen",
+          "firstName": "Emilie",
+          "lastName": "Berntsen",
+          "yearOfBirth": 2006
+        }
+      ]
+    },
+    {
+      "email": "torgeir.kruke@krultra.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "KuMBsVpt7SZgXZ0bcVWsBjeTcMh2",
+          "displayName": ""
+        },
+        {
+          "id": "WBUZYeb32XM8Omy9keVT3Daj6sh2",
+          "displayName": ""
+        }
+      ]
+    },
+    {
+      "email": "frank@tradeway.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "LhIpAtmhgNkE6OGGdflM",
+          "displayName": "Sondre Bjørkli",
+          "firstName": "Sondre",
+          "lastName": "Bjørkli",
+          "yearOfBirth": 1995
+        },
+        {
+          "id": "o6zLQ2c2L01z7XVTMZcw",
+          "displayName": "Sigurd Bjørkli",
+          "firstName": "Sigurd",
+          "lastName": "Bjørkli",
+          "yearOfBirth": 1999
+        }
+      ]
+    },
+    {
+      "email": "erling.flataker@hotmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "LmEaQqOd34JdFgYqbiga",
+          "displayName": "Erling Flataker",
+          "firstName": "Erling",
+          "lastName": "Flataker",
+          "yearOfBirth": 1995
+        },
+        {
+          "id": "SvCt2I4Ec7BIM4dDtb4E",
+          "displayName": "Erling Flataker",
+          "firstName": "Erling",
+          "lastName": "Flataker",
+          "yearOfBirth": 1993
+        }
+      ]
+    },
+    {
+      "email": "willy.wollo@gmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "Mk6U2BWukOtjDJE3AqOU",
+          "displayName": "Willy Wøllo",
+          "firstName": "Willy",
+          "lastName": "Wøllo",
+          "yearOfBirth": null
+        },
+        {
+          "id": "fcFBwf6Li3I0T5zoUv6G",
+          "displayName": "Anne Sissel Ness",
+          "firstName": "Anne Sissel",
+          "lastName": "Ness",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "cesilieb@hotmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "N1qYz5JyRKeIRs0NYg66",
+          "displayName": "Cesilie Bjørvik",
+          "firstName": "Cesilie",
+          "lastName": "Bjørvik",
+          "yearOfBirth": 1979
+        },
+        {
+          "id": "eN0frafI0FDOHdtYqROB",
+          "displayName": "Emma Bjørvik Hansen",
+          "firstName": "Emma Bjørvik",
+          "lastName": "Hansen",
+          "yearOfBirth": 2014
+        }
+      ]
+    },
+    {
+      "email": "ingvild.bsl@gmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "Np4Vgl3IVPgfpd9AvIlo",
+          "displayName": "Ingvild Saksvik-Lehouillier",
+          "firstName": "Ingvild",
+          "lastName": "Saksvik-Lehouillier",
+          "yearOfBirth": 1982
+        },
+        {
+          "id": "bNtFnHBqfm4hZH0A8I2T",
+          "displayName": "Leovind Saksvik Lehouillier",
+          "firstName": "Leovind Saksvik",
+          "lastName": "Lehouillier",
+          "yearOfBirth": 2013
+        }
+      ]
+    },
+    {
+      "email": "johan.hjort@online.no",
+      "count": 2,
+      "users": [
+        {
+          "id": "Q80Gi4kRo2am97Hm1Vpx",
+          "displayName": "Johan Bjørnstad",
+          "firstName": "Johan",
+          "lastName": "Bjørnstad",
+          "yearOfBirth": null
+        },
+        {
+          "id": "QmND33IGWu78HidmMW0D",
+          "displayName": "Marit Mia Bjørnstad",
+          "firstName": "Marit Mia",
+          "lastName": "Bjørnstad",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "per.gulbrandsen@tryg.no",
+      "count": 3,
+      "users": [
+        {
+          "id": "RA0Xb9qqRDi6LiJZ9lBh",
+          "displayName": "Per Gulbrandsen",
+          "firstName": "Per",
+          "lastName": "Gulbrandsen",
+          "yearOfBirth": null
+        },
+        {
+          "id": "leeHuZM70DQTVryDgNlH",
+          "displayName": "Ola Moe Gulbrandsen",
+          "firstName": "Ola Moe",
+          "lastName": "Gulbrandsen",
+          "yearOfBirth": null
+        },
+        {
+          "id": "uyxdUxZZMkB8MdG3LN53",
+          "displayName": "Pål Moe Gulbrandsen",
+          "firstName": "Pål Moe",
+          "lastName": "Gulbrandsen",
+          "yearOfBirth": null
+        }
+      ]
+    },
+    {
+      "email": "heidi.arnesen@gmail.com",
+      "count": 4,
+      "users": [
+        {
+          "id": "SReTGR5tOQ6nbQrADUiv",
+          "displayName": "Vegard Kittilsen",
+          "firstName": "Vegard",
+          "lastName": "Kittilsen",
+          "yearOfBirth": null
+        },
+        {
+          "id": "TvQU4wGLIel9whu9i59B",
+          "displayName": "Heidi Arnesen",
+          "firstName": "Heidi",
+          "lastName": "Arnesen",
+          "yearOfBirth": null
+        },
+        {
+          "id": "bXVBMRQKXTpEiB2BrPJl",
+          "displayName": "Lars Sandstad",
+          "firstName": "Lars",
+          "lastName": "Sandstad",
+          "yearOfBirth": null
+        },
+        {
+          "id": "vKKVtfMsMdeHZtuMRyyG",
+          "displayName": "Vegard Kittilsen",
+          "firstName": "Vegard",
+          "lastName": "Kittilsen",
+          "yearOfBirth": 2001
+        }
+      ]
+    },
+    {
+      "email": "tove.loberg@hotmail.com",
+      "count": 3,
+      "users": [
+        {
+          "id": "TZvPrPftWrLGulF6fahl",
+          "displayName": "Julie Løberg Aske",
+          "firstName": "Julie Løberg",
+          "lastName": "Aske",
+          "yearOfBirth": 2013
+        },
+        {
+          "id": "TuZwheLoGr3BTz5mrx9q",
+          "displayName": "Tove Løberg",
+          "firstName": "Tove",
+          "lastName": "Løberg",
+          "yearOfBirth": 1976
+        },
+        {
+          "id": "dLDRm8MtLjuyKaRz3kRC",
+          "displayName": "Kasper Løberg Aske",
+          "firstName": "Kasper Løberg",
+          "lastName": "Aske",
+          "yearOfBirth": 2009
+        }
+      ]
+    },
+    {
+      "email": "camilla@snakkes.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "pk5mIPoO0xuofGJFONab",
+          "displayName": "Klara Svendgard Nervik",
+          "firstName": "Klara",
+          "lastName": "Svendgard Nervik",
+          "yearOfBirth": 2013
+        },
+        {
+          "id": "r51jkGSrSfJsR9j8oEOZ",
+          "displayName": "Camilla Svendgard",
+          "firstName": "Camilla",
+          "lastName": "Svendgard",
+          "yearOfBirth": 1976
+        }
+      ]
+    },
+    {
+      "email": "hannaruud@hotmail.com",
+      "count": 2,
+      "users": [
+        {
+          "id": "qoRIZnk9t7AZFuSy0Wqb",
+          "displayName": "Hanna Barland",
+          "firstName": "Hanna",
+          "lastName": "Barland",
+          "yearOfBirth": 1996
+        },
+        {
+          "id": "yzgcUXM1B1mRrJ1MgNoX",
+          "displayName": "Hanna Ruud Barland",
+          "firstName": "Hanna Ruud",
+          "lastName": "Barland",
+          "yearOfBirth": 1996
+        }
+      ]
+    }
+  ],
+  "nameDupes": [
+    {
+      "name": "imre aleksandersen",
+      "count": 2,
+      "distinctYobs": [
+        null,
+        1974
+      ],
+      "users": [
+        {
+          "id": "3hBFswgDbMJBOdBvX4gd",
+          "displayName": "Imre Aleksandersen",
+          "firstName": "Imre",
+          "lastName": "Aleksandersen",
+          "yearOfBirth": null,
+          "email": "imreja@gmail.com; sirballe@gmail.com"
+        },
+        {
+          "id": "ZdEqyb9JDbVGrbHKaCD3",
+          "displayName": "Imre Aleksandersen",
+          "firstName": "Imre",
+          "lastName": "Aleksandersen",
+          "yearOfBirth": 1974,
+          "email": "sirballe@gmail.com"
+        }
+      ]
+    },
+    {
+      "name": "tuva gr tte",
+      "count": 2,
+      "distinctYobs": [
+        2003,
+        null
+      ],
+      "users": [
+        {
+          "id": "4OqKOdbUBRuBjooM3WTM",
+          "displayName": "Tuva Grøtte",
+          "firstName": "Tuva",
+          "lastName": "Grøtte",
+          "yearOfBirth": 2003,
+          "email": "marithenden@gmail.com"
+        },
+        {
+          "id": "c8Xf9gF0xv3772mVObfU",
+          "displayName": "Tuva Grøtte",
+          "firstName": "Tuva",
+          "lastName": "Grøtte",
+          "yearOfBirth": null,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "stian hauger",
+      "count": 2,
+      "distinctYobs": [
+        null,
+        1973
+      ],
+      "users": [
+        {
+          "id": "5PXGwJLIp1e7wgbRHQyW",
+          "displayName": "Stian Hauger",
+          "firstName": "Stian",
+          "lastName": "Hauger",
+          "yearOfBirth": null,
+          "email": null
+        },
+        {
+          "id": "Z6p8I8QddxcIIPPB8DYS",
+          "displayName": "Stian Hauger",
+          "firstName": "Stian",
+          "lastName": "Hauger",
+          "yearOfBirth": 1973,
+          "email": "stian.hauger@gmail.com"
+        }
+      ]
+    },
+    {
+      "name": "marius aunaas",
+      "count": 2,
+      "distinctYobs": [
+        1976,
+        1998
+      ],
+      "users": [
+        {
+          "id": "6VjG2vqTNUQqavuLeF5H",
+          "displayName": "Marius Aunaas",
+          "firstName": "Marius",
+          "lastName": "Aunaas",
+          "yearOfBirth": 1976,
+          "email": "maunaas@gmail.com"
+        },
+        {
+          "id": "I1URjwNN0vbmd8rnxscI",
+          "displayName": "Marius Aunaas",
+          "firstName": "Marius",
+          "lastName": "Aunaas",
+          "yearOfBirth": 1998,
+          "email": "maunaas@gmail.com"
+        }
+      ]
+    },
+    {
+      "name": "morten torvik",
+      "count": 3,
+      "distinctYobs": [
+        1996,
+        1993,
+        1991
+      ],
+      "users": [
+        {
+          "id": "7IqKRwi6zzVVKMJMPRkm",
+          "displayName": "Morten Torvik",
+          "firstName": "Morten",
+          "lastName": "Torvik",
+          "yearOfBirth": 1996,
+          "email": "mortentorvik@msn.no"
+        },
+        {
+          "id": "TIv98Sf2fhpdrxZD7emJ",
+          "displayName": "Morten Torvik",
+          "firstName": "Morten",
+          "lastName": "Torvik",
+          "yearOfBirth": 1993,
+          "email": null
+        },
+        {
+          "id": "wyHLtPnLAjBKFbgYfg3F",
+          "displayName": "Morten Torvik",
+          "firstName": "Morten",
+          "lastName": "Torvik",
+          "yearOfBirth": 1991,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "robert killingberg",
+      "count": 2,
+      "distinctYobs": [
+        1992,
+        1985
+      ],
+      "users": [
+        {
+          "id": "8QRGGWP2kUKY3cs3hZrZ",
+          "displayName": "Robert Killingberg",
+          "firstName": "Robert",
+          "lastName": "Killingberg",
+          "yearOfBirth": 1992,
+          "email": "robertkillingberg@hotmail.com"
+        },
+        {
+          "id": "Nds5UWIwkCuThMT4uVLV",
+          "displayName": "Robert Killingberg",
+          "firstName": "Robert",
+          "lastName": "Killingberg",
+          "yearOfBirth": 1985,
+          "email": "robertkillingberg@hotmail.com"
+        }
+      ]
+    },
+    {
+      "name": "wenche aune snildalsli",
+      "count": 2,
+      "distinctYobs": [
+        34397,
+        1994
+      ],
+      "users": [
+        {
+          "id": "8mAUWoB3KtIiyJ3Av8C1",
+          "displayName": "Wenche Aune Snildalsli",
+          "firstName": "Wenche Aune",
+          "lastName": "Snildalsli",
+          "yearOfBirth": 34397,
+          "email": "w_snildalsli@hotmail.no"
+        },
+        {
+          "id": "daBtb0SNFNAGG2GmDGDP",
+          "displayName": "Wenche Aune Snildalsli",
+          "firstName": "Wenche Aune",
+          "lastName": "Snildalsli",
+          "yearOfBirth": 1994,
+          "email": "w_snildalsli@hotmail.no"
+        }
+      ]
+    },
+    {
+      "name": "jonas emdal",
+      "count": 2,
+      "distinctYobs": [
+        1986,
+        null
+      ],
+      "users": [
+        {
+          "id": "A8W5u5mFTTZQOz7Md1Km",
+          "displayName": "Jonas Emdal",
+          "firstName": "Jonas",
+          "lastName": "Emdal",
+          "yearOfBirth": 1986,
+          "email": "jonasem@outlook.com"
+        },
+        {
+          "id": "mbBD47taEg4JgyZATXS4",
+          "displayName": "Jonas Emdal",
+          "firstName": "Jonas",
+          "lastName": "Emdal",
+          "yearOfBirth": null,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "arnstein hansen",
+      "count": 2,
+      "distinctYobs": [
+        1974,
+        null
+      ],
+      "users": [
+        {
+          "id": "AVj9viaoHdPqOdUYuT5p",
+          "displayName": "Arnstein Hansen",
+          "firstName": "Arnstein",
+          "lastName": "Hansen",
+          "yearOfBirth": 1974,
+          "email": "arnstein.hansen@outlook.com"
+        },
+        {
+          "id": "hSH2c7lcR8NLKu4VzUv6",
+          "displayName": "Arnstein Hansen",
+          "firstName": "Arnstein",
+          "lastName": "Hansen",
+          "yearOfBirth": null,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "kristian engen forbord",
+      "count": 2,
+      "distinctYobs": [
+        1989,
+        1988
+      ],
+      "users": [
+        {
+          "id": "D2jF5wtg1NSTXdZJTOQg",
+          "displayName": "Kristian Engen Forbord",
+          "firstName": "Kristian Engen",
+          "lastName": "Forbord",
+          "yearOfBirth": 1989,
+          "email": "k_forbord@hotmail.com"
+        },
+        {
+          "id": "fbhyCp9ikhq2ln23nIJK",
+          "displayName": "Kristian Engen Forbord",
+          "firstName": "Kristian Engen",
+          "lastName": "Forbord",
+          "yearOfBirth": 1988,
+          "email": "k_forbord@hotmail.com"
+        }
+      ]
+    },
+    {
+      "name": "magnus nygard",
+      "count": 2,
+      "distinctYobs": [
+        1983,
+        null
+      ],
+      "users": [
+        {
+          "id": "EkdMCvx7bohoZHePS9RH",
+          "displayName": "Magnus Nygård",
+          "firstName": "Magnus",
+          "lastName": "Nygård",
+          "yearOfBirth": 1983,
+          "email": "magnus_nyg@hotmail.com"
+        },
+        {
+          "id": "e1b5iu2CEwYx4BFK1X9H",
+          "displayName": "Magnus Nygård",
+          "firstName": "Magnus",
+          "lastName": "Nygård",
+          "yearOfBirth": null,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "magnus fosmo hanser",
+      "count": 2,
+      "distinctYobs": [
+        2000,
+        null
+      ],
+      "users": [
+        {
+          "id": "GEBhDMgq5fclMY2YhAWh",
+          "displayName": "Magnus Fosmo Hanser",
+          "firstName": "Magnus Fosmo",
+          "lastName": "Hanser",
+          "yearOfBirth": 2000,
+          "email": "magnus18@live.no"
+        },
+        {
+          "id": "OPUw7x8rp4hjnyUiXhQU",
+          "displayName": "Magnus Fosmo Hanser",
+          "firstName": "Magnus Fosmo",
+          "lastName": "Hanser",
+          "yearOfBirth": null,
+          "email": "magnus18@live.no"
+        }
+      ]
+    },
+    {
+      "name": "erling flataker",
+      "count": 2,
+      "distinctYobs": [
+        1995,
+        1993
+      ],
+      "users": [
+        {
+          "id": "LmEaQqOd34JdFgYqbiga",
+          "displayName": "Erling Flataker",
+          "firstName": "Erling",
+          "lastName": "Flataker",
+          "yearOfBirth": 1995,
+          "email": "erling.flataker@hotmail.com"
+        },
+        {
+          "id": "SvCt2I4Ec7BIM4dDtb4E",
+          "displayName": "Erling Flataker",
+          "firstName": "Erling",
+          "lastName": "Flataker",
+          "yearOfBirth": 1993,
+          "email": "erling.flataker@hotmail.com"
+        }
+      ]
+    },
+    {
+      "name": "inger gissinger",
+      "count": 2,
+      "distinctYobs": [
+        null,
+        2001
+      ],
+      "users": [
+        {
+          "id": "Lv3Zj0qr0BA1Wkm6dmno",
+          "displayName": "Inger Gissinger",
+          "firstName": "Inger",
+          "lastName": "Gissinger",
+          "yearOfBirth": null,
+          "email": null
+        },
+        {
+          "id": "OZVBfSmgsVMIGhIl2jXI",
+          "displayName": "Inger Gissinger",
+          "firstName": "Inger",
+          "lastName": "Gissinger",
+          "yearOfBirth": 2001,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "marit mia bj rnstad",
+      "count": 2,
+      "distinctYobs": [
+        null,
+        1987
+      ],
+      "users": [
+        {
+          "id": "QmND33IGWu78HidmMW0D",
+          "displayName": "Marit Mia Bjørnstad",
+          "firstName": "Marit Mia",
+          "lastName": "Bjørnstad",
+          "yearOfBirth": null,
+          "email": "johan.hjort@online.no"
+        },
+        {
+          "id": "S1kbuqeKaTPhA6SQL3Cb",
+          "displayName": "Marit Mia Bjørnstad",
+          "firstName": "Marit Mia",
+          "lastName": "Bjørnstad",
+          "yearOfBirth": 1987,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "vegard kittilsen",
+      "count": 2,
+      "distinctYobs": [
+        null,
+        2001
+      ],
+      "users": [
+        {
+          "id": "SReTGR5tOQ6nbQrADUiv",
+          "displayName": "Vegard Kittilsen",
+          "firstName": "Vegard",
+          "lastName": "Kittilsen",
+          "yearOfBirth": null,
+          "email": "heidi.arnesen@gmail.com"
+        },
+        {
+          "id": "vKKVtfMsMdeHZtuMRyyG",
+          "displayName": "Vegard Kittilsen",
+          "firstName": "Vegard",
+          "lastName": "Kittilsen",
+          "yearOfBirth": 2001,
+          "email": "heidi.arnesen@gmail.com"
+        }
+      ]
+    },
+    {
+      "name": "heidi marstein br ste",
+      "count": 2,
+      "distinctYobs": [
+        null,
+        1991
+      ],
+      "users": [
+        {
+          "id": "exmDiNEQYVd0dqT4okfW",
+          "displayName": "Heidi Marstein Brøste",
+          "firstName": "Heidi Marstein",
+          "lastName": "Brøste",
+          "yearOfBirth": null,
+          "email": null
+        },
+        {
+          "id": "sVmuG00AGbDYMZknZl1p",
+          "displayName": "Heidi Marstein Brøste",
+          "firstName": "Heidi Marstein",
+          "lastName": "Brøste",
+          "yearOfBirth": 1991,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "roger varvik",
+      "count": 2,
+      "distinctYobs": [
+        1971,
+        null
+      ],
+      "users": [
+        {
+          "id": "mUYfPweqq9uovOne8NMN",
+          "displayName": "Roger Vårvik",
+          "firstName": "Roger",
+          "lastName": "Vårvik",
+          "yearOfBirth": 1971,
+          "email": "roger.varvik@outlook.com"
+        },
+        {
+          "id": "rBzmegtt1EJ4RSre6Cd2",
+          "displayName": "Roger Vårvik",
+          "firstName": "Roger",
+          "lastName": "Vårvik",
+          "yearOfBirth": null,
+          "email": null
+        }
+      ]
+    },
+    {
+      "name": "marius rena",
+      "count": 2,
+      "distinctYobs": [
+        1999,
+        null
+      ],
+      "users": [
+        {
+          "id": "uxhTNlEOFjYw2ZdAKtgn",
+          "displayName": "Marius Renå",
+          "firstName": "Marius",
+          "lastName": "Renå",
+          "yearOfBirth": 1999,
+          "email": null
+        },
+        {
+          "id": "yvffyPycBhg99boM6yvb",
+          "displayName": "Marius Renå",
+          "firstName": "Marius",
+          "lastName": "Renå",
+          "yearOfBirth": null,
+          "email": null
+        }
+      ]
+    }
+  ]
+}

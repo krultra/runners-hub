@@ -126,7 +126,7 @@ const HomePage: React.FC = () => {
       }}
     >
       <Typography variant="h5" gutterBottom fontWeight={700}>
-        Explore our signature events
+        Explore the KrUltra signature events
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
