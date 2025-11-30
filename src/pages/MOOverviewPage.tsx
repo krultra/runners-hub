@@ -20,7 +20,7 @@ import {
   getAdjacentEditions
 } from '../services/eventEditionService';
 import { getVerboseName } from '../services/codeListService';
-import { Language, DirectionsRun, Facebook, Hiking, EmojiEvents, Leaderboard, Assessment } from '@mui/icons-material';
+import { Globe, PersonStanding, Facebook, Mountain, Trophy, BarChart3 } from 'lucide-react';
 
 const EVENT_ID = 'mo';
 const AVAILABLE_EDITION_ROUTES = new Set<string>(['mo-2025']);
@@ -157,7 +157,7 @@ const MOOverviewPage: React.FC = () => {
         <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" mb={2}>
           <Button
             variant="contained"
-            startIcon={<Language />}
+            startIcon={<Globe />}
             href="https://krultra.no/nb/node/23"
             target="_blank"
             rel="noopener noreferrer"
@@ -166,21 +166,21 @@ const MOOverviewPage: React.FC = () => {
           </Button>
           <Button
             variant="outlined"
-            startIcon={<Assessment />}
+            startIcon={<BarChart3 />}
             onClick={() => navigate('/mo/results')}
           >
             Resultater
           </Button>
           <Button
             variant="outlined"
-            startIcon={<Leaderboard />}
+            startIcon={<BarChart3 />}
             onClick={() => navigate('/mo/all-time')}
           >
             Adelskalender
           </Button>
           <Button
             variant="outlined"
-            startIcon={<EmojiEvents />}
+            startIcon={<Trophy />}
             onClick={() => navigate('/mo/records')}
           >
             Rekorder

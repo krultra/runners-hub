@@ -18,7 +18,7 @@ import { Registration } from '../types';
 import { useEventEdition, CurrentEvent } from '../contexts/EventEditionContext';
 import { CircularProgress } from '@mui/material';
 import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } from '../services/registrationService';
-import { Language, Assessment, Leaderboard, EmojiEvents, Info } from '@mui/icons-material';
+import { Globe, BarChart3, Trophy, Info } from 'lucide-react';
 import { getVerboseName } from '../services/codeListService';
 
 // Inner component with full hooks/logic, receives guaranteed `event`
@@ -527,7 +527,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             to="/kutc/results"
             variant="contained"
             color="primary"
-            startIcon={<Assessment />}
+            startIcon={<BarChart3 />}
             sx={{ minWidth: 200, fontWeight: 600 }}
           >
             Results Overview
@@ -537,7 +537,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             to="/kutc/all-time"
             variant="outlined"
             color="primary"
-            startIcon={<Leaderboard />}
+            startIcon={<BarChart3 />}
             sx={{ minWidth: 200, fontWeight: 600 }}
           >
             All-Time Leaderboard
@@ -547,7 +547,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             to="/kutc/records"
             variant="outlined"
             color="primary"
-            startIcon={<EmojiEvents />}
+            startIcon={<Trophy />}
             sx={{ minWidth: 200, fontWeight: 600 }}
           >
             Records
@@ -557,7 +557,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             target="_blank"
             rel="noopener noreferrer"
             variant="text"
-            startIcon={<Language />}
+            startIcon={<Globe />}
             sx={{ minWidth: 200, fontWeight: 600 }}
           >
             Official KUTC Website

@@ -159,6 +159,17 @@ To track upcoming work and ideas, maintain the checklist in `docs/TODO.md`.
 
 ---
 
+## Tech Stack
+
+- **Frontend Framework:** React (Create React App)
+- **UI Components:** Material UI (MUI)
+- **Icons:** Lucide React
+- **Styling:** MUI's `sx` prop + Tailwind-inspired color tokens
+- **Backend:** Firebase (Firestore, Auth, Hosting, Cloud Functions)
+- **Language:** TypeScript
+
+---
+
 ## Project Structure
 
 - `src/` — Main application source code

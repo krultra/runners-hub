@@ -14,10 +14,7 @@ import {
 } from '@mui/material';
 import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
-import EventAvailableIcon from '@mui/icons-material/EventAvailable';
-import EmojiEvents from '@mui/icons-material/EmojiEvents';
-import EmojiEventsOutlined from '@mui/icons-material/EmojiEventsOutlined';
-import Leaderboard from '@mui/icons-material/Leaderboard';
+import { CalendarCheck, Trophy, BarChart3 } from 'lucide-react';
 import { listMoEventEditions, MOEventEditionSummary } from '../services/moResultsService';
 import { formatDateNb } from '../utils/localeNb';
 
@@ -99,14 +96,14 @@ const MOResultsOverviewPage: React.FC = () => {
         <Stack direction="row" spacing={2} flexWrap="wrap">
           <Button
             variant="outlined"
-            startIcon={<EmojiEventsOutlined />}
+            startIcon={<Trophy />}
             onClick={() => navigate('/mo/records')}
           >
             Rekorder
           </Button>
           <Button
             variant="contained"
-            startIcon={<Leaderboard />}
+            startIcon={<BarChart3 />}
             onClick={() => navigate('/mo/all-time')}
           >
             Adelskalender
@@ -135,7 +132,7 @@ const MOResultsOverviewPage: React.FC = () => {
                   <CardActionArea onClick={() => navigate(`/mo/results/${id}`)}>
                     <CardContent>
                       <Box display="flex" alignItems="center" gap={1} mb={1.5}>
-                        <EventAvailableIcon color="primary" />
+                        <CalendarCheck color="primary" />
                         <Typography variant="h5" component="h2">
                           {editionNumber}
                         </Typography>

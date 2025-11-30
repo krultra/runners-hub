@@ -15,7 +15,7 @@ import {
   Typography,
   SelectChangeEvent
 } from '@mui/material';
-import ClearIcon from '@mui/icons-material/Clear';
+import { X } from 'lucide-react';
 import { formatLongDate } from '../../utils/dateFormatter';
 import { Timestamp } from 'firebase/firestore';
 import { useEventEdition, CurrentEvent } from '../../contexts/EventEditionContext';
@@ -272,7 +272,7 @@ const EventEditionSelector: React.FC<EventEditionSelectorProps> = ({
                   endAdornment: nameFilter && (
                     <InputAdornment position="end">
                       <IconButton size="small" onClick={() => setNameFilter('')}>
-                        <ClearIcon fontSize="small" />
+                        <X size={16} />
                       </IconButton>
                     </InputAdornment>
                   ),
@@ -281,7 +281,7 @@ const EventEditionSelector: React.FC<EventEditionSelectorProps> = ({
 
               {(statusFilter.length > 0 || yearFilter !== 'all' || nameFilter) && (
                 <IconButton size="small" onClick={clearFilters} title="Clear filters">
-                  <ClearIcon />
+                  <X />
                 </IconButton>
               )}
             </Box>

@@ -8,7 +8,6 @@
     "@emotion/styled": "^11.14.0",
     "@firebasegen/default-connector": "file:dataconnect-generated/js/default-connector",
     "@monaco-editor/react": "^4.7.0",
-    "@mui/icons-material": "^5.14.15",
     "@mui/material": "^5.14.15",
     "@mui/system": "^5.14.15",
     "@mui/x-data-grid": "^5.17.14",
@@ -28,6 +27,7 @@
     "firebase-admin": "^13.3.0",
     "handlebars": "^4.7.8",
     "js-beautify": "^1.15.4",
+    "lucide-react": "^0.555.0",
     "papaparse": "^5.5.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
@@ -75,7 +75,6 @@
     "import:mo-competition": "ts-node --project tsconfig.scripts.json scripts/importMoCompetitionResults.ts",
     "import:mo-participation": "ts-node --project tsconfig.scripts.json scripts/importMoParticipationResults.ts",
     "check:mo-coverage": "ts-node --project tsconfig.scripts.json scripts/checkMoCompetitionCoverage.ts"
-
   },
   "eslintConfig": {
     "extends": [

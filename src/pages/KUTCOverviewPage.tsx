@@ -13,7 +13,7 @@ import {
   Link as MuiLink
 } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { EmojiEvents, Leaderboard, Assessment, Language } from '@mui/icons-material';
+import { Trophy, BarChart3, Globe } from 'lucide-react';
 import {
   Event,
   EventEdition,
@@ -136,7 +136,7 @@ const KUTCOverviewPage: React.FC = () => {
         <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" mb={2}>
           <Button
             variant="contained"
-            startIcon={<Language />}
+            startIcon={<Globe />}
             href="https://krultra.no/kutc"
             target="_blank"
             rel="noopener noreferrer"
@@ -145,21 +145,21 @@ const KUTCOverviewPage: React.FC = () => {
           </Button>
           <Button
             variant="outlined"
-            startIcon={<Assessment />}
+            startIcon={<BarChart3 />}
             onClick={() => navigate('/kutc/results')}
           >
             Results
           </Button>
           <Button
             variant="outlined"
-            startIcon={<Leaderboard />}
+            startIcon={<BarChart3 />}
             onClick={() => navigate('/kutc/all-time')}
           >
             All-Time Leaderboard
           </Button>
           <Button
             variant="outlined"
-            startIcon={<EmojiEvents />}
+            startIcon={<Trophy />}
             onClick={() => navigate('/kutc/records')}
           >
             Records

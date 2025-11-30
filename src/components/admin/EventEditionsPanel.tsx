@@ -20,7 +20,7 @@ import {
   Snackbar,
   Alert,
 } from '@mui/material';
-import DeleteIcon from '@mui/icons-material/Delete';
+import { Trash2 } from 'lucide-react';
 
 // Date Pickers
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -572,7 +572,7 @@ const EventEditionsPanel: FC = () => {
                       key={rt}
                       secondaryAction={
                         <IconButton edge="end" onClick={() => handleRemoveResultType(rt)}>
-                          <DeleteIcon />
+                          <Trash2 />
                         </IconButton>
                       }
                     >
@@ -741,7 +741,7 @@ const EventEditionsPanel: FC = () => {
                           setDirty(true);
                         }}
                       >
-                        <DeleteIcon />
+                        <Trash2 />
                       </IconButton>
                     </ListItem>
                   ))}

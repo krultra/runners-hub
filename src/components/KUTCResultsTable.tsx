@@ -7,7 +7,7 @@ import {
   InputAdornment
 } from '@mui/material';
 import { DataGrid, GridColDef, GridToolbar } from '@mui/x-data-grid';
-import { Search } from '@mui/icons-material';
+import { Search } from 'lucide-react';
 import { KUTCResultEntry } from '../services/kutcResultsService';
 import { getUserIdByPersonId, hasCheckpointAnalysis } from '../services/runnerNavigationService';
 import { useNavigate } from 'react-router-dom';

@@ -20,7 +20,7 @@ import {
   TableRow,
   Typography
 } from '@mui/material';
-import NavigateBeforeIcon from '@mui/icons-material/NavigateBefore';
+import { ChevronLeft } from 'lucide-react';
 import { Link as RouterLink, useParams } from 'react-router-dom';
 import {
   getCheckpointSummary,
@@ -151,7 +151,7 @@ const RunnerCheckpointAnalysisPage: React.FC = () => {
         <Button
           component={RouterLink}
           to={runnerProfileUrl}
-          startIcon={<NavigateBeforeIcon />}
+          startIcon={<ChevronLeft />}
           variant="text"
           sx={{ mb: 1 }}
         >

@@ -17,7 +17,7 @@ import {
   DialogActions
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { EmojiEvents, Leaderboard, ArrowBack, InfoOutlined, MoreHoriz } from '@mui/icons-material';
+import { Trophy, BarChart3, ArrowLeft, Info, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   getAllTimeLeaderboard,
@@ -165,7 +165,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
               <Typography component="span" variant="body2" fontWeight={600}>
                 Justert bestetid
               </Typography>
-              <InfoOutlined fontSize="small" color="action" />
+              <Info size={16} />
             </Stack>
           </Tooltip>
         )
@@ -188,7 +188,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
                 setDetailParticipant(params.row as MOAllTimeParticipant);
               }}
             >
-              <MoreHoriz fontSize="small" />
+              <MoreHorizontal size={16} />
             </IconButton>
           </Stack>
         )
@@ -218,13 +218,13 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
-        <Button startIcon={<ArrowBack />} onClick={() => navigate('/mo/results')}>
+        <Button startIcon={<ArrowLeft />} onClick={() => navigate('/mo/results')}>
           Tilbake til oversikt
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <Button
           variant="outlined"
-          startIcon={<Leaderboard />}
+          startIcon={<BarChart3 />}
           onClick={() => navigate('/mo/records')}
         >
           Rekorder
@@ -233,7 +233,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           Adelskalender – Malvikingen Opp
         </Typography>
         <Typography variant="h6" color="text.secondary">

@@ -19,7 +19,7 @@ import {
   Button,
   Stack
 } from '@mui/material';
-import { EmojiEvents, Timer, ArrowBack, MilitaryTech, Leaderboard, Groups } from '@mui/icons-material';
+import { Trophy, Timer, ArrowLeft, Medal, BarChart3, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getRecords, MORecordsResult } from '../services/moResultsService';
 
@@ -112,7 +112,7 @@ const MORecordsPage: React.FC = () => {
       if (index >= 3) {
         return null;
       }
-      return <MilitaryTech sx={{ fontSize: 22, color: colors[index], mr: 1 }} />;
+      return <Medal size={22} color={colors[index]} style={{ marginRight: 8 }} />;
     };
 
     return (
@@ -247,10 +247,10 @@ const MORecordsPage: React.FC = () => {
     ? `Flest deltagelser – ${appearanceCutoff} ganger`
     : 'Flest deltagelser';
 
-  const runnerUpGroups = records.mostAppearances.filter(
+  const runnerUpUsers = records.mostAppearances.filter(
     (item) => item.appearances < appearanceCutoff
   );
-  const runnerUpCutoff = runnerUpGroups[0]?.appearances ?? 0;
+  const runnerUpCutoff = runnerUpUsers[0]?.appearances ?? 0;
   const runnerUpTitle = runnerUpCutoff
     ? `Rett bak – ${runnerUpCutoff} ganger`
     : null;
@@ -258,13 +258,13 @@ const MORecordsPage: React.FC = () => {
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
-        <Button startIcon={<ArrowBack />} onClick={() => navigate('/mo/results')}>
+        <Button startIcon={<ArrowLeft />} onClick={() => navigate('/mo/results')}>
           Tilbake til oversikt
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <Button
           variant="outlined"
-          startIcon={<Leaderboard />}
+          startIcon={<BarChart3 />}
           onClick={() => navigate('/mo/all-time')}
         >
           Adelskalender
@@ -273,7 +273,7 @@ const MORecordsPage: React.FC = () => {
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           Rekorder – Malvikingen Opp
         </Typography>
         <Typography variant="h6" color="text.secondary">
@@ -297,7 +297,7 @@ const MORecordsPage: React.FC = () => {
 
       <Box sx={{ mt: 6 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
-          <Groups sx={{ fontSize: 32, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Users size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           Mest trofaste deltagere
         </Typography>
 
@@ -336,7 +336,7 @@ const MORecordsPage: React.FC = () => {
                   {runnerUpTitle}
                 </Typography>
                 <Grid container spacing={2} sx={{ mt: 1 }}>
-                  {runnerUpGroups
+                  {runnerUpUsers
                     .filter((item) => item.appearances === runnerUpCutoff)
                     .map((item) => (
                       <Grid item xs={12} sm={6} md={4} key={`${item.runnerKey}-runnerup`}>
@@ -374,7 +374,7 @@ const MORecordsPage: React.FC = () => {
 
       <Box sx={{ mt: 6 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
-          <Timer sx={{ fontSize: 32, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Timer size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           År med flest deltagere
         </Typography>
 

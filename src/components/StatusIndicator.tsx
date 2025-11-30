@@ -1,9 +1,7 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import { CheckCircle, XCircle, AlertTriangle } from 'lucide-react';
 
 export interface StatusIndicatorProps {
   status: string;
@@ -12,27 +10,27 @@ export interface StatusIndicatorProps {
 const statusConfig: Record<string, { color: string; icon: React.ReactNode; label: string }> = {
   confirmed: {
     color: '#2e7d32', // green
-    icon: <CheckCircleIcon sx={{ color: '#2e7d32', mr: 1 }} />, // green check
+    icon: <CheckCircle size={20} color="#2e7d32" style={{ marginRight: 8 }} />,
     label: 'Confirmed',
   },
   pending: {
     color: '#000000', // black text for best contrast
-    icon: <WarningAmberIcon sx={{ color: '#FFC107', mr: 1 }} />, // original yellow icon
+    icon: <AlertTriangle size={20} color="#FFC107" style={{ marginRight: 8 }} />,
     label: 'Pending',
   },
   canceled: {
     color: '#D32F2F', // red
-    icon: <ErrorIcon sx={{ color: '#D32F2F', mr: 1 }} />, // red error
+    icon: <XCircle size={20} color="#D32F2F" style={{ marginRight: 8 }} />,
     label: 'Canceled',
   },
   withdrawn: {
     color: '#D32F2F', // red
-    icon: <ErrorIcon sx={{ color: '#D32F2F', mr: 1 }} />,
+    icon: <XCircle size={20} color="#D32F2F" style={{ marginRight: 8 }} />,
     label: 'Withdrawn',
   },
   error: {
     color: '#D32F2F', // red
-    icon: <ErrorIcon sx={{ color: '#D32F2F', mr: 1 }} />,
+    icon: <XCircle size={20} color="#D32F2F" style={{ marginRight: 8 }} />,
     label: 'Error',
   },
 };
@@ -43,7 +41,7 @@ export const StatusIndicator: React.FC<StatusIndicatorProps> = ({ status }) => {
   const normalizedStatus = status?.toLowerCase();
   const config = statusConfig[normalizedStatus] || {
     color: '#757575',
-    icon: <WarningAmberIcon sx={{ color: '#757575', mr: 1 }} />,
+    icon: <AlertTriangle size={20} color="#757575" style={{ marginRight: 8 }} />,
     label: status,
   };
   const isConfirmed = normalizedStatus === 'confirmed';

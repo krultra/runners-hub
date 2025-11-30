@@ -1,14 +1,42 @@
 import { createTheme } from '@mui/material/styles';
 import { PaletteMode } from '@mui/material';
 
+const lightPalette = {
+  backgroundDefault: '#FFFFFF',
+  backgroundPaper: '#F3F4F6',
+  primaryMain: '#41719C',
+  primaryLight: '#4E82B4',
+  primaryDark: '#355A7B',
+};
+
+const darkPalette = {
+  backgroundDefault: '#030712', // Tailwind gray-950, matches KrUltra
+  backgroundPaper: '#111827',   // Tailwind gray-900, matches KrUltra
+  primaryMain: '#69A9E1',
+  primaryLight: '#8BC2F0',
+  primaryDark: '#41719C',
+};
+
+const getPaletteTokens = (mode: PaletteMode) => (mode === 'dark' ? darkPalette : lightPalette);
+
 // Create a theme based on mode
 export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
   palette: {
     mode,
 
     primary: mode === 'dark'
-      ? { main: '#FFFFFF', light: '#EEEEEE', dark: '#CCCCCC', contrastText: '#000000' }
-      : { main: '#000000', light: '#222222', dark: '#000000', contrastText: '#FFFFFF' },
+      ? {
+        main: darkPalette.primaryMain,
+        light: darkPalette.primaryLight,
+        dark: darkPalette.primaryDark,
+        contrastText: '#0B1220',
+      }
+      : {
+        main: lightPalette.primaryMain,
+        light: lightPalette.primaryLight,
+        dark: lightPalette.primaryDark,
+        contrastText: '#FFFFFF',
+      },
     secondary: {
       main: '#888888', // Neutral grey
       light: '#CCCCCC',
@@ -16,11 +44,11 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
       contrastText: '#FFFFFF',
     },
     background: mode === 'dark' ? {
-      default: '#181a1b',
-      paper: '#222222',
+      default: darkPalette.backgroundDefault,
+      paper: darkPalette.backgroundPaper,
     } : {
-      default: '#F5F5F5',
-      paper: '#FFFFFF',
+      default: lightPalette.backgroundDefault,
+      paper: lightPalette.backgroundPaper,
     },
     text: mode === 'dark' ? {
       primary: '#FFFFFF',
@@ -84,6 +112,20 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
     borderRadius: 8,
   },
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: mode === 'dark'
+            ? darkPalette.backgroundDefault
+            : lightPalette.backgroundDefault,
+        },
+        '#root': {
+          backgroundColor: mode === 'dark'
+            ? darkPalette.backgroundDefault
+            : lightPalette.backgroundDefault,
+        },
+      },
+    },
     MuiButton: {
       styleOverrides: {
         root: {

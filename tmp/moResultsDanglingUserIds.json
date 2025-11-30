@@ -1,0 +1,12 @@
+{
+  "generatedAt": "2025-11-15T18:08:24.205Z",
+  "environment": "prod",
+  "limitApplied": 0,
+  "scanLimitApplied": 0,
+  "summary": {
+    "totalResults": 991,
+    "uniqueUserIdsChecked": 581,
+    "flaggedUserIds": 0
+  },
+  "issues": []
+}

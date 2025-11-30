@@ -16,7 +16,7 @@ import {
   DialogContent,
   DialogActions,
 } from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { Trash2 } from 'lucide-react';
 import {
   listCodeList,
   addCodeListItem,
@@ -232,7 +232,7 @@ const CodeListPanel: React.FC = () => {
                   key={item.id}
                   secondaryAction={
                     <IconButton edge="end" onClick={() => deleteCodeListItem(item.id).then(() => listCodeList(selectedType, selectedObject).then(setItems))}>
-                      <DeleteIcon />
+                      <Trash2 />
                     </IconButton>
                   }
                 >
@@ -259,7 +259,7 @@ const CodeListPanel: React.FC = () => {
             </Box>
             <List dense>
               {objectsList.map(o => (
-                <ListItem key={o.id} secondaryAction={<IconButton edge="end" onClick={() => handleDeleteObject(o.id)}><DeleteIcon /></IconButton>}>
+                <ListItem key={o.id} secondaryAction={<IconButton edge="end" onClick={() => handleDeleteObject(o.id)}><Trash2 /></IconButton>}>
                   {o.sortOrder!=null && `[${o.sortOrder}] `}<strong>{o.code}</strong> – {o.verboseName}
                 </ListItem>
               ))}
@@ -293,7 +293,7 @@ const CodeListPanel: React.FC = () => {
             )}
             <List dense>
               {typesListDialog.map(t => (
-                <ListItem key={t.id} secondaryAction={<IconButton edge="end" onClick={() => handleDeleteType(t.id)}><DeleteIcon /></IconButton>}>
+                <ListItem key={t.id} secondaryAction={<IconButton edge="end" onClick={() => handleDeleteType(t.id)}><Trash2 /></IconButton>}>
                   {t.sortOrder!=null && `[${t.sortOrder}] `}<strong>{t.code}</strong> – {t.verboseName}
                 </ListItem>
               ))}

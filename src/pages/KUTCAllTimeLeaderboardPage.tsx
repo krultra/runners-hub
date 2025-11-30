@@ -10,7 +10,7 @@ import {
   Button
 } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
-import { EmojiEvents, MilitaryTech, ArrowBack, EmojiEventsOutlined } from '@mui/icons-material';
+import { Trophy, Medal, ArrowLeft } from 'lucide-react';
 import { getAllTimeLeaderboard, AllTimeParticipant, KUTCEdition } from '../services/kutcResultsService';
 import { getUserIdByPersonId } from '../services/runnerNavigationService';
 import { useNavigate } from 'react-router-dom';
@@ -133,16 +133,15 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           {params.row.medal && (
-            <MilitaryTech
-              sx={{
-                fontSize: 20,
-                color:
-                  params.row.medal === 'gold'
-                    ? '#FFD700'
-                    : params.row.medal === 'silver'
-                    ? '#C0C0C0'
-                    : '#CD7F32'
-              }}
+            <Medal
+              size={20}
+              color={
+                params.row.medal === 'gold'
+                  ? '#FFD700'
+                  : params.row.medal === 'silver'
+                  ? '#C0C0C0'
+                  : '#CD7F32'
+              }
             />
           )}
           <Button
@@ -223,7 +222,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
       {/* Navigation */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
         <Button
-          startIcon={<ArrowBack />}
+          startIcon={<ArrowLeft />}
           onClick={() => navigate('/kutc/results')}
         >
           Back to Overview
@@ -231,7 +230,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
         <Box sx={{ flex: '1 1 auto' }} />
         <Button
           variant="outlined"
-          startIcon={<EmojiEventsOutlined />}
+          startIcon={<Trophy />}
           onClick={() => navigate('/kutc/records')}
         >
           Records
@@ -241,7 +240,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           KUTC All-Time Leaderboard
         </Typography>
         <Typography variant="h6" color="text.secondary">

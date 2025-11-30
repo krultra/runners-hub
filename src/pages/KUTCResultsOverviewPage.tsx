@@ -13,7 +13,7 @@ import {
   Chip,
   Button
 } from '@mui/material';
-import { EmojiEvents, CalendarToday, Leaderboard, EmojiEventsOutlined } from '@mui/icons-material';
+import { Trophy, Calendar, BarChart3 } from 'lucide-react';
 import { listKUTCEditions, KUTCEdition } from '../services/kutcResultsService';
 
 const KUTCResultsOverviewPage: React.FC = () => {
@@ -81,7 +81,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
         >
           <Box sx={{ flex: '1 1 240px' }}>
             <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-              <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+              <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
               KUTC Results
             </Typography>
             <Typography variant="h6" color="text.secondary">
@@ -99,7 +99,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
             <Button
               variant="contained"
               color="primary"
-              startIcon={<Leaderboard />}
+              startIcon={<BarChart3 />}
               onClick={() => navigate('/kutc/all-time')}
             >
               All-Time Leaderboard
@@ -107,7 +107,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
             <Button
               variant="outlined"
               color="primary"
-              startIcon={<EmojiEventsOutlined />}
+              startIcon={<Trophy />}
               onClick={() => navigate('/kutc/records')}
             >
               Records
@@ -175,7 +175,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
                           const isJan1 = date && date.getMonth() === 0 && date.getDate() === 1;
                           return !isJan1 ? (
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
-                              <CalendarToday sx={{ fontSize: 16, mr: 1, color: 'text.secondary' }} />
+                              <Calendar size={16} style={{ marginRight: 8 }} />
                               <Typography variant="body2" color="text.secondary">
                                 {date ? date.toLocaleDateString('en-GB', {
                                   day: 'numeric',

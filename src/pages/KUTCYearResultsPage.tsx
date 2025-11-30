@@ -14,7 +14,7 @@ import {
   Button,
   Divider
 } from '@mui/material';
-import { ArrowBack, EmojiEvents, Groups, CheckCircle } from '@mui/icons-material';
+import { ArrowLeft, Trophy, Users, CheckCircle } from 'lucide-react';
 import {
   getEditionMetadata,
   getTotalCompetitionResults,
@@ -214,7 +214,7 @@ const KUTCYearResultsPage: React.FC = () => {
     return (
       <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
         <Button
-          startIcon={<ArrowBack />}
+          startIcon={<ArrowLeft />}
           onClick={() => navigate('/kutc/results')}
           sx={{ mb: 2 }}
         >
@@ -234,7 +234,7 @@ const KUTCYearResultsPage: React.FC = () => {
       {/* Header */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
         <Button
-          startIcon={<ArrowBack />}
+          startIcon={<ArrowLeft />}
           onClick={() => navigate('/kutc/results')}
         >
           Back to Overview
@@ -260,7 +260,7 @@ const KUTCYearResultsPage: React.FC = () => {
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           {eventTitle || `KUTC ${metadata.year}`}
         </Typography>
         <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
@@ -316,11 +316,11 @@ const KUTCYearResultsPage: React.FC = () => {
                       </Box>
                       <Box textAlign="right">
                         <Typography variant="h6">
-                          <Groups sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+                          <Users size={18} style={{ verticalAlign: 'middle', marginRight: 4 }} />
                           {totalRace.participants} runners
                         </Typography>
                         <Typography variant="body2">
-                          <CheckCircle sx={{ verticalAlign: 'middle', mr: 0.5, fontSize: 16 }} />
+                          <CheckCircle size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} />
                           {totalRace.finishers} with valid results
                         </Typography>
                       </Box>
@@ -362,11 +362,11 @@ const KUTCYearResultsPage: React.FC = () => {
                       
                       <Box>
                         <Typography variant="body1" color="text.secondary">
-                          <Groups sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+                          <Users size={18} style={{ verticalAlign: 'middle', marginRight: 4 }} />
                           {race.participants} participants
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
-                          <CheckCircle sx={{ verticalAlign: 'middle', mr: 0.5 }} />
+                          <CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: 4 }} />
                           {race.finishers} finishers
                         </Typography>
                       </Box>

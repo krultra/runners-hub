@@ -15,7 +15,7 @@ import {
   Chip,
   Stack
 } from '@mui/material';
-import { Search, Person } from '@mui/icons-material';
+import { Search, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
@@ -196,7 +196,7 @@ const RunnerSearchPage: React.FC = () => {
 
           {results.length === 0 ? (
             <Box sx={{ py: 4, textAlign: 'center' }}>
-              <Person sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+              <User size={64} style={{ marginBottom: 16, opacity: 0.5 }} />
               <Typography variant="body1" color="text.secondary">
                 No runners found matching "{searchText}"
               </Typography>
@@ -216,7 +216,7 @@ const RunnerSearchPage: React.FC = () => {
                     <ListItemText
                       primary={
                         <Stack direction="row" spacing={1} alignItems="center">
-                          <Person color="action" />
+                          <User size={20} />
                           <Typography variant="body1">
                             {runner.firstName} {runner.lastName}
                           </Typography>
@@ -235,7 +235,7 @@ const RunnerSearchPage: React.FC = () => {
       {/* Initial State */}
       {!hasSearched && !loading && (
         <Paper sx={{ p: 6, textAlign: 'center' }}>
-          <Search sx={{ fontSize: 64, color: 'text.disabled', mb: 2 }} />
+          <Search size={64} style={{ marginBottom: 16, opacity: 0.5 }} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
             Start searching for runners
           </Typography>

@@ -28,7 +28,7 @@ import {
   Typography
 } from '@mui/material';
 import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
-import { ChevronRight, EventAvailable, ExpandMore, InfoOutlined } from '@mui/icons-material';
+import { ChevronRight, CalendarCheck, ChevronDown, Info } from 'lucide-react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { isAdminUser } from '../utils/adminUtils';
 import {
@@ -991,7 +991,7 @@ const RunnerProfilePage: React.FC = () => {
           return (
             <ListItem key={registration.registrationId} alignItems="flex-start" disableGutters divider={!isLast} sx={{ py: 1.5 }}>
               <ListItemIcon sx={{ minWidth: 40 }}>
-                <EventAvailable color="primary" />
+                <CalendarCheck size={20} />
               </ListItemIcon>
               <ListItemText
                 primary={
@@ -1076,7 +1076,7 @@ const RunnerProfilePage: React.FC = () => {
                 backgroundColor: 'action.hover'
               }
             }}
-            endIcon={<ExpandMore sx={{ transform: detailsExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
+            endIcon={<ChevronDown size={20} style={{ transform: detailsExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
           >
             <Typography variant="h5" component="span">
               Personal details
@@ -1155,7 +1155,7 @@ const RunnerProfilePage: React.FC = () => {
                       endAdornment: (
                         <InputAdornment position="end">
                           <Tooltip title="Email updates require contacting post@krultra.no">
-                            <InfoOutlined fontSize="small" color="action" />
+                            <Info size={16} />
                           </Tooltip>
                         </InputAdornment>
                       )

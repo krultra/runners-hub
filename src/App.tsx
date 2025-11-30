@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState, useMemo, createContext } from 'react';
 import './App.css';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { ThemeProvider, CssBaseline, useMediaQuery, Toolbar } from '@mui/material';
+import { ThemeProvider, CssBaseline, useMediaQuery, Toolbar, PaletteMode } from '@mui/material';
 import { createRunnersHubTheme } from './config/theme';
 import Box from '@mui/material/Box';
+import Container from '@mui/material/Container';
 import Alert from '@mui/material/Alert';
 
 // Import pages
@@ -36,24 +37,53 @@ import CheckpointTestPage from './pages/CheckpointTestPage';
 import RunnerSearchPage from './pages/RunnerSearchPage';
 import RunnerProfilePage from './pages/RunnerProfilePage';
 import RunnerCheckpointAnalysisPage from './pages/RunnerCheckpointAnalysisPage';
-
 import AppHeader from './components/AppHeader';
 
+// Theme context for toggling
+type ThemeMode = 'system' | 'light' | 'dark';
+interface ThemeContextType {
+  mode: ThemeMode;
+  setMode: (mode: ThemeMode) => void;
+}
+export const ThemeModeContext = createContext<ThemeContextType>({
+  mode: 'system',
+  setMode: () => {},
+});
+
 function App() {
+  // Theme mode state with localStorage persistence
+  const [mode, setModeState] = useState<ThemeMode>(() => {
+    const stored = localStorage.getItem('theme_mode');
+    return (stored as ThemeMode) || 'system';
+  });
+  
+  const setMode = (newMode: ThemeMode) => {
+    setModeState(newMode);
+    localStorage.setItem('theme_mode', newMode);
+  };
+
   // Detect system/browser dark mode
   const prefersDarkMode = useMediaQuery('(prefers-color-scheme: dark)');
-  const theme = createRunnersHubTheme(prefersDarkMode ? 'dark' : 'light');
+  
+  // Resolve actual palette mode
+  const resolvedMode: PaletteMode = useMemo(() => {
+    if (mode === 'system') return prefersDarkMode ? 'dark' : 'light';
+    return mode;
+  }, [mode, prefersDarkMode]);
+  
+  const theme = useMemo(() => createRunnersHubTheme(resolvedMode), [resolvedMode]);
   const stage = process.env.REACT_APP_STAGE || 'local';
 
   return (
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <Router
-        future={{
-          v7_startTransition: true,
-          v7_relativeSplatPath: true
-        }}
-      >
+    <ThemeModeContext.Provider value={{ mode, setMode }}>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <Router
+          future={{
+            v7_startTransition: true,
+            v7_relativeSplatPath: true
+          }}
+        >
         <AppHeader />
         {/* Spacer matching AppBar height to prevent overlap */}
         <Toolbar />
@@ -64,10 +94,11 @@ function App() {
           </Alert>
         )}
         {/* Ensure content isn't hidden behind fixed header or fixed footer */}
-        <Box component="main" sx={{
-          pb: (theme) => theme.mixins.toolbar.minHeight,
-        }}>
-          <Routes>
+        <Container maxWidth="xl" sx={{ px: { xs: 2, sm: 3, md: 4 } }}>
+          <Box component="main" sx={{
+            pb: (theme) => theme.mixins.toolbar.minHeight,
+          }}>
+            <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/kutc" element={<KUTCOverviewPage />} />
             <Route path="/kutc-2025" element={<KUTC2025Page />} />
@@ -117,8 +148,9 @@ function App() {
               <Route path="/test/checkpoint" element={<CheckpointTestPage />} />
             )}
             <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Box>
+            </Routes>
+          </Box>
+        </Container>
       </Router>
       {/* Version footer */}
       <Box
@@ -136,8 +168,9 @@ function App() {
         }}
       >
         KrUltra 2025 - v{process.env.REACT_APP_VERSION || 'dev'}
-      </Box>
-    </ThemeProvider>
+        </Box>
+      </ThemeProvider>
+    </ThemeModeContext.Provider>
   );
 }
 

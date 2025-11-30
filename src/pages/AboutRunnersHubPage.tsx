@@ -1,6 +1,6 @@
 import React from 'react';
 import { Container, Typography, Box, Grid, Paper, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import { CheckCircle } from 'lucide-react';
 
 const AboutRunnersHubPage: React.FC = () => {
   return (
@@ -27,7 +27,7 @@ const AboutRunnersHubPage: React.FC = () => {
               ].map((text) => (
                 <ListItem key={text} sx={{ pl: 0 }}>
                   <ListItemIcon sx={{ minWidth: 32 }}>
-                    <CheckCircleIcon color="primary" fontSize="small" />
+                    <CheckCircle size={18} />
                   </ListItemIcon>
                   <ListItemText primary={text} />
                 </ListItem>

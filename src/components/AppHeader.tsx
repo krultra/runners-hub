@@ -1,14 +1,11 @@
-import React, { useEffect, useState } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack } from '@mui/material';
-import MenuIcon from '@mui/icons-material/Menu';
-import { adminSections } from '../constants/adminSections';
+import React, { useEffect, useState, useContext } from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack, Container, Divider } from '@mui/material';
+import { Menu as MenuIcon, Settings, Sun, Moon, SunMoon, CircleUser, LogIn } from 'lucide-react';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import Divider from '@mui/material/Divider';
-import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import LoginIcon from '@mui/icons-material/Login';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createOrUpdateUser, getUser } from '../utils/userUtils';
 import { isAdminUser } from '../utils/adminUtils';
+import { ThemeModeContext } from '../App';
 
 // Get environment variables
 const APP_VERSION = process.env.REACT_APP_VERSION || 'unknown';
@@ -22,9 +19,11 @@ const AppHeader: React.FC = () => {
   const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
   const [kutcMenuAnchor, setKutcMenuAnchor] = useState<null | HTMLElement>(null);
   const [moMenuAnchor, setMoMenuAnchor] = useState<null | HTMLElement>(null);
+  const [settingsMenuAnchor, setSettingsMenuAnchor] = useState<null | HTMLElement>(null);
   const [userName, setUserName] = useState<string>('');
   const location = useLocation();
   const navigate = useNavigate();
+  const { mode, setMode } = useContext(ThemeModeContext);
 
   const handleAvatarMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAvatarMenuAnchor(event.currentTarget);
@@ -117,58 +116,133 @@ const AppHeader: React.FC = () => {
       position="fixed"
       elevation={0}
       sx={{
-        backgroundColor: (theme) => theme.palette.background.paper,
+        backgroundColor: (theme) => 
+          theme.palette.mode === 'dark' 
+            ? 'rgba(3, 7, 18, 0.8)'  // gray-950 with opacity
+            : 'rgba(255, 255, 255, 0.8)',
+        backdropFilter: 'blur(8px)',
         color: (theme) => theme.palette.text.primary,
-        borderBottom: (theme) => `1.5px solid ${theme.palette.divider}`,
+        boxShadow: '0 1px 3px 0 rgb(0 0 0 / 0.1)',
         zIndex: (theme) => theme.zIndex.appBar,
       }}
     >
-      <Toolbar>
-        <Box component="img" src="/krultra-logo.png" alt="Logo" sx={{ height: 40, width: 'auto', mr: 1, cursor: 'pointer' }} onClick={() => navigate('/')} />
-        {/* Responsive App Name: hide on xs screens */}
-        <Typography
-          variant="h6"
-          sx={{
-            flexGrow: 1,
-            cursor: 'pointer',
-            minWidth: 0,
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            whiteSpace: 'nowrap',
-            pr: { xs: 1, sm: 3 },
-            display: { xs: 'none', sm: 'block' }, // Hide on xs screens
-          }}
-          onClick={() => navigate('/')}
-        >
-          RunnersHub
-          {IS_TEST_ENV && (
-            <Chip 
-              label={`TEST v${APP_VERSION}`}
-              color="warning"
-              size="small"
-              sx={{ 
-                ml: 2, 
-                fontWeight: 'bold', 
-                animation: 'pulse 2s infinite',
-                '@keyframes pulse': {
-                  '0%': { opacity: 0.7 },
-                  '50%': { opacity: 1 },
-                  '100%': { opacity: 0.7 }
-                }
-              }}
-            />
-          )}
-        </Typography>
-        {/* Hamburger menu and avatar/login always flush right, grouped in a flex box */}
-        <Box display="flex" alignItems="center" sx={{ ml: 'auto', flexDirection: 'row-reverse' }}>
-          {/* Hamburger menu rightmost */}
-          <IconButton
-            color="inherit"
-            size="large"
-            onClick={handleMenuOpen}
+      {/* Gradient overlay - fades from transparent to brand color to transparent */}
+      <Box
+        sx={{
+          position: 'absolute',
+          inset: 0,
+          zIndex: -1,
+          opacity: (theme) => theme.palette.mode === 'dark' ? 0.5 : 0.8,
+          background: (theme) => 
+            theme.palette.mode === 'dark'
+              ? 'linear-gradient(to right, transparent, rgba(65, 113, 156, 0.25), transparent)'
+              : 'linear-gradient(to right, transparent, rgba(219, 238, 253, 1), transparent)',
+          pointerEvents: 'none',
+        }}
+      />
+      <Container maxWidth="xl">
+        <Toolbar disableGutters sx={{ minHeight: { xs: 48, sm: 56 }, gap: 2 }}>
+          {/* Left: Logo + Title */}
+          <Box 
+            sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}
+            onClick={() => navigate('/')}
           >
-            <MenuIcon />
-          </IconButton>
+            <Box 
+              component="img" 
+              src="/krultra-logo.png" 
+              alt="Logo" 
+              sx={{ 
+                height: 24, 
+                width: 24, 
+                borderRadius: '4px',
+              }} 
+            />
+            <Typography
+              sx={{
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+                color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#41719C', // brand-400 / brand-700
+                fontSize: { xs: '1.125rem', md: '1.25rem' }, // text-lg / text-xl
+                display: { xs: 'none', sm: 'block' },
+              }}
+            >
+              RunnersHub
+            </Typography>
+            {IS_TEST_ENV && (
+              <Chip 
+                label={`TEST v${APP_VERSION}`}
+                color="warning"
+                size="small"
+                sx={{ 
+                  ml: 1, 
+                  fontWeight: 'bold', 
+                  animation: 'pulse 2s infinite',
+                  '@keyframes pulse': {
+                    '0%': { opacity: 0.7 },
+                    '50%': { opacity: 1 },
+                    '100%': { opacity: 0.7 }
+                  }
+                }}
+              />
+            )}
+          </Box>
+
+          {/* Spacer */}
+          <Box sx={{ flexGrow: 1 }} />
+
+          {/* Right: Icons */}
+          <Box display="flex" alignItems="center" gap={0.5}>
+
+            {/* Avatar/login icon */}
+            {user ? (
+              <Tooltip title={userName || user.email || 'Logged in'}>
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  onClick={handleAvatarMenuOpen}
+                  sx={{ width: 36, height: 36 }}
+                >
+                  <CircleUser size={20} />
+                </IconButton>
+              </Tooltip>
+            ) : (
+              <Tooltip title="Log in">
+                <IconButton
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    const currentPath = window.location.pathname;
+                    localStorage.setItem('authReturnPath', currentPath);
+                    navigate('/auth');
+                  }}
+                  sx={{ width: 36, height: 36 }}
+                >
+                  <LogIn size={20} />
+                </IconButton>
+              </Tooltip>
+            )}
+
+            {/* Settings menu (theme toggle) */}
+            <Tooltip title="Settings">
+              <IconButton
+                color="inherit"
+                size="small"
+                onClick={(e) => setSettingsMenuAnchor(e.currentTarget)}
+                sx={{ width: 36, height: 36 }}
+              >
+                <Settings size={20} />
+              </IconButton>
+            </Tooltip>
+
+            {/* Hamburger menu */}
+            <IconButton
+              color="inherit"
+              size="small"
+              onClick={handleMenuOpen}
+              sx={{ width: 36, height: 36 }}
+            >
+              <MenuIcon size={20} />
+            </IconButton>
           <Menu
             anchorEl={menuAnchor}
             open={Boolean(menuAnchor)}
@@ -223,7 +297,7 @@ const AppHeader: React.FC = () => {
             {/* Auth/Admin */}
             {!user && (
               <MenuItem onClick={handleLogin}>
-                <ListItemIcon><LoginIcon fontSize="small" /></ListItemIcon>
+                <ListItemIcon><LogIn size={18} /></ListItemIcon>
                 Log in
               </MenuItem>
             )}
@@ -233,37 +307,6 @@ const AppHeader: React.FC = () => {
               </MenuItem>
             )}
           </Menu>
-
-          {/* Avatar/login icon to the left of hamburger */}
-          {user ? (
-            <Tooltip title={userName || user.email || 'Logged in'}>
-              <IconButton
-                color="inherit"
-                size="large"
-                sx={{ mr: 1 }}
-                onClick={handleAvatarMenuOpen}
-              >
-                <AccountCircleIcon />
-              </IconButton>
-            </Tooltip>
-          ) : (
-            <Tooltip title="Log in">
-              <IconButton
-                color="inherit"
-                onClick={() => {
-                  // Store the current path to return to after authentication
-                  const currentPath = window.location.pathname;
-                  // Store the return path in localStorage for after email authentication
-                  localStorage.setItem('authReturnPath', currentPath);
-                  // Navigate to auth page
-                  navigate('/auth');
-                }}
-                sx={{ mr: 1 }}
-              >
-                <LoginIcon />
-              </IconButton>
-            </Tooltip>
-          )}
 
           {/* Avatar dropdown menu */}
           {user && (
@@ -292,8 +335,45 @@ const AppHeader: React.FC = () => {
               <MenuItem onClick={handleLogout}>Log out</MenuItem>
             </Menu>
           )}
-        </Box>
-      </Toolbar>
+
+          {/* Settings menu */}
+          <Menu
+            anchorEl={settingsMenuAnchor}
+            open={Boolean(settingsMenuAnchor)}
+            onClose={() => setSettingsMenuAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+          >
+            <Box px={2} py={1}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                Theme
+              </Typography>
+            </Box>
+            <MenuItem 
+              onClick={() => { setMode('system'); setSettingsMenuAnchor(null); }}
+              selected={mode === 'system'}
+            >
+              <ListItemIcon><SunMoon size={18} /></ListItemIcon>
+              System
+            </MenuItem>
+            <MenuItem 
+              onClick={() => { setMode('light'); setSettingsMenuAnchor(null); }}
+              selected={mode === 'light'}
+            >
+              <ListItemIcon><Sun size={18} /></ListItemIcon>
+              Light
+            </MenuItem>
+            <MenuItem 
+              onClick={() => { setMode('dark'); setSettingsMenuAnchor(null); }}
+              selected={mode === 'dark'}
+            >
+              <ListItemIcon><Moon size={18} /></ListItemIcon>
+              Dark
+            </MenuItem>
+          </Menu>
+          </Box>
+        </Toolbar>
+      </Container>
     </AppBar>
   );
 };

@@ -22,8 +22,7 @@ import {
 } from '@mui/material';
 import { FormControlLabel, Checkbox } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import ErrorIcon from '@mui/icons-material/Error';
+import { CheckCircle, XCircle } from 'lucide-react';
 import {
   onSnapshot,
   DocumentReference,
@@ -705,12 +704,12 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
         <DialogContent>
           {mailError ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <ErrorIcon color="error" />
+              <XCircle size={20} color="#d32f2f" />
               <Typography color="error">{mailError}</Typography>
             </Box>
           ) : mailStatus === 'success' ? (
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-              <CheckCircleIcon color="success" />
+              <CheckCircle size={20} color="#2e7d32" />
               <Typography>Email sent successfully.</Typography>
             </Box>
           ) : (

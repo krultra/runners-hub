@@ -96,6 +96,8 @@
 - **Post-import hygiene**
   - Re-ran `npm run backfill:uids -- --env prod` and `npm run sync:users` for recent editions (ensure registration parity).
   - Confirmed MO runner profiles display editions, green tables, and navigation parity with KUTC.
+- **Deployment**
+  - Released frontend/admin build **v1.7.3-0** to production with MO results, participant data, and resolved user duplicates.
 - **Next validation**
   - Spot-check `/mo/results/:editionId`, `/mo/all-time`, `/mo/records`, and representative runner profiles.
   - Verify admin dashboards (Reconcile, User Duplicates) show zero pending items after merge pass.

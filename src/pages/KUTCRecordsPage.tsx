@@ -18,7 +18,7 @@ import {
   TableRow,
   Chip
 } from '@mui/material';
-import { EmojiEvents, MilitaryTech, Timer, PersonPin, ArrowBack, Leaderboard } from '@mui/icons-material';
+import { Trophy, Medal, Timer, MapPin, ArrowLeft, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
   getMaxLoopsRecords,
@@ -96,7 +96,7 @@ const KUTCRecordsPage: React.FC = () => {
   const getMedalIcon = (index: number) => {
     const colors = ['#FFD700', '#C0C0C0', '#CD7F32']; // gold, silver, bronze
     if (index >= 3) return null;
-    return <MilitaryTech sx={{ fontSize: 28, color: colors[index], mr: 1 }} />;
+    return <Medal size={28} color={colors[index]} style={{ marginRight: 8 }} />;
   };
 
   const formatAppearances = (count: number) => `${count} ${count === 1 ? 'Edition' : 'Editions'}`;
@@ -110,7 +110,7 @@ const KUTCRecordsPage: React.FC = () => {
       {/* Navigation */}
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
         <Button
-          startIcon={<ArrowBack />}
+          startIcon={<ArrowLeft />}
           onClick={() => navigate('/kutc/results')}
         >
           Back to Overview
@@ -118,7 +118,7 @@ const KUTCRecordsPage: React.FC = () => {
         <Box sx={{ flex: '1 1 auto' }} />
         <Button
           variant="outlined"
-          startIcon={<Leaderboard />}
+          startIcon={<BarChart3 />}
           onClick={() => navigate('/kutc/all-time')}
         >
           All-Time Leaderboard
@@ -128,7 +128,7 @@ const KUTCRecordsPage: React.FC = () => {
       {/* Header */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
-          <EmojiEvents sx={{ fontSize: 40, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           KUTC Records
         </Typography>
         <Typography variant="h6" color="text.secondary">
@@ -145,7 +145,7 @@ const KUTCRecordsPage: React.FC = () => {
       {/* Max Loops Section */}
       <Box sx={{ mb: 6 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold" sx={{ mb: 3 }}>
-          <EmojiEvents sx={{ fontSize: 32, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Trophy size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           Most Loops Completed
         </Typography>
 
@@ -193,7 +193,7 @@ const KUTCRecordsPage: React.FC = () => {
       {/* Fastest Times Section */}
       <Box sx={{ mb: 6 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold" sx={{ mb: 3 }}>
-          <Timer sx={{ fontSize: 32, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <Timer size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           Fastest Race Times
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 720 }}>
@@ -260,7 +260,7 @@ const KUTCRecordsPage: React.FC = () => {
       {/* Most Appearances Section */}
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold" sx={{ mb: 3 }}>
-          <PersonPin sx={{ fontSize: 32, mr: 1, verticalAlign: 'middle', color: 'primary.main' }} />
+          <MapPin size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
           Most Appearances
         </Typography>
 

@@ -24,7 +24,7 @@ import {
   Button,
   Tooltip
 } from '@mui/material';
-import { Download, ArrowBack, InfoOutlined } from '@mui/icons-material';
+import { Download, ArrowLeft, Info } from 'lucide-react';
 import { findEditionWithNeighbors, getEditionResults, MOEditionResultsOptions, MOResultClass, MOResultEntry } from '../services/moResultsService';
 import { formatDateNb, nbClassLabel, nbGenderLabel } from '../utils/localeNb';
 
@@ -177,7 +177,7 @@ const MOEditionResultsPage: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
-        <Button startIcon={<ArrowBack />} onClick={() => navigate('/mo/results')}>
+        <Button startIcon={<ArrowLeft />} onClick={() => navigate('/mo/results')}>
           Back to Overview
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
@@ -260,7 +260,7 @@ const MOEditionResultsPage: React.FC = () => {
         </ToggleButtonGroup>
 
         <Tooltip title="Justert tid bruker Alle-mot-alle-poeng basert på alder og kjønn." placement="bottom">
-          <InfoOutlined fontSize="small" color="action" />
+          <Info size={18} />
         </Tooltip>
 
         <Button

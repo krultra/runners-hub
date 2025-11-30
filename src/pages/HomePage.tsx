@@ -17,7 +17,7 @@ import {
   Paper,
   Divider
 } from '@mui/material';
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import { ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useEventEdition } from '../contexts/EventEditionContext';
 import { getFullEventEditions, EventEdition } from '../services/eventEditionService';
@@ -122,7 +122,7 @@ const HomePage: React.FC = () => {
         p: { xs: 3, md: 4 },
         borderRadius: 3,
         border: (theme) => `1px solid ${theme.palette.divider}`,
-        backgroundColor: (theme) => theme.palette.mode === 'light' ? 'rgba(255,255,255,0.96)' : theme.palette.background.paper,
+        backgroundColor: (theme) => theme.palette.background.paper,
       }}
     >
       <Typography variant="h5" gutterBottom fontWeight={700}>
@@ -158,10 +158,22 @@ const HomePage: React.FC = () => {
             }}
           >
             <Box>
-              <Typography variant="h6" fontWeight={700} color="primary" gutterBottom>
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                sx={{
+                  color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
+                }}
+                gutterBottom
+              >
                 Kruke's Ultra-Trail Challenge
               </Typography>
-              <Typography variant="body2" color="text.secondary">
+              <Typography
+                variant="body2"
+                sx={{
+                  color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.secondary : 'rgba(255,255,255,0.85)'
+                }}
+              >
                 Find your distance. Find your limit.
               </Typography>
             </Box>
@@ -214,10 +226,22 @@ const HomePage: React.FC = () => {
             }}
           >
             <Box>
-              <Typography variant="h6" fontWeight={700} sx={{ color: 'common.white' }} gutterBottom>
+              <Typography
+                variant="h6"
+                fontWeight={700}
+                sx={{
+                  color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
+                }}
+                gutterBottom
+              >
                 Malvikingen Opp
               </Typography>
-              <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.85)' }}>
+              <Typography
+                variant="body2"
+                sx={{
+                  color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.secondary : 'rgba(255,255,255,0.85)'
+                }}
+              >
                 Earn your 'Mal-Viking' title in Malvik's oldest fell race.
               </Typography>
             </Box>
@@ -487,7 +511,7 @@ const HomePage: React.FC = () => {
             p: { xs: 3, md: 4 },
             borderRadius: 3,
             border: (theme) => `1px solid ${theme.palette.divider}`,
-            backgroundColor: (theme) => theme.palette.mode === 'light' ? 'rgba(255,255,255,0.9)' : theme.palette.background.paper,
+            backgroundColor: (theme) => theme.palette.background.paper,
           }}
         >
           <Box display="flex" flexDirection={{ xs: 'column', sm: 'row' }} justifyContent="space-between" alignItems={{ xs: 'flex-start', sm: 'center' }} gap={2} mb={2}>
@@ -535,7 +559,7 @@ const HomePage: React.FC = () => {
         <Button
           variant="text"
           color="inherit"
-          endIcon={<ArrowForwardIcon />}
+          endIcon={<ArrowRight />}
           onClick={() => navigate('/about')}
           sx={{ fontSize: '0.9rem', textTransform: 'none' }}
         >

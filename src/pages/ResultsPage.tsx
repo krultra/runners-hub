@@ -22,7 +22,7 @@ import {
   Tab,
   Stack
 } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
+import { Info } from 'lucide-react';
 import { saveAs } from 'file-saver';
 
 // Status enum for race status display
@@ -679,7 +679,7 @@ const ResultsPage = () => {
                 <strong>AG</strong> - Aldersgradert
                 <Tooltip title="Aldersgradert betyr at tiden er justert basert på deltakerens alder innenfor samme kjønn.">
                   <IconButton size="small">
-                    <InfoIcon fontSize="small" />
+                    <Info size={16} />
                   </IconButton>
                 </Tooltip>
               </Typography>
@@ -692,7 +692,7 @@ const ResultsPage = () => {
                 <strong>AGG</strong> - Alders- og kjønnsgradert
                 <Tooltip title="Alders- og kjønnsgradert betyr at tiden er justert basert på både alder og kjønn, slik at alle deltakere konkurrerer på like vilkår.">
                   <IconButton size="small">
-                    <InfoIcon fontSize="small" />
+                    <Info size={16} />
                   </IconButton>
                 </Tooltip>
               </Typography>
