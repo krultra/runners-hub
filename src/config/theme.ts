@@ -132,33 +132,25 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
           borderRadius: 8,
           padding: '8px 16px',
         },
-        contained: {
+        contained: ({ theme }) => ({
           boxShadow: 'none',
           border: '2px solid',
-          borderColor: 'unset',
+          borderColor: theme.palette.mode === 'dark' ? '#fff' : theme.palette.grey[400],
           '&:hover': {
-            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.2)',
-            backgroundColor: '#292929',
+            boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.15)',
+            // Subtle darken in light mode, subtle lighten in dark mode
+            filter: theme.palette.mode === 'dark' 
+              ? 'brightness(1.15)' 
+              : 'brightness(0.9)',
           },
-          '@media (prefers-color-scheme: dark)': {
-            borderColor: '#fff',
-            '&:hover': {
-              backgroundColor: 'rgba(255,255,255,0.08)',
-            },
-          },
-        },
-        outlined: {
+        }),
+        outlined: ({ theme }) => ({
           border: '2px solid',
-          borderColor: 'unset',
-          '@media (prefers-color-scheme: dark)': {
-            borderColor: '#fff',
-          },
-        },
-        text: {
-          '@media (prefers-color-scheme: dark)': {
-            color: '#FFFFFF',
-          },
-        },
+          borderColor: theme.palette.mode === 'dark' ? '#fff' : theme.palette.grey[600],
+        }),
+        text: ({ theme }) => ({
+          color: theme.palette.mode === 'dark' ? '#FFFFFF' : theme.palette.text.primary,
+        }),
       },
     },
     MuiCard: {
@@ -205,11 +197,9 @@ export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
     },
     MuiLink: {
       styleOverrides: {
-        root: {
-          '@media (prefers-color-scheme: dark)': {
-            color: '#FFFFFF',
-          },
-        },
+        root: ({ theme }) => ({
+          color: theme.palette.mode === 'dark' ? '#FFFFFF' : theme.palette.primary.main,
+        }),
       },
     },
   },
