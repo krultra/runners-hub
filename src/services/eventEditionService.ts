@@ -112,6 +112,7 @@ export const getEventEdition = async (id: string): Promise<EventEdition> => {
     liveResultsURL: data.liveResultsURL || '',
     startTime: data.startTime,
     endTime: data.endTime,
+    registrationOpens: data.registrationOpens,
     registrationDeadline: data.registrationDeadline,
     maxParticipants: data.maxParticipants,
     loopDistance: data.loopDistance,

@@ -80,7 +80,14 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const REGISTRATION_OPEN_STATUSES = [30, 40, 44, 50]; // pre_registration, open, waitlist, late_registration
   const isRegistrationPhase = REGISTRATION_OPEN_STATUSES.includes(eventStatusCode);
   const isRegistrationOpen = isRegistrationPhase && !registrationDeadlinePassed && !raceStarted;
-  const registrationOpensDate = event.registrationOpens ? new Date(event.registrationOpens) : null;
+  // Handle registrationOpens - could be Date, Timestamp, or string
+  const registrationOpensDate = (() => {
+    const val = event.registrationOpens;
+    if (!val) return null;
+    if (val instanceof Date) return val;
+    if (typeof (val as any).toDate === 'function') return (val as any).toDate();
+    return new Date(val);
+  })();
   const registrationNotYetOpen = eventStatusCode < 30 && registrationOpensDate && now < registrationOpensDate;
   
   // Results availability logic
@@ -420,7 +427,9 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     }
 
     // Registration not yet open - show when it opens
-    if (registrationNotYetOpen && registrationOpensDate) {
+    // Check: status is before registration phase (< 30) OR registrationOpens date is in the future
+    const showRegistrationOpensMessage = registrationOpensDate && now < registrationOpensDate;
+    if (showRegistrationOpensMessage) {
       return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
           <Alert severity="info" sx={{ mb: 2, maxWidth: 600 }}>
@@ -439,7 +448,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
       );
     }
 
-    // Registration closed, race not started yet
+    // Registration closed, race not started yet (and registration opens date has passed or not set)
     if (!isRegistrationOpen && !raceStarted) {
       return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
