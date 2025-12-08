@@ -13,6 +13,7 @@ import KUTC2025Page from './pages/KUTC2025Page';
 import KUTC2026Page from './pages/KUTC2026Page';
 import KUTCOverviewPage from './pages/KUTCOverviewPage';
 import MO2025Page from './pages/MO2025Page';
+import MO2026Page from './pages/MO2026Page';
 import MOOverviewPage from './pages/MOOverviewPage';
 import AboutRunnersHubPage from './pages/AboutRunnersHubPage';
 import RegistrationPage from './pages/RegistrationPage';
@@ -106,6 +107,7 @@ function App() {
             <Route path="/kutc-2026" element={<KUTC2026Page />} />
             <Route path="/mo" element={<MOOverviewPage />} />
             <Route path="/mo-2025" element={<MO2025Page />} />
+            <Route path="/mo-2026" element={<MO2026Page />} />
             <Route path="/about" element={<AboutRunnersHubPage />} />
             <Route path="/register" element={<RegistrationPage />} />
             <Route path="/auth" element={<AuthTest />} />

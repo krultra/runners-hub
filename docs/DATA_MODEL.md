@@ -146,6 +146,66 @@ Lookup table for status codes and other enumerated values.
 - When `maxParticipants` is reached, new registrations go to waiting-list
 - When any waiting-list entries exist, all new registrations are forced to waiting-list
 
+### Example: mo-2026 eventEdition
+
+To enable the MO 2026 page with RunnersHub registration, create a document in `eventEditions` with ID `mo-2026`:
+
+```json
+{
+  "eventId": "mo",
+  "edition": 2026,
+  "eventShortName": "MO",
+  "eventName": "Malvikingen Opp 2026",
+  "status": "announced",
+  "resultsStatus": "",
+  "RH_URL": "/mo-2026",
+  "startTime": "2026-05-09T12:00:00+02:00",
+  "endTime": "2026-05-09T15:00:00+02:00",
+  "registrationOpens": "2026-03-01T12:00:00+01:00",
+  "registrationDeadline": "2026-05-07T23:59:00+02:00",
+  "maxParticipants": 200,
+  "loopDistance": 6000,
+  "raceDistances": [
+    {
+      "id": "konkurranse",
+      "displayName": "Konkurranse",
+      "length": 6000,
+      "ascent": 420,
+      "descent": 0,
+      "active": true
+    },
+    {
+      "id": "trim",
+      "displayName": "Trim med tidtaking",
+      "length": 6000,
+      "ascent": 420,
+      "descent": 0,
+      "active": true
+    },
+    {
+      "id": "tur",
+      "displayName": "Turklasse",
+      "length": 6000,
+      "ascent": 420,
+      "descent": 0,
+      "active": true
+    }
+  ],
+  "fees": {
+    "participation": 200,
+    "baseCamp": 50,
+    "deposit": 0,
+    "total": 200
+  }
+}
+```
+
+**Notes:**
+- `participation` fee is for competition/trim classes
+- `baseCamp` fee is used for hiking class (turklasse)
+- Set `status` to `open` (40) when registration should be active
+- Ensure `registrationOpens` is set to control when registration opens
+
 ## Security
 {{ ... }}
 - See `firestore.rules` and `firestore.rules.bak` for rule sets.

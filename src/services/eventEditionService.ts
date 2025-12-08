@@ -20,6 +20,7 @@ export interface RaceDistance {
   ascent: number;
   descent: number;
   active?: boolean;
+  fee?: number;
 }
 
 export interface EventEdition {

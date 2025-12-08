@@ -23,7 +23,6 @@ import { getVerboseName } from '../services/codeListService';
 import { Globe, PersonStanding, Facebook, Mountain, Trophy, BarChart3 } from 'lucide-react';
 
 const EVENT_ID = 'mo';
-const AVAILABLE_EDITION_ROUTES = new Set<string>(['mo-2025']);
 
 const formatDate = (timestamp: any): string => {
   if (!timestamp) return 'TBA';
@@ -141,8 +140,9 @@ const MOOverviewPage: React.FC = () => {
     );
   }
 
-  const previousEditionHasPage = previousEdition ? AVAILABLE_EDITION_ROUTES.has(previousEdition.id) : false;
-  const nextEditionHasPage = nextEdition ? AVAILABLE_EDITION_ROUTES.has(nextEdition.id) : false;
+  // Dynamic check using RH_URL field from Firestore
+  const previousEditionHasPage = previousEdition ? Boolean((previousEdition as any).RH_URL) : false;
+  const nextEditionHasPage = nextEdition ? Boolean((nextEdition as any).RH_URL) : false;
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
@@ -220,7 +220,7 @@ const MOOverviewPage: React.FC = () => {
               {previousEditionHasPage ? (
                 <Button
                   variant="outlined"
-                  onClick={() => navigate(`/${previousEdition.id}`)}
+                  onClick={() => navigate((previousEdition as any).RH_URL)}
                   fullWidth
                 >
                   Se {previousEdition.edition}-utgaven
@@ -256,7 +256,7 @@ const MOOverviewPage: React.FC = () => {
               {nextEditionHasPage ? (
                 <Button
                   variant="contained"
-                  onClick={() => navigate(`/${nextEdition.id}`)}
+                  onClick={() => navigate((nextEdition as any).RH_URL)}
                   fullWidth
                 >
                   Gå til {nextEdition.edition}-utgaven

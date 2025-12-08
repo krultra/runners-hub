@@ -56,6 +56,7 @@ interface RaceDistanceForm {
   length: number;           // Actual length in meters (required to match RaceDistance)
   ascent: number;           // Total ascent in meters (required to match RaceDistance)
   descent: number;          // Total descent in meters (required to match RaceDistance)
+  fee?: number;             // Registration fee for this race class
 }
 
 
@@ -68,7 +69,8 @@ const toRaceDistanceForm = (distance: RaceDistance): RaceDistanceForm => {
     displayName: distance.displayName,
     length: distance.length,
     ascent: distance.ascent,
-    descent: distance.descent
+    descent: distance.descent,
+    fee: (distance as any).fee
   };
 };
 
@@ -118,7 +120,8 @@ const EventEditionsPanel: FC = () => {
     displayName: '', 
     length: 0, 
     ascent: 0, 
-    descent: 0 
+    descent: 0,
+    fee: 0
   });
   
   // UI state
@@ -244,7 +247,7 @@ const EventEditionsPanel: FC = () => {
     setLoopDistance(0);
     setFees({ participation: 0, baseCamp: 0, deposit: 0, total: 0 });
     setRaceDistances([]);
-    setNewDistance({ id: '', name: '', distance: 0, displayName: '', length: 0, ascent: 0, descent: 0 });
+    setNewDistance({ id: '', name: '', distance: 0, displayName: '', length: 0, ascent: 0, descent: 0, fee: 0 });
     setDirty(false);
   };
   
@@ -321,7 +324,8 @@ const EventEditionsPanel: FC = () => {
         displayName: form.displayName,
         length: form.length,
         ascent: form.ascent,
-        descent: form.descent
+        descent: form.descent,
+        fee: form.fee || 0
       })) as RaceDistance[],
     };
     
@@ -714,7 +718,7 @@ const EventEditionsPanel: FC = () => {
                         size="small"
                       />
                       <TextField
-                        label="Length (km)"
+                        label="Length (m)"
                         type="number"
                         value={distance.length}
                         onChange={(e) => {
@@ -749,6 +753,18 @@ const EventEditionsPanel: FC = () => {
                         }}
                         size="small"
                       />
+                      <TextField
+                        label="Fee (kr)"
+                        type="number"
+                        value={(distance as any).fee || 0}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, fee: Number(e.target.value) } as any;
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                      />
                       <IconButton
                         onClick={() => {
                           const newDistances = raceDistances.filter((_, i) => i !== index);
@@ -775,7 +791,7 @@ const EventEditionsPanel: FC = () => {
                     size="small"
                   />
                   <TextField
-                    label="Length (km)"
+                    label="Length (m)"
                     type="number"
                     value={newDistance.length}
                     onChange={(e) => setNewDistance({ ...newDistance, length: Number(e.target.value) })}
@@ -795,6 +811,13 @@ const EventEditionsPanel: FC = () => {
                     onChange={(e) => setNewDistance({ ...newDistance, descent: Number(e.target.value) })}
                     size="small"
                   />
+                  <TextField
+                    label="Fee (kr)"
+                    type="number"
+                    value={newDistance.fee || 0}
+                    onChange={(e) => setNewDistance({ ...newDistance, fee: Number(e.target.value) })}
+                    size="small"
+                  />
                   <Button
                     variant="contained"
                     onClick={() => {
@@ -803,7 +826,7 @@ const EventEditionsPanel: FC = () => {
                         return;
                       }
                       setRaceDistances([...raceDistances, newDistance]);
-                      setNewDistance({ id: '', name: '', distance: 0, displayName: '', length: 0, ascent: 0, descent: 0 });
+                      setNewDistance({ id: '', name: '', distance: 0, displayName: '', length: 0, ascent: 0, descent: 0, fee: 0 });
                       setDirty(true);
                     }}
                   >
