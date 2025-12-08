@@ -1,0 +1,977 @@
+{
+  "eventEditions": {
+    "kutc-2018": {
+      "fields": {
+        "data": {
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1539417600,
+            "nanoseconds": 415000000
+          },
+          "resultsStatus": "final",
+          "eventId": "kutc",
+          "fees": {
+            "participation": 50,
+            "total": 50,
+            "deposit": 0,
+            "baseCamp": 0
+          },
+          "loopDistance": 6.7,
+          "eventShortName": "KBUTC",
+          "resultTypes": [
+            "scratch"
+          ],
+          "edition": 2018,
+          "eventName": "Kruke's Backyard Ultra-Trail Challenge",
+          "resultURL": "https://runnershub.krultra.no/kutc/results/kutc-2018",
+          "maxParticipants": 25,
+          "status": "finished"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "kutc-2019": {
+      "fields": {
+        "data": {
+          "resultsStatus": "final",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1571472000,
+            "nanoseconds": 720000000
+          },
+          "eventId": "kutc",
+          "fees": {
+            "participation": 50,
+            "total": 50,
+            "deposit": 0,
+            "baseCamp": 0
+          },
+          "loopDistance": 6.7,
+          "eventShortName": "KBUTC",
+          "resultTypes": [
+            "scratch"
+          ],
+          "edition": 2019,
+          "eventName": "Kruke's Backyard Ultra-Trail Challenge",
+          "resultURL": "https://runnershub.krultra.no/kutc/results/kutc-2019",
+          "maxParticipants": 25,
+          "status": "finished"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "kutc-2020": {
+      "fields": {
+        "data": {
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1602921600,
+            "nanoseconds": 740000000
+          },
+          "resultsStatus": "final",
+          "eventId": "kutc",
+          "fees": {
+            "participation": 50,
+            "total": 50,
+            "deposit": 0,
+            "baseCamp": 0
+          },
+          "loopDistance": 6.7,
+          "eventShortName": "KBUTC",
+          "resultTypes": [
+            "scratch"
+          ],
+          "edition": 2020,
+          "eventName": "Kruke's Backyard Ultra-Trail Challenge",
+          "resultURL": "https://runnershub.krultra.no/kutc/results/kutc-2020",
+          "maxParticipants": 25,
+          "status": "finished"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "kutc-2021": {
+      "fields": {
+        "data": {
+          "resultsStatus": "final",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1634371200,
+            "nanoseconds": 108000000
+          },
+          "eventId": "kutc",
+          "fees": {
+            "participation": 50,
+            "total": 150,
+            "deposit": 100,
+            "baseCamp": 0
+          },
+          "loopDistance": 6.7,
+          "eventShortName": "KBUTC",
+          "resultTypes": [
+            "scratch"
+          ],
+          "edition": 2021,
+          "eventName": "Kruke's Backyard Ultra-Trail Challenge",
+          "resultURL": "https://runnershub.krultra.no/kutc/results/kutc-2021",
+          "maxParticipants": 30,
+          "status": "finished"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "kutc-2022": {
+      "fields": {
+        "data": {
+          "resultsStatus": "final",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1665820800,
+            "nanoseconds": 782000000
+          },
+          "eventId": "kutc",
+          "fees": {
+            "participation": 50,
+            "total": 250,
+            "deposit": 200,
+            "baseCamp": 0
+          },
+          "loopDistance": 6.7,
+          "eventShortName": "KUTC",
+          "resultTypes": [
+            "scratch"
+          ],
+          "edition": 2022,
+          "eventName": "Kruke's Ultra-Trail Challenge",
+          "resultURL": "https://runnershub.krultra.no/kutc/results/kutc-2022",
+          "maxParticipants": 30,
+          "status": "finished"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "kutc-2023": {
+      "fields": {
+        "data": {
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1697270400,
+            "nanoseconds": 190000000
+          },
+          "resultsStatus": "final",
+          "eventId": "kutc",
+          "fees": {
+            "participation": 50,
+            "total": 300,
+            "deposit": 200,
+            "baseCamp": 50
+          },
+          "loopDistance": 6.7,
+          "eventShortName": "KUTC",
+          "resultTypes": [
+            "scratch"
+          ],
+          "edition": 2023,
+          "eventName": "Kruke's Ultra-Trail Challenge",
+          "resultURL": "https://runnershub.krultra.no/kutc/results/kutc-2023",
+          "maxParticipants": 30,
+          "status": "finished"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "kutc-2024": {
+      "fields": {
+        "data": {
+          "resultsStatus": "final",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1728720000,
+            "nanoseconds": 147000000
+          },
+          "eventId": "kutc",
+          "fees": {
+            "participation": 50,
+            "total": 300,
+            "deposit": 200,
+            "baseCamp": 50
+          },
+          "loopDistance": 6.7,
+          "eventShortName": "KUTC",
+          "resultTypes": [
+            "scratch"
+          ],
+          "edition": 2024,
+          "eventName": "Kruke's Ultra-Trail Challenge",
+          "resultURL": "https://runnershub.krultra.no/kutc/results/kutc-2024",
+          "maxParticipants": 30,
+          "status": "finished"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "kutc-2025": {
+      "fields": {
+        "data": {
+          "edition": 2025,
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1760299200,
+            "nanoseconds": 590000000
+          },
+          "eventId": "kutc",
+          "eventName": "Kruke's Ultra-Trail Challenge",
+          "eventShortName": "KUTC",
+          "fees": {
+            "baseCamp": 50,
+            "deposit": 200,
+            "participation": 50,
+            "total": 300
+          },
+          "loopDistance": 6.7,
+          "resultTypes": [
+            "scratch"
+          ],
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1760169600,
+            "nanoseconds": 26000000
+          },
+          "registrationDeadline": {
+            "__type": "timestamp",
+            "seconds": 1757627940,
+            "nanoseconds": 0
+          },
+          "maxParticipants": 35,
+          "status": "finished",
+          "liveResultsURL": "https://krultracr.web.app",
+          "finishTime": {
+            "__type": "timestamp",
+            "seconds": 1760292000,
+            "nanoseconds": 79000000
+          },
+          "raceDistances": [
+            {
+              "ascent": 1475,
+              "descent": 1475,
+              "length": 26.68,
+              "id": "4-loops",
+              "displayName": "4 loops"
+            },
+            {
+              "ascent": 2950,
+              "descent": 2950,
+              "length": 53.36,
+              "id": "8-loops",
+              "displayName": "8 loops"
+            },
+            {
+              "ascent": 4425,
+              "descent": 4425,
+              "length": 80.05,
+              "id": "12-loops",
+              "displayName": "12 loops"
+            },
+            {
+              "ascent": 5899,
+              "descent": 5899,
+              "length": 106.73,
+              "id": "16-loops",
+              "displayName": "16 loops"
+            },
+            {
+              "ascent": 7374,
+              "descent": 7374,
+              "length": 133.41,
+              "id": "20-loops",
+              "displayName": "20 loops"
+            },
+            {
+              "ascent": 8849,
+              "descent": 8849,
+              "length": 160.09,
+              "id": "24-loops",
+              "displayName": "24 loops"
+            }
+          ],
+          "resultsStatus": "final",
+          "resultURL": "https://runnershub.krultra.no/kutc/results/kutc-2025"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "kutc-2026": {
+      "fields": {
+        "data": {
+          "eventId": "kutc",
+          "edition": 2026,
+          "eventShortName": "KUTC",
+          "eventName": "Kruke's Ultra-Trail Challenge",
+          "resultTypes": [
+            "scratch"
+          ],
+          "resultsStatus": "notStarted",
+          "loopDistance": 6.7,
+          "fees": {
+            "baseCamp": 50,
+            "total": 300,
+            "participation": 50,
+            "deposit": 200
+          },
+          "liveResultsURL": "",
+          "raceDistances": [
+            {
+              "id": "4-loops",
+              "displayName": "4 loops",
+              "length": 26.68,
+              "ascent": 1475,
+              "descent": 1475
+            },
+            {
+              "id": "8-loops",
+              "displayName": "8 loops",
+              "length": 53.36,
+              "ascent": 2950,
+              "descent": 2950
+            },
+            {
+              "id": "12-loops",
+              "displayName": "12 loops",
+              "length": 80.05,
+              "ascent": 4425,
+              "descent": 4425
+            },
+            {
+              "id": "16-loops",
+              "displayName": "16 loops",
+              "length": 106.73,
+              "ascent": 5899,
+              "descent": 5899
+            },
+            {
+              "id": "20-loops",
+              "displayName": "20 loops",
+              "length": 133.41,
+              "ascent": 7374,
+              "descent": 7374
+            },
+            {
+              "id": "24-loops",
+              "displayName": "24 loops",
+              "length": 160.09,
+              "ascent": 8849,
+              "descent": 8849
+            }
+          ],
+          "resultURL": "",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1791619200,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1791748800,
+            "nanoseconds": 0
+          },
+          "registrationDeadline": {
+            "__type": "timestamp",
+            "seconds": 1790805540,
+            "nanoseconds": 0
+          },
+          "maxParticipants": 30,
+          "status": "draft"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2011": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2011,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2011",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1304755200,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1304769600,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2012": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2012,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2012",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1336204800,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1336219200,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2013": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2013,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2013",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1368432000,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1368446400,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2014": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2014,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2014",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1399708800,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1399723200,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2015": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2015,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2015",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1431158400,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1431172800,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2016": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2016,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2016",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1463212800,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1463227200,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2017": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2017,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2017",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1494662400,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1494676800,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2018": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2018,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2018",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1526198400,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1526212800,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2019": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2019,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2019",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1557648000,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1557662400,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2020": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2020,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2020",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1588284000,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1590962400,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2021": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2021,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2021",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1619820000,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1622498400,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2022": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2022,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2022",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1653120000,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1653134400,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2023": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2023,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2023",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1685865600,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1685880000,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2024": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "notes": "",
+          "edition": 2024,
+          "resultsStatus": "final",
+          "liveResultsURL": "",
+          "RH_URL": "",
+          "eventShortName": "MO",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "eventName": "Malvikingen Opp",
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2024",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1715414400,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1715428800,
+            "nanoseconds": 0
+          },
+          "status": "finalized"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2025": {
+      "fields": {
+        "data": {
+          "edition": 2025,
+          "eventId": "mo",
+          "eventName": "Malvikingen Opp",
+          "fees": {
+            "baseCamp": 0,
+            "deposit": 0,
+            "participation": 200,
+            "total": 200
+          },
+          "loopDistance": 6,
+          "maxParticipants": 50,
+          "registrationDeadline": {
+            "__type": "timestamp",
+            "seconds": 1746869400,
+            "nanoseconds": 612000000
+          },
+          "raceDistances": [
+            {
+              "id": "MO",
+              "displayName": "Malvikingen Opp",
+              "length": 6,
+              "ascent": 450,
+              "descent": 30
+            },
+            {
+              "id": "MO-TRIM",
+              "displayName": "Malvikingen Opp Trim",
+              "length": 6,
+              "ascent": 450,
+              "descent": 30
+            }
+          ],
+          "resultsStatus": "final",
+          "status": "finalized",
+          "liveResultsURL": "",
+          "eventShortName": "MO",
+          "notes": "",
+          "RH_URL": "/mo-2025",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG"
+          ],
+          "resultURL": "https://runnershub.krultra.no/mo/results/mo-2025",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1746864000,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1746878400,
+            "nanoseconds": 0
+          }
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    },
+    "mo-2026": {
+      "fields": {
+        "data": {
+          "eventId": "mo",
+          "edition": 2026,
+          "eventName": "Malvikingen Opp",
+          "resultTypes": [
+            "scratch",
+            "gender",
+            "AGG",
+            "AG"
+          ],
+          "loopDistance": 6,
+          "fees": {
+            "total": 200,
+            "deposit": 0,
+            "participation": 200,
+            "baseCamp": 0
+          },
+          "raceDistances": [
+            {
+              "id": "MO",
+              "displayName": "Malvikingen Opp",
+              "length": 6,
+              "ascent": 450,
+              "descent": 30
+            }
+          ],
+          "resultsStatus": "notStarted",
+          "startTime": {
+            "__type": "timestamp",
+            "seconds": 1778601600,
+            "nanoseconds": 0
+          },
+          "endTime": {
+            "__type": "timestamp",
+            "seconds": 1778607000,
+            "nanoseconds": 0
+          },
+          "registrationDeadline": {
+            "__type": "timestamp",
+            "seconds": 1778599800,
+            "nanoseconds": 0
+          },
+          "maxParticipants": 100,
+          "liveResultsURL": "",
+          "resultURL": "",
+          "resultsStatusCode": 1,
+          "status": "draft",
+          "eventShortName": "MO"
+        },
+        "subcollections": {}
+      },
+      "_hasSubcollections": false
+    }
+  }
+}

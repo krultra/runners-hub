@@ -60,13 +60,25 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   // const timeRemaining = raceDate.getTime() - now.getTime();
   
   // Event status and timing
-  const eventStatusCode = typeof event.status === 'number' ? event.status : parseInt(String(event.status || ''), 10) || 0;
+  // Status can be stored as numeric sortOrder (e.g., 40) or string code (e.g., "open")
+  const statusValue = String(event.status || '').toLowerCase();
+  const statusNumeric = parseInt(statusValue, 10);
+  // Map string codes to their sortOrder for comparison, or use numeric value directly
+  const STATUS_MAP: Record<string, number> = {
+    hidden: 0, draft: 10, announced: 20, pre_registration: 30, open: 40,
+    waitlist: 44, late_registration: 50, full: 54, closed: 60,
+    in_progress: 70, suspended: 75, finished: 80, cancelled: 90, finalized: 100
+  };
+  const eventStatusCode = !isNaN(statusNumeric) ? statusNumeric : (STATUS_MAP[statusValue] ?? 0);
   const raceStarted = now >= raceDate;
   const raceEnded = event.endTime ? now >= new Date(event.endTime) : false;
   
   // Registration logic
+  // Registration is allowed for: pre_registration (30), open (40), waitlist (44), late_registration (50)
+  // NOT allowed for: full (54), closed (60)
   const registrationDeadlinePassed = event.registrationDeadline ? now >= event.registrationDeadline : true;
-  const isRegistrationPhase = eventStatusCode >= 30 && eventStatusCode <= 60; // pre_registration (30) through closed (60)
+  const REGISTRATION_OPEN_STATUSES = [30, 40, 44, 50]; // pre_registration, open, waitlist, late_registration
+  const isRegistrationPhase = REGISTRATION_OPEN_STATUSES.includes(eventStatusCode);
   const isRegistrationOpen = isRegistrationPhase && !registrationDeadlinePassed && !raceStarted;
   
   // Results availability logic
@@ -636,7 +648,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                         {race.displayName}
                       </Typography>
                       <Typography variant="body2" color="text.secondary">
-                        {race.length.toFixed(1)} km · {race.ascent.toLocaleString('no-NO')} m+
+                        {(race.length / 1000).toFixed(1)} km · {race.ascent.toLocaleString('no-NO')} m+
                       </Typography>
                     </Paper>
                   </Grid>

@@ -24,6 +24,7 @@ export interface CurrentEvent {
   liveResultsURL?: string;
   startTime: Date;
   endTime: Date;
+  registrationOpens: Date | null;
   registrationDeadline: Date | null;
   maxParticipants?: number;
   loopDistance?: number;
@@ -98,6 +99,7 @@ export const EventEditionProvider = ({ children }: { children: React.ReactNode }
           ...data,
           startTime: convertTimestamp(data.startTime),
           endTime: convertTimestamp(data.endTime),
+          registrationOpens: convertTimestamp(data.registrationOpens),
           registrationDeadline: convertTimestamp(data.registrationDeadline),
           raceDistances: data.raceDistances || [],
           fees: data.fees ?? { participation: 0, baseCamp: 0, deposit: 0, total: 0 },

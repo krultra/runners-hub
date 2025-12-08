@@ -23,7 +23,6 @@ import {
 import { getVerboseName } from '../services/codeListService';
 
 const EVENT_ID = 'kutc';
-const AVAILABLE_EDITION_ROUTES = new Set<string>(['kutc-2025']);
 
 const formatCurrency = (value?: number) => {
   if (value === undefined || value === null) return '—';
@@ -114,8 +113,9 @@ const KUTCOverviewPage: React.FC = () => {
     );
   }
 
-  const previousEditionHasPage = previousEdition ? AVAILABLE_EDITION_ROUTES.has(previousEdition.id) : false;
-  const nextEditionHasPage = nextEdition ? AVAILABLE_EDITION_ROUTES.has(nextEdition.id) : false;
+  // Check if edition has a dedicated page via RH_URL field, or fallback to known route pattern
+  const previousEditionHasPage = previousEdition ? Boolean(previousEdition.RH_URL) : false;
+  const nextEditionHasPage = nextEdition ? Boolean(nextEdition.RH_URL) : false;
   const activeRaceDistances = (event.raceDistances ?? []).filter((race) => {
     const { active } = race as { active?: boolean };
     return active !== false;
@@ -191,7 +191,7 @@ const KUTCOverviewPage: React.FC = () => {
               {previousEditionHasPage ? (
                 <Button
                   variant="outlined"
-                  onClick={() => navigate(`/${previousEdition.id}`)}
+                  onClick={() => navigate(previousEdition.RH_URL!)}
                   fullWidth
                 >
                   View {previousEdition.edition} Details
@@ -231,7 +231,7 @@ const KUTCOverviewPage: React.FC = () => {
               {nextEditionHasPage ? (
                 <Button
                   variant="contained"
-                  onClick={() => navigate(`/${nextEdition.id}`)}
+                  onClick={() => navigate(nextEdition.RH_URL!)}
                   fullWidth
                 >
                   View {nextEdition.edition} Details
@@ -268,7 +268,7 @@ const KUTCOverviewPage: React.FC = () => {
                         {race.displayName}
                       </Typography>
                       <Typography variant="body2">
-                        {race.length.toFixed(1)} km
+                        {(race.length / 1000).toFixed(1)} km
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
                         {race.ascent}m+

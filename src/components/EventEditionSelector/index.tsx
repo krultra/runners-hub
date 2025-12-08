@@ -84,6 +84,7 @@ const EventEditionSelector: React.FC<EventEditionSelectorProps> = ({
           ...edition,
           startTime: toDate(edition.startTime) || new Date(),
           endTime: toDate(edition.endTime) || new Date(),
+          registrationOpens: edition.registrationOpens ? toDate(edition.registrationOpens) : null,
           registrationDeadline: edition.registrationDeadline ? toDate(edition.registrationDeadline) : null
         }));
         setEditions(convertedEditions as CurrentEvent[]);

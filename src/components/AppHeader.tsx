@@ -66,7 +66,7 @@ const AppHeader: React.FC = () => {
   };
 
   const handleLogin = () => {
-    navigate('/login');
+    navigate('/auth');
     handleMenuClose();
   };
 

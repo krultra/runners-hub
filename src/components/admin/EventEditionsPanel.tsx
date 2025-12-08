@@ -96,6 +96,7 @@ const EventEditionsPanel: FC = () => {
   const [liveResultsURL, setLiveResultsURL] = useState<string>('');
   const [startDate, setStartDate] = useState<Date | null>(new Date());
   const [endDate, setEndDate] = useState<Date | null>(new Date());
+  const [registrationOpens, setRegistrationOpens] = useState<Date | null>(null);
   const [registrationDeadline, setRegistrationDeadline] = useState<Date | null>(null);
   const [maxParticipants, setMaxParticipants] = useState<number>(0);
   const [loopDistance, setLoopDistance] = useState<number>(0);
@@ -190,6 +191,7 @@ const EventEditionsPanel: FC = () => {
       setLiveResultsURL((data as any).liveResultsURL || '');
       setStartDate(data.startTime.toDate());
       setEndDate(data.endTime.toDate());
+      setRegistrationOpens(data.registrationOpens?.toDate() || null);
       setRegistrationDeadline(data.registrationDeadline?.toDate() || null);
       setMaxParticipants(data.maxParticipants || 0);
       setLoopDistance(data.loopDistance || 0);
@@ -201,6 +203,7 @@ const EventEditionsPanel: FC = () => {
         ...data,
         startTime: data.startTime.toDate(),
         endTime: data.endTime.toDate(),
+        registrationOpens: data.registrationOpens?.toDate() || null,
         registrationDeadline: data.registrationDeadline?.toDate() || null,
       };
       await setEvent(contextEvent);
@@ -235,6 +238,7 @@ const EventEditionsPanel: FC = () => {
     setLiveResultsURL('');
     setStartDate(new Date());
     setEndDate(new Date());
+    setRegistrationOpens(null);
     setRegistrationDeadline(new Date());
     setMaxParticipants(0);
     setLoopDistance(0);
@@ -306,6 +310,7 @@ const EventEditionsPanel: FC = () => {
       liveResultsURL,
       startTime: Timestamp.fromDate(d1),
       endTime: Timestamp.fromDate(d2),
+      registrationOpens: registrationOpens ? Timestamp.fromDate(registrationOpens) : undefined,
       registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
       maxParticipants,
       loopDistance,
@@ -342,6 +347,7 @@ const EventEditionsPanel: FC = () => {
         ...updatedEvent,
         startTime: updatedEvent.startTime.toDate(),
         endTime: updatedEvent.endTime.toDate(),
+        registrationOpens: updatedEvent.registrationOpens?.toDate() || null,
         registrationDeadline: updatedEvent.registrationDeadline?.toDate() || null,
       };
       
@@ -437,6 +443,7 @@ const EventEditionsPanel: FC = () => {
       resultsStatus,
       startTime: Timestamp.fromDate(d1),
       endTime: Timestamp.fromDate(d2),
+      registrationOpens: registrationOpens ? Timestamp.fromDate(registrationOpens) : undefined,
       registrationDeadline: registrationDeadline ? Timestamp.fromDate(registrationDeadline) : undefined,
       maxParticipants,
       loopDistance,
@@ -461,6 +468,7 @@ const EventEditionsPanel: FC = () => {
         ...updatedEvent,
         startTime: updatedEvent.startTime.toDate(),
         endTime: updatedEvent.endTime.toDate(),
+        registrationOpens: updatedEvent.registrationOpens?.toDate() || null,
         registrationDeadline: updatedEvent.registrationDeadline?.toDate() || null,
       };
       
@@ -617,6 +625,13 @@ const EventEditionsPanel: FC = () => {
                 label="End Time"
                 value={endDate}
                 onChange={val => { setEndDate(val); setDirty(true); }}
+                inputFormat="dd.MM.yyyy HH:mm"
+                renderInput={params => <TextField {...params} size="small" />}
+              />
+              <DateTimePicker
+                label="Registration Opens"
+                value={registrationOpens}
+                onChange={val => { setRegistrationOpens(val); setDirty(true); }}
                 inputFormat="dd.MM.yyyy HH:mm"
                 renderInput={params => <TextField {...params} size="small" />}
               />

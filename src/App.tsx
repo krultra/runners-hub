@@ -10,6 +10,7 @@ import Alert from '@mui/material/Alert';
 // Import pages
 import HomePage from './pages/HomePage';
 import KUTC2025Page from './pages/KUTC2025Page';
+import KUTC2026Page from './pages/KUTC2026Page';
 import KUTCOverviewPage from './pages/KUTCOverviewPage';
 import MO2025Page from './pages/MO2025Page';
 import MOOverviewPage from './pages/MOOverviewPage';
@@ -102,6 +103,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/kutc" element={<KUTCOverviewPage />} />
             <Route path="/kutc-2025" element={<KUTC2025Page />} />
+            <Route path="/kutc-2026" element={<KUTC2026Page />} />
             <Route path="/mo" element={<MOOverviewPage />} />
             <Route path="/mo-2025" element={<MO2025Page />} />
             <Route path="/about" element={<AboutRunnersHubPage />} />

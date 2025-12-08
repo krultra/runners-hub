@@ -8,6 +8,7 @@ export interface EventEdition {
   status: string;
   startTime?: Timestamp | Date;
   endTime?: Timestamp | Date;
+  registrationOpens?: Timestamp | Date;
   registrationDeadline?: Timestamp | Date;
   maxParticipants?: number;
   loopDistance?: number;

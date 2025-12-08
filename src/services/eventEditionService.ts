@@ -36,6 +36,7 @@ export interface EventEdition {
   RH_URL?: string; // Internal Runners Hub URL for events with dedicated pages (e.g., "/kutc-2025")
   startTime: Timestamp;
   endTime: Timestamp;
+  registrationOpens?: Timestamp;
   registrationDeadline?: Timestamp;
   maxParticipants?: number;
   loopDistance?: number;
