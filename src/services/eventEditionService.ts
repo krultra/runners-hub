@@ -16,11 +16,14 @@ import { Timestamp } from 'firebase/firestore';
 export interface RaceDistance {
   id: string;
   displayName: string;
+  displayName_no?: string;
+  displayName_en?: string;
   length: number;
   ascent: number;
   descent: number;
   active?: boolean;
   fee?: number;
+  startTime?: any; // Firestore Timestamp
 }
 
 export interface EventEdition {

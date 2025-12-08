@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Container, 
   Typography, 
@@ -16,8 +17,9 @@ import { Registration } from '../types';
 import { useEventEdition, CurrentEvent } from '../contexts/EventEditionContext';
 import { CircularProgress } from '@mui/material';
 import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } from '../services/registrationService';
-import { Globe, BarChart3, Trophy, Info, Facebook, Mountain } from 'lucide-react';
-import { getVerboseName } from '../services/codeListService';
+import { Globe, BarChart3, Trophy, Info, Facebook } from 'lucide-react';
+import { useStatusLabel } from '../hooks/useStatusLabel';
+import { useLocalizedField } from '../hooks/useLocalizedField';
 
 // Status code mapping for MO (same as KUTC)
 const STATUS_MAP: Record<string, number> = {
@@ -28,6 +30,8 @@ const STATUS_MAP: Record<string, number> = {
 
 // Inner component with full hooks/logic, receives guaranteed `event`
 const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
+  const { t } = useTranslation();
+  const getLocalizedField = useLocalizedField();
   const navigate = useNavigate();
   const location = useLocation();
   const editionId = 'mo-2026';
@@ -51,7 +55,6 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const [isUserRegistered, setIsUserRegistered] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
-  const [statusLabel, setStatusLabel] = useState<string>('');
   
   // Calculate time remaining until the race
   const now = useMemo(() => new Date(), []);
@@ -112,24 +115,8 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     (userRegistration.status === 'pending' || userRegistration.status === 'confirmed') &&
     !userRegistration.isOnWaitinglist;
 
-  // Load human readable status label
-  useEffect(() => {
-    const loadStatusLabel = async () => {
-      if (!event.status) {
-        setStatusLabel('');
-        return;
-      }
-      try {
-        const label = await getVerboseName('eventEditions', 'status', String(event.status), String(event.status));
-        setStatusLabel(label);
-      } catch (err) {
-        console.warn('Could not resolve status label:', err);
-        setStatusLabel(String(event.status));
-      }
-    };
-
-    loadStatusLabel();
-  }, [event.status]);
+  // Get translated status label
+  const statusLabel = useStatusLabel(event.status);
 
   // Check if user is authenticated and has a registration
   useEffect(() => {
@@ -222,7 +209,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     if (userRegistration.status === 'cancelled' || userRegistration.status === 'expired') {
       return (
         <Alert severity="warning" sx={{ mb: 2 }}>
-          Din registrering er {userRegistration.status === 'cancelled' ? 'kansellert' : 'utløpt'}.
+          {userRegistration.status === 'cancelled' ? t('events.registrationCancelled') : t('events.registrationExpired')}
         </Alert>
       );
     }
@@ -230,14 +217,14 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     if (userRegistration.isOnWaitinglist) {
       return (
         <Alert severity="info" sx={{ mb: 2 }}>
-          Du står på venteliste (posisjon: {waitingListCount > 0 ? 'avventer bekreftelse' : 'kontakt arrangør'}).
+          {t('events.onWaitlist')}
         </Alert>
       );
     }
     
     return (
       <Alert severity="success" sx={{ mb: 2 }}>
-        ✓ Du er påmeldt dette arrangementet!
+        ✓ {t('events.youAreRegistered')}
       </Alert>
     );
   };
@@ -253,7 +240,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
       return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
           <Typography variant="h6" color="info.main" sx={{ mb: 2 }}>
-            🏃 Løpet pågår
+            🏃 {t('events.raceOngoing')}
           </Typography>
         </Box>
       );
@@ -274,7 +261,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               >
-                {hasActiveRegistration ? 'Se min påmelding' : 'Oppdater påmelding'}
+                {hasActiveRegistration ? t('events.viewRegistration') : t('events.updateRegistration')}
               </Button>
             )}
             {!userRegistration && isRegistrationOpen && (
@@ -286,7 +273,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               >
-                {availableSpots === 0 || forceQueue ? 'Meld deg på venteliste' : 'Meld deg på'}
+                {availableSpots === 0 || forceQueue ? t('events.joinWaitlist') : t('events.registerNow')}
               </Button>
             )}
             {showParticipantsList && (
@@ -298,15 +285,15 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210 }}
               >
-                {waitingListCount > 0 ? 'Deltakere & venteliste' : 'Se deltakere'}
+                {waitingListCount > 0 ? t('events.participantsAndWaitlist') : t('events.seeParticipants')}
               </Button>
             )}
           </Box>
           {!userRegistration && isRegistrationOpen && !isLoading && availableSpots !== null && (
             <Typography variant="body1" sx={{ mt: 2, fontWeight: 500 }}>
               {availableSpots > 0 
-                ? `${availableSpots} ${availableSpots !== 1 ? 'plasser' : 'plass'} tilgjengelig`
-                : 'Fullt – kun venteliste'}
+                ? t('events.spotsAvailable', { count: availableSpots })
+                : t('events.fullWaitlistOnly')}
             </Typography>
           )}
         </Box>
@@ -325,13 +312,13 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             size="large"
             sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
           >
-            {availableSpots === 0 || forceQueue ? 'Logg inn for venteliste' : 'Logg inn for å melde deg på'}
+            {availableSpots === 0 || forceQueue ? t('events.loginForWaitlist') : t('events.loginToRegister')}
           </Button>
           {!isLoading && availableSpots !== null && (
             <Typography variant="body1" sx={{ mt: 2, fontWeight: 500 }}>
               {availableSpots > 0 
-                ? `${availableSpots} ${availableSpots !== 1 ? 'plasser' : 'plass'} tilgjengelig`
-                : 'Fullt – kun venteliste'}
+                ? t('events.spotsAvailable', { count: availableSpots })
+                : t('events.fullWaitlistOnly')}
             </Typography>
           )}
         </Box>
@@ -345,14 +332,14 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
           <Alert severity="info" sx={{ mb: 2, maxWidth: 600 }}>
             <Typography variant="body1" fontWeight={600}>
-              Påmeldingen åpner {registrationOpensDate.toLocaleDateString('nb-NO', {
+              {t('events.registrationOpensOn', { date: registrationOpensDate.toLocaleDateString(undefined, {
                 weekday: 'long',
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric',
                 hour: '2-digit',
                 minute: '2-digit'
-              })}
+              })})}
             </Typography>
           </Alert>
         </Box>
@@ -364,7 +351,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
       return (
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', mb: 4 }}>
           <Typography variant="h6" color="text.secondary" sx={{ mb: 2 }}>
-            Påmeldingen er stengt
+            {t('events.registrationClosed')}
           </Typography>
           {showParticipantsList && (
             <Button
@@ -375,7 +362,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
               size="large"
               sx={{ py: 1.5, px: 4, minWidth: 210 }}
             >
-              {waitingListCount > 0 ? 'Deltakere & venteliste' : 'Se deltakere'}
+              {waitingListCount > 0 ? t('events.participantsAndWaitlist') : t('events.seeParticipants')}
             </Button>
           )}
         </Box>
@@ -393,7 +380,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           {event.eventName || 'Malvikingen Opp 2026'}
         </Typography>
         <Typography variant="h5" color="text.secondary" sx={{ mb: 3 }}>
-          Malviks eldste motbakkeløp – fra Fjorden til Våtten
+          {t('mo.tagline')}
         </Typography>
 
         {/* Quick links */}
@@ -405,7 +392,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Offisiell info
+            {t('events.officialInfo')}
           </Button>
           <Button
             variant="outlined"
@@ -421,14 +408,14 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             startIcon={<BarChart3 />}
             onClick={() => navigate('/mo/results')}
           >
-            Resultater
+            {t('events.results')}
           </Button>
           <Button
             variant="outlined"
             startIcon={<Trophy />}
             onClick={() => navigate('/mo/records')}
           >
-            Rekorder
+            {t('events.records')}
           </Button>
         </Box>
 
@@ -436,26 +423,29 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
         {!raceStarted && (
           <Paper elevation={2} sx={{ p: 3, mb: 4, maxWidth: 600, mx: 'auto' }}>
             <Typography variant="h6" gutterBottom>
-              Nedtelling til start
+              {t('events.countdown')}
             </Typography>
             <Box display="flex" justifyContent="center" gap={3}>
               <Box textAlign="center">
                 <Typography variant="h3" fontWeight={700}>{timeLeft.days}</Typography>
-                <Typography variant="body2" color="text.secondary">dager</Typography>
+                <Typography variant="body2" color="text.secondary">{t('events.days')}</Typography>
               </Box>
               <Box textAlign="center">
                 <Typography variant="h3" fontWeight={700}>{timeLeft.hours}</Typography>
-                <Typography variant="body2" color="text.secondary">timer</Typography>
+                <Typography variant="body2" color="text.secondary">{t('events.hours')}</Typography>
               </Box>
               <Box textAlign="center">
                 <Typography variant="h3" fontWeight={700}>{timeLeft.minutes}</Typography>
-                <Typography variant="body2" color="text.secondary">min</Typography>
+                <Typography variant="body2" color="text.secondary">{t('events.minutes')}</Typography>
               </Box>
               <Box textAlign="center">
                 <Typography variant="h3" fontWeight={700}>{timeLeft.seconds}</Typography>
-                <Typography variant="body2" color="text.secondary">sek</Typography>
+                <Typography variant="body2" color="text.secondary">{t('events.seconds')}</Typography>
               </Box>
             </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
+              {t('events.eventDate')}: {raceDate.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            </Typography>
           </Paper>
         )}
 
@@ -502,12 +492,12 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
               <Grid item xs={12}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
                   <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
-                    Status
+                    {t('status.label')}
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Chip
                       icon={<Info />}
-                      label={statusLabel || 'Status avventer'}
+                      label={statusLabel || t('status.pending')}
                       color={
                         hasResultsAvailable ? 'success' :
                         raceStarted ? 'info' :
@@ -517,16 +507,11 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                       sx={{ fontWeight: 600 }}
                     />
                   </Box>
-                  <Typography variant="body2" color="text.secondary">
-                    {raceStarted ? 'Løpet startet' : 'Løpet starter'}{' '}
-                    {raceDate.toLocaleTimeString('nb-NO', { hour: '2-digit', minute: '2-digit' })} den{' '}
-                    {raceDate.toLocaleDateString('nb-NO', {
-                      weekday: 'long',
-                      day: 'numeric',
-                      month: 'long',
-                      year: 'numeric'
-                    })}
-                  </Typography>
+                  {event.registrationDeadline && (
+                    <Typography variant="body2" color="text.secondary">
+                      {t('events.registrationDeadline')}: {event.registrationDeadline.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </Typography>
+                  )}
                 </Box>
               </Grid>
             </Grid>
@@ -537,13 +522,13 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
             <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
-              Fakta
+              {t('events.facts')}
             </Typography>
             <Box sx={{ mt: 1 }}>
-              <Typography variant="body1"><strong>Lengde:</strong> 6 km</Typography>
-              <Typography variant="body1"><strong>Høydemeter:</strong> 420 m stigning</Typography>
-              <Typography variant="body1"><strong>Start:</strong> Vikhammerløkka (3 moh)</Typography>
-              <Typography variant="body1"><strong>Mål:</strong> Solemsvåttan (423 moh)</Typography>
+              <Typography variant="body1"><strong>{t('events.length')}:</strong> 6 km</Typography>
+              <Typography variant="body1"><strong>{t('events.elevation')}:</strong> 420 m</Typography>
+              <Typography variant="body1"><strong>{t('events.start')}:</strong> Vikhammerløkka (3 m)</Typography>
+              <Typography variant="body1"><strong>{t('events.finish')}:</strong> Solemsvåttan (423 m)</Typography>
             </Box>
           </Paper>
         </Grid>
@@ -555,33 +540,41 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           <Grid item xs={12}>
             <Paper elevation={2} sx={{ p: 3 }}>
               <Typography variant="h5" fontWeight={700} gutterBottom>
-                Klasser og påmeldingsavgift
+                {t('events.classesAndFees')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Grid container spacing={2}>
-                {raceDistances.map((rd) => (
-                  <Grid item xs={12} sm={6} md={4} key={rd.id}>
-                    <Paper variant="outlined" sx={{ p: 2 }}>
-                      <Typography variant="h6" fontWeight={600}>
-                        {rd.displayName}
-                      </Typography>
-                      {rd.length > 0 && (
-                        <Typography variant="body2" color="text.secondary">
-                          {(rd.length / 1000).toFixed(1)} km
-                          {rd.ascent > 0 && ` • ${rd.ascent} m stigning`}
+                {raceDistances.map((rd) => {
+                  const startDate = rd.startTime?.toDate?.() || rd.startTime;
+                  return (
+                    <Grid item xs={12} sm={6} md={4} key={rd.id}>
+                      <Paper variant="outlined" sx={{ p: 2 }}>
+                        <Typography variant="h6" fontWeight={600}>
+                          {getLocalizedField(rd, 'displayName')}
                         </Typography>
-                      )}
-                      {rd.fee !== undefined && rd.fee !== null && (
-                        <Typography variant="body1" sx={{ mt: 1, fontWeight: 500 }}>
-                          {rd.fee},- kr
-                        </Typography>
-                      )}
-                    </Paper>
-                  </Grid>
-                ))}
+                        {rd.length > 0 && (
+                          <Typography variant="body2" color="text.secondary">
+                            {(rd.length / 1000).toFixed(1)} km
+                            {rd.ascent > 0 && ` • ${rd.ascent} m ${t('events.ascent').toLowerCase()}`}
+                          </Typography>
+                        )}
+                        {startDate && (
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                            {t('events.start')}: {startDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                          </Typography>
+                        )}
+                        {rd.fee !== undefined && rd.fee !== null && (
+                          <Typography variant="body1" sx={{ mt: 1, fontWeight: 500 }}>
+                            {t('events.participationFee')}: {rd.fee},- kr
+                          </Typography>
+                        )}
+                      </Paper>
+                    </Grid>
+                  );
+                })}
               </Grid>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
-                Engangslisens kommer i tillegg for løpere uten årslisens i konkurranseklassene.
+                {t('events.licenseNote')}
               </Typography>
             </Paper>
           </Grid>
@@ -591,7 +584,20 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
       {/* Contact */}
       <Box textAlign="center" sx={{ mt: 6 }}>
         <Typography variant="body2" color="text.secondary">
-          Spørsmål? Send e-post til <a href="mailto:post@krultra.no">post@krultra.no</a>
+          {t('common.questions')}{' '}
+          <Box
+            component="a"
+            href="mailto:post@krultra.no"
+            sx={{
+              color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#4E82B4', // brand-400 / brand-600
+              textDecoration: 'underline',
+              '&:hover': {
+                color: (theme) => theme.palette.mode === 'dark' ? '#8BC2F0' : '#41719C', // brand-300 / brand-700
+              }
+            }}
+          >
+            post@krultra.no
+          </Box>
         </Typography>
       </Box>
     </Container>

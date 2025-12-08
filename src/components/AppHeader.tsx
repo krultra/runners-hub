@@ -1,6 +1,8 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack, Container, Divider } from '@mui/material';
-import { Menu as MenuIcon, Settings, Sun, Moon, SunMoon, CircleUser, LogIn } from 'lucide-react';
+import { Menu as MenuIcon, Settings, Sun, Moon, SunMoon, CircleUser, LogIn, Globe, Check } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { supportedLocales, localeNames, Locale } from '../i18n/locales';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createOrUpdateUser, getUser } from '../utils/userUtils';
@@ -13,6 +15,7 @@ const APP_STAGE = process.env.REACT_APP_STAGE || 'production';
 const IS_TEST_ENV = APP_STAGE === 'test';
 
 const AppHeader: React.FC = () => {
+  const { i18n } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [avatarMenuAnchor, setAvatarMenuAnchor] = useState<null | HTMLElement>(null);
@@ -24,6 +27,12 @@ const AppHeader: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { mode, setMode } = useContext(ThemeModeContext);
+
+  const currentLocale = (i18n.language?.substring(0, 2) as Locale) || 'no';
+
+  const handleLanguageChange = (locale: Locale) => {
+    i18n.changeLanguage(locale);
+  };
 
   const handleAvatarMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
     setAvatarMenuAnchor(event.currentTarget);
@@ -370,6 +379,24 @@ const AppHeader: React.FC = () => {
               <ListItemIcon><Moon size={18} /></ListItemIcon>
               Dark
             </MenuItem>
+            <Divider sx={{ my: 1 }} />
+            <Box px={2} py={1}>
+              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+                Language
+              </Typography>
+            </Box>
+            {supportedLocales.map((locale) => (
+              <MenuItem
+                key={locale}
+                onClick={() => { handleLanguageChange(locale); setSettingsMenuAnchor(null); }}
+                selected={locale === currentLocale}
+              >
+                <ListItemIcon>
+                  {locale === currentLocale ? <Check size={18} /> : <Globe size={18} />}
+                </ListItemIcon>
+                {localeNames[locale]}
+              </MenuItem>
+            ))}
           </Menu>
           </Box>
         </Toolbar>

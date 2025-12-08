@@ -53,6 +53,8 @@ interface RaceDistanceForm {
   name: string;             // Required identifier
   distance: number;         // Distance in meters
   displayName: string;      // Display name (required to match RaceDistance)
+  displayName_no?: string;  // Norwegian display name
+  displayName_en?: string;  // English display name
   length: number;           // Actual length in meters (required to match RaceDistance)
   ascent: number;           // Total ascent in meters (required to match RaceDistance)
   descent: number;          // Total descent in meters (required to match RaceDistance)
@@ -67,10 +69,12 @@ const toRaceDistanceForm = (distance: RaceDistance): RaceDistanceForm => {
     name: distance.displayName, // Use displayName as name
     distance: distance.length, // Use length as distance
     displayName: distance.displayName,
+    displayName_no: distance.displayName_no,
+    displayName_en: distance.displayName_en,
     length: distance.length,
     ascent: distance.ascent,
     descent: distance.descent,
-    fee: (distance as any).fee
+    fee: distance.fee
   };
 };
 
@@ -118,6 +122,8 @@ const EventEditionsPanel: FC = () => {
     name: '', 
     distance: 0, 
     displayName: '', 
+    displayName_no: '',
+    displayName_en: '',
     length: 0, 
     ascent: 0, 
     descent: 0,
@@ -322,6 +328,8 @@ const EventEditionsPanel: FC = () => {
       raceDistances: raceDistances.map(form => ({
         id: form.id,
         displayName: form.displayName,
+        displayName_no: form.displayName_no || undefined,
+        displayName_en: form.displayName_en || undefined,
         length: form.length,
         ascent: form.ascent,
         descent: form.descent,
@@ -718,6 +726,30 @@ const EventEditionsPanel: FC = () => {
                         size="small"
                       />
                       <TextField
+                        label="Name (NO)"
+                        value={(distance as any).displayName_no || ''}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, displayName_no: e.target.value } as any;
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                        placeholder="Norwegian name"
+                      />
+                      <TextField
+                        label="Name (EN)"
+                        value={(distance as any).displayName_en || ''}
+                        onChange={(e) => {
+                          const newDistances = [...raceDistances];
+                          newDistances[index] = { ...distance, displayName_en: e.target.value } as any;
+                          setRaceDistances(newDistances);
+                          setDirty(true);
+                        }}
+                        size="small"
+                        placeholder="English name"
+                      />
+                      <TextField
                         label="Length (m)"
                         type="number"
                         value={distance.length}
@@ -791,6 +823,20 @@ const EventEditionsPanel: FC = () => {
                     size="small"
                   />
                   <TextField
+                    label="Name (NO)"
+                    value={newDistance.displayName_no || ''}
+                    onChange={(e) => setNewDistance({ ...newDistance, displayName_no: e.target.value })}
+                    size="small"
+                    placeholder="Norwegian"
+                  />
+                  <TextField
+                    label="Name (EN)"
+                    value={newDistance.displayName_en || ''}
+                    onChange={(e) => setNewDistance({ ...newDistance, displayName_en: e.target.value })}
+                    size="small"
+                    placeholder="English"
+                  />
+                  <TextField
                     label="Length (m)"
                     type="number"
                     value={newDistance.length}
@@ -826,7 +872,7 @@ const EventEditionsPanel: FC = () => {
                         return;
                       }
                       setRaceDistances([...raceDistances, newDistance]);
-                      setNewDistance({ id: '', name: '', distance: 0, displayName: '', length: 0, ascent: 0, descent: 0, fee: 0 });
+                      setNewDistance({ id: '', name: '', distance: 0, displayName: '', displayName_no: '', displayName_en: '', length: 0, ascent: 0, descent: 0, fee: 0 });
                       setDirty(true);
                     }}
                   >
