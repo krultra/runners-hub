@@ -18,7 +18,7 @@ import {
   TextField
 } from '@mui/material';
 import { COUNTRIES } from '../../constants';
-import { CurrentEvent } from '../../contexts/EventEditionContext';
+import { CurrentEvent, DEFAULT_REGISTRATION_CONFIG, RegistrationConfig } from '../../contexts/EventEditionContext';
 import TermsAndConditions from './TermsAndConditions';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
@@ -63,6 +63,14 @@ interface ReviewRegistrationProps {
 const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData, errors, fieldRefs, onChange, onBlur, isEditingExisting = false, isFull = false }) => {
   const { t } = useTranslation();
   const getLocalizedField = useLocalizedField();
+  
+  // Get registration config with defaults
+  const config: RegistrationConfig = {
+    fields: {
+      ...DEFAULT_REGISTRATION_CONFIG.fields,
+      ...event.registrationConfig?.fields
+    }
+  };
   
   // State for terms and conditions dialog
   const [termsDialogOpen, setTermsDialogOpen] = useState(false);
@@ -192,7 +200,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
               />
             </ListItem>
           </Grid>
-          {formData.travelRequired && (
+          {config.fields.travelRequired && formData.travelRequired && (
             <Grid item xs={12}>
               <ListItem disablePadding>
                 <ListItemText
@@ -202,7 +210,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
               </ListItem>
             </Grid>
           )}
-          {formData.comments && (
+          {config.fields.comments && formData.comments && (
             <Grid item xs={12}>
               <ListItem disablePadding>
                 <ListItemText

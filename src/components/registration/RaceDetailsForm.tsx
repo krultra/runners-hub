@@ -15,7 +15,7 @@ import {
   Alert,
   Link
 } from '@mui/material';
-import { CurrentEvent } from '../../contexts/EventEditionContext';
+import { CurrentEvent, DEFAULT_REGISTRATION_CONFIG, RegistrationConfig } from '../../contexts/EventEditionContext';
 
 interface RaceDetailsFormProps {
   formData: {
@@ -49,6 +49,14 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({
   const { t } = useTranslation();
   const getLocalizedField = useLocalizedField();
   const firstRadioRef = useRef<HTMLInputElement>(null);
+
+  // Get registration config with defaults
+  const config: RegistrationConfig = {
+    fields: {
+      ...DEFAULT_REGISTRATION_CONFIG.fields,
+      ...event.registrationConfig?.fields
+    }
+  };
 
   // Get the selected race distance to check if license is required
   const selectedDistance = event.raceDistances?.find(d => d.id === formData.raceDistance);
@@ -206,54 +214,51 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({
           </Grid>
         )}
 
-        {/* Show message if license is not required for this race class */}
-        {formData.raceDistance && !requiresLicense && (
+        {/* Travel Required - only show if configured */}
+        {config.fields.travelRequired && (
           <Grid item xs={12}>
-            <Alert severity="info">
-              {t('form.licenseNotRequired')}
-            </Alert>
+            <TextField
+              id="travelRequired"
+              name="travelRequired"
+              label={t('form.travelRequired') || 'Travel Required'}
+              required
+              fullWidth
+              multiline
+              rows={3}
+              variant="outlined"
+              value={formData.travelRequired}
+              onChange={(e) => onChange('travelRequired', e.target.value)}
+              onBlur={() => onBlur && onBlur('travelRequired')}
+              inputProps={{ maxLength: 200 }}
+              error={!!(errors.travelRequired && touchedFields.travelRequired)}
+              helperText={
+                errors.travelRequired && touchedFields.travelRequired 
+                  ? errors.travelRequired 
+                  : t('form.travelHelper') || 'Please describe your travel plans'
+              }
+              inputRef={fieldRefs.travelRequired as any}
+            />
           </Grid>
         )}
         
-        <Grid item xs={12}>
-          <TextField
-            id="travelRequired"
-            name="travelRequired"
-            label={t('form.travelRequired') || 'Travel Required'}
-            required
-            fullWidth
-            multiline
-            rows={3}
-            variant="outlined"
-            value={formData.travelRequired}
-            onChange={(e) => onChange('travelRequired', e.target.value)}
-            onBlur={() => onBlur && onBlur('travelRequired')}
-            inputProps={{ maxLength: 200 }}
-            error={!!(errors.travelRequired && touchedFields.travelRequired)}
-            helperText={
-              errors.travelRequired && touchedFields.travelRequired 
-                ? errors.travelRequired 
-                : t('form.travelHelper') || 'Please describe your travel plans'
-            }
-            inputRef={fieldRefs.travelRequired as any}
-          />
-        </Grid>
-        
-        <Grid item xs={12}>
-          <TextField
-            id="comments"
-            name="comments"
-            label={t('form.comments')}
-            fullWidth
-            multiline
-            rows={3}
-            variant="outlined"
-            value={formData.comments}
-            onChange={(e) => onChange('comments', e.target.value)}
-            inputProps={{ maxLength: 500 }}
-            helperText={t('form.commentsHelper')}
-          />
-        </Grid>
+        {/* Comments - only show if configured */}
+        {config.fields.comments && (
+          <Grid item xs={12}>
+            <TextField
+              id="comments"
+              name="comments"
+              label={t('form.comments')}
+              fullWidth
+              multiline
+              rows={3}
+              variant="outlined"
+              value={formData.comments}
+              onChange={(e) => onChange('comments', e.target.value)}
+              inputProps={{ maxLength: 500 }}
+              helperText={t('form.commentsHelper')}
+            />
+          </Grid>
+        )}
         {/* Terms and conditions moved to the Review & Submit page */}
       </Grid>
     </Box>

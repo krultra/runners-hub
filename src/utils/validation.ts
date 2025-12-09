@@ -141,11 +141,14 @@ export const validateForm = (
     }
   }
   
-  // Travel requirements validation with length check
-  if ((touchedFields.travelRequired || showAllErrors) && (!formData.travelRequired || formData.travelRequired.trim() === '')) {
-    newErrors.travelRequired = ERROR_MESSAGES.travelRequired;
-  } else if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired.trim().length > 200) {
-    newErrors.travelRequired = 'Travel requirements cannot exceed 200 characters';
+  // Travel requirements validation with length check - only if field is enabled
+  // The _showTravelRequired flag is passed via formData when the field is shown
+  if (formData._showTravelRequired) {
+    if ((touchedFields.travelRequired || showAllErrors) && (!formData.travelRequired || formData.travelRequired.trim() === '')) {
+      newErrors.travelRequired = ERROR_MESSAGES.travelRequired;
+    } else if ((touchedFields.travelRequired || showAllErrors) && formData.travelRequired && formData.travelRequired.trim().length > 200) {
+      newErrors.travelRequired = 'Travel requirements cannot exceed 200 characters';
+    }
   }
 
   // Terms and conditions validation

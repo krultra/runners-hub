@@ -12,6 +12,20 @@ export interface Fees {
   total?: number;
 }
 
+/**
+ * Configuration for which fields to show in the registration form.
+ * This allows different events to have different registration requirements.
+ */
+ export interface RegistrationConfig {
+  fields: {
+    // Personal info fields - always shown: firstName, lastName, dateOfBirth, nationality, email, phone
+    representing?: boolean;      // Show "representing" field (club/team) - default true
+    travelRequired?: boolean;    // Show travel/logistics question - default false
+    comments?: boolean;          // Show comments field - default true
+  };
+  // License is determined by fees.oneTimeLicense > 0, not by config
+}
+
 export interface RaceDistance {
   id: string;
   displayName: string;
@@ -26,6 +40,15 @@ export interface RaceDistance {
   startTime?: any; // Firestore Timestamp
   maxParticipants?: number;
 }
+
+// Default registration config - used when event doesn't specify one
+export const DEFAULT_REGISTRATION_CONFIG: RegistrationConfig = {
+  fields: {
+    representing: true,
+    travelRequired: false,
+    comments: true,
+  }
+};
 
 export interface CurrentEvent {
   id: string;
@@ -51,6 +74,7 @@ export interface CurrentEvent {
     deposit: number;
     total: number;
   };
+  registrationConfig?: RegistrationConfig;
 }
 
 interface EventContextValue {

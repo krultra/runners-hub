@@ -113,6 +113,7 @@ Represents a specific edition/year of an event.
 - loopDistance?: number
 - raceDistances?: Array<{ id, displayName, displayName_no, displayName_en, length, ascent, descent, active?, startTime?, maxParticipants?, fees? }>
 - fees?: Fees (see below)
+- registrationConfig?: RegistrationConfig (see below)
 
 #### Fees Structure
 Both `eventEditions.fees` and `raceDistances[].fees` use the same structure:
@@ -131,6 +132,33 @@ interface Fees {
 **Fee resolution:** Distance-specific fees override event-level fees. If a distance has its own `fees` object, those values take precedence.
 
 **License fee logic:** The `oneTimeLicense` fee is only charged if the runner does NOT have a full-year NFIF license. See LICENSE_HANDLING.md for details.
+
+#### RegistrationConfig Structure
+Controls which fields are shown in the registration form. This allows different events to have different registration requirements.
+
+```typescript
+interface RegistrationConfig {
+  fields: {
+    representing?: boolean;      // Show "representing" field (club/team) - default true
+    travelRequired?: boolean;    // Show travel/logistics question - default false
+    comments?: boolean;          // Show comments field - default true
+  };
+}
+```
+
+**Default values:** If `registrationConfig` is not specified, the following defaults apply:
+- `representing`: true
+- `travelRequired`: false
+- `comments`: true
+
+**License fields:** License-related fields (hasYearLicense, licenseNumber) are shown automatically when `fees.oneTimeLicense > 0` for the selected race distance. This is not controlled by `registrationConfig`.
+
+**Example configurations:**
+
+| Event | representing | travelRequired | comments | License fields |
+|-------|--------------|----------------|----------|----------------|
+| KUTC  | true         | true           | true     | No (no license fee) |
+| MO    | true         | false          | true     | Yes (license fee > 0) |
 
 ### codeLists
 Lookup table for status codes and other enumerated values.

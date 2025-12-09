@@ -14,6 +14,7 @@ import { LocalizationProvider, DatePicker } from '@mui/x-date-pickers';
 // import { format } from 'date-fns'; // Not needed
 import { nb } from 'date-fns/locale';
 import { COUNTRIES, PHONE_CODES } from '../../constants';
+import { RegistrationConfig, DEFAULT_REGISTRATION_CONFIG } from '../../contexts/EventEditionContext';
 
 interface PersonalInfoFormProps {
   formData: {
@@ -33,10 +34,19 @@ interface PersonalInfoFormProps {
   isEditingExisting?: boolean;
   isFull?: boolean;
   isEmailReadOnly?: boolean;
+  registrationConfig?: RegistrationConfig;
 }
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, isEmailReadOnly }) => {
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, isEmailReadOnly, registrationConfig }) => {
   const { t } = useTranslation();
+
+  // Get registration config with defaults
+  const config: RegistrationConfig = {
+    fields: {
+      ...DEFAULT_REGISTRATION_CONFIG.fields,
+      ...registrationConfig?.fields
+    }
+  };
 
   // Effect to scroll to top when component mounts
   useEffect(() => {
@@ -290,19 +300,22 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
             />
           </Grid>
           
-          <Grid item xs={12}>
-            <TextField
-              id="representing"
-              name="representing"
-              label={t('form.representing')}
-              fullWidth
-              variant="outlined"
-              value={formData.representing}
-              onChange={(e) => onChange('representing', e.target.value)}
-              inputProps={{ maxLength: 60 }}
-              helperText={t('form.representingHelper')}
-            />
-          </Grid>
+          {/* Representing field - only show if configured */}
+          {config.fields.representing && (
+            <Grid item xs={12}>
+              <TextField
+                id="representing"
+                name="representing"
+                label={t('form.representing')}
+                fullWidth
+                variant="outlined"
+                value={formData.representing}
+                onChange={(e) => onChange('representing', e.target.value)}
+                inputProps={{ maxLength: 60 }}
+                helperText={t('form.representingHelper')}
+              />
+            </Grid>
+          )}
         </Grid>
       </Box>
     </LocalizationProvider>

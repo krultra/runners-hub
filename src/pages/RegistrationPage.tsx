@@ -14,7 +14,7 @@ import {
   CircularProgress,
 } from "@mui/material";
 import { initialFormData, validateForm } from "../utils/validation";
-import { useEventEdition, CurrentEvent } from "../contexts/EventEditionContext";
+import { useEventEdition, CurrentEvent, DEFAULT_REGISTRATION_CONFIG, RegistrationConfig } from "../contexts/EventEditionContext";
 import PersonalInfoForm from "../components/registration/PersonalInfoForm";
 import RaceDetailsForm from "../components/registration/RaceDetailsForm";
 import ReviewRegistration from "../components/registration/ReviewRegistration";
@@ -79,16 +79,25 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     Record<string, React.RefObject<HTMLDivElement | null>>
   >({});
 
+  // Get registration config with defaults
+  const registrationConfig: RegistrationConfig = {
+    fields: {
+      ...DEFAULT_REGISTRATION_CONFIG.fields,
+      ...event.registrationConfig?.fields
+    }
+  };
+
   // Compute whether license is required for the selected race distance
   const selectedDistance = event.raceDistances?.find(d => d.id === formData.raceDistance);
   const licenseFee = selectedDistance?.fees?.oneTimeLicense ?? event.fees?.oneTimeLicense ?? 0;
   const requiresLicense = licenseFee > 0;
 
-  // Helper to get formData with _requiresLicense flag for validation
+  // Helper to get formData with validation flags
   const getFormDataForValidation = useCallback(() => ({
     ...formData,
-    _requiresLicense: requiresLicense
-  }), [formData, requiresLicense]);
+    _requiresLicense: requiresLicense,
+    _showTravelRequired: registrationConfig.fields.travelRequired ?? false
+  }), [formData, requiresLicense, registrationConfig.fields.travelRequired]);
 
   // Reset validation state when switching to Race Details step
   useEffect(() => {
@@ -763,6 +772,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             isEditingExisting={isEditingExisting}
             isFull={isFull}
             isEmailReadOnly={true}  /* Make email field read-only since it comes from auth */
+            registrationConfig={registrationConfig}
           />
         );
       case 1:
