@@ -3,6 +3,15 @@ import { getEventEdition } from '../services/eventEditionService';
 
 const LAST_EVENT_KEY = 'runnershub_last_event_id';
 
+export interface Fees {
+  participation?: number;
+  oneTimeLicense?: number;
+  service?: number;
+  baseCamp?: number;  // @deprecated - use service
+  deposit?: number;
+  total?: number;
+}
+
 export interface RaceDistance {
   id: string;
   displayName: string;
@@ -12,8 +21,10 @@ export interface RaceDistance {
   ascent: number;
   descent: number;
   active?: boolean;
-  fee?: number;
+  fee?: number;  // @deprecated - use fees.participation
+  fees?: Fees;
   startTime?: any; // Firestore Timestamp
+  maxParticipants?: number;
 }
 
 export interface CurrentEvent {
@@ -34,7 +45,7 @@ export interface CurrentEvent {
   maxParticipants?: number;
   loopDistance?: number;
   raceDistances?: RaceDistance[];
-  fees: {
+  fees: Fees & {
     participation: number;
     baseCamp: number;
     deposit: number;

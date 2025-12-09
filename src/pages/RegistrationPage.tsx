@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { getRegistrationsByEdition } from "../services/registrationService";
@@ -20,13 +21,19 @@ import ReviewRegistration from "../components/registration/ReviewRegistration";
 import RegistrationStepper from "../components/registration/RegistrationStepper";
 import RegistrationSnackbar from "../components/registration/RegistrationSnackbar";
 
-const steps = ["Personal Information", "Race Details", "Review & Submit"];
 
 // Inner component containing all hooks and logic, now receiving event as prop
 const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   event,
 }) => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
+  
+  const steps = [
+    t('registration.steps.personalInfo'),
+    t('registration.steps.raceDetails'),
+    t('registration.steps.reviewSubmit')
+  ];
   // Firebase Auth state
   const [user, setUser] = useState<any>(null);
   const [authChecked, setAuthChecked] = useState(false);
@@ -72,18 +79,33 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     Record<string, React.RefObject<HTMLDivElement | null>>
   >({});
 
+  // Compute whether license is required for the selected race distance
+  const selectedDistance = event.raceDistances?.find(d => d.id === formData.raceDistance);
+  const licenseFee = selectedDistance?.fees?.oneTimeLicense ?? event.fees?.oneTimeLicense ?? 0;
+  const requiresLicense = licenseFee > 0;
+
+  // Helper to get formData with _requiresLicense flag for validation
+  const getFormDataForValidation = useCallback(() => ({
+    ...formData,
+    _requiresLicense: requiresLicense
+  }), [formData, requiresLicense]);
+
   // Reset validation state when switching to Race Details step
   useEffect(() => {
     if (activeStep === 1) { // Race Details step
       setTouchedFields(prev => ({
         ...prev,
         raceDistance: false,
-        travelRequired: false
+        travelRequired: false,
+        hasYearLicense: false,
+        licenseNumber: false
       }));
       setErrors(prev => {
         const newErrors = {...prev};
         delete newErrors.raceDistance;
         delete newErrors.travelRequired;
+        delete newErrors.hasYearLicense;
+        delete newErrors.licenseNumber;
         return newErrors;
       });
     }
@@ -104,7 +126,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       const touchedContext = { [field]: true };
       
       // Get validation result for just this field
-      const fieldErrors = validateForm(formData, touchedContext, false, false, undefined);
+      const fieldErrors = validateForm(getFormDataForValidation(), touchedContext, false, false, undefined);
       
       // Get the current field value to check if it's empty
       const fieldValue = formData[field as keyof typeof formData];
@@ -139,10 +161,10 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   }, []);
 
   const showCurrentStepErrors = useCallback(() => {
-    const currentErrors = validateForm(formData, activeStep);
+    const currentErrors = validateForm(getFormDataForValidation(), activeStep);
     setErrors(currentErrors);
     return Object.keys(currentErrors).length > 0;
-  }, [formData, activeStep]);
+  }, [getFormDataForValidation, activeStep]);
 
   const hasPersonalInfoErrors = useCallback(() => {
     const personalInfoFields = [
@@ -161,7 +183,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       personalInfoTouched[field] = true;
     });
     const errors = validateForm(
-      formData,
+      getFormDataForValidation(),
       personalInfoTouched,
       false,
       undefined,
@@ -266,7 +288,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
         } catch (err: any) {
           if (err && err.code === "unavailable") {
             setSnackbarMessage(
-              "Could not connect to the database. Please check your internet connection.",
+              t('registration.couldNotConnect'),
             );
             setSnackbarSeverity("error");
             setSnackbarOpen(true);
@@ -338,7 +360,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
 
   // Check if the form is valid for final submission (including terms)
   const isFormValidForSubmission = () => {
-    const errors = validateForm(formData, touchedFields, true, true, undefined); // Silent validation
+    const errors = validateForm(getFormDataForValidation(), touchedFields, true, true, undefined); // Silent validation
     if (!formData.termsAccepted) errors.termsAccepted = "You must accept the terms and conditions";
     if (!user || !user.email) return false;
     return Object.keys(errors).length === 0;
@@ -362,12 +384,10 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
         ];
       } else if (activeStep === 1) { // Race Details
         fieldsToMark = [
-          "gender",
-          "distance",
-          "emergencyContactName",
-          "emergencyContactPhone",
-          "dietary",
-          "medicalConditions",
+          "raceDistance",
+          "travelRequired",
+          "hasYearLicense",
+          "licenseNumber",
         ];
       }
       
@@ -387,7 +407,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     if (activeStep === steps.length - 2) {
       // Validate all fields except terms and conditions
       const currentErrors = validateForm(
-        formData,
+        getFormDataForValidation(),
         updatedTouchedFields, // Use newly updated touched fields
         true,
         true,
@@ -403,7 +423,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       } else {
         setErrors(errorsWithoutTerms);
         setSnackbarMessage(
-          "Please complete all required fields before submitting",
+          t('registration.completeFieldsBeforeSubmitting'),
         );
         setSnackbarOpen(true);
         // Do NOT advance step if there are errors
@@ -426,7 +446,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       if (activeStep === 0) {
         // Force validation for personal info and immediately show errors
         const personalInfoErrors = validateForm(
-          formData,
+          getFormDataForValidation(),
           updatedTouchedFields,
           false,
           false,
@@ -439,7 +459,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       if (activeStep === 1) {
         // Force validation for race details and immediately show errors
         const raceDetailsErrors = validateForm(
-          formData,
+          getFormDataForValidation(),
           updatedTouchedFields,
           false,
           false, 
@@ -458,7 +478,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
         // Scroll to first error
         scrollToFirstError(errors);
         setSnackbarMessage(
-          "Please complete all required fields before proceeding",
+          t('registration.completeFieldsBeforeProceeding'),
         );
         setSnackbarOpen(true);
       }
@@ -581,10 +601,10 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       if (!formData.isOnWaitinglist) {
         setErrors((prev) => ({
           ...prev,
-          isOnWaitinglist: "You must agree to join the waiting-list",
+          isOnWaitinglist: t('registration.mustAcceptWaitlist'),
         }));
         setSnackbarMessage(
-          "Please agree to join the waiting-list before submitting",
+          t('registration.agreeToWaitlist'),
         );
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
@@ -597,9 +617,9 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       if (!formData.waitinglistExpires) {
         setErrors((prev) => ({
           ...prev,
-          waitinglistExpires: "Select expiration date",
+          waitinglistExpires: t('registration.selectExpirationDate'),
         }));
-        setSnackbarMessage("Please select a waiting-list expiration date");
+        setSnackbarMessage(t('registration.selectWaitlistExpiration'));
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
         fieldRefs.current.waitinglistExpires?.scrollIntoView({
@@ -616,7 +636,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       const isConnected = await testFirestoreConnection();
       if (!isConnected) {
         setSnackbarMessage(
-          "Error connecting to the database. Please check your internet connection.",
+          t('registration.errorConnecting'),
         );
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
@@ -648,6 +668,12 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           waitinglistExpires: formData.waitinglistExpires,
           paymentRequired: formData.paymentRequired ?? 300,
           paymentMade: formData.paymentMade ?? 0,
+          // License info - only include if license is required for this race
+          // Use null instead of undefined for Firestore compatibility
+          ...(requiresLicense ? {
+            hasYearLicense: formData.hasYearLicense ?? false,
+            licenseNumber: formData.licenseNumber?.trim() || "",
+          } : {}),
         };
         let registrationId = existingRegistrationId;
         if (isEditingExisting && existingRegistrationId) {
@@ -656,7 +682,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             "../services/registrationService"
           );
           await updateRegistration(existingRegistrationId, registrationData);
-          setSnackbarMessage("Registration updated successfully!");
+          setSnackbarMessage(t('registration.registrationUpdated'));
           setSnackbarSeverity("success");
         } else {
           // Create
@@ -667,7 +693,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           const existingRegs = await getRegistrationsByUserId(user.uid, event.id);
           if (existingRegs && existingRegs.length > 0) {
             setSnackbarMessage(
-              "You have already submitted a registration. Duplicate entries are not allowed.",
+              t('registration.duplicateRegistration'),
             );
             setSnackbarSeverity("warning");
             setSnackbarOpen(true);
@@ -679,16 +705,18 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             user?.uid,
           );
           if (registrationData.isOnWaitinglist) {
-            setSnackbarMessage("Successful waiting-list registration!");
+            setSnackbarMessage(t('registration.waitlistSuccess'));
           } else {
-            setSnackbarMessage("Registration submitted successfully!");
+            setSnackbarMessage(t('registration.registrationSuccess'));
           }
           setSnackbarSeverity("success");
         }
         setSnackbarOpen(true);
         localStorage.removeItem("registrationFormData");
         setTimeout(() => {
-          navigate("/", {
+          // Navigate back to the event page instead of home
+          const eventPath = `/${event.id}`;
+          navigate(eventPath, {
             state: { registrationSuccess: true, registrationId },
           });
         }, 2000);
@@ -696,7 +724,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
         console.error("Error submitting registration:", error);
         const errorMessage =
           error instanceof Error ? error.message : "Unknown error";
-        setSnackbarMessage(`Error submitting registration: ${errorMessage}`);
+        setSnackbarMessage(`${t('registration.errorSubmitting')}: ${errorMessage}`);
         setSnackbarSeverity("error");
         setSnackbarOpen(true);
         setIsSubmitting(false);
@@ -707,7 +735,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     } else {
       // Show error message
       setSnackbarMessage(
-        "Please accept the terms and conditions before submitting",
+        t('registration.acceptTermsBeforeSubmitting'),
       );
       setSnackbarOpen(true);
       // Scroll to terms checkbox
@@ -776,10 +804,10 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       );
     }
 
-    const messageTitle = hasEventStarted ? "Event Started" : "Registration Closed";
+    const messageTitle = hasEventStarted ? t('registration.eventStarted') : t('registration.registrationClosed');
     const messageBody = hasEventStarted
-      ? "The event has already started, so registration updates are no longer possible."
-      : "We're sorry, but registration for KUTC 2025 is now closed.";
+      ? t('registration.eventStartedMessage')
+      : t('registration.registrationClosedMessage');
 
     return (
       <Container maxWidth="md">
@@ -791,7 +819,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             {messageBody}
           </Typography>
           <Button variant="contained" onClick={() => navigate("/")}>
-            Return to Home
+            {t('registration.returnToHome')}
           </Button>
         </Box>
       </Container>
@@ -832,16 +860,16 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           </span>
           {isEditingExisting
             ? formData.isOnWaitinglist 
-              ? "Reviewing Waitinglist Registration"
-              : "Reviewing Registration"
+              ? t('registration.reviewingWaitlistRegistration')
+              : t('registration.reviewingRegistration')
             : isFull
-              ? "Waitinglist Registration"
-              : "Registration"}
+              ? t('registration.waitlistRegistration')
+              : t('registration.title')}
         </Typography>
         {isEditingExisting && (
           <React.Fragment>
             <Alert severity="info" sx={{ mb: 2 }}>
-              You may update your registration below.
+              {t('registration.updateInfo')}
             </Alert>
             <Box sx={{ mb: 2 }}>
               <Alert
@@ -853,12 +881,12 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
                       : "info"
                 }
               >
-                Status:{" "}
+                {t('status.label')}:{" "}
                 {formData.paymentMade >= formData.paymentRequired
-                  ? "Payment Made"
+                  ? t('registration.paymentMade')
                   : formData.paymentMade < formData.paymentRequired
-                    ? "Payment Required"
-                    : "Pending"}
+                    ? t('registration.paymentRequired')
+                    : t('registration.paymentPending')}
               </Alert>
             </Box>
           </React.Fragment>
@@ -867,7 +895,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
         <Box sx={{ display: "flex", justifyContent: "flex-end", mt: 3 }}>
           {activeStep !== 0 && (
             <Button onClick={handleBack} sx={{ mr: 2 }}>
-              Back
+              {t('registration.back')}
             </Button>
           )}
           <Button
@@ -885,7 +913,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
                     !formData.waitinglistExpires)))
             }
           >
-            {activeStep === steps.length - 1 ? "Submit" : "Next"}
+            {activeStep === steps.length - 1 ? t('registration.submit') : t('registration.next')}
           </Button>
         </Box>
       </Paper>
@@ -895,6 +923,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
 
 // Main RegistrationPage component
 const RegistrationPage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { event, loading, error } = useEventEdition();
 
@@ -919,15 +948,15 @@ const RegistrationPage: React.FC = () => {
       <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
         <Alert severity="error">
           {error
-            ? `Error loading event: ${error.message}`
-            : "No event selected"}
+            ? `${t('errors.loadFailed')}: ${error.message}`
+            : t('errors.notFound')}
         </Alert>
         <Button
           variant="contained"
           onClick={() => navigate("/")}
           sx={{ mt: 2 }}
         >
-          Back to Home
+          {t('errors.backToHome')}
         </Button>
       </Container>
     );

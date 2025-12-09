@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Box,
@@ -24,53 +25,35 @@ import { Globe, PersonStanding, Facebook, Mountain, Trophy, BarChart3 } from 'lu
 
 const EVENT_ID = 'mo';
 
-const formatDate = (timestamp: any): string => {
-  if (!timestamp) return 'TBA';
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  return date.toLocaleDateString('nb-NO', {
-    weekday: 'long',
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric'
-  });
-};
 
-const COURSE_FACTS: { title: string; description: string }[] = [
-  {
-    title: 'Løype',
-    description: '6 km fra fjorden på Vikhammerløkka til toppen av Solemsvåttan.'
-  },
-  {
-    title: 'Høydemeter',
-    description: 'Løypa starter ca. 3 meter over havnivå og har målgang på 423 moh. Med unntak av en liten nedoverbakke etter drøyt 2 km. er det motbakke så og si hele løypa.'
-  },
-  {
-    title: 'Klasser',
-    description: 'Løpet har konkurranseklasser med dame- og herre-klasse, men det som gjør løpet unikt er hovedklassen for alle-mot-alle hvor tiden justeres for alder og kjønn. I tillegg er det mulig å delta i klassen for trim med tidtaking, og i en familievennlig turklasse.'
-  },
-  {
-    title: 'Siden 2011',
-    description: 'Malvikingen Opp er Malviks eldste motbakkeløp og arrangeres av KrUltra på vegne av Malvik IL Friidrett. Løpet har blitt arrangert hvert år siden 2011'
-  }
-];
-
-const REGISTRATION_INFO: { title: string; description: string }[] = [
-  {
-    title: 'Påmelding',
-    description: 'Lenker til påmelding og informasjon om påmeldingsfrister publiseres i den aktuelle utgaven – følg lenken til neste løp for detaljer.'
-  },
-  {
-    title: 'Konkurranse & trim med tidtaking',
-    description: 'Deltakelse koster 250,- kroner. Engangslisens kommer i tillegg for løpere uten årslisens.'
-  },
-  {
-    title: 'Turklasse',
-    description: 'Deltakelse koster 50,- kroner.'
-  }
-];
 
 const MOOverviewPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  const formatDate = (timestamp: any): string => {
+    if (!timestamp) return t('editions.tba');
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString(i18n.language === 'no' ? 'nb-NO' : 'en-US', {
+      weekday: 'long',
+      day: 'numeric',
+      month: 'long',
+      year: 'numeric'
+    });
+  };
+
+  const COURSE_FACTS = [
+    { titleKey: 'mo.course', descKey: 'mo.courseDesc' },
+    { titleKey: 'mo.elevation', descKey: 'mo.elevationDesc' },
+    { titleKey: 'mo.classes', descKey: 'mo.classesDesc' },
+    { titleKey: 'mo.since2011', descKey: 'mo.since2011Desc' }
+  ];
+
+  const REGISTRATION_INFO = [
+    { titleKey: 'mo.registrationInfo', descKey: 'mo.registrationInfoDesc' },
+    { titleKey: 'mo.competitionTimed', descKey: 'mo.competitionTimedDesc' },
+    { titleKey: 'mo.hikingClass', descKey: 'mo.hikingClassDesc' }
+  ];
   const [event, setEvent] = useState<Event | null>(null);
   const [previousEdition, setPreviousEdition] = useState<EventEdition | null>(null);
   const [nextEdition, setNextEdition] = useState<EventEdition | null>(null);
@@ -102,7 +85,7 @@ const MOOverviewPage: React.FC = () => {
         }
       } catch (err: any) {
         console.error('Failed to load MO info:', err);
-        setError(err?.message || 'Klarte ikke å laste informasjon om Malvikingen Opp.');
+        setError(err?.message || t('errors.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -126,7 +109,7 @@ const MOOverviewPage: React.FC = () => {
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Alert severity="error">{error}</Alert>
         <Box mt={2}>
-          <Button variant="contained" onClick={() => navigate('/')}>Til forsiden</Button>
+          <Button variant="contained" onClick={() => navigate('/')}>{t('errors.backToHome')}</Button>
         </Box>
       </Container>
     );
@@ -135,7 +118,7 @@ const MOOverviewPage: React.FC = () => {
   if (!event) {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
-        <Alert severity="warning">Fant ingen informasjon om Malvikingen Opp. Prøv igjen senere.</Alert>
+        <Alert severity="warning">{t('errors.notFound')}</Alert>
       </Container>
     );
   }
@@ -151,7 +134,7 @@ const MOOverviewPage: React.FC = () => {
           {event.name || 'Malvikingen Opp'}
         </Typography>
         <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 640, mx: 'auto', mb: 3 }}>
-          Malviks eldste motbakkeløp – fra Fjorden til Våttan siden 2011.
+          {t('mo.tagline')}
         </Typography>
 
         <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" mb={2}>
@@ -162,28 +145,28 @@ const MOOverviewPage: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Offisiell informasjon
+            {t('events.officialInfo')}
           </Button>
           <Button
             variant="outlined"
             startIcon={<BarChart3 />}
             onClick={() => navigate('/mo/results')}
           >
-            Resultater
+            {t('events.results')}
           </Button>
           <Button
             variant="outlined"
             startIcon={<BarChart3 />}
             onClick={() => navigate('/mo/all-time')}
           >
-            Adelskalender
+            {t('mo.allTimeLeaderboard')}
           </Button>
           <Button
             variant="outlined"
             startIcon={<Trophy />}
             onClick={() => navigate('/mo/records')}
           >
-            Rekorder
+            {t('events.records')}
           </Button>
           <Button
             variant="outlined"
@@ -192,7 +175,7 @@ const MOOverviewPage: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            MO på Facebook
+            {t('mo.moOnFacebook')}
           </Button>
         </Box>
       </Box>
@@ -202,18 +185,18 @@ const MOOverviewPage: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Paper elevation={2} sx={{ p: 3 }}>
               <Typography variant="h5" fontWeight={700} gutterBottom>
-                Forrige utgave
+                {t('editions.previousEdition')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Event:</strong> {previousEdition.eventName}
+                <strong>{t('editions.event')}:</strong> {previousEdition.eventName}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Dato:</strong> {formatDate(previousEdition.startTime)}
+                <strong>{t('editions.date')}:</strong> {formatDate(previousEdition.startTime)}
               </Typography>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="body1" component="span">
-                  <strong>Status:</strong>
+                  <strong>{t('status.label')}:</strong>
                 </Typography>
                 <Chip label={previousEditionStatus} size="small" />
               </Box>
@@ -223,11 +206,11 @@ const MOOverviewPage: React.FC = () => {
                   onClick={() => navigate((previousEdition as any).RH_URL)}
                   fullWidth
                 >
-                  Se {previousEdition.edition}-utgaven
+                  {t('editions.seeEdition', { edition: previousEdition.edition })}
                 </Button>
               ) : (
                 <Button variant="outlined" disabled fullWidth>
-                  Detaljer kommer
+                  {t('editions.detailsComingSoon')}
                 </Button>
               )}
             </Paper>
@@ -238,18 +221,18 @@ const MOOverviewPage: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Paper elevation={2} sx={{ p: 3 }}>
               <Typography variant="h5" fontWeight={700} gutterBottom>
-                Neste planlagte utgave
+                {t('editions.nextPlannedEdition')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Event:</strong> {nextEdition.eventName}
+                <strong>{t('editions.event')}:</strong> {nextEdition.eventName}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Dato:</strong> {formatDate(nextEdition.startTime)}
+                <strong>{t('editions.date')}:</strong> {formatDate(nextEdition.startTime)}
               </Typography>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="body1" component="span">
-                  <strong>Status:</strong>
+                  <strong>{t('status.label')}:</strong>
                 </Typography>
                 <Chip label={nextEditionStatus} size="small" color="primary" />
               </Box>
@@ -259,11 +242,11 @@ const MOOverviewPage: React.FC = () => {
                   onClick={() => navigate((nextEdition as any).RH_URL)}
                   fullWidth
                 >
-                  Gå til {nextEdition.edition}-utgaven
+                  {t('editions.goToEdition', { edition: nextEdition.edition })}
                 </Button>
               ) : (
                 <Button variant="contained" disabled fullWidth>
-                  Detaljer kommer
+                  {t('editions.detailsComingSoon')}
                 </Button>
               )}
             </Paper>
@@ -275,17 +258,17 @@ const MOOverviewPage: React.FC = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
             <Typography variant="h5" fontWeight={700} gutterBottom>
-              Fakta om løpet
+              {t('mo.courseFacts')}
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Stack spacing={2} alignItems="flex-start">
               {COURSE_FACTS.map((fact) => (
-                <Box key={fact.title} textAlign="left">
+                <Box key={fact.titleKey} textAlign="left">
                   <Typography variant="subtitle1" fontWeight={700}>
-                    {fact.title}
+                    {t(fact.titleKey)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {fact.description}
+                    {t(fact.descKey)}
                   </Typography>
                 </Box>
               ))}
@@ -295,17 +278,17 @@ const MOOverviewPage: React.FC = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
             <Typography variant="h5" fontWeight={700} gutterBottom>
-              Påmelding
+              {t('mo.registrationInfo')}
             </Typography>
             <Divider sx={{ mb: 2 }} />
             <Stack spacing={2} alignItems="flex-start">
               {REGISTRATION_INFO.map((item) => (
-                <Box key={item.title} textAlign="left">
+                <Box key={item.titleKey} textAlign="left">
                   <Typography variant="subtitle1" fontWeight={700}>
-                    {item.title}
+                    {t(item.titleKey)}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {item.description}
+                    {t(item.descKey)}
                   </Typography>
                 </Box>
               ))}
@@ -316,7 +299,20 @@ const MOOverviewPage: React.FC = () => {
 
       <Box textAlign="center" sx={{ mt: 6 }}>
         <Typography variant="body2" color="text.secondary">
-          Spørsmål? Send en e-post til <a href="mailto:post@krultra.no">post@krultra.no</a>.
+          {t('common.questions')}{' '}
+          <Box
+            component="a"
+            href="mailto:post@krultra.no"
+            sx={{
+              color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#4E82B4',
+              textDecoration: 'underline',
+              '&:hover': {
+                color: (theme) => theme.palette.mode === 'dark' ? '#8BC2F0' : '#41719C',
+              }
+            }}
+          >
+            post@krultra.no
+          </Box>
         </Typography>
       </Box>
     </Container>

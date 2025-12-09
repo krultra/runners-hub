@@ -1,5 +1,8 @@
 import { ERROR_MESSAGES } from '../constants/messages';
 
+// License number format: NNNNNN-YYYY (e.g., 221393-2025)
+export const LICENSE_NUMBER_REGEX = /^\d{6}-\d{4}$/;
+
 export const initialFormData = {
   firstName: '',
   lastName: '',
@@ -20,7 +23,10 @@ export const initialFormData = {
   editionId: '',
   status: 'pending', // Default status
   paymentRequired: 300,
-  paymentMade: 0
+  paymentMade: 0,
+  // License fields
+  hasYearLicense: undefined as boolean | undefined,
+  licenseNumber: ''
 };
 
 /**
@@ -115,6 +121,24 @@ export const validateForm = (
   // Race details
   if ((touchedFields.raceDistance || showAllErrors) && (!formData.raceDistance || formData.raceDistance === '')) {
     newErrors.raceDistance = ERROR_MESSAGES.raceDistance;
+  }
+
+  // License validation - only if license is required for the selected race
+  // The requiresLicense flag should be passed via formData._requiresLicense (set by the form component)
+  if (formData._requiresLicense) {
+    // Must answer the license question
+    if ((touchedFields.hasYearLicense || showAllErrors) && formData.hasYearLicense === undefined) {
+      newErrors.hasYearLicense = 'Please indicate if you have a full-year license';
+    }
+    
+    // If user has year license, license number is required and must be valid
+    if (formData.hasYearLicense === true) {
+      if ((touchedFields.licenseNumber || showAllErrors) && (!formData.licenseNumber || formData.licenseNumber.trim() === '')) {
+        newErrors.licenseNumber = 'License number is required';
+      } else if ((touchedFields.licenseNumber || showAllErrors) && formData.licenseNumber && !LICENSE_NUMBER_REGEX.test(formData.licenseNumber.trim())) {
+        newErrors.licenseNumber = 'Invalid license number format (expected: 123456-2025)';
+      }
+    }
   }
   
   // Travel requirements validation with length check

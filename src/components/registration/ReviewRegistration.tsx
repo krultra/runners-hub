@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useLocalizedField } from '../../hooks/useLocalizedField';
 import {
   Typography,
   Box,
@@ -47,6 +49,8 @@ interface ReviewRegistrationProps {
     paymentMade: number;
     isOnWaitinglist: boolean;
     waitinglistExpires: Date | null;
+    hasYearLicense?: boolean;
+    licenseNumber?: string;
   };
   errors: Record<string, string>;
   fieldRefs: Record<string, React.RefObject<HTMLDivElement | null>>;
@@ -57,6 +61,9 @@ interface ReviewRegistrationProps {
 }
 
 const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData, errors, fieldRefs, onChange, onBlur, isEditingExisting = false, isFull = false }) => {
+  const { t } = useTranslation();
+  const getLocalizedField = useLocalizedField();
+  
   // State for terms and conditions dialog
   const [termsDialogOpen, setTermsDialogOpen] = useState(false);
 
@@ -64,6 +71,16 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
   const selectedDistance = event.raceDistances?.find(
     (distance) => distance.id === formData.raceDistance
   );
+
+  // Calculate fees based on selected distance
+  const participationFee = selectedDistance?.fees?.participation ?? event.fees?.participation ?? 0;
+  const licenseFee = selectedDistance?.fees?.oneTimeLicense ?? event.fees?.oneTimeLicense ?? 0;
+  const serviceFee = selectedDistance?.fees?.service ?? event.fees?.service ?? event.fees?.baseCamp ?? 0;
+  const depositFee = selectedDistance?.fees?.deposit ?? event.fees?.deposit ?? 0;
+  
+  // Only charge license fee if user doesn't have year license
+  const actualLicenseFee = (licenseFee > 0 && formData.hasYearLicense !== true) ? licenseFee : 0;
+  const totalFee = participationFee + actualLicenseFee + serviceFee + depositFee;
 
   // Find the selected nationality and phone code
   const selectedCountry = COUNTRIES.find(
@@ -92,28 +109,27 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
   return (
     <Box sx={{ mt: 2, mb: 4 }}>
       <Typography variant="h6" gutterBottom>
-        Review Your Registration
+        {t('form.review')}
       </Typography>
       <Typography variant="body2" color="text.secondary" paragraph>
-        Please review your registration details before submitting.
+        {t('form.reviewDesc')}
       </Typography>
 
       {!isEditingExisting && (
         <Alert severity="info" sx={{ mb: 3 }}>
-          After submitting your registration, you will need to complete the payment process
-          separately. Details will be sent to your email address.
+          {t('form.paymentInfoAlert')}
         </Alert>
       )}
 
       <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Personal Information
+          {t('form.personalInfo')}
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
-                primary="Full Name"
+                primary={t('form.fullName')}
                 secondary={`${formData.firstName} ${formData.lastName}`}
               />
             </ListItem>
@@ -121,15 +137,15 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
           <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
-                primary="Date of Birth"
-                secondary={formData.dateOfBirth ? formData.dateOfBirth.toLocaleDateString() : 'Not provided'}
+                primary={t('form.dateOfBirth')}
+                secondary={formData.dateOfBirth ? formData.dateOfBirth.toLocaleDateString() : t('form.notProvided')}
               />
             </ListItem>
           </Grid>
           <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
-                primary="Nationality"
+                primary={t('form.nationality')}
                 secondary={selectedCountry ? selectedCountry.name : formData.nationality}
               />
             </ListItem>
@@ -137,7 +153,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
           <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
-                primary="Email"
+                primary={t('form.email')}
                 secondary={formData.email}
               />
             </ListItem>
@@ -145,7 +161,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
           <Grid item xs={12} sm={6}>
             <ListItem disablePadding>
               <ListItemText
-                primary="Mobile Phone"
+                primary={t('form.mobilePhone')}
                 secondary={`${formData.phoneCountryCode} ${formData.phoneNumber}`}
               />
             </ListItem>
@@ -154,7 +170,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
             <Grid item xs={12} sm={6}>
               <ListItem disablePadding>
                 <ListItemText
-                  primary="Representing"
+                  primary={t('form.representing')}
                   secondary={formData.representing}
                 />
               </ListItem>
@@ -165,14 +181,14 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
 
       <Paper variant="outlined" sx={{ p: 3, mb: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Race Details
+          {t('form.raceDetails')}
         </Typography>
         <Grid container spacing={2}>
           <Grid item xs={12}>
             <ListItem disablePadding>
               <ListItemText
-                primary="Race Distance"
-                secondary={selectedDistance?.displayName || formData.raceDistance}
+                primary={t('form.selectDistance')}
+                secondary={selectedDistance ? getLocalizedField(selectedDistance, 'displayName') : formData.raceDistance}
               />
             </ListItem>
           </Grid>
@@ -180,7 +196,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
             <Grid item xs={12}>
               <ListItem disablePadding>
                 <ListItemText
-                  primary="Travel Required"
+                  primary={t('form.travelRequired')}
                   secondary={formData.travelRequired}
                 />
               </ListItem>
@@ -190,8 +206,23 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
             <Grid item xs={12}>
               <ListItem disablePadding>
                 <ListItemText
-                  primary="Comments"
+                  primary={t('form.comments')}
                   secondary={formData.comments}
+                />
+              </ListItem>
+            </Grid>
+          )}
+          {/* License info */}
+          {licenseFee > 0 && (
+            <Grid item xs={12}>
+              <ListItem disablePadding>
+                <ListItemText
+                  primary={t('form.licenseSection')}
+                  secondary={
+                    formData.hasYearLicense === true 
+                      ? `${t('form.licenseYes')} - ${formData.licenseNumber || ''}`
+                      : t('form.licenseNo')
+                  }
                 />
               </ListItem>
             </Grid>
@@ -201,31 +232,51 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
 
       <Paper variant="outlined" sx={{ p: 3 }}>
         <Typography variant="h6" gutterBottom>
-          Payment Information
+          {t('form.paymentInfo')}
         </Typography>
         <Typography variant="body2" paragraph>
           {!isEditingExisting ? 
-            'After submitting your registration, you will need to pay the following fees:' :
-            'Your registration requires the following payments:'
+            t('form.paymentAfterSubmit') :
+            t('form.paymentRequired')
           }
         </Typography>
         <List disablePadding>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Entry Fee" secondary={`${event.fees.participation} kr`} />
+            <ListItemText primary={t('form.entryFee')} secondary={`${participationFee} kr`} />
           </ListItem>
-          <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Base Camp Fee" secondary={`${event.fees.baseCamp} kr`} />
-          </ListItem>
-          <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Deposit" secondary={`${event.fees.deposit} kr`} />
-          </ListItem>
-          <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary="Total Fee" secondary={`${event.fees.total} kr`} />
+          {/* Show license fee line - either charged or waived */}
+          {licenseFee > 0 && (
+            <ListItem sx={{ py: 1, px: 0 }}>
+              <ListItemText 
+                primary={t('form.oneTimeLicenseFee')} 
+                secondary={
+                  formData.hasYearLicense === true 
+                    ? t('form.yearLicenseInfo')
+                    : `${licenseFee} kr`
+                } 
+              />
+            </ListItem>
+          )}
+          {serviceFee > 0 && (
+            <ListItem sx={{ py: 1, px: 0 }}>
+              <ListItemText primary={t('form.baseCampFee')} secondary={`${serviceFee} kr`} />
+            </ListItem>
+          )}
+          {depositFee > 0 && (
+            <ListItem sx={{ py: 1, px: 0 }}>
+              <ListItemText primary={t('form.deposit')} secondary={`${depositFee} kr`} />
+            </ListItem>
+          )}
+          <ListItem sx={{ py: 1, px: 0, borderTop: '1px solid', borderColor: 'divider' }}>
+            <ListItemText 
+              primary={<Typography fontWeight={600}>{t('form.totalFee')}</Typography>} 
+              secondary={`${totalFee} kr`} 
+            />
           </ListItem>
           {isEditingExisting && (
             <>
               <ListItem sx={{ py: 1, px: 0 }}>
-                <ListItemText primary="Payment Made" />
+                <ListItemText primary={t('form.paymentMadeLabel')} />
                 <Typography variant="body2">
                   {formData.paymentMade} NOK
                 </Typography>
@@ -233,7 +284,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
               
               {formData.paymentMade < formData.paymentRequired && (
                 <ListItem sx={{ py: 1, px: 0 }}>
-                  <ListItemText primary="Payment Remaining" />
+                  <ListItemText primary={t('form.paymentRemaining')} />
                   <Typography variant="subtitle1" color="error" sx={{ fontWeight: 700 }}>
                     {formData.paymentRequired - formData.paymentMade} NOK
                   </Typography>
@@ -244,10 +295,10 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
         </List>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
           {!isEditingExisting ? 
-            'Payment instructions will be sent to your email after registration.' :
+            t('form.paymentInstructions') :
             formData.paymentMade < formData.paymentRequired ?
-              'Registration is not valid until the full payment has been made.' :
-              'Required payments have been made.'
+              t('form.paymentNotValid') :
+              t('form.paymentComplete')
           }
         </Typography>
       </Paper>
@@ -266,7 +317,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
             }
             label={
               <Typography variant="body2">
-                Notify me and send me information about future events
+                {t('form.notifyFutureEventsLabel')}
               </Typography>
             }
           />
@@ -284,7 +335,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
             }
             label={
               <Typography variant="body2">
-                Send me relevant information and offers related to trail and ultra running
+                {t('form.sendRunningOffersLabel')}
               </Typography>
             }
           />
@@ -311,7 +362,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
           }
           label={
             <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              I confirm that all information provided is accurate and I accept the <Link 
+              {t('form.confirmTerms')} <Link 
                 component="button" 
                 variant="body2" 
                 onClick={(e) => {
@@ -320,8 +371,8 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
                 }}
                 sx={{ textDecoration: 'underline' }}
               >
-                terms and conditions
-              </Link> for KUTC 2025.<span style={{ color: 'grey' }}> *</span>
+                {t('form.termsLink')}
+              </Link> {t('form.forEvent')} {event.eventName}.<span style={{ color: 'grey' }}> *</span>
             </Typography>
           }
           ref={fieldRefs.termsAccepted}
@@ -340,14 +391,14 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
               onChange('termsAccepted', true);
             }}
           >
-            Accept all the above
+            {t('form.acceptAll')}
           </Button>
         </Box>
 
         { (formData.isOnWaitinglist || (isFull && !isEditingExisting)) && (
           <Box sx={{ mb: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 1 }}>
             <Typography variant="body2">
-              I want my spot on the waiting-list to expire if I'm not promoted to the participants list before the following date:
+              {t('form.waitlistExpiryLabel')}
             </Typography>
             <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={nb}>
               <DatePicker

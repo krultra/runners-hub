@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Typography,
@@ -43,6 +44,7 @@ const formatDateTime = (v: any): string => {
 };
 
 const HomePage: React.FC = () => {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { setEvent } = useEventEdition();
   const [loading, setLoading] = useState(true);
@@ -126,7 +128,7 @@ const HomePage: React.FC = () => {
       }}
     >
       <Typography variant="h5" gutterBottom fontWeight={700}>
-        Explore the KrUltra signature events
+        {t('home.exploreSignatureEvents')}
       </Typography>
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
@@ -166,7 +168,7 @@ const HomePage: React.FC = () => {
                 }}
                 gutterBottom
               >
-                Kruke's Ultra-Trail Challenge
+                {t('kutc.title')}
               </Typography>
               <Typography
                 variant="body2"
@@ -174,7 +176,7 @@ const HomePage: React.FC = () => {
                   color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.secondary : 'rgba(255,255,255,0.85)'
                 }}
               >
-                Find your distance. Find your limit.
+                {t('kutc.taglineShort')}
               </Typography>
             </Box>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 'auto' }}>
@@ -183,7 +185,7 @@ const HomePage: React.FC = () => {
                 color="primary"
                 onClick={() => navigate('/kutc')}
               >
-                Explore
+                {t('common.explore')}
               </Button>
               <Button
                 variant="outlined"
@@ -192,7 +194,7 @@ const HomePage: React.FC = () => {
                   navigate('/kutc/results');
                 }}
               >
-                Results
+                {t('events.results')}
               </Button>
             </Stack>
           </Paper>
@@ -234,7 +236,7 @@ const HomePage: React.FC = () => {
                 }}
                 gutterBottom
               >
-                Malvikingen Opp
+                {t('mo.title')}
               </Typography>
               <Typography
                 variant="body2"
@@ -242,7 +244,7 @@ const HomePage: React.FC = () => {
                   color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.secondary : 'rgba(255,255,255,0.85)'
                 }}
               >
-                Earn your 'Mal-Viking' title in Malvik's oldest fell race.
+                {t('mo.taglineShort')}
               </Typography>
             </Box>
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 'auto' }}>
@@ -254,7 +256,7 @@ const HomePage: React.FC = () => {
                   navigate('/mo');
                 }}
               >
-                Explore
+                {t('common.explore')}
               </Button>
               <Button
                 variant="outlined"
@@ -263,7 +265,7 @@ const HomePage: React.FC = () => {
                   navigate('/mo/results');
                 }}
               >
-                Results
+                {t('events.results')}
               </Button>
             </Stack>
           </Paper>
@@ -309,12 +311,12 @@ const HomePage: React.FC = () => {
                     {ed.eventName}
                   </Typography>
                   {/* Event facts */}
-                  <Typography variant="body2"><strong>Start:</strong> {formatDateTime(ed.startTime)}</Typography>
+                  <Typography variant="body2"><strong>{t('events.start')}:</strong> {formatDateTime(ed.startTime)}</Typography>
                   {typeof ed.maxParticipants === 'number' && (
-                    <Typography variant="body2"><strong>Max participants:</strong> {ed.maxParticipants}</Typography>
+                    <Typography variant="body2"><strong>{t('events.maxParticipants')}:</strong> {ed.maxParticipants}</Typography>
                   )}
                   {ed.registrationDeadline && (
-                    <Typography variant="body2"><strong>Registration deadline:</strong> {formatDateTime(ed.registrationDeadline)}</Typography>
+                    <Typography variant="body2"><strong>{t('events.registrationDeadline')}:</strong> {formatDateTime(ed.registrationDeadline)}</Typography>
                   )}
                   {/* Status & indicators */}
                   <Box sx={{ mt: 1 }}>
@@ -335,7 +337,7 @@ const HomePage: React.FC = () => {
                         const rs = (ed.resultStatusCode || '').toLowerCase();
                         const available = ['incomplete','preliminary','unofficial','final'].includes(rs) || ['4','5','6','7'].includes(ed.resultStatusCode || '');
                         return ed.resultStatusItem && available ? (
-                        <Chip size="small" color="info" variant="outlined" label={ed.resultStatusItem.verboseName || 'Results available'} />
+                        <Chip size="small" color="info" variant="outlined" label={ed.resultStatusItem.verboseName || t('common.resultsAvailable')} />
                         ) : null;
                       })()}
                       {/* Presence indicators for links (non-CTA, informative) */}
@@ -343,11 +345,11 @@ const HomePage: React.FC = () => {
                         const rs = (ed.resultStatusCode || '').toLowerCase();
                         const isOngoing = ['ongoing', '2'].includes(rs);
                         return ed.liveResultsURL && isOngoing ? (
-                          <Chip size="small" color="success" variant="outlined" label="Live results available" />
+                          <Chip size="small" color="success" variant="outlined" label={t('common.liveResultsAvailable')} />
                         ) : null;
                       })()}
                       {ed.resultURL && (
-                        <Chip size="small" color="primary" variant="outlined" label="Final results available" />
+                        <Chip size="small" color="primary" variant="outlined" label={t('common.finalResultsAvailable')} />
                       )}
                     </Stack>
                   </Box>
@@ -365,7 +367,7 @@ const HomePage: React.FC = () => {
                             component="div"
                             onClick={(e) => { e.stopPropagation(); window.open(ed.liveResultsURL!, '_blank'); }}
                           >
-                            Live Results
+                            {t('common.liveResults')}
                           </Button>
                         ) : null;
                       })()}
@@ -376,7 +378,7 @@ const HomePage: React.FC = () => {
                           component="div"
                           onClick={(e) => { e.stopPropagation(); window.open(ed.resultURL!, '_blank'); }}
                         >
-                          Final Results
+                          {t('common.finalResults')}
                         </Button>
                       )}
                       {(() => {
@@ -394,14 +396,9 @@ const HomePage: React.FC = () => {
                               navigate(`/kutc/results/${ed.id}`);
                             }}
                           >
-                            View KUTC Results
+                            {t('kutc.viewKutcResults')}
                           </Button>
                         ) : null;
-                      })()}
-                      {(() => {
-                        const rs = (ed.resultStatusCode || '').toLowerCase();
-                        const isOngoing = ['ongoing', '2'].includes(rs);
-                        return ed.liveResultsURL && isOngoing ? null : null;
                       })()}
                     </Stack>
                   )}
@@ -413,12 +410,12 @@ const HomePage: React.FC = () => {
                     {ed.eventName}
                   </Typography>
                   {/* Event facts */}
-                  <Typography variant="body2"><strong>Start:</strong> {formatDateTime(ed.startTime)}</Typography>
+                  <Typography variant="body2"><strong>{t('events.start')}:</strong> {formatDateTime(ed.startTime)}</Typography>
                   {typeof ed.maxParticipants === 'number' && (
-                    <Typography variant="body2"><strong>Max participants:</strong> {ed.maxParticipants}</Typography>
+                    <Typography variant="body2"><strong>{t('events.maxParticipants')}:</strong> {ed.maxParticipants}</Typography>
                   )}
                   {ed.registrationDeadline && (
-                    <Typography variant="body2"><strong>Registration deadline:</strong> {formatDateTime(ed.registrationDeadline)}</Typography>
+                    <Typography variant="body2"><strong>{t('events.registrationDeadline')}:</strong> {formatDateTime(ed.registrationDeadline)}</Typography>
                   )}
                   {/* Status & indicators */}
                   <Box sx={{ mt: 1 }}>
@@ -439,7 +436,7 @@ const HomePage: React.FC = () => {
                         const rs = (ed.resultStatusCode || '').toLowerCase();
                         const available = ['incomplete','preliminary','unofficial','final'].includes(rs) || ['4','5','6','7'].includes(ed.resultStatusCode || '');
                         return ed.resultStatusItem && available ? (
-                        <Chip size="small" color="info" variant="outlined" label={ed.resultStatusItem.verboseName || 'Results available'} />
+                        <Chip size="small" color="info" variant="outlined" label={ed.resultStatusItem.verboseName || t('common.resultsAvailable')} />
                         ) : null;
                       })()}
                     </Stack>
@@ -456,7 +453,7 @@ const HomePage: React.FC = () => {
                           color="primary"
                           onClick={() => navigate(`/kutc/results/${ed.id}`)}
                         >
-                          View KUTC Results
+                          {t('kutc.viewKutcResults')}
                         </Button>
                       </Stack>
                     ) : null;
@@ -500,7 +497,7 @@ const HomePage: React.FC = () => {
       return <Alert severity="error">{error}</Alert>;
     }
 
-    const editionSectionTitle = showPast ? 'Upcoming and past events' : 'Upcoming events';
+    const editionSectionTitle = showPast ? t('events.upcomingAndPastEvents') : t('events.upcomingEvents');
 
     return (
       <>
@@ -520,7 +517,7 @@ const HomePage: React.FC = () => {
             </Typography>
             <FormControlLabel
               control={<Switch color="primary" checked={showPast} onChange={e => setShowPast(e.target.checked)} />}
-              label="Show past events"
+              label={t('events.showPastEvents')}
               sx={{
                 m: 0,
                 px: 1,
@@ -536,13 +533,13 @@ const HomePage: React.FC = () => {
               {editionCards(visible)}
               <Typography align="center" sx={{ mt: 3 }}>
                 {visible.length === 1
-                  ? 'Select the event for more details'
-                  : 'Select an event for more details'}
+                  ? t('events.selectTheEvent')
+                  : t('events.selectEvent')}
               </Typography>
             </>
           ) : (
             <Typography align="center" sx={{ mt: 2 }}>
-              No events are currently available - please check in again soon!
+              {t('events.noEventsAvailable')}
             </Typography>
           )}
         </Paper>
@@ -553,7 +550,7 @@ const HomePage: React.FC = () => {
   return (
     <Container maxWidth="md" sx={{ pt: 8 }}>
       <Typography variant="h3" align="center" gutterBottom>
-        Welcome to the KrUltra Runners Hub!
+        {t('home.welcome')}
       </Typography>
       <Box textAlign="center" mb={2}>
         <Button
@@ -563,7 +560,7 @@ const HomePage: React.FC = () => {
           onClick={() => navigate('/about')}
           sx={{ fontSize: '0.9rem', textTransform: 'none' }}
         >
-          What's the Runners Hub?
+          {t('home.whatsRunnersHub')}
         </Button>
       </Box>
       <Box
@@ -575,7 +572,7 @@ const HomePage: React.FC = () => {
         gap={1.5}
       >
         <Typography variant="h6" align="center">
-          Looking for a runner?
+          {t('home.lookingForRunner')}
         </Typography>
         <Button
           variant="contained"
@@ -583,7 +580,7 @@ const HomePage: React.FC = () => {
           onClick={() => navigate('/runners/search')}
           sx={{ textTransform: 'none' }}
         >
-          Go to Runner Search
+          {t('home.goToRunnerSearch')}
         </Button>
       </Box>
       {content}

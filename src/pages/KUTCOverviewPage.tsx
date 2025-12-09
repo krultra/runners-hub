@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Box,
@@ -29,19 +30,21 @@ const formatCurrency = (value?: number) => {
   return `${value.toLocaleString('no-NO')} NOK`;
 };
 
-const formatDate = (timestamp: any): string => {
-  if (!timestamp) return 'TBA';
-  const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-  return date.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    day: 'numeric', 
-    month: 'long', 
-    year: 'numeric' 
-  });
-};
 
 const KUTCOverviewPage: React.FC = () => {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+
+  const formatDate = (timestamp: any): string => {
+    if (!timestamp) return t('editions.tba');
+    const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+    return date.toLocaleDateString(i18n.language === 'no' ? 'nb-NO' : 'en-US', { 
+      weekday: 'long', 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
   const [event, setEvent] = useState<Event | null>(null);
   const [previousEdition, setPreviousEdition] = useState<EventEdition | null>(null);
   const [nextEdition, setNextEdition] = useState<EventEdition | null>(null);
@@ -75,7 +78,7 @@ const KUTCOverviewPage: React.FC = () => {
         }
       } catch (err: any) {
         console.error('Failed to load KUTC info:', err);
-        setError(err?.message || 'Could not load KUTC information.');
+        setError(err?.message || t('errors.loadFailed'));
       } finally {
         setLoading(false);
       }
@@ -99,7 +102,7 @@ const KUTCOverviewPage: React.FC = () => {
       <Container maxWidth="md" sx={{ py: 8 }}>
         <Alert severity="error">{error}</Alert>
         <Box mt={2}>
-          <Button variant="contained" onClick={() => navigate('/')}>Home</Button>
+          <Button variant="contained" onClick={() => navigate('/')}>{t('errors.backToHome')}</Button>
         </Box>
       </Container>
     );
@@ -108,7 +111,7 @@ const KUTCOverviewPage: React.FC = () => {
   if (!event) {
     return (
       <Container maxWidth="md" sx={{ py: 8 }}>
-        <Alert severity="warning">KUTC information not available. Please try again later.</Alert>
+        <Alert severity="warning">{t('errors.notFound')}</Alert>
       </Container>
     );
   }
@@ -129,7 +132,7 @@ const KUTCOverviewPage: React.FC = () => {
           {event.name || "Kruke's Ultra-Trail Challenge"}
         </Typography>
         <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 640, mx: 'auto', mb: 3 }}>
-          Registration and Results Portal
+          {t('kutc.tagline')}
         </Typography>
         
         {/* Quick Links */}
@@ -141,28 +144,28 @@ const KUTCOverviewPage: React.FC = () => {
             target="_blank"
             rel="noopener noreferrer"
           >
-            Official Website
+            {t('kutc.officialWebsite')}
           </Button>
           <Button
             variant="outlined"
             startIcon={<BarChart3 />}
             onClick={() => navigate('/kutc/results')}
           >
-            Results
+            {t('events.results')}
           </Button>
           <Button
             variant="outlined"
             startIcon={<BarChart3 />}
             onClick={() => navigate('/kutc/all-time')}
           >
-            All-Time Leaderboard
+            {t('kutc.allTimeLeaderboard')}
           </Button>
           <Button
             variant="outlined"
             startIcon={<Trophy />}
             onClick={() => navigate('/kutc/records')}
           >
-            Records
+            {t('events.records')}
           </Button>
         </Box>
       </Box>
@@ -173,18 +176,18 @@ const KUTCOverviewPage: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Paper elevation={2} sx={{ p: 3 }}>
               <Typography variant="h5" fontWeight={700} gutterBottom>
-                Previous Edition
+                {t('editions.previousEdition')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Event:</strong> {previousEdition.eventName}
+                <strong>{t('editions.event')}:</strong> {previousEdition.eventName}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Date:</strong> {formatDate(previousEdition.startTime)}
+                <strong>{t('editions.date')}:</strong> {formatDate(previousEdition.startTime)}
               </Typography>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="body1" component="span">
-                  <strong>Status:</strong>
+                  <strong>{t('status.label')}:</strong>
                 </Typography>
                 <Chip label={previousEditionStatus} size="small" />
               </Box>
@@ -194,7 +197,7 @@ const KUTCOverviewPage: React.FC = () => {
                   onClick={() => navigate(previousEdition.RH_URL!)}
                   fullWidth
                 >
-                  View {previousEdition.edition} Details
+                  {t('editions.viewEditionDetails', { edition: previousEdition.edition })}
                 </Button>
               ) : (
                 <Button
@@ -202,7 +205,7 @@ const KUTCOverviewPage: React.FC = () => {
                   disabled
                   fullWidth
                 >
-                  Details coming soon
+                  {t('editions.detailsComingSoon')}
                 </Button>
               )}
             </Paper>
@@ -213,18 +216,18 @@ const KUTCOverviewPage: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Paper elevation={2} sx={{ p: 3 }}>
               <Typography variant="h5" fontWeight={700} gutterBottom>
-                Next Edition
+                {t('editions.nextEdition')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Event:</strong> {nextEdition.eventName}
+                <strong>{t('editions.event')}:</strong> {nextEdition.eventName}
               </Typography>
               <Typography variant="body1" sx={{ mb: 1 }}>
-                <strong>Date:</strong> {formatDate(nextEdition.startTime)}
+                <strong>{t('editions.date')}:</strong> {formatDate(nextEdition.startTime)}
               </Typography>
               <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                 <Typography variant="body1" component="span">
-                  <strong>Status:</strong>
+                  <strong>{t('status.label')}:</strong>
                 </Typography>
                 <Chip label={nextEditionStatus} size="small" color="primary" />
               </Box>
@@ -234,7 +237,7 @@ const KUTCOverviewPage: React.FC = () => {
                   onClick={() => navigate(nextEdition.RH_URL!)}
                   fullWidth
                 >
-                  View {nextEdition.edition} Details
+                  {t('editions.viewEditionDetails', { edition: nextEdition.edition })}
                 </Button>
               ) : (
                 <Button
@@ -242,7 +245,7 @@ const KUTCOverviewPage: React.FC = () => {
                   disabled
                   fullWidth
                 >
-                  Details coming soon
+                  {t('editions.detailsComingSoon')}
                 </Button>
               )}
             </Paper>
@@ -257,7 +260,7 @@ const KUTCOverviewPage: React.FC = () => {
           <Grid item xs={12} md={6}>
             <Paper elevation={2} sx={{ p: 3 }}>
               <Typography variant="h5" fontWeight={700} gutterBottom>
-                Race Distances
+                {t('kutc.raceDistances')}
               </Typography>
               <Divider sx={{ mb: 2 }} />
               <Grid container spacing={2}>
@@ -278,7 +281,7 @@ const KUTCOverviewPage: React.FC = () => {
                 ))}
               </Grid>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
-                All participants are part of the 'Last One Standing' challenge!
+                {t('kutc.lastOneStanding')}
               </Typography>
             </Paper>
           </Grid>
@@ -288,32 +291,32 @@ const KUTCOverviewPage: React.FC = () => {
         <Grid item xs={12} md={6}>
           <Paper elevation={2} sx={{ p: 3 }}>
             <Typography variant="h5" fontWeight={700} gutterBottom>
-              General Information
+              {t('kutc.generalInfo')}
             </Typography>
             <Divider sx={{ mb: 2 }} />
             
             {event.maxParticipants && (
               <Typography variant="body1" sx={{ mb: 2 }}>
-                <strong>Max Participants:</strong> {event.maxParticipants}
+                <strong>{t('events.maxParticipants')}:</strong> {event.maxParticipants}
               </Typography>
             )}
             
             {event.fees && (
               <Box>
                 <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 1 }}>
-                  Registration Fees
+                  {t('kutc.registrationFees')}
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 0.5 }}>
-                  <strong>Participation:</strong> {formatCurrency(event.fees.participation)}
+                  <strong>{t('kutc.participation')}:</strong> {formatCurrency(event.fees.participation)}
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 0.5 }}>
-                  <strong>Base Camp:</strong> {formatCurrency(event.fees.baseCamp)}
+                  <strong>{t('kutc.baseCamp')}:</strong> {formatCurrency(event.fees.baseCamp)}
                 </Typography>
                 <Typography variant="body2" sx={{ mb: 0.5 }}>
-                  <strong>Deposit (refundable):</strong> {formatCurrency(event.fees.deposit)}
+                  <strong>{t('kutc.depositRefundable')}:</strong> {formatCurrency(event.fees.deposit)}
                 </Typography>
                 <Typography variant="h6" sx={{ mt: 1 }}>
-                  <strong>Total:</strong> {formatCurrency(event.fees.total)}
+                  <strong>{t('kutc.total')}:</strong> {formatCurrency(event.fees.total)}
                 </Typography>
               </Box>
             )}
@@ -324,9 +327,19 @@ const KUTCOverviewPage: React.FC = () => {
       {/* Footer Note */}
       <Box textAlign="center" sx={{ mt: 6 }}>
         <Typography variant="body2" color="text.secondary">
-          For detailed race information, please visit the{' '}
-          <MuiLink href="https://krultra.no/kutc" target="_blank" rel="noopener noreferrer">
-            official KUTC website
+          {t('kutc.footerNote')}{' '}
+          <MuiLink 
+            href="https://krultra.no/kutc" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            sx={{
+              color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#4E82B4',
+              '&:hover': {
+                color: (theme) => theme.palette.mode === 'dark' ? '#8BC2F0' : '#41719C',
+              }
+            }}
+          >
+            {t('kutc.officialKutcWebsite')}
           </MuiLink>
         </Typography>
       </Box>

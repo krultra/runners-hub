@@ -52,6 +52,10 @@ export interface Registration {
   isOnWaitinglist?: boolean;   // Indicates if registration is on waiting list
   waitinglistExpires?: any;    // Firestore Timestamp or ISO string for expiration date
   
+  // License fields
+  hasYearLicense?: boolean;    // Whether runner has full-year NFIF license
+  licenseNumber?: string;      // NFIF license number (format: NNNNNN-YYYY)
+  
   // Marketing preferences
   notifyFutureEvents: boolean; // Notify about future events
   sendRunningOffers: boolean; // Send offers related to trail and ultra running

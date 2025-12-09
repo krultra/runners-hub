@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack, Container, Divider } from '@mui/material';
-import { Menu as MenuIcon, Settings, Sun, Moon, SunMoon, CircleUser, LogIn, Globe, Check } from 'lucide-react';
+import { Menu as MenuIcon, Settings, Sun, Moon, SunMoon, CircleUser, LogIn, Globe, Check, ExternalLink } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supportedLocales, localeNames, Locale } from '../i18n/locales';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -301,6 +301,17 @@ const AppHeader: React.FC = () => {
             )}
             <Divider sx={{ my: 0.5 }} />
             <MenuItem onClick={() => { navigate('/about'); handleMenuClose(); }}>About</MenuItem>
+            <MenuItem 
+              component="a" 
+              href="https://lab.krultra.no" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              onClick={handleMenuClose}
+              sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
+            >
+              krultra.no
+              <ExternalLink size={14} />
+            </MenuItem>
             <Divider sx={{ my: 0.5 }} />
 
             {/* Auth/Admin */}

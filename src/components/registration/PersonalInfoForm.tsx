@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   Grid,
   TextField,
@@ -35,7 +36,7 @@ interface PersonalInfoFormProps {
 }
 
 const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, isEmailReadOnly }) => {
-  // No longer needed with Autocomplete component
+  const { t } = useTranslation();
 
   // Effect to scroll to top when component mounts
   useEffect(() => {
@@ -49,10 +50,10 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
     <LocalizationProvider dateAdapter={AdapterDateFns as any} adapterLocale={nb}>
       <Box sx={{ mt: 2, mb: 4 }}>
         <Typography variant="h6" gutterBottom>
-          Personal Information
+          {t('form.personalInfo')}
         </Typography>
         <Typography variant="body2" color="text.secondary" paragraph>
-          Please provide your personal details for registration.
+          {t('form.personalInfoDesc')}
         </Typography>
         
         <Grid container spacing={3}>
@@ -61,7 +62,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               required
               id="firstName"
               name="firstName"
-              label="First and Middle Names"
+              label={t('form.firstName')}
               fullWidth
               variant="outlined"
               value={formData.firstName}
@@ -85,7 +86,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               required
               id="lastName"
               name="lastName"
-              label="Last Name"
+              label={t('form.lastName')}
               fullWidth
               variant="outlined"
               value={formData.lastName}
@@ -105,7 +106,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
           
           <Grid item xs={12} sm={6}>
             <DatePicker
-              label="Date of Birth"
+              label={t('form.dateOfBirth')}
               value={formData.dateOfBirth}
               onChange={(date) => {
                 // Update the form data with the new date
@@ -151,7 +152,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               id="nationality-autocomplete"
               options={COUNTRIES}
               getOptionLabel={(option) => option.name}
-              groupBy={(option) => option.isCommon ? 'Common Countries' : 'All Countries'}
+              groupBy={(option) => option.isCommon ? t('form.commonCountries') : t('form.allCountries')}
               value={COUNTRIES.find(country => country.code === formData.nationality) || null}
               onChange={(_, newValue) => {
                 if (newValue) {
@@ -163,9 +164,9 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                 <TextField
                   {...params}
                   required
-                  label="Nationality"
+                  label={t('form.nationality')}
                   variant="outlined"
-                  helperText={errors.nationality || 'Select your country of citizenship'}
+                  helperText={errors.nationality || t('form.nationalityHelper')}
                   error={!!errors.nationality}
                   inputRef={fieldRefs.nationality}
                   sx={{
@@ -182,7 +183,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
             {isEmailReadOnly ? (
               <Box sx={{ mt: 2, mb: 1 }}>
                 <Typography variant="subtitle2" color="text.secondary">
-                  Email Address
+                  {t('form.email')}
                 </Typography>
                 <Typography
   variant="body1"
@@ -201,14 +202,14 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
 >
   {formData.email}
 </Typography>
-                <FormHelperText sx={{ ml: 0 }}>{errors.email || "We'll send your registration confirmation to this email"}</FormHelperText>
+                <FormHelperText sx={{ ml: 0 }}>{errors.email || t('form.emailHelper')}</FormHelperText>
               </Box>
             ) : (
               <TextField
                 required
                 id="email"
                 name="email"
-                label="Email Address"
+                label={t('form.email')}
                 fullWidth
                 variant="outlined"
                 type="email"
@@ -217,7 +218,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                 inputProps={{ maxLength: 60 }}
                 onBlur={() => onBlur && onBlur('email')}
                 error={!!errors.email}
-                helperText={errors.email || "We'll send your registration confirmation to this email"}
+                helperText={errors.email || t('form.emailHelper')}
                 inputRef={fieldRefs.email as any}
                 sx={{
                   '& .MuiInputBase-input': {
@@ -233,7 +234,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               id="phone-code-autocomplete"
               options={PHONE_CODES}
               getOptionLabel={(option) => `${option.flag} ${option.code} (${option.country})`}
-              groupBy={(option) => option.isCommon ? 'Common Countries' : 'All Countries'}
+              groupBy={(option) => option.isCommon ? t('form.commonCountries') : t('form.allCountries')}
               value={selectedPhoneCode}
               onChange={(_, newValue) => {
                 if (newValue) {
@@ -245,7 +246,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
                 <TextField
                   {...params}
                   required
-                  label="Country Code"
+                  label={t('form.countryCode')}
                   variant="outlined"
                   error={!!errors.phoneCountryCode}
                   helperText={errors.phoneCountryCode || ''}
@@ -265,14 +266,14 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               required
               id="phoneNumber"
               name="phoneNumber"
-              label="Phone Number"
+              label={t('form.phoneNumber')}
               fullWidth
               variant="outlined"
               value={formData.phoneNumber}
               onChange={(e) => onChange('phoneNumber', e.target.value.replace(/[^0-9+\-\s()]/g, ''))}
               onBlur={() => onBlur && onBlur('phoneNumber')}
               error={!!errors.phoneNumber}
-              helperText={errors.phoneNumber || "Enter number without country code"}
+              helperText={errors.phoneNumber || t('form.phoneHelper')}
               inputRef={fieldRefs.phoneNumber as any}
               InputProps={{
                 startAdornment: (
@@ -293,13 +294,13 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
             <TextField
               id="representing"
               name="representing"
-              label="Representing (Optional)"
+              label={t('form.representing')}
               fullWidth
               variant="outlined"
               value={formData.representing}
               onChange={(e) => onChange('representing', e.target.value)}
               inputProps={{ maxLength: 60 }}
-              helperText="Sports club, company, charity, etc."
+              helperText={t('form.representingHelper')}
             />
           </Grid>
         </Grid>

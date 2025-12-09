@@ -53,6 +53,8 @@ Represents event registrations.
 - paymentRequired: number
 - paymentMade: number
 - status?: string ('pending' | 'confirmed' | 'cancelled' | 'expired' ...)
+- hasYearLicense?: boolean — whether runner has full-year NFIF license
+- licenseNumber?: string — NFIF license number (format: NNNNNN-YYYY)
 - isOnWaitinglist?: boolean
 - waitinglistExpires?: Timestamp | string | null
 - registrationNumber?: number
@@ -109,8 +111,26 @@ Represents a specific edition/year of an event.
 - registrationDeadline?: Timestamp — when registration closes
 - maxParticipants?: number — triggers waiting-list when reached
 - loopDistance?: number
-- raceDistances?: Array<{ id, displayName, length, ascent, descent, active? }>
-- fees?: { participation, baseCamp, deposit, total }
+- raceDistances?: Array<{ id, displayName, displayName_no, displayName_en, length, ascent, descent, active?, startTime?, maxParticipants?, fees? }>
+- fees?: Fees (see below)
+
+#### Fees Structure
+Both `eventEditions.fees` and `raceDistances[].fees` use the same structure:
+
+```typescript
+interface Fees {
+  participation?: number;      // Entry/participation fee
+  oneTimeLicense?: number;     // NFIF one-time license fee
+  service?: number;            // General service fee
+  baseCamp?: number;           // @deprecated - use service instead
+  deposit?: number;            // Refundable deposit
+  total?: number;              // If provided, use instead of calculating sum
+}
+```
+
+**Fee resolution:** Distance-specific fees override event-level fees. If a distance has its own `fees` object, those values take precedence.
+
+**License fee logic:** The `oneTimeLicense` fee is only charged if the runner does NOT have a full-year NFIF license. See LICENSE_HANDLING.md for details.
 
 ### codeLists
 Lookup table for status codes and other enumerated values.
@@ -169,42 +189,55 @@ To enable the MO 2026 page with RunnersHub registration, create a document in `e
     {
       "id": "konkurranse",
       "displayName": "Konkurranse",
+      "displayName_no": "Konkurranse",
+      "displayName_en": "Competition",
       "length": 6000,
       "ascent": 420,
       "descent": 0,
-      "active": true
+      "active": true,
+      "fees": {
+        "participation": 250,
+        "oneTimeLicense": 30
+      }
     },
     {
       "id": "trim",
       "displayName": "Trim med tidtaking",
+      "displayName_no": "Trim med tidtaking",
+      "displayName_en": "Timed Recreation",
       "length": 6000,
       "ascent": 420,
       "descent": 0,
-      "active": true
+      "active": true,
+      "fees": {
+        "participation": 250,
+        "oneTimeLicense": 30
+      }
     },
     {
       "id": "tur",
       "displayName": "Turklasse",
+      "displayName_no": "Turklasse",
+      "displayName_en": "Hiking Class",
       "length": 6000,
       "ascent": 420,
       "descent": 0,
-      "active": true
+      "active": true,
+      "fees": {
+        "participation": 50,
+        "oneTimeLicense": 0
+      }
     }
-  ],
-  "fees": {
-    "participation": 200,
-    "baseCamp": 50,
-    "deposit": 0,
-    "total": 200
-  }
+  ]
 }
 ```
 
 **Notes:**
-- `participation` fee is for competition/trim classes
-- `baseCamp` fee is used for hiking class (turklasse)
+- Competition and Trim classes: 250 kr participation + 30 kr license (if no year license)
+- Hiking class: 50 kr participation, no license required
 - Set `status` to `open` (40) when registration should be active
 - Ensure `registrationOpens` is set to control when registration opens
+- See LICENSE_HANDLING.md for license fee rules
 
 ## Security
 {{ ... }}
