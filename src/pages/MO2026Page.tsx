@@ -512,6 +512,18 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                       {t('events.registrationDeadline')}: {event.registrationDeadline.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
                     </Typography>
                   )}
+                  {!raceEnded && !isLoading && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      <strong>{t('events.participants')}:</strong>{' '}
+                      {activeParticipants} / {event.maxParticipants ?? '∞'}
+                      {availableSpots !== null && availableSpots > 0 && (
+                        <> ({t('events.spotsAvailable', { count: availableSpots })})</>
+                      )}
+                      {waitingListCount > 0 && (
+                        <> + {waitingListCount} {t('events.onWaitlistCount')}</>
+                      )}
+                    </Typography>
+                  )}
                 </Box>
               </Grid>
             </Grid>

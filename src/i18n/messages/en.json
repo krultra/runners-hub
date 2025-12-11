@@ -72,6 +72,7 @@
     "spotsAvailable": "{{count}} spots available",
     "spotAvailable": "1 spot available",
     "fullWaitlistOnly": "Full – waiting-list only",
+    "onWaitlistCount": "on waiting-list",
     "registrationClosed": "Registration is now closed",
     "registrationOpensOn": "Registration opens {{date}}",
     "raceOngoing": "Race in progress",

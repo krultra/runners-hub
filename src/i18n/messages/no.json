@@ -72,6 +72,7 @@
     "spotsAvailable": "{{count}} plasser tilgjengelig",
     "spotAvailable": "1 plass tilgjengelig",
     "fullWaitlistOnly": "Fullt – kun venteliste",
+    "onWaitlistCount": "på venteliste",
     "registrationClosed": "Påmeldingen er stengt",
     "registrationOpensOn": "Påmeldingen åpner {{date}}",
     "raceOngoing": "Løpet pågår",
