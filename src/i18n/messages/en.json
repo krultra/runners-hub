@@ -303,5 +303,8 @@
     "yearLicenseInfo": "No license fee will be charged since you have a full-year license.",
     "oneTimeLicenseFee": "One-time License Fee",
     "licenseNotRequired": "No license required for this race class."
+  },
+  "terms": {
+    "title": "Terms and Conditions"
   }
 }

@@ -3,7 +3,7 @@
 A living backlog of tasks. Use checkboxes to track progress.
 
 ## High Priority
-- [ ] Refactor registration form validation to be more robust
+- [x] Refactor registration form validation to be more robust
 - [ ] Add success/error toasts for Admin UI action “Sync users from registrations”
 - [ ] Cloud Function trigger (optional) to auto-sync `users` on `registrations` create/update
 - [ ] Harden Firestore security rules for production (ensure `users/{uid}` access is restricted)

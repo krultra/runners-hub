@@ -303,5 +303,8 @@
     "yearLicenseInfo": "Ingen lisensavgift siden du har årslisens.",
     "oneTimeLicenseFee": "Engangslisens",
     "licenseNotRequired": "Ingen lisens kreves for denne klassen."
+  },
+  "terms": {
+    "title": "Vilkår og betingelser"
   }
 }

@@ -13,7 +13,15 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
-import { initialFormData, validateForm } from "../utils/validation";
+import { initialFormData } from "../utils/validation";
+import {
+  validatePersonalInfo,
+  validateRaceDetails,
+  validateReviewSubmit,
+  validateAll,
+  markStepFieldsTouched,
+  RaceValidationContext,
+} from "../utils/registrationValidation";
 import { useEventEdition, CurrentEvent, DEFAULT_REGISTRATION_CONFIG, RegistrationConfig } from "../contexts/EventEditionContext";
 import PersonalInfoForm from "../components/registration/PersonalInfoForm";
 import RaceDetailsForm from "../components/registration/RaceDetailsForm";
@@ -92,12 +100,11 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   const licenseFee = selectedDistance?.fees?.oneTimeLicense ?? event.fees?.oneTimeLicense ?? 0;
   const requiresLicense = licenseFee > 0;
 
-  // Helper to get formData with validation flags
-  const getFormDataForValidation = useCallback(() => ({
-    ...formData,
-    _requiresLicense: requiresLicense,
-    _showTravelRequired: registrationConfig.fields.travelRequired ?? false
-  }), [formData, requiresLicense, registrationConfig.fields.travelRequired]);
+  // Validation context for race-specific settings (passed explicitly to validators)
+  const validationContext: RaceValidationContext = {
+    requiresLicense,
+    registrationConfig,
+  };
 
   // Reset validation state when switching to Race Details step
   useEffect(() => {
@@ -131,11 +138,20 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     
     // Validate the field immediately and show errors
     if (field) {
-      // Create a simple validation context with just this field
-      const touchedContext = { [field]: true };
+      const options = { touchedFields: { [field]: true } };
       
-      // Get validation result for just this field
-      const fieldErrors = validateForm(getFormDataForValidation(), touchedContext, false, false, undefined);
+      // Get validation result for just this field based on which step it belongs to
+      let fieldErrors: Record<string, string> = {};
+      const personalInfoFields = ['firstName', 'lastName', 'dateOfBirth', 'nationality', 'email', 'phoneCountryCode', 'phoneNumber', 'representing'];
+      const raceDetailsFields = ['raceDistance', 'hasYearLicense', 'licenseNumber', 'travelRequired', 'comments'];
+      
+      if (personalInfoFields.includes(field)) {
+        fieldErrors = validatePersonalInfo(formData, options);
+      } else if (raceDetailsFields.includes(field)) {
+        fieldErrors = validateRaceDetails(formData, validationContext, options);
+      } else {
+        fieldErrors = validateReviewSubmit(formData, options);
+      }
       
       // Get the current field value to check if it's empty
       const fieldValue = formData[field as keyof typeof formData];
@@ -143,23 +159,17 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       
       // Update the errors state for this field
       setErrors(prev => {
-        // Keep all previous errors
         const newErrors = { ...prev };
-        
-        // If there's an error for this field, add it
-        if (Object.keys(fieldErrors).includes(field)) {
+        if (field in fieldErrors) {
           newErrors[field] = fieldErrors[field];
         } else {
-          // Otherwise remove any previous error for this field
           delete newErrors[field];
         }
-        
         return newErrors;
       });
       
       // If this is a required field and it's empty, we want to force visual validation
       if (isEmpty) {
-        // This helps ensure the visual indicator shows up
         setValidationAttempted(true);
       }
     }
@@ -170,34 +180,23 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   }, []);
 
   const showCurrentStepErrors = useCallback(() => {
-    const currentErrors = validateForm(getFormDataForValidation(), activeStep);
+    const options = { showAllErrors: true };
+    let currentErrors: Record<string, string> = {};
+    
+    if (activeStep === 0) {
+      currentErrors = validatePersonalInfo(formData, options);
+    } else if (activeStep === 1) {
+      currentErrors = validateRaceDetails(formData, validationContext, options);
+    } else {
+      currentErrors = validateReviewSubmit(formData, options);
+    }
+    
     setErrors(currentErrors);
     return Object.keys(currentErrors).length > 0;
-  }, [getFormDataForValidation, activeStep]);
+  }, [formData, validationContext, activeStep]);
 
   const hasPersonalInfoErrors = useCallback(() => {
-    const personalInfoFields = [
-      "firstName",
-      "lastName",
-      "dateOfBirth",
-      "nationality",
-      "email",
-      "phoneCountryCode",
-      "phoneNumber",
-      "representing",
-    ];
-    // Validate only personal info fields
-    const personalInfoTouched: Record<string, boolean> = {};
-    personalInfoFields.forEach((field) => {
-      personalInfoTouched[field] = true;
-    });
-    const errors = validateForm(
-      getFormDataForValidation(),
-      personalInfoTouched,
-      false,
-      undefined,
-      undefined,
-    );
+    const errors = validatePersonalInfo(formData, { showAllErrors: true });
     
     // Store these errors for display when showing current step errors
     if (Object.keys(errors).length > 0 && activeStep === 0) {
@@ -369,7 +368,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
 
   // Check if the form is valid for final submission (including terms)
   const isFormValidForSubmission = () => {
-    const errors = validateForm(getFormDataForValidation(), touchedFields, true, true, undefined); // Silent validation
+    const errors = validateAll(formData, validationContext, { showAllErrors: true });
     if (!formData.termsAccepted) errors.termsAccepted = "You must accept the terms and conditions";
     if (!user || !user.email) return false;
     return Object.keys(errors).length === 0;
@@ -377,53 +376,17 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
 
   const handleNext = () => {
     // Mark all fields for the current step as touched
-    const markCurrentStepFieldsAsTouched = () => {
-      let fieldsToMark: string[] = [];
-      
-      if (activeStep === 0) { // Personal Info
-        fieldsToMark = [
-          "firstName",
-          "lastName",
-          "dateOfBirth",
-          "nationality",
-          "email",
-          "phoneCountryCode",
-          "phoneNumber",
-          "representing",
-        ];
-      } else if (activeStep === 1) { // Race Details
-        fieldsToMark = [
-          "raceDistance",
-          "travelRequired",
-          "hasYearLicense",
-          "licenseNumber",
-        ];
-      }
-      
-      // Mark all these fields as touched
-      const newTouchedFields = { ...touchedFields };
-      fieldsToMark.forEach(field => newTouchedFields[field] = true);
-      setTouchedFields(newTouchedFields);
-      
-      return newTouchedFields;
-    };
-    
-    // Mark appropriate fields as touched immediately
-    const updatedTouchedFields = markCurrentStepFieldsAsTouched();
+    const updatedTouchedFields = markStepFieldsTouched(activeStep, touchedFields);
+    setTouchedFields(updatedTouchedFields);
     setValidationAttempted(true);
     
     // For final step (from Race Details to Review), check all fields except terms
     if (activeStep === steps.length - 2) {
       // Validate all fields except terms and conditions
-      const currentErrors = validateForm(
-        getFormDataForValidation(),
-        updatedTouchedFields, // Use newly updated touched fields
-        true,
-        true,
-        undefined,
-      ); // Silent validation
+      const currentErrors = validateAll(formData, validationContext, { showAllErrors: true });
       const errorsWithoutTerms = { ...currentErrors };
       delete errorsWithoutTerms.termsAccepted;
+      
       // Only advance if no errors
       if (Object.keys(errorsWithoutTerms).length === 0) {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
@@ -435,74 +398,32 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           t('registration.completeFieldsBeforeSubmitting'),
         );
         setSnackbarOpen(true);
-        // Do NOT advance step if there are errors
-        // Optionally scroll to first error
+        // Go to step with errors
         if (hasPersonalInfoErrors()) {
-          setActiveStep(0); // Go to personal info step
-          setTimeout(() => {
-            // The hasPersonalInfoErrors function already updates the errors state
-            // Just need to scroll to the first error
-            scrollToFirstError(errors);
-          }, 100);
+          setActiveStep(0);
+          setTimeout(() => scrollToFirstError(errors), 100);
         } else {
           scrollToFirstError(errorsWithoutTerms);
         }
       }
     } else {
-      // For other steps, validate only relevant fields for the CURRENT step
-      let stepValid = true;
+      // For other steps, validate only the CURRENT step's fields
       let stepErrors: Record<string, string> = {};
       
-      // Define which fields belong to each step
-      const personalInfoFields = [
-        "firstName", "lastName", "dateOfBirth", "nationality",
-        "email", "phoneCountryCode", "phoneNumber", "representing"
-      ];
-      const raceDetailsFields = [
-        "raceDistance", "travelRequired", "hasYearLicense", "licenseNumber", "comments"
-      ];
-      
       if (activeStep === 0) {
-        // Validate all fields, but only keep errors for personal info fields
-        const allErrors = validateForm(
-          getFormDataForValidation(),
-          updatedTouchedFields,
-          false,
-          false,
-          undefined
-        );
-        // Filter to only personal info errors
-        personalInfoFields.forEach(field => {
-          if (allErrors[field]) stepErrors[field] = allErrors[field];
-        });
-        setErrors(stepErrors);
-        stepValid = Object.keys(stepErrors).length === 0;
+        stepErrors = validatePersonalInfo(formData, { showAllErrors: true });
+      } else if (activeStep === 1) {
+        stepErrors = validateRaceDetails(formData, validationContext, { showAllErrors: true });
       }
       
-      if (activeStep === 1) {
-        // Validate all fields, but only keep errors for race details fields
-        const allErrors = validateForm(
-          getFormDataForValidation(),
-          updatedTouchedFields,
-          false,
-          false, 
-          undefined
-        );
-        // Filter to only race details errors
-        raceDetailsFields.forEach(field => {
-          if (allErrors[field]) stepErrors[field] = allErrors[field];
-        });
-        setErrors(stepErrors);
-        stepValid = Object.keys(stepErrors).length === 0;
-      }
+      setErrors(stepErrors);
+      const stepValid = Object.keys(stepErrors).length === 0;
 
       if (stepValid) {
         setActiveStep((prevActiveStep) => prevActiveStep + 1);
         window.scrollTo(0, 0);
         clearAllErrors();
       } else {
-        // Errors are already set above
-        // Scroll to first error
         scrollToFirstError(stepErrors);
         setSnackbarMessage(
           t('registration.completeFieldsBeforeProceeding'),
@@ -588,40 +509,21 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   // Effect to show appropriate validation errors when changing steps
   useEffect(() => {
     if (validationAttempted && activeStep === 1) {
-      // Only show errors for step 2 (race details) if we're on that step
-      const errors = validateForm(
-        getFormDataForValidation(),
-        touchedFields,
-        true,
-        true,
-        undefined,
-      );
-      const raceDetailsFields = ["raceDistance", "travelRequired", "hasYearLicense", "licenseNumber"];
-      const stepErrors: Record<string, string> = {};
-      raceDetailsFields.forEach((field) => {
-        if (field in errors) {
-          stepErrors[field] = errors[field];
-        }
-      });
+      // Only show errors for race details step
+      const stepErrors = validateRaceDetails(formData, validationContext, { showAllErrors: true });
       setErrors(stepErrors);
     } else if (!validationAttempted) {
       // Clear errors if validation hasn't been attempted
       clearAllErrors();
     }
-  }, [activeStep, validationAttempted, formData, touchedFields, clearAllErrors]);
+  }, [activeStep, validationAttempted, formData, validationContext, clearAllErrors]);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async () => {
     // Validate the entire form including terms and conditions
     setValidationAttempted(true);
-    const currentErrors = validateForm(
-      getFormDataForValidation(),
-      touchedFields,
-      true,
-      undefined,
-      undefined,
-    );
+    const currentErrors = validateAll(formData, validationContext, { showAllErrors: true });
 
     // Require waiting-list agreement if event full AND user is not already registered
     if (isFull && !isEditingExisting) {

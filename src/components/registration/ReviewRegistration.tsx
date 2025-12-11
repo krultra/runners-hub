@@ -437,7 +437,8 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
       {/* Terms and Conditions Dialog */}
       <TermsAndConditions 
         open={termsDialogOpen} 
-        onClose={handleCloseTermsDialog} 
+        onClose={handleCloseTermsDialog}
+        eventId={event.eventId}
       />
     </Box>
   );
