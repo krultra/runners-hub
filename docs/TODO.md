@@ -3,7 +3,7 @@
 A living backlog of tasks. Use checkboxes to track progress.
 
 ## High Priority
-- [ ] KUTC race page layout driven by Strapi data (design + implement)
+- [ ] Refactor registration form validation to be more robust
 - [ ] Add success/error toasts for Admin UI action “Sync users from registrations”
 - [ ] Cloud Function trigger (optional) to auto-sync `users` on `registrations` create/update
 - [ ] Harden Firestore security rules for production (ensure `users/{uid}` access is restricted)
@@ -14,7 +14,6 @@ A living backlog of tasks. Use checkboxes to track progress.
 - [ ] Improve backup script to support selective collections and GCS export option
 
 ## Data & Migrations
-- [ ] One-off script: audit/repair any suspicious email fields in `users` (heuristics + manual review report)
 - [ ] DataConnect: document schemas and potential usage, or remove unused artifacts
 
 ## UI/UX
