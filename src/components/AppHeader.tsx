@@ -1,10 +1,10 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack, Container, Divider } from '@mui/material';
-import { Menu as MenuIcon, Settings, Sun, Moon, SunMoon, CircleUser, LogIn, Globe, Check, ExternalLink } from 'lucide-react';
+import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack, Container, Divider, Button } from '@mui/material';
+import { Settings, Sun, Moon, SunMoon, CircleUser, LogIn, Globe, Check, ChevronDown } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { supportedLocales, localeNames, Locale } from '../i18n/locales';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { createOrUpdateUser, getUser } from '../utils/userUtils';
 import { isAdminUser } from '../utils/adminUtils';
 import { ThemeModeContext } from '../App';
@@ -19,12 +19,9 @@ const AppHeader: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [avatarMenuAnchor, setAvatarMenuAnchor] = useState<null | HTMLElement>(null);
-  const [menuAnchor, setMenuAnchor] = useState<null | HTMLElement>(null);
-  const [kutcMenuAnchor, setKutcMenuAnchor] = useState<null | HTMLElement>(null);
-  const [moMenuAnchor, setMoMenuAnchor] = useState<null | HTMLElement>(null);
+  const [eventsMenuAnchor, setEventsMenuAnchor] = useState<null | HTMLElement>(null);
   const [settingsMenuAnchor, setSettingsMenuAnchor] = useState<null | HTMLElement>(null);
   const [userName, setUserName] = useState<string>('');
-  const location = useLocation();
   const navigate = useNavigate();
   const { mode, setMode } = useContext(ThemeModeContext);
 
@@ -42,41 +39,16 @@ const AppHeader: React.FC = () => {
     setAvatarMenuAnchor(null);
   };
 
-  // Hamburger menu handlers
-  const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
-    setMenuAnchor(event.currentTarget);
+  // Events dropdown menu handlers
+  const openEventsMenu = (event: React.MouseEvent<HTMLElement>) => {
+    setEventsMenuAnchor(event.currentTarget);
   };
-  const handleMenuClose = () => {
-    setMenuAnchor(null);
-    setKutcMenuAnchor(null);
-    setMoMenuAnchor(null);
-  };
-  const openKutcMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setKutcMenuAnchor(event.currentTarget);
-  };
-  const closeKutcMenu = () => {
-    setKutcMenuAnchor(null);
-  };
-  const openMoMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setMoMenuAnchor(event.currentTarget);
-  };
-  const closeMoMenu = () => {
-    setMoMenuAnchor(null);
-  };
-  // Admin section selection (when on /admin)
-  const handleAdminSectionSelect = (sectionKey: string) => {
-    window.dispatchEvent(new CustomEvent('setAdminSection', { detail: sectionKey }));
-    handleMenuClose();
-  };
-
-  const handleAdminPage = () => {
-    navigate('/admin');
-    handleMenuClose();
+  const closeEventsMenu = () => {
+    setEventsMenuAnchor(null);
   };
 
   const handleLogin = () => {
     navigate('/auth');
-    handleMenuClose();
   };
 
   useEffect(() => {
@@ -196,6 +168,121 @@ const AppHeader: React.FC = () => {
             )}
           </Box>
 
+          {/* Center: Navigation Links */}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: { xs: 0.5, sm: 1, md: 2 },
+              ml: { xs: 1, sm: 2 },
+            }}
+          >
+            {/* krultra.no link */}
+            <Button
+              component="a"
+              href="https://lab.krultra.no"
+              sx={{
+                color: 'text.primary',
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                minWidth: 'auto',
+                px: { xs: 0.5, sm: 1 },
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              krultra.no
+            </Button>
+
+            {/* Events dropdown */}
+            <Button
+              onClick={openEventsMenu}
+              endIcon={<ChevronDown size={16} />}
+              sx={{
+                color: 'text.primary',
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                minWidth: 'auto',
+                px: { xs: 0.5, sm: 1 },
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              Events
+            </Button>
+            <Menu
+              anchorEl={eventsMenuAnchor}
+              open={Boolean(eventsMenuAnchor)}
+              onClose={closeEventsMenu}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+            >
+              <MenuItem onClick={() => { navigate('/kutc'); closeEventsMenu(); }}>Kruke's Ultra-Trail Challenge</MenuItem>
+              <MenuItem onClick={() => { navigate('/mo'); closeEventsMenu(); }}>Malvikingen Opp</MenuItem>
+            </Menu>
+
+            {/* Runners link */}
+            <Button
+              onClick={() => navigate('/runners/search')}
+              sx={{
+                color: 'text.primary',
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                minWidth: 'auto',
+                px: { xs: 0.5, sm: 1 },
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              Runners
+            </Button>
+
+            {/* About link */}
+            <Button
+              onClick={() => navigate('/about')}
+              sx={{
+                color: 'text.primary',
+                textTransform: 'none',
+                fontWeight: 500,
+                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                minWidth: 'auto',
+                px: { xs: 0.5, sm: 1 },
+                display: { xs: 'none', sm: 'flex' },
+                '&:hover': {
+                  backgroundColor: 'action.hover',
+                },
+              }}
+            >
+              About
+            </Button>
+
+            {/* Admin link - only for admins */}
+            {isAdmin && (
+              <Button
+                onClick={() => navigate('/admin')}
+                sx={{
+                  color: 'text.primary',
+                  textTransform: 'none',
+                  fontWeight: 500,
+                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                  minWidth: 'auto',
+                  px: { xs: 0.5, sm: 1 },
+                  '&:hover': {
+                    backgroundColor: 'action.hover',
+                  },
+                }}
+              >
+                Admin
+              </Button>
+            )}
+          </Box>
+
           {/* Spacer */}
           <Box sx={{ flexGrow: 1 }} />
 
@@ -243,90 +330,6 @@ const AppHeader: React.FC = () => {
               </IconButton>
             </Tooltip>
 
-            {/* Hamburger menu */}
-            <IconButton
-              color="inherit"
-              size="small"
-              onClick={handleMenuOpen}
-              sx={{ width: 36, height: 36 }}
-            >
-              <MenuIcon size={20} />
-            </IconButton>
-          <Menu
-            anchorEl={menuAnchor}
-            open={Boolean(menuAnchor)}
-            onClose={handleMenuClose}
-            anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-            transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-          >
-            {/* Main navigation */}
-            <Box px={2} py={1}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 'bold', mb: 1 }}>
-                Navigate
-              </Typography>
-            </Box>
-            <MenuItem onClick={() => { navigate('/'); handleMenuClose(); }}>Home</MenuItem>
-            <MenuItem onClick={() => { navigate('/runners/search'); handleMenuClose(); }}>Runner search</MenuItem>
-            <Divider sx={{ my: 0.5 }} />
-            <MenuItem onClick={openKutcMenu}>KUTC</MenuItem>
-            <Menu
-              anchorEl={kutcMenuAnchor}
-              open={Boolean(kutcMenuAnchor)}
-              onClose={closeKutcMenu}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-              keepMounted
-            >
-              <MenuItem onClick={() => { navigate('/kutc'); closeKutcMenu(); handleMenuClose(); }}>Overview</MenuItem>
-              <MenuItem onClick={() => { navigate('/kutc/results'); closeKutcMenu(); handleMenuClose(); }}>Results</MenuItem>
-              <MenuItem onClick={() => { navigate('/kutc/all-time'); closeKutcMenu(); handleMenuClose(); }}>All-time</MenuItem>
-              <MenuItem onClick={() => { navigate('/kutc/records'); closeKutcMenu(); handleMenuClose(); }}>Records</MenuItem>
-            </Menu>
-            <MenuItem onClick={openMoMenu}>MO</MenuItem>
-            <Menu
-              anchorEl={moMenuAnchor}
-              open={Boolean(moMenuAnchor)}
-              onClose={closeMoMenu}
-              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-              keepMounted
-            >
-              <MenuItem onClick={() => { navigate('/mo'); closeMoMenu(); handleMenuClose(); }}>Overview</MenuItem>
-              <MenuItem onClick={() => { navigate('/mo/results'); closeMoMenu(); handleMenuClose(); }}>Results</MenuItem>
-              <MenuItem onClick={() => { navigate('/mo/all-time'); closeMoMenu(); handleMenuClose(); }}>All-time</MenuItem>
-              <MenuItem onClick={() => { navigate('/mo/records'); closeMoMenu(); handleMenuClose(); }}>Records</MenuItem>
-            </Menu>
-            {isAdmin && (
-              <MenuItem onClick={handleAdminPage}>Admin</MenuItem>
-            )}
-            <Divider sx={{ my: 0.5 }} />
-            <MenuItem onClick={() => { navigate('/about'); handleMenuClose(); }}>About</MenuItem>
-            <MenuItem 
-              component="a" 
-              href="https://lab.krultra.no" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              onClick={handleMenuClose}
-              sx={{ display: 'flex', alignItems: 'center', gap: 1 }}
-            >
-              krultra.no
-              <ExternalLink size={14} />
-            </MenuItem>
-            <Divider sx={{ my: 0.5 }} />
-
-            {/* Auth/Admin */}
-            {!user && (
-              <MenuItem onClick={handleLogin}>
-                <ListItemIcon><LogIn size={18} /></ListItemIcon>
-                Log in
-              </MenuItem>
-            )}
-            {user && !isAdmin && (
-              <MenuItem onClick={handleLogout}>
-                Log out
-              </MenuItem>
-            )}
-          </Menu>
 
           {/* Avatar dropdown menu */}
           {user && (

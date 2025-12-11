@@ -572,13 +572,13 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     if (validationAttempted && activeStep === 1) {
       // Only show errors for step 2 (race details) if we're on that step
       const errors = validateForm(
-        formData,
+        getFormDataForValidation(),
         touchedFields,
         true,
         true,
         undefined,
       );
-      const raceDetailsFields = ["raceDistance", "travelRequired"];
+      const raceDetailsFields = ["raceDistance", "travelRequired", "hasYearLicense", "licenseNumber"];
       const stepErrors: Record<string, string> = {};
       raceDetailsFields.forEach((field) => {
         if (field in errors) {
@@ -598,7 +598,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     // Validate the entire form including terms and conditions
     setValidationAttempted(true);
     const currentErrors = validateForm(
-      formData,
+      getFormDataForValidation(),
       touchedFields,
       true,
       undefined,
