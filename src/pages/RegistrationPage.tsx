@@ -449,33 +449,51 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
         }
       }
     } else {
-      // For other steps, validate only relevant fields using newly touched fields
-      // Force validation against all fields for current step
+      // For other steps, validate only relevant fields for the CURRENT step
       let stepValid = true;
+      let stepErrors: Record<string, string> = {};
+      
+      // Define which fields belong to each step
+      const personalInfoFields = [
+        "firstName", "lastName", "dateOfBirth", "nationality",
+        "email", "phoneCountryCode", "phoneNumber", "representing"
+      ];
+      const raceDetailsFields = [
+        "raceDistance", "travelRequired", "hasYearLicense", "licenseNumber", "comments"
+      ];
+      
       if (activeStep === 0) {
-        // Force validation for personal info and immediately show errors
-        const personalInfoErrors = validateForm(
+        // Validate all fields, but only keep errors for personal info fields
+        const allErrors = validateForm(
           getFormDataForValidation(),
           updatedTouchedFields,
           false,
           false,
           undefined
         );
-        setErrors(personalInfoErrors);
-        stepValid = Object.keys(personalInfoErrors).length === 0;
+        // Filter to only personal info errors
+        personalInfoFields.forEach(field => {
+          if (allErrors[field]) stepErrors[field] = allErrors[field];
+        });
+        setErrors(stepErrors);
+        stepValid = Object.keys(stepErrors).length === 0;
       }
       
       if (activeStep === 1) {
-        // Force validation for race details and immediately show errors
-        const raceDetailsErrors = validateForm(
+        // Validate all fields, but only keep errors for race details fields
+        const allErrors = validateForm(
           getFormDataForValidation(),
           updatedTouchedFields,
           false,
           false, 
           undefined
         );
-        setErrors(raceDetailsErrors);
-        stepValid = Object.keys(raceDetailsErrors).length === 0;
+        // Filter to only race details errors
+        raceDetailsFields.forEach(field => {
+          if (allErrors[field]) stepErrors[field] = allErrors[field];
+        });
+        setErrors(stepErrors);
+        stepValid = Object.keys(stepErrors).length === 0;
       }
 
       if (stepValid) {
@@ -485,7 +503,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       } else {
         // Errors are already set above
         // Scroll to first error
-        scrollToFirstError(errors);
+        scrollToFirstError(stepErrors);
         setSnackbarMessage(
           t('registration.completeFieldsBeforeProceeding'),
         );
