@@ -591,6 +591,53 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
         </Grid>
       )}
 
+      {/* Registration Fees - show only before race ends */}
+      {!raceEnded && event.fees && (event.fees.participation > 0 || event.fees.total > 0) && (
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} md={6}>
+            <Paper elevation={2} sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight={700} gutterBottom>
+                {t('mo.registrationFees')}
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              {event.fees.participation > 0 && (
+                <Typography variant="body1" paragraph>
+                  <strong>{t('mo.participation')}:</strong> {event.fees.participation.toLocaleString('no-NO')},- kr
+                </Typography>
+              )}
+              {event.fees.oneTimeLicense && event.fees.oneTimeLicense > 0 && (
+                <Typography variant="body1" paragraph>
+                  <strong>{t('mo.oneTimeLicense')}:</strong> {event.fees.oneTimeLicense.toLocaleString('no-NO')},- kr
+                  <br />
+                  <Typography component="span" variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                    ({t('mo.oneTimeLicenseNote')})
+                  </Typography>
+                </Typography>
+              )}
+              {event.fees.baseCamp > 0 && (
+                <Typography variant="body1" paragraph>
+                  <strong>{t('mo.serviceFee')}:</strong> {event.fees.baseCamp.toLocaleString('no-NO')},- kr
+                </Typography>
+              )}
+              {event.fees.deposit > 0 && (
+                <Typography variant="body1" paragraph>
+                  <strong>{t('mo.depositRefundable')}:</strong> {event.fees.deposit.toLocaleString('no-NO')},- kr
+                  <br />
+                  <Typography component="span" variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                    ({t('mo.depositNote')})
+                  </Typography>
+                </Typography>
+              )}
+              {event.fees.total > 0 && (
+                <Typography variant="body1" sx={{ fontWeight: 600, mt: 1 }}>
+                  <strong>{t('mo.total')}:</strong> {event.fees.total.toLocaleString('no-NO')},- kr
+                </Typography>
+              )}
+            </Paper>
+          </Grid>
+        </Grid>
+      )}
+
       {/* Contact */}
       <Box textAlign="center" sx={{ mt: 6 }}>
         <Typography variant="body2" color="text.secondary">

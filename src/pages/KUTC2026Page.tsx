@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
-import { useLocation } from 'react-router-dom';
+import { Link as RouterLink, useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Container, 
   Typography, 
@@ -13,16 +13,29 @@ import {
   Chip
 } from '@mui/material';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
-import { useNavigate } from 'react-router-dom';
 import { Registration } from '../types';
 import { useEventEdition, CurrentEvent } from '../contexts/EventEditionContext';
 import { CircularProgress } from '@mui/material';
 import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } from '../services/registrationService';
 import { Globe, BarChart3, Trophy, Info } from 'lucide-react';
-import { getVerboseName } from '../services/codeListService';
+import { useStatusLabel } from '../hooks/useStatusLabel';
+import { useLocalizedField } from '../hooks/useLocalizedField';
+
+// Status code mapping for KUTC
+const STATUS_MAP: Record<string, number> = {
+  hidden: 0, draft: 10, announced: 20, pre_registration: 30, open: 40,
+  waitlist: 44, late_registration: 50, full: 54, closed: 60,
+  in_progress: 70, suspended: 75, finished: 80, cancelled: 90, finalized: 100
+};
 
 // Inner component with full hooks/logic, receives guaranteed `event`
 const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
+  const { t } = useTranslation();
+  const getLocalizedField = useLocalizedField();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const editionId = 'kutc-2026';
+
   // State for countdown timer
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
@@ -42,7 +55,9 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const [isUserRegistered, setIsUserRegistered] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
-  const [statusLabel, setStatusLabel] = useState<string>('');
+  
+  // Get status label using hook
+  const statusLabel = useStatusLabel(event.status);
   
   // Calculate time remaining until the race
   const now = useMemo(() => new Date(), []);
@@ -111,27 +126,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     return `${value.toLocaleString('no-NO')} NOK`;
   };
   
-  // Load human readable status label
-  useEffect(() => {
-    const loadStatusLabel = async () => {
-      if (!event.status) {
-        setStatusLabel('');
-        return;
-      }
-      try {
-        const label = await getVerboseName('eventEditions', 'status', String(event.status), String(event.status));
-        setStatusLabel(label);
-      } catch (err) {
-        console.warn('Could not resolve status label:', err);
-        setStatusLabel(String(event.status));
-      }
-    };
-
-    loadStatusLabel();
-  }, [event.status]);
-
   // Check if user is authenticated and has a registration (re-run on location change)
-  const location = useLocation();
   useEffect(() => {
     setIsCheckingRegistration(true);
     const auth = getAuth();
@@ -158,8 +153,6 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     
     return () => unsubscribe();
   }, [location.key, event.id]);
-  
-  const editionId = event.id;
   
   // Fetch active participant count (pending/confirmed) and compute available spots
   useEffect(() => {
@@ -206,8 +199,6 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     
     return () => clearInterval(timer);
   }, [raceDate]);
-
-  const navigate = useNavigate();
 
   // Determine if the existing registration is invalid
   const isRegistrationInvalid = userRegistration?.status === 'cancelled' || userRegistration?.status === 'expired';
@@ -476,283 +467,271 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
 
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h2" component="h1" textAlign="center" gutterBottom>
-          Kruke's Ultra-Trail Challenge 2026
+      {/* Hero Section */}
+      <Box textAlign="center" mb={6}>
+        <Typography variant="h2" component="h1" fontWeight={800} gutterBottom>
+          {event.eventName || "Kruke's Ultra-Trail Challenge 2026"}
+        </Typography>
+        <Typography variant="h5" color="text.secondary" sx={{ mb: 3 }}>
+          {t('kutc.tagline')}
         </Typography>
 
-        <Paper
-          elevation={0}
-          sx={{
-            mt: 3,
-            p: { xs: 3, md: 4 },
-            borderRadius: 3,
-            border: '1px solid',
-            borderColor: 'divider',
-            backgroundColor: (theme) => theme.palette.mode === 'light' ? 'grey.50' : 'grey.900'
-          }}
-        >
-          <Grid container spacing={3} alignItems="center">
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
-                  Event Status
-                </Typography>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <Chip
-                    icon={<Info />}
-                    label={statusLabel || 'Status pending'}
-                    color={
-                      hasResultsAvailable ? 'success' :
-                      raceStarted ? 'info' :
-                      isRegistrationOpen ? 'success' :
-                      'default'
-                    }
-                    sx={{ fontWeight: 600 }}
-                  />
-                </Box>
-                <Typography variant="body2" color="text.secondary">
-                  {raceStarted ? 'Event started at' : 'Event starts at'}{' '}
-                  {raceDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })} on{' '}
-                  {raceDate.toLocaleDateString('en-US', {
-                    weekday: 'long',
-                    day: 'numeric',
-                    month: 'long',
-                    year: 'numeric'
-                  })}
-                </Typography>
-                {!raceStarted && (
-                  <Typography variant="body2" color="text.secondary">
-                    Countdown: {timeLeft.days > 0 && `${timeLeft.days}d `}
-                    {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
-                  </Typography>
-                )}
-              </Box>
-            </Grid>
-            <Grid item xs={12} md={6}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
-                  2026 Results
-                </Typography>
-                {renderResultsButtons({ compact: true })}
-              </Box>
-            </Grid>
-          </Grid>
-        </Paper>
-
-        <Box sx={{ mt: 3 }}>{renderRegistrationActions()}</Box>
-      </Box>
-
-      <Paper
-        elevation={0}
-        sx={{
-          mb: 5,
-          p: 3,
-          borderRadius: 2,
-          border: '1px solid',
-          borderColor: 'divider',
-          backgroundColor: (theme) => theme.palette.mode === 'light' ? 'grey.50' : 'grey.900'
-        }}
-      >
-        <Typography variant="h5" fontWeight={700} textAlign="center" gutterBottom>
-          Explore KUTC Resources
-        </Typography>
-        <Typography variant="body2" color="text.secondary" textAlign="center" sx={{ mb: 3 }}>
-          Dive into results history, all-time standings, and records from previous editions.
-        </Typography>
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, justifyContent: 'center' }}>
+        {/* Quick links */}
+        <Box display="flex" justifyContent="center" gap={2} flexWrap="wrap" mb={4}>
           <Button
-            component={RouterLink}
-            to="/kutc"
-            variant="contained"
-            color="primary"
-            sx={{ minWidth: 200, fontWeight: 600 }}
-          >
-            KUTC Overview
-          </Button>
-          <Button
-            component={RouterLink}
-            to="/kutc/results"
-            variant="contained"
-            color="primary"
-            startIcon={<BarChart3 />}
-            sx={{ minWidth: 200, fontWeight: 600 }}
-          >
-            Results Overview
-          </Button>
-          <Button
-            component={RouterLink}
-            to="/kutc/all-time"
             variant="outlined"
-            color="primary"
-            startIcon={<BarChart3 />}
-            sx={{ minWidth: 200, fontWeight: 600 }}
-          >
-            All-Time Leaderboard
-          </Button>
-          <Button
-            component={RouterLink}
-            to="/kutc/records"
-            variant="outlined"
-            color="primary"
-            startIcon={<Trophy />}
-            sx={{ minWidth: 200, fontWeight: 600 }}
-          >
-            Records
-          </Button>
-          <Button
-            href="https://krultra.no/kutc"
-            variant="text"
             startIcon={<Globe />}
-            sx={{ minWidth: 200, fontWeight: 600 }}
+            href="https://krultra.no/kutc"
           >
-            Official KUTC Website
+            {t('events.officialInfo')}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<BarChart3 />}
+            onClick={() => navigate('/kutc/results')}
+          >
+            {t('events.results')}
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<Trophy />}
+            onClick={() => navigate('/kutc/records')}
+          >
+            {t('events.records')}
           </Button>
         </Box>
-      </Paper>
 
-      <Grid container spacing={4} sx={{ mb: 4 }}>
-        <Grid item xs={12}>
-          <Paper
-            elevation={1}
-            sx={{
-              backgroundColor: 'var(--color-surface)',
-              color: 'var(--color-text)',
-              border: '1px solid var(--color-surface-border)',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-              borderRadius: 2,
-              p: 3
-            }}
-          >
-            <Typography variant="h5" component="h2" gutterBottom>
-              Race Details
+        {/* Countdown */}
+        {!raceStarted && (
+          <Paper elevation={2} sx={{ p: 3, mb: 4, maxWidth: 600, mx: 'auto' }}>
+            <Typography variant="h6" gutterBottom>
+              {t('events.countdown')}
             </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Typography variant="body1" paragraph>
-              <strong>Date:</strong> {raceDate.toLocaleDateString('en-US', { 
-                weekday: 'long',
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              })}
-            </Typography>
-            <Typography variant="body1" paragraph>
-              <strong>Start Time:</strong> {raceDate.toLocaleTimeString('en-US', { 
-                hour: '2-digit', 
-                minute: '2-digit' 
-              })}
-            </Typography>
-            {!raceStarted && event.registrationDeadline && (
-              <Typography variant="body1" paragraph>
-                <strong>Registration Deadline:</strong> {event.registrationDeadline.toLocaleDateString('en-US', { 
-                  month: 'long', 
-                  day: 'numeric',
-                  hour: '2-digit',
-                  minute: '2-digit'
-                })}
-              </Typography>
-            )}
-            {!raceEnded && (
-              <Typography variant="body1" paragraph>
-                <strong>Participants:</strong> {!isLoading ? (
-                  <>
-                    {activeParticipants} / {event.maxParticipants ?? 0}
-                    {isRegistrationOpen && availableSpots !== null && availableSpots > 0 && (
-                      <> ({availableSpots} spot{availableSpots !== 1 ? 's' : ''} available)</>
-                    )}
-                    {waitingListCount > 0 && (
-                      <> + {waitingListCount} on waiting-list</>
-                    )}
-                  </>
-                ) : '...'}
-              </Typography>
-            )}
-            <Typography variant="body1" paragraph>
-              <strong>Each loop:</strong> {event.loopDistance} km, 369 meter ascent/descent
-            </Typography>
-            <Typography variant="body1">
-              <strong>Available Distances:</strong>
-            </Typography>
-            {raceDistances.length > 0 ? (
-              <Grid container spacing={1.5} sx={{ mt: 1 }}>
-                {raceDistances.map((race) => (
-                  <Grid item xs={12} sm={6} key={race.id}>
-                    <Paper variant="outlined" sx={{ p: 1.5 }}>
-                      <Typography variant="subtitle2" fontWeight={700}>
-                        {race.displayName}
-                      </Typography>
-                      <Typography variant="body2" color="text.secondary">
-                        {(race.length / 1000).toFixed(1)} km · {race.ascent.toLocaleString('no-NO')} m+
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                ))}
-              </Grid>
-            ) : (
-              <Box component="ul" sx={{ m: 0, pl: 2 }}>
-                <li>4 loops (26.8 km / 16.7 miles)</li>
-                <li>8 loops (53.6 km / 33.3 miles)</li>
-                <li>12 loops (80.4 km / 50.0 miles)</li>
-                <li>16 loops (107.2 km / 66.6 miles)</li>
-                <li>20 loops (134.0 km / 83.3 miles)</li>
-                <li>24 loops (160.9 km / 100.0 miles)</li>
+            <Box display="flex" justifyContent="center" gap={3}>
+              <Box textAlign="center">
+                <Typography variant="h3" fontWeight={700}>{timeLeft.days}</Typography>
+                <Typography variant="body2" color="text.secondary">{t('events.days')}</Typography>
               </Box>
-            )}
-            <Typography variant="body2" sx={{ mt: 1, fontStyle: 'italic' }}>
-              All participants are part of the 'Last One Standing' challenge!
+              <Box textAlign="center">
+                <Typography variant="h3" fontWeight={700}>{timeLeft.hours}</Typography>
+                <Typography variant="body2" color="text.secondary">{t('events.hours')}</Typography>
+              </Box>
+              <Box textAlign="center">
+                <Typography variant="h3" fontWeight={700}>{timeLeft.minutes}</Typography>
+                <Typography variant="body2" color="text.secondary">{t('events.minutes')}</Typography>
+              </Box>
+              <Box textAlign="center">
+                <Typography variant="h3" fontWeight={700}>{timeLeft.seconds}</Typography>
+                <Typography variant="body2" color="text.secondary">{t('events.seconds')}</Typography>
+              </Box>
+            </Box>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2, textAlign: 'center' }}>
+              {t('events.eventDate')}: {raceDate.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
             </Typography>
           </Paper>
+        )}
+
+        {/* Registration Actions */}
+        {renderRegistrationActions()}
+
+        {/* Results buttons */}
+        {(showLiveResultsButton || showFinalResultsButton) && (
+          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'center', mb: 4 }}>
+            {showLiveResultsButton && (
+              <Button
+                variant="contained"
+                color="secondary"
+                size="large"
+                href={liveResultsURL}
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{ fontWeight: 700 }}
+              >
+                {t('events.liveResults')}
+              </Button>
+            )}
+            {showFinalResultsButton && (
+              <Button
+                variant="contained"
+                color="primary"
+                size="large"
+                onClick={() => navigate('/kutc/results')}
+                sx={{ fontWeight: 700 }}
+              >
+                {t('events.seeResults')}
+              </Button>
+            )}
+          </Box>
+        )}
+      </Box>
+
+      {/* Event Info Grid */}
+      <Grid container spacing={3} sx={{ mb: 4 }}>
+        {/* Status Card */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
+            <Grid container spacing={3} alignItems="center">
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                  <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+                    {t('status.label')}
+                  </Typography>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                    <Chip
+                      icon={<Info />}
+                      label={statusLabel || t('status.pending')}
+                      color={
+                        hasResultsAvailable ? 'success' :
+                        raceStarted ? 'info' :
+                        isRegistrationOpen ? 'success' :
+                        'default'
+                      }
+                      sx={{ fontWeight: 600 }}
+                    />
+                  </Box>
+                  {event.registrationDeadline && (
+                    <Typography variant="body2" color="text.secondary">
+                      {t('events.registrationDeadline')}: {event.registrationDeadline.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                    </Typography>
+                  )}
+                  {!raceEnded && !isLoading && (
+                    <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                      <strong>{t('events.participants')}:</strong>{' '}
+                      {activeParticipants} / {event.maxParticipants ?? '∞'}
+                      {availableSpots !== null && availableSpots > 0 && (
+                        <> ({t('events.spotsAvailable', { count: availableSpots })})</>
+                      )}
+                      {waitingListCount > 0 && (
+                        <> + {waitingListCount} {t('events.onWaitlistCount')}</>
+                      )}
+                    </Typography>
+                  )}
+                </Box>
+              </Grid>
+            </Grid>
+          </Paper>
         </Grid>
-        {/* Show fees only before race ends and if not finalized */}
-        {!raceEnded && !hasResultsAvailable && event.fees && (
-          <Grid item xs={12} md={6}>
-            <Paper
-              elevation={1}
-              sx={{
-                backgroundColor: 'var(--color-surface)',
-                color: 'var(--color-text)',
-                border: '1px solid var(--color-surface-border)',
-                boxShadow: '0 4px 12px rgba(0,0,0,0.08)',
-                borderRadius: 2,
-                p: 3
-              }}
-            >
-            <Typography variant="h5" component="h2" gutterBottom>
-              Registration Fees
+
+        {/* Quick Facts Card */}
+        <Grid item xs={12} md={6}>
+          <Paper elevation={2} sx={{ p: 3, height: '100%' }}>
+            <Typography variant="overline" sx={{ fontWeight: 700, color: 'text.secondary' }}>
+              {t('events.facts')}
             </Typography>
-            <Divider sx={{ mb: 2 }} />
-            <Typography variant="body1" paragraph>
-              <strong>Participation Fee:</strong> {formatCurrency(event.fees.participation)}
-            </Typography>
-            <Typography variant="body1" paragraph>
-              <strong>Base Camp Services:</strong> {formatCurrency(event.fees.baseCamp)}
-            </Typography>
-            <Typography variant="body1" paragraph>
-              <strong>Refundable Deposit:</strong> {formatCurrency(event.fees.deposit)}
-              <br />
-              <em>(Returned to all participants who show up for the race)</em>
-            </Typography>
-            <Typography variant="body1" paragraph>
-              <strong>Total:</strong> {formatCurrency(event.fees.total)}
-            </Typography>
-            <Typography variant="h6" sx={{ mt: 2 }}>
-              Payment Methods
-            </Typography>
-            <ul>
-                  <li>
-                    <strong>Vipps and MobilePay</strong> - Available in Norway, Sweden, Denmark and Finland (Preferred method)
-                  </li>
-                  <li>
-                    <strong>PayPal and Bank Transfer</strong> - Available for participants from all countries
-                  </li>
-                </ul>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
-                  Note: Any fees charged for payment services must be covered by the participant.
-                </Typography>
+            <Box sx={{ mt: 1 }}>
+              <Typography variant="body1"><strong>{t('events.format')}:</strong> Last One Standing</Typography>
+              <Typography variant="body1"><strong>{t('events.loop')}:</strong> {event.loopDistance || 6.7} km / 369 m+</Typography>
+              <Typography variant="body1"><strong>{t('events.baseCamp')}:</strong> Jamthaugvegen 37, Saksvik</Typography>
+              <Typography variant="body1"><strong>{t('events.distances')}:</strong> 4–24 loops (27–161 km)</Typography>
+            </Box>
+          </Paper>
+        </Grid>
+      </Grid>
+
+      {/* Race Classes with Fees */}
+      {raceDistances.length > 0 && (
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12}>
+            <Paper elevation={2} sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight={700} gutterBottom>
+                {t('events.classesAndFees')}
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              <Grid container spacing={2}>
+                {raceDistances.map((rd) => {
+                  const startDate = rd.startTime?.toDate?.() || rd.startTime;
+                  return (
+                    <Grid item xs={12} sm={6} md={4} key={rd.id}>
+                      <Paper variant="outlined" sx={{ p: 2 }}>
+                        <Typography variant="h6" fontWeight={600}>
+                          {getLocalizedField(rd, 'displayName')}
+                        </Typography>
+                        {rd.length > 0 && (
+                          <Typography variant="body2" color="text.secondary">
+                            {(rd.length / 1000).toFixed(1)} km
+                            {rd.ascent > 0 && ` • ${rd.ascent} m ${t('events.ascent').toLowerCase()}`}
+                          </Typography>
+                        )}
+                        {startDate && (
+                          <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>
+                            {t('events.start')}: {startDate.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' })}
+                          </Typography>
+                        )}
+                        {rd.fee !== undefined && rd.fee !== null && (
+                          <Typography variant="body1" sx={{ mt: 1, fontWeight: 500 }}>
+                            {t('events.participationFee')}: {rd.fee},- kr
+                          </Typography>
+                        )}
+                      </Paper>
+                    </Grid>
+                  );
+                })}
+              </Grid>
+              <Typography variant="body2" color="text.secondary" sx={{ mt: 2, fontStyle: 'italic' }}>
+                {t('kutc.allParticipantsLOS')}
+              </Typography>
             </Paper>
           </Grid>
-        )}
-      </Grid>
+        </Grid>
+      )}
+
+      {/* Registration Fees - show only before race ends */}
+      {!raceEnded && event.fees && (event.fees.participation > 0 || event.fees.total > 0) && (
+        <Grid container spacing={3} sx={{ mb: 4 }}>
+          <Grid item xs={12} md={6}>
+            <Paper elevation={2} sx={{ p: 3 }}>
+              <Typography variant="h5" fontWeight={700} gutterBottom>
+                {t('kutc.registrationFees')}
+              </Typography>
+              <Divider sx={{ mb: 2 }} />
+              {event.fees.participation > 0 && (
+                <Typography variant="body1" paragraph>
+                  <strong>{t('kutc.participation')}:</strong> {event.fees.participation.toLocaleString('no-NO')},- kr
+                </Typography>
+              )}
+              {event.fees.baseCamp > 0 && (
+                <Typography variant="body1" paragraph>
+                  <strong>{t('kutc.serviceFee')}:</strong> {event.fees.baseCamp.toLocaleString('no-NO')},- kr
+                </Typography>
+              )}
+              {event.fees.deposit > 0 && (
+                <Typography variant="body1" paragraph>
+                  <strong>{t('kutc.depositRefundable')}:</strong> {event.fees.deposit.toLocaleString('no-NO')},- kr
+                  <br />
+                  <Typography component="span" variant="body2" color="text.secondary" sx={{ fontStyle: 'italic' }}>
+                    ({t('kutc.depositNote')})
+                  </Typography>
+                </Typography>
+              )}
+              {event.fees.total > 0 && (
+                <Typography variant="body1" sx={{ fontWeight: 600, mt: 1 }}>
+                  <strong>{t('kutc.total')}:</strong> {event.fees.total.toLocaleString('no-NO')},- kr
+                </Typography>
+              )}
+            </Paper>
+          </Grid>
+        </Grid>
+      )}
+
+      {/* Contact */}
+      <Box textAlign="center" sx={{ mt: 6 }}>
+        <Typography variant="body2" color="text.secondary">
+          {t('common.questions')}{' '}
+          <Box
+            component="a"
+            href="mailto:post@krultra.no"
+            sx={{
+              color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#4E82B4',
+              textDecoration: 'underline',
+              '&:hover': {
+                color: (theme) => theme.palette.mode === 'dark' ? '#8BC2F0' : '#41719C',
+              }
+            }}
+          >
+            post@krultra.no
+          </Box>
+        </Typography>
+      </Box>
     </Container>
   );
 };
