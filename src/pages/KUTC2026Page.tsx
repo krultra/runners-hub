@@ -602,8 +602,6 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           </Button>
           <Button
             href="https://krultra.no/kutc"
-            target="_blank"
-            rel="noopener noreferrer"
             variant="text"
             startIcon={<Globe />}
             sx={{ minWidth: 200, fontWeight: 600 }}

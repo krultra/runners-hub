@@ -389,8 +389,6 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             variant="outlined"
             startIcon={<Globe />}
             href="https://krultra.no/nb/node/23"
-            target="_blank"
-            rel="noopener noreferrer"
           >
             {t('events.officialInfo')}
           </Button>

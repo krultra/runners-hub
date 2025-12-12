@@ -141,8 +141,6 @@ const KUTCOverviewPage: React.FC = () => {
             variant="contained"
             startIcon={<Globe />}
             href="https://krultra.no/kutc"
-            target="_blank"
-            rel="noopener noreferrer"
           >
             {t('kutc.officialWebsite')}
           </Button>
@@ -330,8 +328,6 @@ const KUTCOverviewPage: React.FC = () => {
           {t('kutc.footerNote')}{' '}
           <MuiLink 
             href="https://krultra.no/kutc" 
-            target="_blank" 
-            rel="noopener noreferrer"
             sx={{
               color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#4E82B4',
               '&:hover': {

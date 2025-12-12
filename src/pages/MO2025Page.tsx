@@ -99,8 +99,6 @@ const MO2025Page: React.FC = () => {
           <Button
             component="a"
             href="https://krultra.no/nb/node/23"
-            target="_blank"
-            rel="noopener noreferrer"
             variant="text"
             color="inherit"
             sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '1rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}

@@ -142,8 +142,6 @@ const MOOverviewPage: React.FC = () => {
             variant="contained"
             startIcon={<Globe />}
             href="https://krultra.no/nb/node/23"
-            target="_blank"
-            rel="noopener noreferrer"
           >
             {t('events.officialInfo')}
           </Button>
