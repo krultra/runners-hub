@@ -24,6 +24,9 @@ import { useEventEdition } from '../contexts/EventEditionContext';
 import { getFullEventEditions, EventEdition } from '../services/eventEditionService';
 import { deriveStatus } from '../utils/derivedStatus';
 import { listCodeList, CodeListItem } from '../services/codeListService';
+import { getAuth, onAuthStateChanged } from 'firebase/auth';
+import { getActiveRegistrationsForUser } from '../services/registrationService';
+import { getEventLogoUrls } from '../services/strapiService';
 
 type EditionWithStatus = EventEdition & { statusItem?: CodeListItem; statusNum?: number; resultStatusItem?: CodeListItem; resultStatusCode?: string; RH_URL?: string };
 
@@ -51,11 +54,57 @@ const HomePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [editions, setEditions] = useState<EditionWithStatus[]>([]);
   const [showPast, setShowPast] = useState(false);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [myRegCount, setMyRegCount] = useState<number>(0);
+  const [myRegByEdition, setMyRegByEdition] = useState<Record<string, { status?: string; isOnWaitinglist?: boolean }>>({});
+  const [eventLogos, setEventLogos] = useState<Record<string, string>>({});
 
   // Clear the selected event when HomePage loads
   useEffect(() => {
     setEvent(null);
   }, [setEvent]);
+
+  // Track logged in user
+  useEffect(() => {
+    const auth = getAuth();
+    const unsub = onAuthStateChanged(auth, (u) => {
+      setUserId(u?.uid || null);
+    });
+    return unsub;
+  }, []);
+
+  // Load active registrations for user (count + per-edition status)
+  useEffect(() => {
+    let isMounted = true;
+    const loadRegs = async () => {
+      if (!userId) {
+        if (isMounted) setMyRegCount(0);
+        if (isMounted) setMyRegByEdition({});
+        return;
+      }
+      try {
+        const regs = await getActiveRegistrationsForUser(userId);
+        if (!isMounted) return;
+        setMyRegCount(regs.length);
+        const byEdition: Record<string, { status?: string; isOnWaitinglist?: boolean }> = {};
+        (regs || []).forEach((r) => {
+          const editionId = String((r as any).editionId || '');
+          if (!editionId) return;
+          if (!byEdition[editionId]) {
+            byEdition[editionId] = { status: (r as any).status, isOnWaitinglist: (r as any).isOnWaitinglist };
+          }
+        });
+        setMyRegByEdition(byEdition);
+      } catch {
+        if (isMounted) setMyRegCount(0);
+        if (isMounted) setMyRegByEdition({});
+      }
+    };
+    loadRegs();
+    return () => {
+      isMounted = false;
+    };
+  }, [userId]);
 
   useEffect(() => {
     const load = async () => {
@@ -116,6 +165,31 @@ const HomePage: React.FC = () => {
     load();
   }, []);
 
+  useEffect(() => {
+    let isMounted = true;
+    const loadLogos = async () => {
+      const ids = Array.from(
+        new Set(
+          (editions || [])
+            .map((e) => String((e as any).eventId || '').toLowerCase())
+            .filter(Boolean)
+        )
+      );
+      if (ids.length === 0) return;
+      try {
+        const logos = await getEventLogoUrls(ids);
+        if (!isMounted) return;
+        setEventLogos((prev) => ({ ...prev, ...logos }));
+      } catch {
+        // ignore
+      }
+    };
+    loadLogos();
+    return () => {
+      isMounted = false;
+    };
+  }, [editions]);
+
   const featuredEvents = (
     <Paper
       elevation={0}
@@ -160,16 +234,25 @@ const HomePage: React.FC = () => {
             }}
           >
             <Box>
-              <Typography
-                variant="h6"
-                fontWeight={700}
-                sx={{
-                  color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
-                }}
-                gutterBottom
-              >
-                {t('kutc.title')}
-              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                {eventLogos['kutc'] && (
+                  <Box
+                    component="img"
+                    src={eventLogos['kutc']}
+                    alt="KUTC logo"
+                    sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover' }}
+                  />
+                )}
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                  sx={{
+                    color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
+                  }}
+                >
+                  {t('kutc.title')}
+                </Typography>
+              </Stack>
               <Typography
                 variant="body2"
                 sx={{
@@ -228,16 +311,25 @@ const HomePage: React.FC = () => {
             }}
           >
             <Box>
-              <Typography
-                variant="h6"
-                fontWeight={700}
-                sx={{
-                  color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
-                }}
-                gutterBottom
-              >
-                {t('mo.title')}
-              </Typography>
+              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                {eventLogos['mo'] && (
+                  <Box
+                    component="img"
+                    src={eventLogos['mo']}
+                    alt="MO logo"
+                    sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover' }}
+                  />
+                )}
+                <Typography
+                  variant="h6"
+                  fontWeight={700}
+                  sx={{
+                    color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
+                  }}
+                >
+                  {t('mo.title')}
+                </Typography>
+              </Stack>
               <Typography
                 variant="body2"
                 sx={{
@@ -351,6 +443,20 @@ const HomePage: React.FC = () => {
                       {ed.resultURL && (
                         <Chip size="small" color="primary" variant="outlined" label={t('common.finalResultsAvailable')} />
                       )}
+                      {(() => {
+                        const reg = myRegByEdition[String(ed.id)];
+                        if (!userId || !reg) return null;
+                        const s = String(reg.status || 'pending').toLowerCase();
+                        const label = t(`registrationStatus.${s}`, { defaultValue: s });
+                        return (
+                          <Chip
+                            size="small"
+                            color={s === 'confirmed' ? 'success' : 'warning'}
+                            variant="outlined"
+                            label={`${t('registrationStatus.label')}: ${label}${reg.isOnWaitinglist ? ` (${t('events.onWaitlistCount')})` : ''}`}
+                          />
+                        );
+                      })()}
                     </Stack>
                   </Box>
                   {/* Action buttons for results links */}
@@ -438,6 +544,20 @@ const HomePage: React.FC = () => {
                         return ed.resultStatusItem && available ? (
                         <Chip size="small" color="info" variant="outlined" label={ed.resultStatusItem.verboseName || t('common.resultsAvailable')} />
                         ) : null;
+                      })()}
+                      {(() => {
+                        const reg = myRegByEdition[String(ed.id)];
+                        if (!userId || !reg) return null;
+                        const s = String(reg.status || 'pending').toLowerCase();
+                        const label = t(`registrationStatus.${s}`, { defaultValue: s });
+                        return (
+                          <Chip
+                            size="small"
+                            color={s === 'confirmed' ? 'success' : 'warning'}
+                            variant="outlined"
+                            label={`${t('registrationStatus.label')}: ${label}${reg.isOnWaitinglist ? ` (${t('events.onWaitlistCount')})` : ''}`}
+                          />
+                        );
                       })()}
                     </Stack>
                   </Box>
@@ -545,7 +665,7 @@ const HomePage: React.FC = () => {
         </Paper>
       </>
     );
-  }, [loading, error, editions, navigate, showPast, featuredEvents]);
+  }, [loading, error, editions, navigate, showPast, featuredEvents, userId, myRegByEdition, t]);
 
   return (
     <Container maxWidth="md" sx={{ pt: 8 }}>

@@ -1,6 +1,8 @@
-import React, { useEffect, useState, useContext } from 'react';
+import React, { useEffect, useState, useContext, useRef } from 'react';
 import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack, Container, Divider, Button } from '@mui/material';
-import { Settings, Sun, Moon, SunMoon, CircleUser, LogIn, Globe, Check, ChevronDown } from 'lucide-react';
+import { Settings, CircleUser, LogIn, Globe, ChevronDown, Ruler, SunMoon } from 'lucide-react';
+import { notifyUnitsChange } from '../hooks/useUnits';
+import { KRULTRA_URL } from '../config/urls';
 import { useTranslation } from 'react-i18next';
 import { supportedLocales, localeNames, Locale } from '../i18n/locales';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -22,10 +24,25 @@ const AppHeader: React.FC = () => {
   const [eventsMenuAnchor, setEventsMenuAnchor] = useState<null | HTMLElement>(null);
   const [settingsMenuAnchor, setSettingsMenuAnchor] = useState<null | HTMLElement>(null);
   const [userName, setUserName] = useState<string>('');
+  const [runnerRouteId, setRunnerRouteId] = useState<string | null>(null);
+  const [units, setUnits] = useState<'km' | 'mi'>('km');
   const navigate = useNavigate();
   const { mode, setMode } = useContext(ThemeModeContext);
 
   const currentLocale = (i18n.language?.substring(0, 2) as Locale) || 'no';
+
+  // Load units preference from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('pref_units');
+    if (stored === 'mi') setUnits('mi');
+  }, []);
+
+  const handleUnitsChange = (newUnits: 'km' | 'mi') => {
+    setUnits(newUnits);
+    localStorage.setItem('pref_units', newUnits);
+    // Notify all useUnits hooks to re-render
+    notifyUnitsChange();
+  };
 
   const handleLanguageChange = (locale: Locale) => {
     i18n.changeLanguage(locale);
@@ -61,6 +78,10 @@ const AppHeader: React.FC = () => {
         setIsAdmin(adminFlag);
         try {
           const appUser = await getUser(u.uid);
+          const personId = (appUser as any)?.personId;
+          setRunnerRouteId(
+            Number.isFinite(personId) && personId != null ? String(personId) : (u.uid || null)
+          );
           const computedName = [appUser?.firstName, appUser?.lastName]
             .filter(Boolean)
             .join(' ')
@@ -68,11 +89,13 @@ const AppHeader: React.FC = () => {
           const fallbackName = appUser?.displayName || u.displayName || '';
           setUserName(computedName || fallbackName || u.email || '');
         } catch (err) {
+          setRunnerRouteId(u.uid || null);
           setUserName(u.displayName || u.email || '');
         }
       } else {
         setIsAdmin(false);
         setUserName('');
+        setRunnerRouteId(null);
       }
     });
     return unsub;
@@ -88,7 +111,8 @@ const AppHeader: React.FC = () => {
     if (!user) {
       return;
     }
-    navigate(`/runners/${user.uid}`);
+    const target = runnerRouteId || user.uid;
+    navigate(`/runners/${target}`);
     handleAvatarMenuClose();
   };
 
@@ -122,16 +146,23 @@ const AppHeader: React.FC = () => {
         }}
       />
       <Container maxWidth="xl">
-        <Toolbar disableGutters sx={{ minHeight: { xs: 48, sm: 56 }, gap: 2 }}>
-          {/* Left: Logo + Title */}
+        <Toolbar disableGutters sx={{ minHeight: { xs: 48, sm: 48 }, gap: 1, py: 0.5 }}>
+          {/* Left: KrUltra Logo + Title (links to krultra.no) */}
           <Box 
-            sx={{ display: 'flex', alignItems: 'center', gap: 1, cursor: 'pointer' }}
-            onClick={() => navigate('/')}
+            component="a"
+            href={KRULTRA_URL}
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              gap: 0.5, 
+              textDecoration: 'none',
+              color: 'inherit',
+            }}
           >
             <Box 
               component="img" 
               src="/krultra-logo.png" 
-              alt="Logo" 
+              alt="KrUltra logo" 
               sx={{ 
                 height: 24, 
                 width: 24, 
@@ -140,11 +171,38 @@ const AppHeader: React.FC = () => {
             />
             <Typography
               sx={{
+                fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
                 fontWeight: 500,
                 whiteSpace: 'nowrap',
-                color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#41719C', // brand-400 / brand-700
-                fontSize: { xs: '1.125rem', md: '1.25rem' }, // text-lg / text-xl
+                color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#41719C',
+                fontSize: { xs: '1.125rem', md: '1.25rem' },
                 display: { xs: 'none', sm: 'block' },
+              }}
+            >
+              KrUltra
+            </Typography>
+          </Box>
+
+          {/* RunnersHub title (links to RunnersHub home) */}
+          <Box 
+            sx={{ 
+              display: 'flex', 
+              alignItems: 'center', 
+              cursor: 'pointer',
+              ml: 0.5,
+            }}
+            onClick={() => navigate('/')}
+          >
+            <Typography
+              sx={{
+                fontFamily: '"Roboto", "Helvetica", "Arial", sans-serif',
+                fontWeight: 500,
+                whiteSpace: 'nowrap',
+                color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#41719C',
+                fontSize: { xs: '1.125rem', md: '1.25rem' },
+                '&:hover': {
+                  opacity: 0.8,
+                },
               }}
             >
               RunnersHub
@@ -157,6 +215,8 @@ const AppHeader: React.FC = () => {
                 sx={{ 
                   ml: 1, 
                   fontWeight: 'bold', 
+                  height: 20,
+                  '& .MuiChip-label': { px: 1, fontSize: '0.65rem' },
                   animation: 'pulse 2s infinite',
                   '@keyframes pulse': {
                     '0%': { opacity: 0.7 },
@@ -168,47 +228,31 @@ const AppHeader: React.FC = () => {
             )}
           </Box>
 
-          {/* Center: Navigation Links */}
+          {/* Center: Navigation Links (desktop only) */}
           <Box 
             sx={{ 
-              display: 'flex', 
+              display: { xs: 'none', md: 'flex' },
               alignItems: 'center', 
-              gap: { xs: 0.5, sm: 1, md: 2 },
-              ml: { xs: 1, sm: 2 },
+              gap: 0.5,
+              ml: 1,
             }}
           >
-            {/* krultra.no link */}
-            <Button
-              component="a"
-              href="https://lab.krultra.no"
-              sx={{
-                color: 'text.primary',
-                textTransform: 'none',
-                fontWeight: 500,
-                fontSize: { xs: '0.8rem', sm: '0.875rem' },
-                minWidth: 'auto',
-                px: { xs: 0.5, sm: 1 },
-                '&:hover': {
-                  backgroundColor: 'action.hover',
-                },
-              }}
-            >
-              krultra.no
-            </Button>
-
             {/* Events dropdown */}
             <Button
               onClick={openEventsMenu}
-              endIcon={<ChevronDown size={16} />}
+              endIcon={<ChevronDown size={14} />}
               sx={{
-                color: 'text.primary',
+                color: (theme) => theme.palette.mode === 'dark' ? '#9ca3af' : '#374151',
                 textTransform: 'none',
                 fontWeight: 500,
-                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                fontSize: '0.875rem',
                 minWidth: 'auto',
-                px: { xs: 0.5, sm: 1 },
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
                 '&:hover': {
-                  backgroundColor: 'action.hover',
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                  color: (theme) => theme.palette.mode === 'dark' ? '#d1d5db' : '#1f2937',
                 },
               }}
             >
@@ -229,14 +273,17 @@ const AppHeader: React.FC = () => {
             <Button
               onClick={() => navigate('/runners/search')}
               sx={{
-                color: 'text.primary',
+                color: (theme) => theme.palette.mode === 'dark' ? '#9ca3af' : '#374151',
                 textTransform: 'none',
                 fontWeight: 500,
-                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                fontSize: '0.875rem',
                 minWidth: 'auto',
-                px: { xs: 0.5, sm: 1 },
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
                 '&:hover': {
-                  backgroundColor: 'action.hover',
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                  color: (theme) => theme.palette.mode === 'dark' ? '#d1d5db' : '#1f2937',
                 },
               }}
             >
@@ -247,15 +294,17 @@ const AppHeader: React.FC = () => {
             <Button
               onClick={() => navigate('/about')}
               sx={{
-                color: 'text.primary',
+                color: (theme) => theme.palette.mode === 'dark' ? '#9ca3af' : '#374151',
                 textTransform: 'none',
                 fontWeight: 500,
-                fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                fontSize: '0.875rem',
                 minWidth: 'auto',
-                px: { xs: 0.5, sm: 1 },
-                display: { xs: 'none', sm: 'flex' },
+                px: 1.5,
+                py: 0.5,
+                borderRadius: 1,
                 '&:hover': {
-                  backgroundColor: 'action.hover',
+                  backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                  color: (theme) => theme.palette.mode === 'dark' ? '#d1d5db' : '#1f2937',
                 },
               }}
             >
@@ -267,14 +316,17 @@ const AppHeader: React.FC = () => {
               <Button
                 onClick={() => navigate('/admin')}
                 sx={{
-                  color: 'text.primary',
+                  color: (theme) => theme.palette.mode === 'dark' ? '#9ca3af' : '#374151',
                   textTransform: 'none',
                   fontWeight: 500,
-                  fontSize: { xs: '0.8rem', sm: '0.875rem' },
+                  fontSize: '0.875rem',
                   minWidth: 'auto',
-                  px: { xs: 0.5, sm: 1 },
+                  px: 1.5,
+                  py: 0.5,
+                  borderRadius: 1,
                   '&:hover': {
-                    backgroundColor: 'action.hover',
+                    backgroundColor: (theme) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.04)',
+                    color: (theme) => theme.palette.mode === 'dark' ? '#d1d5db' : '#1f2937',
                   },
                 }}
               >
@@ -359,58 +411,135 @@ const AppHeader: React.FC = () => {
             </Menu>
           )}
 
-          {/* Settings menu */}
+          {/* Settings menu - krultra style with 3 horizontal rows */}
           <Menu
             anchorEl={settingsMenuAnchor}
             open={Boolean(settingsMenuAnchor)}
             onClose={() => setSettingsMenuAnchor(null)}
             anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
             transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            PaperProps={{
+              sx: { 
+                minWidth: 220, 
+                p: 0.5,
+                '& .MuiMenuItem-root': { py: 0.5 },
+              }
+            }}
           >
-            <Box px={2} py={1}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                Theme
-              </Typography>
+            {/* Language row */}
+            <Box sx={{ px: 1, py: 0.75, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Globe size={16} style={{ color: '#6b7280', flexShrink: 0 }} />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {supportedLocales.map((locale) => (
+                  <Box
+                    key={locale}
+                    component="button"
+                    onClick={() => { handleLanguageChange(locale); setSettingsMenuAnchor(null); }}
+                    sx={{
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 0.5,
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      border: '1px solid',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      ...(locale === currentLocale ? {
+                        backgroundColor: '#41719C',
+                        color: 'white',
+                        borderColor: '#41719C',
+                      } : {
+                        backgroundColor: 'transparent',
+                        color: 'text.secondary',
+                        borderColor: (theme: any) => theme.palette.mode === 'dark' ? '#374151' : '#d1d5db',
+                        '&:hover': {
+                          backgroundColor: (theme: any) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                        },
+                      }),
+                    }}
+                  >
+                    {locale.toUpperCase()}
+                  </Box>
+                ))}
+              </Box>
             </Box>
-            <MenuItem 
-              onClick={() => { setMode('system'); setSettingsMenuAnchor(null); }}
-              selected={mode === 'system'}
-            >
-              <ListItemIcon><SunMoon size={18} /></ListItemIcon>
-              System
-            </MenuItem>
-            <MenuItem 
-              onClick={() => { setMode('light'); setSettingsMenuAnchor(null); }}
-              selected={mode === 'light'}
-            >
-              <ListItemIcon><Sun size={18} /></ListItemIcon>
-              Light
-            </MenuItem>
-            <MenuItem 
-              onClick={() => { setMode('dark'); setSettingsMenuAnchor(null); }}
-              selected={mode === 'dark'}
-            >
-              <ListItemIcon><Moon size={18} /></ListItemIcon>
-              Dark
-            </MenuItem>
-            <Divider sx={{ my: 1 }} />
-            <Box px={2} py={1}>
-              <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
-                Language
-              </Typography>
+
+            {/* Units row */}
+            <Box sx={{ px: 1, py: 0.75, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <Ruler size={16} style={{ color: '#6b7280', flexShrink: 0 }} />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {(['km', 'mi'] as const).map((u) => (
+                  <Box
+                    key={u}
+                    component="button"
+                    onClick={() => { handleUnitsChange(u); setSettingsMenuAnchor(null); }}
+                    sx={{
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 0.5,
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      border: '1px solid',
+                      cursor: 'pointer',
+                      transition: 'all 0.15s',
+                      ...(units === u ? {
+                        backgroundColor: '#41719C',
+                        color: 'white',
+                        borderColor: '#41719C',
+                      } : {
+                        backgroundColor: 'transparent',
+                        color: 'text.secondary',
+                        borderColor: (theme: any) => theme.palette.mode === 'dark' ? '#374151' : '#d1d5db',
+                        '&:hover': {
+                          backgroundColor: (theme: any) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                        },
+                      }),
+                    }}
+                  >
+                    {u}
+                  </Box>
+                ))}
+              </Box>
             </Box>
-            {supportedLocales.map((locale) => (
-              <MenuItem
-                key={locale}
-                onClick={() => { handleLanguageChange(locale); setSettingsMenuAnchor(null); }}
-                selected={locale === currentLocale}
-              >
-                <ListItemIcon>
-                  {locale === currentLocale ? <Check size={18} /> : <Globe size={18} />}
-                </ListItemIcon>
-                {localeNames[locale]}
-              </MenuItem>
-            ))}
+
+            {/* Theme row */}
+            <Box sx={{ px: 1, py: 0.75, display: 'flex', alignItems: 'center', gap: 1 }}>
+              <SunMoon size={16} style={{ color: '#6b7280', flexShrink: 0 }} />
+              <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                {(['system', 'light', 'dark'] as const).map((t) => (
+                  <Box
+                    key={t}
+                    component="button"
+                    onClick={() => { setMode(t); setSettingsMenuAnchor(null); }}
+                    sx={{
+                      px: 1,
+                      py: 0.25,
+                      borderRadius: 0.5,
+                      fontSize: '0.75rem',
+                      fontWeight: 500,
+                      border: '1px solid',
+                      cursor: 'pointer',
+                      textTransform: 'capitalize',
+                      transition: 'all 0.15s',
+                      ...(mode === t ? {
+                        backgroundColor: '#41719C',
+                        color: 'white',
+                        borderColor: '#41719C',
+                      } : {
+                        backgroundColor: 'transparent',
+                        color: 'text.secondary',
+                        borderColor: (theme: any) => theme.palette.mode === 'dark' ? '#374151' : '#d1d5db',
+                        '&:hover': {
+                          backgroundColor: (theme: any) => theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+                        },
+                      }),
+                    }}
+                  >
+                    {t}
+                  </Box>
+                ))}
+              </Box>
+            </Box>
           </Menu>
           </Box>
         </Toolbar>

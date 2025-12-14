@@ -22,6 +22,8 @@ import {
 } from '../services/eventEditionService';
 import { getVerboseName } from '../services/codeListService';
 import { Globe, PersonStanding, Facebook, Mountain, Trophy, BarChart3 } from 'lucide-react';
+import { getKrultraUrl } from '../config/urls';
+import { getEventLogoUrl } from '../services/strapiService';
 
 const EVENT_ID = 'mo';
 
@@ -43,8 +45,6 @@ const MOOverviewPage: React.FC = () => {
   };
 
   const COURSE_FACTS = [
-    { titleKey: 'mo.course', descKey: 'mo.courseDesc' },
-    { titleKey: 'mo.elevation', descKey: 'mo.elevationDesc' },
     { titleKey: 'mo.classes', descKey: 'mo.classesDesc' },
     { titleKey: 'mo.since2011', descKey: 'mo.since2011Desc' }
   ];
@@ -61,6 +61,23 @@ const MOOverviewPage: React.FC = () => {
   const [nextEditionStatus, setNextEditionStatus] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadLogo = async () => {
+      try {
+        const url = await getEventLogoUrl(EVENT_ID);
+        if (isMounted) setLogoUrl(url);
+      } catch {
+        if (isMounted) setLogoUrl(null);
+      }
+    };
+    loadLogo();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -130,9 +147,19 @@ const MOOverviewPage: React.FC = () => {
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
       <Box textAlign="center" mb={6}>
-        <Typography variant="h2" component="h1" fontWeight={800} gutterBottom>
-          {event.name || 'Malvikingen Opp'}
-        </Typography>
+        <Box display="flex" justifyContent="center" alignItems="center" gap={1.5} flexWrap="wrap" mb={1}>
+          {logoUrl && (
+            <Box
+              component="img"
+              src={logoUrl}
+              alt="MO logo"
+              sx={{ width: 44, height: 44, borderRadius: 1, objectFit: 'cover' }}
+            />
+          )}
+          <Typography variant="h2" component="h1" fontWeight={800} gutterBottom sx={{ mb: 0 }}>
+            {event.name || 'Malvikingen Opp'}
+          </Typography>
+        </Box>
         <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 640, mx: 'auto', mb: 3 }}>
           {t('mo.tagline')}
         </Typography>
@@ -141,7 +168,7 @@ const MOOverviewPage: React.FC = () => {
           <Button
             variant="contained"
             startIcon={<Globe />}
-            href="https://krultra.no/nb/node/23"
+            href={getKrultraUrl('events/MO')}
           >
             {t('events.officialInfo')}
           </Button>

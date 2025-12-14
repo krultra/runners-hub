@@ -20,6 +20,10 @@ import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } f
 import { Globe, BarChart3, Trophy, Info, Facebook } from 'lucide-react';
 import { useStatusLabel } from '../hooks/useStatusLabel';
 import { useLocalizedField } from '../hooks/useLocalizedField';
+import { useUnits } from '../hooks/useUnits';
+import { formatDistance, formatElevation } from '../utils/units';
+import { getKrultraUrl } from '../config/urls';
+import { getEventLogoUrl } from '../services/strapiService';
 
 // Status code mapping for MO (same as KUTC)
 const STATUS_MAP: Record<string, number> = {
@@ -32,9 +36,26 @@ const STATUS_MAP: Record<string, number> = {
 const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const { t } = useTranslation();
   const getLocalizedField = useLocalizedField();
+  const units = useUnits();
   const navigate = useNavigate();
   const location = useLocation();
   const editionId = 'mo-2026';
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadLogo = async () => {
+      try {
+        const url = await getEventLogoUrl(String(event.eventId || ''));
+        if (isMounted) setLogoUrl(url);
+      } catch {
+        if (isMounted) setLogoUrl(null);
+      }
+    };
+    loadLogo();
+    return () => {
+      isMounted = false;
+    };
+  }, [event.eventId]);
 
   // State for countdown timer
   const [timeLeft, setTimeLeft] = useState<{
@@ -55,6 +76,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const [isUserRegistered, setIsUserRegistered] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   
   // Calculate time remaining until the race
   const now = useMemo(() => new Date(), []);
@@ -376,9 +398,19 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     <Container maxWidth="lg" sx={{ py: 6 }}>
       {/* Hero Section */}
       <Box textAlign="center" mb={6}>
-        <Typography variant="h2" component="h1" fontWeight={800} gutterBottom>
-          {event.eventName || 'Malvikingen Opp 2026'}
-        </Typography>
+        <Box display="flex" justifyContent="center" alignItems="center" gap={1.5} flexWrap="wrap" mb={1}>
+          {logoUrl && (
+            <Box
+              component="img"
+              src={logoUrl}
+              alt="MO logo"
+              sx={{ width: 44, height: 44, borderRadius: 1, objectFit: 'cover' }}
+            />
+          )}
+          <Typography variant="h2" component="h1" fontWeight={800} gutterBottom sx={{ mb: 0 }}>
+            {event.eventName || 'Malvikingen Opp 2026'}
+          </Typography>
+        </Box>
         <Typography variant="h5" color="text.secondary" sx={{ mb: 3 }}>
           {t('mo.tagline')}
         </Typography>
@@ -388,7 +420,7 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           <Button
             variant="outlined"
             startIcon={<Globe />}
-            href="https://krultra.no/nb/node/23"
+            href={getKrultraUrl('events/MO')}
           >
             {t('events.officialInfo')}
           </Button>
@@ -535,10 +567,10 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
               {t('events.facts')}
             </Typography>
             <Box sx={{ mt: 1 }}>
-              <Typography variant="body1"><strong>{t('events.length')}:</strong> 6 km</Typography>
-              <Typography variant="body1"><strong>{t('events.elevation')}:</strong> 420 m</Typography>
-              <Typography variant="body1"><strong>{t('events.start')}:</strong> Vikhammerløkka (3 m)</Typography>
-              <Typography variant="body1"><strong>{t('events.finish')}:</strong> Solemsvåttan (423 m)</Typography>
+              <Typography variant="body1"><strong>{t('events.length')}:</strong> {formatDistance(6000, units)}</Typography>
+              <Typography variant="body1"><strong>{t('events.elevation')}:</strong> +{formatElevation(420, units)}</Typography>
+              <Typography variant="body1"><strong>{t('events.start')}:</strong> Vikhammerløkka ({formatElevation(3, units)})</Typography>
+              <Typography variant="body1"><strong>{t('events.finish')}:</strong> Solemsvåttan ({formatElevation(423, units)})</Typography>
             </Box>
           </Paper>
         </Grid>
@@ -564,8 +596,8 @@ const MO2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                         </Typography>
                         {rd.length > 0 && (
                           <Typography variant="body2" color="text.secondary">
-                            {(rd.length / 1000).toFixed(1)} km
-                            {rd.ascent > 0 && ` • ${rd.ascent} m ${t('events.ascent').toLowerCase()}`}
+                            {formatDistance(rd.length, units)}
+                            {rd.ascent > 0 && ` • +${formatElevation(rd.ascent, units)} ${t('events.ascent').toLowerCase()}`}
                           </Typography>
                         )}
                         {startDate && (

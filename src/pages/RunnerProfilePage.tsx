@@ -31,16 +31,20 @@ import { useParams, useNavigate, Link as RouterLink } from 'react-router-dom';
 import { ChevronRight, CalendarCheck, ChevronDown, Info } from 'lucide-react';
 import { getAuth, onAuthStateChanged } from 'firebase/auth';
 import { isAdminUser } from '../utils/adminUtils';
+import { useTranslation } from 'react-i18next';
 import {
   getRunnerProfile,
   RunnerParticipation,
   RunnerProfile,
   RunnerProfileEditableDetails,
   RunnerUpcomingRegistration,
+  RunnerKutcParticipationData,
+  getRunnerKutcParticipationData,
   updateRunnerProfileDetails
 } from '../services/runnerProfileService';
 import { getUserIdByPersonId } from '../services/runnerNavigationService';
 import { getRunnerMoResults, MOResultEntry, getEditionResults } from '../services/moResultsService';
+import { useEventEdition } from '../contexts/EventEditionContext';
 
 const formatTimeDisplay = (display: string | null | undefined, seconds: number | null | undefined): string => {
   if (display && display.trim().length > 0) {
@@ -69,6 +73,14 @@ const formatDateTimeDisplay = (value: Date | null | undefined): string => {
     hour: '2-digit',
     minute: '2-digit'
   });
+};
+
+const parseYearFromEditionId = (editionId: string): number | null => {
+  if (!editionId) return null;
+  const m = String(editionId).match(/(\d{4})$/);
+  if (!m) return null;
+  const y = Number(m[1]);
+  return Number.isFinite(y) ? y : null;
 };
 
 const formatRank = (value: number | null | undefined): string => {
@@ -133,6 +145,8 @@ const formatYears = (years: number[]): string => {
 const RunnerProfilePage: React.FC = () => {
   const { userId } = useParams<{ userId: string }>();
   const navigate = useNavigate();
+  const { setEvent } = useEventEdition();
+  const { t } = useTranslation();
   const debugTag = '[RunnerProfilePage]';
   const [profile, setProfile] = useState<RunnerProfile | null>(null);
   const [loading, setLoading] = useState(true);
@@ -147,6 +161,14 @@ const RunnerProfilePage: React.FC = () => {
   const [detailsSuccess, setDetailsSuccess] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
   const [authPersonIds, setAuthPersonIds] = useState<number[]>([]);
+
+  const [kutcExpanded, setKutcExpanded] = useState(false);
+  const [kutcLoading, setKutcLoading] = useState(false);
+  const [kutcError, setKutcError] = useState<string | null>(null);
+  const [kutcData, setKutcData] = useState<RunnerKutcParticipationData | null>(null);
+
+  const [moExpanded, setMoExpanded] = useState(false);
+  const [moLoaded, setMoLoaded] = useState(false);
   const [moResults, setMoResults] = useState<MOResultEntry[]>([]);
   const [moLoading, setMoLoading] = useState<boolean>(true);
   const [moSummary, setMoSummary] = useState<{
@@ -172,14 +194,22 @@ const RunnerProfilePage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getRunnerProfile(userId);
+        const data = await getRunnerProfile(userId, { includeParticipations: false, includeUpcomingRegistrations: true });
         if (!isMounted) return;
-        // If the URL param is an email or not the canonical id, redirect to canonical userId without exposing email in the URL.
-        if (userId !== data.userId) {
-          navigate(`/runners/${data.userId}` as any, { replace: true } as any);
+        // Redirect to canonical route id (prefer personId) to avoid exposing email-style legacy ids.
+        if (userId !== data.routeId) {
+          navigate(`/runners/${data.routeId}` as any, { replace: true } as any);
           return;
         }
         setProfile(data);
+        setKutcData(null);
+        setKutcError(null);
+        setKutcExpanded(false);
+        setMoExpanded(false);
+        setMoLoaded(false);
+        setMoResults([]);
+        setMoSummary(null);
+        setMoRankCache({});
         console.log(debugTag, 'Loaded profile', {
           userId,
           profileUserId: data.userId,
@@ -252,7 +282,10 @@ const RunnerProfilePage: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    if (!profile?.userId) return;
+    if (!moExpanded || !profile?.userId) return;
+    if (moLoaded) {
+      return;
+    }
     let isMounted = true;
     setMoLoading(true);
     getRunnerMoResults(profile.userId)
@@ -263,15 +296,21 @@ const RunnerProfilePage: React.FC = () => {
         if (isMounted) setMoResults([]);
       })
       .finally(() => {
-        if (isMounted) setMoLoading(false);
+        if (isMounted) {
+          setMoLoaded(true);
+          setMoLoading(false);
+        }
       });
     return () => {
       isMounted = false;
     };
-  }, [profile?.userId]);
+  }, [profile?.userId, moExpanded, moLoaded]);
 
   // Build per-edition rank caches for competition entries (time by gender, adjusted overall), by userId and by normalized name
   useEffect(() => {
+    if (!moExpanded) {
+      return;
+    }
     let cancelled = false;
     const buildCache = async () => {
       const editions = Array.from(new Set(
@@ -362,9 +401,12 @@ const RunnerProfilePage: React.FC = () => {
     };
     buildCache();
     return () => { cancelled = true; };
-  }, [moResults]);
+  }, [moResults, moExpanded]);
 
   useEffect(() => {
+    if (!moExpanded) {
+      return;
+    }
     let cancelled = false;
     const compute = async () => {
       if (!profile?.userId) {
@@ -458,7 +500,37 @@ const RunnerProfilePage: React.FC = () => {
     };
     compute();
     return () => { cancelled = true; };
-  }, [moResults, profile?.userId]);
+  }, [moResults, profile?.userId, moExpanded]);
+
+  useEffect(() => {
+    if (!kutcExpanded || !profile?.userId || !profile?.personId) {
+      return;
+    }
+    if (kutcData) {
+      return;
+    }
+
+    let isMounted = true;
+    setKutcLoading(true);
+    setKutcError(null);
+    getRunnerKutcParticipationData(profile.userId, profile.personId)
+      .then((data) => {
+        if (isMounted) setKutcData(data);
+      })
+      .catch((err: any) => {
+        if (isMounted) {
+          setKutcData(null);
+          setKutcError(err?.message || 'Failed to load participation history');
+        }
+      })
+      .finally(() => {
+        if (isMounted) setKutcLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [kutcExpanded, profile?.userId, profile?.personId, kutcData]);
 
   useEffect(() => {
     if (!profile?.personId || !authUserId) {
@@ -523,18 +595,30 @@ const RunnerProfilePage: React.FC = () => {
     if (!profile) {
       return null;
     }
-    const appearanceLabel = profile.totalAppearances === 1 ? 'appearance' : 'appearances';
-    const totalLoopsLabel = profile.totalLoops === 1 ? 'loop' : 'loops';
     return {
       name: `${profile.firstName} ${profile.lastName}`.trim(),
-      appearances: `${profile.totalAppearances} ${appearanceLabel}`,
-      years: formatYears(profile.appearanceYears),
-      totalLoops: `${profile.totalLoops} ${totalLoopsLabel}`,
-      best: profile.bestPerformance
-        ? `${profile.bestPerformance.loops} loops • ${formatTimeDisplay(profile.bestPerformance.totalTimeDisplay, profile.bestPerformance.totalTimeSeconds)} (${profile.bestPerformance.year})`
-        : '—'
+      appearances: '—',
+      years: '—',
+      totalLoops: '—',
+      best: '—'
     };
   }, [profile]);
+
+  const kutcStats = useMemo(() => {
+    if (!kutcData) {
+      return null;
+    }
+    const appearanceLabel = kutcData.totalAppearances === 1 ? 'appearance' : 'appearances';
+    const totalLoopsLabel = kutcData.totalLoops === 1 ? 'loop' : 'loops';
+    return {
+      appearances: `${kutcData.totalAppearances} ${appearanceLabel}`,
+      years: formatYears(kutcData.appearanceYears),
+      totalLoops: `${kutcData.totalLoops} ${totalLoopsLabel}`,
+      best: kutcData.bestPerformance
+        ? `${kutcData.bestPerformance.loops} loops • ${formatTimeDisplay(kutcData.bestPerformance.totalTimeDisplay, kutcData.bestPerformance.totalTimeSeconds)} (${kutcData.bestPerformance.year})`
+        : '—'
+    };
+  }, [kutcData]);
 
   const emailMatches = Boolean(
     authEmail && profile?.email && authEmail.toLowerCase() === profile.email.toLowerCase()
@@ -641,7 +725,7 @@ const RunnerProfilePage: React.FC = () => {
       const sanitizedPhone = (editableDetails.phone ?? '').replace(/\D/g, '');
       const storedCode = sanitizedCode ? `+${sanitizedCode}` : '';
 
-      await updateRunnerProfileDetails(profile.userId, {
+      await updateRunnerProfileDetails(profile.userDocId, {
         firstName: editableDetails.firstName,
         lastName: editableDetails.lastName,
         phoneCountryCode: storedCode,
@@ -794,7 +878,7 @@ const RunnerProfilePage: React.FC = () => {
                     {participation.hasCheckpointData ? (
                       <Button
                         component={RouterLink}
-                        to={`/runners/${profile?.userId}/kutc/${participation.editionId}`}
+                        to={`/runners/${profile?.routeId}/kutc/${participation.editionId}`}
                         size="small"
                         variant="outlined"
                         color="primary"
@@ -987,9 +1071,37 @@ const RunnerProfilePage: React.FC = () => {
               ? 'MO'
               : 'Event';
           const statusLabel = registration.status ? registration.status : null;
+          const editionYear = parseYearFromEditionId(registration.editionId);
+          const hasYearInName = editionYear
+            ? String(registration.eventName || '').includes(String(editionYear))
+            : false;
+          const displayName = editionYear && !hasYearInName
+            ? `${registration.eventName} (${editionYear})`
+            : registration.eventName;
+          const distanceLabel = registration.raceDistanceLabel || registration.raceDistance || null;
+          const updatedAtLabel = registration.updatedAt ? formatDateTimeDisplay(registration.updatedAt) : null;
 
           return (
-            <ListItem key={registration.registrationId} alignItems="flex-start" disableGutters divider={!isLast} sx={{ py: 1.5 }}>
+            <ListItem
+              key={registration.registrationId}
+              alignItems="flex-start"
+              disableGutters
+              divider={!isLast}
+              sx={{ py: 1.5 }}
+              secondaryAction={
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={async () => {
+                    await setEvent(registration.editionId);
+                    navigate('/register');
+                  }}
+                  sx={{ textTransform: 'none' }}
+                >
+                  Review registration
+                </Button>
+              }
+            >
               <ListItemIcon sx={{ minWidth: 40 }}>
                 <CalendarCheck size={20} />
               </ListItemIcon>
@@ -997,10 +1109,12 @@ const RunnerProfilePage: React.FC = () => {
                 primary={
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'flex-start', sm: 'center' }}>
                     <Typography variant="subtitle1" fontWeight={600}>
-                      {registration.eventName}
+                      {displayName}
                     </Typography>
                     <Chip size="small" label={typeLabel} color={typeLabel === 'MO' ? 'success' : 'primary'} variant="outlined" />
-                    <Chip size="small" label={registration.editionId} variant="outlined" />
+                    {distanceLabel && (
+                      <Chip size="small" label={distanceLabel} variant="outlined" />
+                    )}
                     {statusLabel && (
                       <Chip size="small" label={statusLabel} color={statusLabel === 'confirmed' ? 'success' : 'warning'} variant="outlined" />
                     )}
@@ -1014,6 +1128,11 @@ const RunnerProfilePage: React.FC = () => {
                     {typeof registration.registrationNumber === 'number' && (
                       <Typography variant="body2" color="text.secondary">
                         Registration #{registration.registrationNumber}
+                      </Typography>
+                    )}
+                    {updatedAtLabel && (
+                      <Typography variant="body2" color="text.secondary">
+                        Last updated {updatedAtLabel}
                       </Typography>
                     )}
                   </Stack>
@@ -1186,107 +1305,181 @@ const RunnerProfilePage: React.FC = () => {
 
       <Paper sx={{ p: 3, mb: 4 }}>
         <Typography variant="h5" gutterBottom>
-          Upcoming registrations
+          Registrations for upcoming events
         </Typography>
         {renderUpcomingRegistrations(profile.upcomingRegistrations)}
       </Paper>
 
-      <Typography variant="h5" gutterBottom sx={{ mb: 2 }}>
-        KUTC participation history
-      </Typography>
-
-      <Paper
-        sx={{
-          p: 3,
-          mb: 4,
-          border: '2px solid',
-          borderColor: 'primary.main',
-          backgroundColor: 'rgba(25, 118, 210, 0.05)',
-          boxShadow: '0 6px 18px rgba(25, 118, 210, 0.12)'
-        }}
-      >
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Total appearances
-              </Typography>
-              <Typography variant="h5">{stats.appearances}</Typography>
-              <Chip label={`Years: ${stats.years}`} size="small" />
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Total loops completed
-              </Typography>
-              <Typography variant="h5">{stats.totalLoops}</Typography>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Best performance
-              </Typography>
-              <Typography variant="h6">{stats.best}</Typography>
-            </Stack>
-          </Grid>
-        </Grid>
+      <Paper sx={{ mb: 4 }}>
+        <Button
+          fullWidth
+          onClick={() => setKutcExpanded((prev) => !prev)}
+          sx={{
+            justifyContent: 'space-between',
+            px: 3,
+            py: 2,
+            textTransform: 'none',
+            color: 'text.primary',
+            '&:hover': {
+              backgroundColor: 'action.hover'
+            }
+          }}
+          endIcon={<ChevronDown size={20} style={{ transform: kutcExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
+        >
+          <Typography variant="h5" component="span">
+            {t('kutc.title')} participation history
+          </Typography>
+          <Typography variant="body2" component="span" color="text.secondary">
+            {kutcExpanded ? 'Hide history' : 'Show history'}
+          </Typography>
+        </Button>
+        <Collapse in={kutcExpanded} timeout="auto">
+          <Divider />
+          <Box sx={{ px: 3, py: 3 }}>
+            {kutcLoading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+              </Box>
+            )}
+            {kutcError && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {kutcError}
+              </Alert>
+            )}
+            {!kutcLoading && !kutcError && kutcData && (
+              <>
+                <Paper
+                  sx={{
+                    p: 3,
+                    mb: 4,
+                    border: '2px solid',
+                    borderColor: 'primary.main',
+                    backgroundColor: 'rgba(25, 118, 210, 0.05)',
+                    boxShadow: '0 6px 18px rgba(25, 118, 210, 0.12)'
+                  }}
+                >
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={4}>
+                      <Stack spacing={1}>
+                        <Typography variant="overline" color="text.secondary">
+                          Total appearances
+                        </Typography>
+                        <Typography variant="h5">{kutcStats?.appearances ?? '—'}</Typography>
+                        <Chip label={`Years: ${kutcStats?.years ?? '—'}`} size="small" />
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Stack spacing={1}>
+                        <Typography variant="overline" color="text.secondary">
+                          Total loops completed
+                        </Typography>
+                        <Typography variant="h5">{kutcStats?.totalLoops ?? '—'}</Typography>
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Stack spacing={1}>
+                        <Typography variant="overline" color="text.secondary">
+                          Best performance
+                        </Typography>
+                        <Typography variant="h6">{kutcStats?.best ?? '—'}</Typography>
+                      </Stack>
+                    </Grid>
+                  </Grid>
+                </Paper>
+                {kutcData.participations.length > 0 && (
+                  <Box>
+                    {renderParticipations(kutcData.participations)}
+                  </Box>
+                )}
+              </>
+            )}
+          </Box>
+        </Collapse>
       </Paper>
 
-
-      {profile.participations.length > 0 && (
-        <Box>
-          {renderParticipations(profile.participations)}
-        </Box>
-      )}
-
-      <Typography variant="h5" gutterBottom sx={{ mt: 4, mb: 2 }}>
-        MO participation history
-      </Typography>
-      <Paper
-        sx={{
-          p: 3,
-          mb: 2,
-          border: '2px solid',
-          borderColor: 'success.main',
-          backgroundColor: 'rgba(46, 125, 50, 0.05)',
-          boxShadow: '0 6px 18px rgba(46, 125, 50, 0.12)'
-        }}
-      >
-        <Grid container spacing={3}>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Total appearances
-              </Typography>
-              <Typography variant="h5">{moSummary?.appearances ?? 0} {((moSummary?.appearances ?? 0) === 1) ? 'appearance' : 'appearances'}</Typography>
-              <Chip label={`Years: ${formatYears(moSummary?.years ?? [])}`} size="small" />
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Best time (gender)
-              </Typography>
-              <Typography variant="h6">{moSummary?.bestTimeDisplay ?? '—'} {moSummary?.bestGenderRank ? `• #${moSummary.bestGenderRank}` : ''}</Typography>
-            </Stack>
-          </Grid>
-          <Grid item xs={12} md={4}>
-            <Stack spacing={1}>
-              <Typography variant="overline" color="text.secondary">
-                Best adjusted (AGG)
-              </Typography>
-              <Typography variant="h6">{moSummary?.bestAdjustedDisplay ?? '—'} {moSummary?.bestAggRank ? `• #${moSummary.bestAggRank}` : ''}</Typography>
-            </Stack>
-          </Grid>
-        </Grid>
+      <Paper sx={{ mb: 2 }}>
+        <Button
+          fullWidth
+          onClick={() => {
+            setMoExpanded((prev) => !prev);
+          }}
+          sx={{
+            justifyContent: 'space-between',
+            px: 3,
+            py: 2,
+            textTransform: 'none',
+            color: 'text.primary',
+            '&:hover': {
+              backgroundColor: 'action.hover'
+            }
+          }}
+          endIcon={<ChevronDown size={20} style={{ transform: moExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
+        >
+          <Typography variant="h5" component="span">
+            {t('mo.title')} participation history
+          </Typography>
+          <Typography variant="body2" component="span" color="text.secondary">
+            {moExpanded ? 'Hide history' : 'Show history'}
+          </Typography>
+        </Button>
+        <Collapse in={moExpanded} timeout="auto">
+          <Divider />
+          <Box sx={{ px: 3, py: 3 }}>
+            {moLoading && (
+              <Box sx={{ display: 'flex', justifyContent: 'center', py: 4 }}>
+                <CircularProgress />
+              </Box>
+            )}
+            {!moLoading && (
+              <>
+                <Paper
+                  sx={{
+                    p: 3,
+                    mb: 2,
+                    border: '2px solid',
+                    borderColor: 'success.main',
+                    backgroundColor: 'rgba(46, 125, 50, 0.05)',
+                    boxShadow: '0 6px 18px rgba(46, 125, 50, 0.12)'
+                  }}
+                >
+                  <Grid container spacing={3}>
+                    <Grid item xs={12} md={4}>
+                      <Stack spacing={1}>
+                        <Typography variant="overline" color="text.secondary">
+                          Total appearances
+                        </Typography>
+                        <Typography variant="h5">{moSummary?.appearances ?? 0} {((moSummary?.appearances ?? 0) === 1) ? 'appearance' : 'appearances'}</Typography>
+                        <Chip label={`Years: ${formatYears(moSummary?.years ?? [])}`} size="small" />
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Stack spacing={1}>
+                        <Typography variant="overline" color="text.secondary">
+                          Best time (gender)
+                        </Typography>
+                        <Typography variant="h6">{moSummary?.bestTimeDisplay ?? '—'} {moSummary?.bestGenderRank ? `• #${moSummary.bestGenderRank}` : ''}</Typography>
+                      </Stack>
+                    </Grid>
+                    <Grid item xs={12} md={4}>
+                      <Stack spacing={1}>
+                        <Typography variant="overline" color="text.secondary">
+                          Best adjusted (AGG)
+                        </Typography>
+                        <Typography variant="h6">{moSummary?.bestAdjustedDisplay ?? '—'} {moSummary?.bestAggRank ? `• #${moSummary.bestAggRank}` : ''}</Typography>
+                      </Stack>
+                    </Grid>
+                  </Grid>
+                </Paper>
+                {hasMoAppearances && (
+                  <Box>
+                    {renderMoParticipation(moResults)}
+                  </Box>
+                )}
+              </>
+            )}
+          </Box>
+        </Collapse>
       </Paper>
-      {hasMoAppearances && (
-        <Box>
-          {renderMoParticipation(moResults)}
-        </Box>
-      )}
     </Container>
   );
 };

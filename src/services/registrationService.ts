@@ -37,6 +37,22 @@ const mapRegistrationDoc = (docSnap: any): Registration => {
   } as Registration;
 };
 
+export const getActiveRegistrationsForUser = async (userId: string): Promise<Registration[]> => {
+  try {
+    if (!userId) return [];
+    const q = query(
+      collection(db, REGISTRATIONS_COLLECTION),
+      where('status', 'in', ['pending', 'confirmed']),
+      where('userId', '==', userId)
+    );
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.docs.map(mapRegistrationDoc);
+  } catch (error) {
+    console.error('Error getting active registrations for user:', error);
+    throw error;
+  }
+};
+
 /**
  * Creates a new registration in Firestore
  * @param registrationData Registration data to save

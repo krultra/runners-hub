@@ -802,6 +802,18 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
               {t('registration.updateInfo')}
             </Alert>
             <Box sx={{ mb: 2 }}>
+              {(() => {
+                const s = String((formData as any).status || 'pending').toLowerCase();
+                const label = t(`registrationStatus.${s}`, { defaultValue: s });
+                return (
+                  <Alert severity={s === 'confirmed' ? 'success' : 'warning'}>
+                    {t('registrationStatus.label')}: {label}
+                    {formData.isOnWaitinglist ? ` (${t('events.onWaitlistCount')})` : ''}
+                  </Alert>
+                );
+              })()}
+            </Box>
+            <Box sx={{ mb: 2 }}>
               <Alert
                 severity={
                   formData.paymentMade >= formData.paymentRequired

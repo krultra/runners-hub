@@ -32,6 +32,9 @@ interface RunnerSearchResult {
 }
 
 const resolveRunnerId = (runner: RunnerSearchResult): string => {
+  if (typeof runner.personId === 'number' && Number.isFinite(runner.personId)) {
+    return String(runner.personId);
+  }
   const candidates = [runner.uid, runner.userId, runner.id];
   for (const value of candidates) {
     if (typeof value === 'string') {

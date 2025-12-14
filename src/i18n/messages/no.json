@@ -114,6 +114,13 @@
     "cancelled": "Arrangement avlyst",
     "finalized": "Resultater publisert"
   },
+  "registrationStatus": {
+    "label": "Påmelding",
+    "pending": "Avventer",
+    "confirmed": "Bekreftet",
+    "cancelled": "Kansellert",
+    "expired": "Utløpt"
+  },
   "home": {
     "welcome": "Velkommen til KrUltra Runners Hub!",
     "whatsRunnersHub": "Hva er Runners Hub?",
@@ -124,7 +131,7 @@
   "mo": {
     "title": "Malvikingen Opp",
     "tagline": "Malviks eldste motbakkeløp – fra Fjorden til Våtten siden 2011.",
-    "taglineShort": "Bli en ekte 'Mal-Viking' i Malviks eldste motbakkeløp.",
+    "taglineShort": "Bli en ekte 'MalViking' i Malviks eldste motbakkeløp.",
     "aboutTitle": "Om løpet",
     "aboutText": "Malvikingen Opp går fra Vikhammerløkka til Solemsvåttan. Lengden er 6 km, og høydeforskjellen mellom start og mål er 420 meter.",
     "courseFacts": "Fakta om løpet",

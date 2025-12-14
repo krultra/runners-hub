@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { 
   Container, 
   Typography, 
@@ -20,9 +21,12 @@ import { CircularProgress } from '@mui/material';
 import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } from '../services/registrationService';
 import { Globe, BarChart3, Trophy, Info } from 'lucide-react';
 import { getVerboseName } from '../services/codeListService';
+import { getKrultraUrl } from '../config/urls';
+import { getEventLogoUrl } from '../services/strapiService';
 
 // Inner component with full hooks/logic, receives guaranteed `event`
 const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
+  const { t } = useTranslation();
   // State for countdown timer
   const [timeLeft, setTimeLeft] = useState<{
     days: number;
@@ -43,6 +47,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
   const [statusLabel, setStatusLabel] = useState<string>('');
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   
   // Calculate time remaining until the race
   const now = useMemo(() => new Date(), []);
@@ -120,6 +125,22 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
 
     loadStatusLabel();
   }, [event.status]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadLogo = async () => {
+      try {
+        const url = await getEventLogoUrl(String(event.eventId || ''));
+        if (isMounted) setLogoUrl(url);
+      } catch {
+        if (isMounted) setLogoUrl(null);
+      }
+    };
+    loadLogo();
+    return () => {
+      isMounted = false;
+    };
+  }, [event.eventId]);
 
   // Check if user is authenticated and has a registration (re-run on location change)
   const location = useLocation();
@@ -333,7 +354,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               >
-                {hasActiveRegistration ? 'View my registration' : 'Update registration'}
+                {hasActiveRegistration ? t('events.viewRegistration') : t('events.updateRegistration')}
               </Button>
             )}
             {/* Show "Register Now" if no registration exists and registration is open */}
@@ -346,7 +367,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               >
-                {availableSpots === 0 || forceQueue ? 'Join waiting-list' : 'Register Now'}
+                {availableSpots === 0 || forceQueue ? t('events.joinWaitlist') : t('events.registerNow')}
               </Button>
             )}
             {/* Show participants list if relevant */}
@@ -359,7 +380,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210 }}
               >
-                {waitingListCount > 0 ? 'Participants & Waiting-list' : 'See Participants'}
+                {waitingListCount > 0 ? t('events.participantsAndWaitlist') : t('events.seeParticipants')}
               </Button>
             )}
           </Box>
@@ -393,7 +414,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
               sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               disabled={isLoading || isCheckingRegistration}
             >
-              {availableSpots === 0 || forceQueue ? 'Sign in to join waiting-list' : 'Sign in to register'}
+              {availableSpots === 0 || forceQueue ? t('registration.signInToJoinWaitlist') : t('registration.signInToRegister')}
             </Button>
             {showParticipantsList && (
               <Button
@@ -404,7 +425,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210 }}
               >
-                See Participants
+                {t('events.seeParticipants')}
               </Button>
             )}
           </Box>
@@ -433,7 +454,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
               size="large"
               sx={{ py: 1.5, px: 4, minWidth: 210 }}
             >
-              {waitingListCount > 0 ? 'Participants & Waiting-list' : 'See Participants'}
+              {waitingListCount > 0 ? t('events.participantsAndWaitlist') : t('events.seeParticipants')}
             </Button>
           )}
         </Box>
@@ -446,9 +467,19 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   return (
     <Container maxWidth="lg" sx={{ py: 6 }}>
       <Box sx={{ mb: 4 }}>
-        <Typography variant="h2" component="h1" textAlign="center" gutterBottom>
-          Kruke's Ultra-Trail Challenge 2025
-        </Typography>
+        <Box display="flex" justifyContent="center" alignItems="center" gap={1.5} flexWrap="wrap" mb={1}>
+          {logoUrl && (
+            <Box
+              component="img"
+              src={logoUrl}
+              alt="KUTC logo"
+              sx={{ width: 44, height: 44, borderRadius: 1, objectFit: 'cover' }}
+            />
+          )}
+          <Typography variant="h2" component="h1" textAlign="center" gutterBottom sx={{ mb: 0 }}>
+            Kruke's Ultra-Trail Challenge 2025
+          </Typography>
+        </Box>
 
         <Paper
           elevation={0}
@@ -565,7 +596,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             Records
           </Button>
           <Button
-            href="https://krultra.no/kutc"
+            href={getKrultraUrl('events/KUTC')}
             variant="text"
             startIcon={<Globe />}
             sx={{ minWidth: 200, fontWeight: 600 }}

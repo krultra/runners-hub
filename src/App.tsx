@@ -17,6 +17,7 @@ import MO2026Page from './pages/MO2026Page';
 import MOOverviewPage from './pages/MOOverviewPage';
 import AboutRunnersHubPage from './pages/AboutRunnersHubPage';
 import RegistrationPage from './pages/RegistrationPage';
+import MyRegistrationsPage from './pages/MyRegistrationsPage';
 import NotFoundPage from './pages/NotFoundPage';
 import AuthTest from './components/AuthTest';
 import AdminPage from './pages/AdminPage';
@@ -82,7 +83,6 @@ function App() {
         <CssBaseline />
         <Router
           future={{
-            v7_startTransition: true,
             v7_relativeSplatPath: true
           }}
         >
@@ -110,6 +110,7 @@ function App() {
             <Route path="/mo-2026" element={<MO2026Page />} />
             <Route path="/about" element={<AboutRunnersHubPage />} />
             <Route path="/register" element={<RegistrationPage />} />
+            <Route path="/my-registrations" element={<MyRegistrationsPage />} />
             <Route path="/auth" element={<AuthTest />} />
             <Route path="/participants" element={<PublicRegistrationsPage />} />
             <Route path="/admin" element={

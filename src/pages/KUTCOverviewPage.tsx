@@ -22,6 +22,10 @@ import {
   getAdjacentEditions
 } from '../services/eventEditionService';
 import { getVerboseName } from '../services/codeListService';
+import { getEventLogoUrl } from '../services/strapiService';
+import { useUnits } from '../hooks/useUnits';
+import { formatDistance, formatElevation } from '../utils/units';
+import { getKrultraUrl } from '../config/urls';
 
 const EVENT_ID = 'kutc';
 
@@ -34,6 +38,7 @@ const formatCurrency = (value?: number) => {
 const KUTCOverviewPage: React.FC = () => {
   const { t, i18n } = useTranslation();
   const navigate = useNavigate();
+  const units = useUnits();
 
   const formatDate = (timestamp: any): string => {
     if (!timestamp) return t('editions.tba');
@@ -52,6 +57,23 @@ const KUTCOverviewPage: React.FC = () => {
   const [nextEditionStatus, setNextEditionStatus] = useState<string>('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadLogo = async () => {
+      try {
+        const url = await getEventLogoUrl(EVENT_ID);
+        if (isMounted) setLogoUrl(url);
+      } catch {
+        if (isMounted) setLogoUrl(null);
+      }
+    };
+    loadLogo();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   useEffect(() => {
     const load = async () => {
@@ -128,9 +150,19 @@ const KUTCOverviewPage: React.FC = () => {
     <Container maxWidth="lg" sx={{ py: 6 }}>
       {/* Header */}
       <Box textAlign="center" mb={6}>
-        <Typography variant="h2" component="h1" fontWeight={800} gutterBottom>
-          {event.name || "Kruke's Ultra-Trail Challenge"}
-        </Typography>
+        <Box display="flex" justifyContent="center" alignItems="center" gap={1.5} flexWrap="wrap" mb={1}>
+          {logoUrl && (
+            <Box
+              component="img"
+              src={logoUrl}
+              alt="KUTC logo"
+              sx={{ width: 44, height: 44, borderRadius: 1, objectFit: 'cover' }}
+            />
+          )}
+          <Typography variant="h2" component="h1" fontWeight={800} gutterBottom sx={{ mb: 0 }}>
+            {event.name || "Kruke's Ultra-Trail Challenge"}
+          </Typography>
+        </Box>
         <Typography variant="h6" color="text.secondary" sx={{ maxWidth: 640, mx: 'auto', mb: 3 }}>
           {t('kutc.tagline')}
         </Typography>
@@ -140,7 +172,7 @@ const KUTCOverviewPage: React.FC = () => {
           <Button
             variant="contained"
             startIcon={<Globe />}
-            href="https://krultra.no/kutc"
+            href={getKrultraUrl('events/KUTC')}
           >
             {t('kutc.officialWebsite')}
           </Button>
@@ -269,10 +301,10 @@ const KUTCOverviewPage: React.FC = () => {
                         {race.displayName}
                       </Typography>
                       <Typography variant="body2">
-                        {(race.length / 1000).toFixed(1)} km
+                        {formatDistance(race.length, units)}
                       </Typography>
                       <Typography variant="caption" color="text.secondary">
-                        {race.ascent}m+
+                        +{formatElevation(race.ascent, units)}
                       </Typography>
                     </Paper>
                   </Grid>
@@ -327,7 +359,7 @@ const KUTCOverviewPage: React.FC = () => {
         <Typography variant="body2" color="text.secondary">
           {t('kutc.footerNote')}{' '}
           <MuiLink 
-            href="https://krultra.no/kutc" 
+            href={getKrultraUrl('events/KUTC')} 
             sx={{
               color: (theme) => theme.palette.mode === 'dark' ? '#69A9E1' : '#4E82B4',
               '&:hover': {

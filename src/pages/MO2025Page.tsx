@@ -2,7 +2,9 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Container, Typography, Box, Paper, Divider, Button, Grid, CircularProgress, Alert } from '@mui/material';
 
 import { useEventEdition } from '../contexts/EventEditionContext';
+import { getKrultraUrl } from '../config/urls';
 import { Link, useNavigate } from 'react-router-dom';
+import { getEventLogoUrl } from '../services/strapiService';
 
 function formatCountdown(target: Date) {
   const now = new Date();
@@ -26,11 +28,29 @@ const MO2025Page: React.FC = () => {
   const navigate = useNavigate();
 
   const { event, loading, error, setEvent } = useEventEdition();
+
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   
   // Load the MO-2025 event when the component mounts
   useEffect(() => {
     setEvent('mo-2025');
   }, [setEvent]);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadLogo = async () => {
+      try {
+        const url = await getEventLogoUrl(String((event as any)?.eventId || 'mo'));
+        if (isMounted) setLogoUrl(url);
+      } catch {
+        if (isMounted) setLogoUrl(null);
+      }
+    };
+    loadLogo();
+    return () => {
+      isMounted = false;
+    };
+  }, [event]);
 
   // Extract dates from event
   const raceDate = useMemo(() => toDate(event?.startTime) || new Date(), [event?.startTime]);
@@ -89,16 +109,26 @@ const MO2025Page: React.FC = () => {
   return (
     <Container maxWidth="lg">
       <Box sx={{ my: 4, textAlign: 'center' }}>
-        <Typography variant="h2" component="h1" gutterBottom>
-          {event.eventName || 'Malvikingen Opp 2025'}
-        </Typography>
+        <Box display="flex" justifyContent="center" alignItems="center" gap={1.5} flexWrap="wrap" mb={1}>
+          {logoUrl && (
+            <Box
+              component="img"
+              src={logoUrl}
+              alt="MO logo"
+              sx={{ width: 44, height: 44, borderRadius: 1, objectFit: 'cover' }}
+            />
+          )}
+          <Typography variant="h2" component="h1" gutterBottom sx={{ mb: 0 }}>
+            {event.eventName || 'Malvikingen Opp 2025'}
+          </Typography>
+        </Box>
         <Typography variant="h5" color="text.secondary" paragraph>
           Malviks eldste motbakkeløp
         </Typography>
         <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
           <Button
             component="a"
-            href="https://krultra.no/nb/node/23"
+            href={getKrultraUrl('events/MO')}
             variant="text"
             color="inherit"
             sx={{ fontWeight: 400, px: 1, py: 0.5, minWidth: 0, fontSize: '1rem', textTransform: 'none', textDecoration: 'underline', textUnderlineOffset: 4 }}

@@ -33,6 +33,7 @@ import {
   EnrichedCheckpointResult,
   LoopAggregate
 } from '../services/checkpointResultsService';
+import { getRunnerProfile } from '../services/runnerProfileService';
 
 const formatDistance = (distance: number | null | undefined): string => {
   if (distance === null || distance === undefined) {
@@ -65,6 +66,7 @@ const RunnerCheckpointAnalysisPage: React.FC = () => {
   const [summary, setSummary] = useState<CheckpointSummary | null>(null);
   const [loops, setLoops] = useState<LoopAggregate[]>([]);
   const [checkpoints, setCheckpoints] = useState<EnrichedCheckpointResult[]>([]);
+  const [runnerRouteId, setRunnerRouteId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!userId || !editionId) {
@@ -79,13 +81,23 @@ const RunnerCheckpointAnalysisPage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const enriched = await getEnrichedCheckpointResults(editionId, userId);
+        const profile = await getRunnerProfile(userId, { includeParticipations: false, includeUpcomingRegistrations: false });
+        if (!mounted) return;
+        setRunnerRouteId(profile.routeId);
+
+        if (userId !== profile.routeId) {
+          // Replace URL to avoid exposing legacy email-style ids.
+          window.history.replaceState(null, '', `/runners/${profile.routeId}/kutc/${editionId}`);
+        }
+
+        const storedUserId = profile.userId;
+        const enriched = await getEnrichedCheckpointResults(editionId, storedUserId);
         if (!mounted) return;
         setCheckpoints(enriched);
 
         const [loopAggregates, summaryData] = await Promise.all([
           groupByLoop(enriched, editionId),
-          getCheckpointSummary(editionId, userId)
+          getCheckpointSummary(editionId, storedUserId)
         ]);
         if (!mounted) return;
         setLoops(loopAggregates);
@@ -143,7 +155,7 @@ const RunnerCheckpointAnalysisPage: React.FC = () => {
   }
 
   const editionLabel = summary.eventEditionId?.toUpperCase?.() || editionId?.toUpperCase?.() || editionId;
-  const runnerProfileUrl = `/runners/${userId}`;
+  const runnerProfileUrl = `/runners/${runnerRouteId || userId}`;
 
   return (
     <Container maxWidth="lg" sx={{ py: 4 }}>

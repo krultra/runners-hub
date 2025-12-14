@@ -22,6 +22,12 @@ This project uses multiple environments with distinct Firebase projects and .env
   - Export data: `npm run emulator:export`
   - Import JSON to emulator: `npm run emulator:import`
 
+## Firestore cloning between environments
+
+When copying Firestore data between `runnershub-62442` (prod) and `runnershubtest` (test), be aware that Firebase Auth is **not** cloned and UIDs may differ between projects for the same email address.
+
+See `docs/CLONE_FIRESTORE.md` for details and mitigations.
+
 ## Version and Stage Badges
 
 - Header test badge is controlled by `REACT_APP_STAGE=test`.

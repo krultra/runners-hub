@@ -50,8 +50,18 @@ export interface RunnerBestPerformance {
   raceName: string;
 }
 
+export interface RunnerKutcParticipationData {
+  participations: RunnerParticipation[];
+  totalAppearances: number;
+  appearanceYears: number[];
+  totalLoops: number;
+  bestPerformance: RunnerBestPerformance | null;
+}
+
 export interface RunnerProfile {
+  routeId: string;
   userId: string;
+  userDocId: string;
   personId: number | null;
   firstName: string;
   lastName: string;
@@ -64,6 +74,11 @@ export interface RunnerProfile {
   bestPerformance: RunnerBestPerformance | null;
   participations: RunnerParticipation[];
   upcomingRegistrations: RunnerUpcomingRegistration[];
+}
+
+export interface GetRunnerProfileOptions {
+  includeParticipations?: boolean;
+  includeUpcomingRegistrations?: boolean;
 }
 
 export interface RunnerProfileEditableDetails {
@@ -82,6 +97,9 @@ export interface RunnerUpcomingRegistration {
   registrationType: 'kutc' | 'mo' | 'event';
   status?: string | null;
   registrationNumber?: number | null;
+  raceDistance?: string | null;
+  raceDistanceLabel?: string | null;
+  updatedAt?: Date | null;
 }
 
 const deriveDistanceKey = (race: any, index: number): string => {
@@ -175,13 +193,14 @@ async function fetchUpcomingRegistrations(userId: string, email: string | null |
       const startTime = toDateFromUnknown(editionData.startTime);
       const eventName = editionData.eventName || editionId;
       const eventShortName = editionData.eventShortName || editionData.eventId || undefined;
+      const raceDistanceDefs: any[] = Array.isArray(editionData.raceDistances) ? editionData.raceDistances : [];
       const type: RunnerUpcomingRegistration['registrationType'] = editionId.toLowerCase().startsWith('kutc-')
         ? 'kutc'
         : editionId.toLowerCase().startsWith('mo-')
           ? 'mo'
           : 'event';
 
-      if (type === 'kutc' || type === 'event') {
+      if (type === 'kutc' || type === 'event' || type === 'mo') {
         const registrationsRef = collection(db, 'registrations');
         const regQuery = query(
           registrationsRef,
@@ -189,9 +208,22 @@ async function fetchUpcomingRegistrations(userId: string, email: string | null |
           where('userId', '==', userId),
           where('status', 'in', upcomingStatusFilter)
         );
-        const registrationSnapshot = await getDocs(regQuery);
-        registrationSnapshot.forEach((docSnap) => {
+        const seenRegistrationIds = new Set<string>();
+
+        const pushRegistrationDoc = (docSnap: any) => {
+          if (!docSnap || seenRegistrationIds.has(docSnap.id)) {
+            return;
+          }
+          seenRegistrationIds.add(docSnap.id);
           const data = docSnap.data() as any;
+          const raceDistance = data.raceDistance ? String(data.raceDistance) : null;
+          const rd = raceDistance
+            ? raceDistanceDefs.find((it) => String(it?.id || it?.key || '').toLowerCase() === raceDistance.toLowerCase())
+            : null;
+          const raceDistanceLabel = rd
+            ? (rd.displayName || rd.displayName_en || rd.displayName_no || rd.name || null)
+            : null;
+          const updatedAt = toDateFromUnknown(data.updatedAt || data.createdAt);
           results.push({
             registrationId: docSnap.id,
             editionId,
@@ -200,9 +232,37 @@ async function fetchUpcomingRegistrations(userId: string, email: string | null |
             startTime,
             registrationType: type,
             status: data.status || null,
-            registrationNumber: typeof data.registrationNumber === 'number' ? data.registrationNumber : null
+            registrationNumber: typeof data.registrationNumber === 'number' ? data.registrationNumber : null,
+            raceDistance,
+            raceDistanceLabel,
+            updatedAt
           });
-        });
+        };
+
+        const registrationSnapshot = await getDocs(regQuery);
+        registrationSnapshot.forEach(pushRegistrationDoc);
+
+        // Fallback by email (needed for cloned envs / legacy accounts where stored userId differs from auth uid)
+        if (registrationSnapshot.empty && email) {
+          const normalizedEmail = String(email).trim().toLowerCase();
+          const emailQuery = query(
+            registrationsRef,
+            where('editionId', '==', editionId),
+            where('email', '==', normalizedEmail),
+            where('status', 'in', upcomingStatusFilter)
+          );
+          const emailSnapshot = await getDocs(emailQuery);
+          emailSnapshot.forEach(pushRegistrationDoc);
+
+          const originalEmailQuery = query(
+            registrationsRef,
+            where('editionId', '==', editionId),
+            where('originalEmail', '==', normalizedEmail),
+            where('status', 'in', upcomingStatusFilter)
+          );
+          const originalSnapshot = await getDocs(originalEmailQuery);
+          originalSnapshot.forEach(pushRegistrationDoc);
+        }
       }
 
       if (type === 'mo') {
@@ -226,6 +286,14 @@ async function fetchUpcomingRegistrations(userId: string, email: string | null |
 
         moSnapshot.forEach((docSnap) => {
           const data = docSnap.data() as any;
+          const raceDistance = data.raceDistance ? String(data.raceDistance) : data.class ? String(data.class) : null;
+          const rd = raceDistance
+            ? raceDistanceDefs.find((it) => String(it?.id || it?.key || '').toLowerCase() === raceDistance.toLowerCase())
+            : null;
+          const raceDistanceLabel = rd
+            ? (rd.displayName || rd.displayName_en || rd.displayName_no || rd.name || null)
+            : null;
+          const updatedAt = toDateFromUnknown(data.updatedAt || data.createdAt);
           results.push({
             registrationId: docSnap.id,
             editionId,
@@ -234,7 +302,10 @@ async function fetchUpcomingRegistrations(userId: string, email: string | null |
             startTime,
             registrationType: type,
             status: data.status || null,
-            registrationNumber: typeof data.registrationNumber === 'number' ? data.registrationNumber : null
+            registrationNumber: typeof data.registrationNumber === 'number' ? data.registrationNumber : null,
+            raceDistance,
+            raceDistanceLabel,
+            updatedAt
           });
         });
       }
@@ -359,81 +430,8 @@ async function getKUTCParticipations(userId: string, personId: number): Promise<
   return participations;
 }
 
-export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
-  let userSnap = await getDoc(doc(db, 'users', userId));
-
-  if (!userSnap.exists()) {
-    const usersRef = collection(db, 'users');
-    const uidQuery = query(usersRef, where('uid', '==', userId), limit(1));
-    const uidSnapshot = await getDocs(uidQuery);
-    if (!uidSnapshot.empty) {
-      userSnap = uidSnapshot.docs[0];
-    } else {
-      const legacyQuery = query(usersRef, where('userId', '==', userId), limit(1));
-      const legacySnapshot = await getDocs(legacyQuery);
-      if (!legacySnapshot.empty) {
-        userSnap = legacySnapshot.docs[0];
-      } else if (looksLikeEmail(userId)) {
-        // Fallback: resolve by email when route param is an email
-        const normalizedEmail = userId.trim().toLowerCase();
-        const emailQuery = query(usersRef, where('email', '==', normalizedEmail), limit(1));
-        const emailSnapshot = await getDocs(emailQuery);
-        if (!emailSnapshot.empty) {
-          userSnap = emailSnapshot.docs[0];
-        } else {
-          const asNumber = Number(userId);
-          if (Number.isFinite(asNumber)) {
-            const pidQuery = query(usersRef, where('personId', '==', asNumber), limit(1));
-            const pidSnapshot = await getDocs(pidQuery);
-            if (!pidSnapshot.empty) {
-              userSnap = pidSnapshot.docs[0];
-            }
-          }
-        }
-      } else {
-        // If userId looks numeric, allow resolving by personId
-        const asNumber = Number(userId);
-        if (Number.isFinite(asNumber)) {
-          const pidQuery = query(usersRef, where('personId', '==', asNumber), limit(1));
-          const pidSnapshot = await getDocs(pidQuery);
-          if (!pidSnapshot.empty) {
-            userSnap = pidSnapshot.docs[0];
-          }
-        }
-      }
-    }
-  }
-
-  if (!userSnap.exists()) {
-    throw new Error('Runner not found');
-  }
-
-  const userData = userSnap.data() as FirestoreUser;
-  const sanitizeId = (value: string | null | undefined): string | null => {
-    const normalized = normalizeId(value ?? undefined);
-    if (!normalized) {
-      return null;
-    }
-    return normalized.includes('@') ? null : normalized;
-  };
-  const resolvedUid =
-    sanitizeId(userData.uid ?? null) ??
-    sanitizeId(userData.userId ?? null) ??
-    sanitizeId(userSnap.id) ??
-    sanitizeId(looksLikeEmail(userId) ? null : userId) ??
-    String(userSnap.id.includes('@') ? userData.personId ?? userSnap.id : userSnap.id);
-  const effectiveUserId = resolvedUid || userId;
-
-  const firstName = userData.firstName || userData.displayName?.split(' ')[0] || 'Runner';
-  const lastName = userData.lastName || userData.displayName?.split(' ').slice(1).join(' ') || '';
-  const personId = ensureNumber(userData.personId);
-
-  const participations = personId !== null
-    ? await getKUTCParticipations(effectiveUserId, personId)
-    : [];
-
-  const upcomingRegistrations = await fetchUpcomingRegistrations(effectiveUserId, userData.email || null);
-
+export async function getRunnerKutcParticipationData(userId: string, personId: number): Promise<RunnerKutcParticipationData> {
+  const participations = await getKUTCParticipations(userId, personId);
   const countedParticipations = participations.filter((participation) =>
     participation.status?.toUpperCase() !== 'DNS'
   );
@@ -490,7 +488,127 @@ export async function getRunnerProfile(userId: string): Promise<RunnerProfile> {
   }
 
   return {
+    participations,
+    totalAppearances,
+    appearanceYears,
+    totalLoops,
+    bestPerformance
+  };
+}
+
+export async function getRunnerProfile(userId: string, options?: GetRunnerProfileOptions): Promise<RunnerProfile> {
+  let userSnap = await getDoc(doc(db, 'users', userId));
+
+  if (!userSnap.exists()) {
+    const usersRef = collection(db, 'users');
+    const uidQuery = query(usersRef, where('uid', '==', userId), limit(1));
+    const uidSnapshot = await getDocs(uidQuery);
+    if (!uidSnapshot.empty) {
+      userSnap = uidSnapshot.docs[0];
+    } else {
+      const legacyQuery = query(usersRef, where('userId', '==', userId), limit(1));
+      const legacySnapshot = await getDocs(legacyQuery);
+      if (!legacySnapshot.empty) {
+        userSnap = legacySnapshot.docs[0];
+      } else if (looksLikeEmail(userId)) {
+        // Fallback: resolve by email when route param is an email
+        const normalizedEmail = userId.trim().toLowerCase();
+        const emailQuery = query(usersRef, where('email', '==', normalizedEmail), limit(1));
+        const emailSnapshot = await getDocs(emailQuery);
+        if (!emailSnapshot.empty) {
+          userSnap = emailSnapshot.docs[0];
+        } else {
+          const asNumber = Number(userId);
+          if (Number.isFinite(asNumber)) {
+            const pidQuery = query(usersRef, where('personId', '==', asNumber), limit(1));
+            const pidSnapshot = await getDocs(pidQuery);
+            if (!pidSnapshot.empty) {
+              userSnap = pidSnapshot.docs[0];
+            }
+          }
+        }
+      } else {
+        // If userId looks numeric, allow resolving by personId
+        const asNumber = Number(userId);
+        if (Number.isFinite(asNumber)) {
+          const pidQuery = query(usersRef, where('personId', '==', asNumber), limit(1));
+          const pidSnapshot = await getDocs(pidQuery);
+          if (!pidSnapshot.empty) {
+            userSnap = pidSnapshot.docs[0];
+          }
+        }
+      }
+    }
+  }
+
+  if (!userSnap.exists()) {
+    throw new Error('Runner not found');
+  }
+
+  const userData = userSnap.data() as FirestoreUser;
+  const userDocId = userSnap.id;
+
+  const normalizeCandidate = (value: string | null | undefined): string | null => {
+    const normalized = normalizeId(value ?? undefined);
+    return normalized || null;
+  };
+
+  const normalizeSafeCandidate = (value: string | null | undefined): string | null => {
+    const normalized = normalizeId(value ?? undefined);
+    if (!normalized) {
+      return null;
+    }
+    return normalized.includes('@') ? null : normalized;
+  };
+
+  // This is the canonical id used for Firestore queries (may be an email-style uid for legacy accounts).
+  const effectiveUserId =
+    normalizeCandidate(userData.uid ?? null) ??
+    normalizeCandidate(userData.userId ?? null) ??
+    normalizeCandidate(userDocId) ??
+    normalizeCandidate(userId) ??
+    userId;
+
+  const firstName = userData.firstName || userData.displayName?.split(' ')[0] || 'Runner';
+  const lastName = userData.lastName || userData.displayName?.split(' ').slice(1).join(' ') || '';
+  const personId = ensureNumber(userData.personId);
+
+  const routeId = personId !== null && Number.isFinite(personId)
+    ? String(personId)
+    : (
+        normalizeSafeCandidate(userData.uid ?? null) ??
+        normalizeSafeCandidate(userData.userId ?? null) ??
+        normalizeSafeCandidate(userDocId) ??
+        normalizeSafeCandidate(userId) ??
+        userId
+      );
+
+  const includeParticipations = options?.includeParticipations !== false;
+  const includeUpcomingRegistrations = options?.includeUpcomingRegistrations !== false;
+
+  let participations: RunnerParticipation[] = [];
+  let totalAppearances = 0;
+  let totalLoops = 0;
+  let appearanceYears: number[] = [];
+  let bestPerformance: RunnerBestPerformance | null = null;
+
+  if (includeParticipations && personId !== null) {
+    const data = await getRunnerKutcParticipationData(effectiveUserId, personId);
+    participations = data.participations;
+    totalAppearances = data.totalAppearances;
+    totalLoops = data.totalLoops;
+    appearanceYears = data.appearanceYears;
+    bestPerformance = data.bestPerformance;
+  }
+
+  const upcomingRegistrations = includeUpcomingRegistrations
+    ? await fetchUpcomingRegistrations(effectiveUserId, userData.email || null)
+    : [];
+
+  return {
+    routeId,
     userId: effectiveUserId,
+    userDocId,
     personId,
     firstName,
     lastName,

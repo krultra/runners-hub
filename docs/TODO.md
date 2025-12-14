@@ -7,6 +7,9 @@ A living backlog of tasks. Use checkboxes to track progress.
 - [ ] Add success/error toasts for Admin UI action “Sync users from registrations”
 - [ ] Cloud Function trigger (optional) to auto-sync `users` on `registrations` create/update
 - [ ] Harden Firestore security rules for production (ensure `users/{uid}` access is restricted)
+- [ ] Add invitation-only pre-registration for selected users (by invite/whitelist)
+- [ ] Admin whitelist tooling for invitation-only pre-registration (filters by recent participation + marketing consent; bulk invite send; manual email add incl. non-users)
+- [ ] Club/representing data quality: introduce canonical NFIF club list, normalize existing `users.representing[]`, and enforce consistent club selection going forward
 
 ## Admin & Ops
 - [ ] Add npm script to tag releases and inject `REACT_APP_VERSION` from `VERSION` file automatically

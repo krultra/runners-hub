@@ -114,6 +114,13 @@
     "cancelled": "Event cancelled",
     "finalized": "Results published"
   },
+  "registrationStatus": {
+    "label": "Registration",
+    "pending": "Pending",
+    "confirmed": "Confirmed",
+    "cancelled": "Cancelled",
+    "expired": "Expired"
+  },
   "home": {
     "welcome": "Welcome to the KrUltra Runners Hub!",
     "whatsRunnersHub": "What's the Runners Hub?",
@@ -123,15 +130,15 @@
   },
   "mo": {
     "title": "Malvikingen Opp",
-    "tagline": "Malvik's oldest fell race – from Fjord to Våttan since 2011.",
-    "taglineShort": "Earn your 'Mal-Viking' title in Malvik's oldest fell race.",
+    "tagline": "Malvik's oldest fell race – from Fjord to Peak since 2011",
+    "taglineShort": "Earn your 'MalViking' title in Malvik's oldest fell race.",
     "aboutTitle": "About the race",
     "aboutText": "Malvikingen Opp runs from Vikhammerløkka to Solemsvåttan. The length is 6 km, and the elevation difference between start and finish is 420 meters.",
     "courseFacts": "Course Facts",
     "course": "Course",
-    "courseDesc": "6 km from the fjord at Vikhammerløkka to the top of Solemsvåttan.",
+    "courseDesc": "6 km (3.7 mi) from the fjord at Vikhammerløkka to the top of Solemsvåttan.",
     "elevation": "Elevation",
-    "elevationDesc": "The course starts approx. 3 meters above sea level and finishes at 423 m. Except for a small downhill after about 2 km, it's uphill almost the entire way.",
+    "elevationDesc": "The course starts as close to sea level as you can get, and finishes at 423 masl (1387 ft). Except for a small downhill after about 2 km / 1.2 mi, it's uphill almost the entire way.",
     "classes": "Classes",
     "classesDesc": "The race has competition classes with women's and men's categories, but what makes the race unique is the main class for all-against-all where time is adjusted for age and gender. Additionally, there's a timed recreational class and a family-friendly hiking class.",
     "since2011": "Since 2011",

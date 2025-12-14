@@ -20,6 +20,10 @@ import { countActiveParticipants, getRegistrationsByUserId, countWaitingList } f
 import { Globe, BarChart3, Trophy, Info } from 'lucide-react';
 import { useStatusLabel } from '../hooks/useStatusLabel';
 import { useLocalizedField } from '../hooks/useLocalizedField';
+import { useUnits } from '../hooks/useUnits';
+import { formatDistance, formatElevation } from '../utils/units';
+import { getKrultraUrl } from '../config/urls';
+import { getEventLogoUrl } from '../services/strapiService';
 
 // Status code mapping for KUTC
 const STATUS_MAP: Record<string, number> = {
@@ -32,6 +36,7 @@ const STATUS_MAP: Record<string, number> = {
 const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const { t } = useTranslation();
   const getLocalizedField = useLocalizedField();
+  const units = useUnits();
   const navigate = useNavigate();
   const location = useLocation();
   const editionId = 'kutc-2026';
@@ -55,9 +60,26 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const [isUserRegistered, setIsUserRegistered] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
+  const [logoUrl, setLogoUrl] = useState<string | null>(null);
   
   // Get status label using hook
   const statusLabel = useStatusLabel(event.status);
+
+  useEffect(() => {
+    let isMounted = true;
+    const loadLogo = async () => {
+      try {
+        const url = await getEventLogoUrl(String(event.eventId || ''));
+        if (isMounted) setLogoUrl(url);
+      } catch {
+        if (isMounted) setLogoUrl(null);
+      }
+    };
+    loadLogo();
+    return () => {
+      isMounted = false;
+    };
+  }, [event.eventId]);
   
   // Calculate time remaining until the race
   const now = useMemo(() => new Date(), []);
@@ -333,7 +355,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               >
-                {hasActiveRegistration ? 'View my registration' : 'Update registration'}
+                {hasActiveRegistration ? t('events.viewRegistration') : t('events.updateRegistration')}
               </Button>
             )}
             {/* Show "Register Now" if no registration exists and registration is open */}
@@ -346,7 +368,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               >
-                {availableSpots === 0 || forceQueue ? 'Join waiting-list' : 'Register Now'}
+                {availableSpots === 0 || forceQueue ? t('events.joinWaitlist') : t('events.registerNow')}
               </Button>
             )}
             {/* Show participants list if relevant */}
@@ -359,7 +381,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210 }}
               >
-                {waitingListCount > 0 ? 'Participants & Waiting-list' : 'See Participants'}
+                {waitingListCount > 0 ? t('events.participantsAndWaitlist') : t('events.seeParticipants')}
               </Button>
             )}
           </Box>
@@ -393,7 +415,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
               sx={{ py: 1.5, px: 4, minWidth: 210, fontWeight: 700 }}
               disabled={isLoading || isCheckingRegistration}
             >
-              {availableSpots === 0 || forceQueue ? 'Sign in to join waiting-list' : 'Sign in to register'}
+              {availableSpots === 0 || forceQueue ? t('registration.signInToJoinWaitlist') : t('registration.signInToRegister')}
             </Button>
             {showParticipantsList && (
               <Button
@@ -404,7 +426,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                 size="large"
                 sx={{ py: 1.5, px: 4, minWidth: 210 }}
               >
-                See Participants
+                {t('events.seeParticipants')}
               </Button>
             )}
           </Box>
@@ -455,7 +477,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
               size="large"
               sx={{ py: 1.5, px: 4, minWidth: 210 }}
             >
-              {waitingListCount > 0 ? 'Participants & Waiting-list' : 'See Participants'}
+              {waitingListCount > 0 ? t('events.participantsAndWaitlist') : t('events.seeParticipants')}
             </Button>
           )}
         </Box>
@@ -469,9 +491,19 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     <Container maxWidth="lg" sx={{ py: 6 }}>
       {/* Hero Section */}
       <Box textAlign="center" mb={6}>
-        <Typography variant="h2" component="h1" fontWeight={800} gutterBottom>
-          {event.eventName || "Kruke's Ultra-Trail Challenge 2026"}
-        </Typography>
+        <Box display="flex" justifyContent="center" alignItems="center" gap={1.5} flexWrap="wrap" mb={1}>
+          {logoUrl && (
+            <Box
+              component="img"
+              src={logoUrl}
+              alt="KUTC logo"
+              sx={{ width: 44, height: 44, borderRadius: 1, objectFit: 'cover' }}
+            />
+          )}
+          <Typography variant="h2" component="h1" fontWeight={800} gutterBottom sx={{ mb: 0 }}>
+            {event.eventName || "Kruke's Ultra-Trail Challenge 2026"}
+          </Typography>
+        </Box>
         <Typography variant="h5" color="text.secondary" sx={{ mb: 3 }}>
           {t('kutc.tagline')}
         </Typography>
@@ -481,7 +513,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
           <Button
             variant="outlined"
             startIcon={<Globe />}
-            href="https://krultra.no/kutc"
+            href={getKrultraUrl('events/KUTC')}
           >
             {t('events.officialInfo')}
           </Button>
@@ -620,9 +652,9 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
             </Typography>
             <Box sx={{ mt: 1 }}>
               <Typography variant="body1"><strong>{t('events.format')}:</strong> Last One Standing</Typography>
-              <Typography variant="body1"><strong>{t('events.loop')}:</strong> {event.loopDistance || 6.7} km / 369 m+</Typography>
+              <Typography variant="body1"><strong>{t('events.loop')}:</strong> {formatDistance((event.loopDistance || 6.7) * 1000, units)} / +{formatElevation(369, units)}</Typography>
               <Typography variant="body1"><strong>{t('events.baseCamp')}:</strong> Jamthaugvegen 37, Saksvik</Typography>
-              <Typography variant="body1"><strong>{t('events.distances')}:</strong> 4–24 loops (27–161 km)</Typography>
+              <Typography variant="body1"><strong>{t('events.distances')}:</strong> 4–24 loops ({formatDistance(27000, units)}–{formatDistance(161000, units)})</Typography>
             </Box>
           </Paper>
         </Grid>
@@ -648,8 +680,8 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
                         </Typography>
                         {rd.length > 0 && (
                           <Typography variant="body2" color="text.secondary">
-                            {(rd.length / 1000).toFixed(1)} km
-                            {rd.ascent > 0 && ` • ${rd.ascent} m ${t('events.ascent').toLowerCase()}`}
+                            {formatDistance(rd.length, units)}
+                            {rd.ascent > 0 && ` • +${formatElevation(rd.ascent, units)} ${t('events.ascent').toLowerCase()}`}
                           </Typography>
                         )}
                         {startDate && (

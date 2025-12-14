@@ -276,10 +276,10 @@ const KUTCResultsTable: React.FC<KUTCResultsTableProps> = ({
             }
             const analysisAvailable = await hasCheckpointAnalysis(entry.editionId, userId);
             if (analysisAvailable) {
-              navigate(`/runners/${userId}/kutc/${entry.editionId}`);
+              navigate(`/runners/${entry.personId}/kutc/${entry.editionId}`);
               return;
             }
-            navigate(`/runners/${userId}`);
+            navigate(`/runners/${entry.personId}`);
           }}
           components={{
             Toolbar: GridToolbar

@@ -94,6 +94,33 @@ npx dotenv-cli -e .env.test -- \
 - Ensure Cloud Functions in the target project are guarded or disabled to avoid side effects during bulk writes.
 - Keep service-account JSON files secure and revert prod permissions after reverse clones.
 
+### Known Quirk: Firestore clone does NOT clone Firebase Auth
+
+Firestore documents often store `userId` fields that reference **Firebase Auth UIDs** (and in this codebase the `users/{docId}` is also commonly the UID).
+
+When cloning Firestore between two different Firebase projects (prod ↔ test), the **Auth UID for the same email address is not guaranteed to be the same** because each project has its own Auth user namespace.
+
+This can lead to:
+- Duplicate user docs in the target project with the same `email` but different document IDs.
+- Data “missing” in the UI after a clone because queries are done by the currently logged-in UID (test UID) while cloned data references the old UID (prod UID). A common symptom is missing MO participation history when `moResults.userId` points at a different UID than the logged-in user.
+
+Collections that are typically UID-sensitive in this repo:
+- `users` (doc ID often equals UID)
+- `registrations` (`userId` field)
+- `moRegistrations` (`userId` field)
+- results collections such as `moResults` (`userId` field) and other result/analysis collections that reference `userId`
+- `admins` (if keyed or referenced by UID)
+
+Mitigations / recommendations:
+- Prefer cloning UID-sensitive collections **only in one direction (prod → test)** and treat the target as a non-canonical playground.
+- If you need the target environment to behave correctly for a specific user, reconcile duplicated users by mapping via `email` and updating referenced `userId` fields.
+  - Utilities exist in this repo to help:
+    - `scripts/findDuplicateUsers.js` (detect duplicate user candidates)
+    - `scripts/mergeUsers.js` (merge user docs and update `userId` references in selected collections)
+- If you need to move “validated” data from test → prod, prefer copying collections that do not reference UIDs (e.g. `codeLists`, `eventEditions`) or be prepared to perform a careful UID reconciliation.
+
+Note: It is possible to export/import Auth users between Firebase projects using Firebase tooling, but it is not handled by this Firestore clone script and must be treated as a separate, high-risk operation.
+
 ## Technical Documentation
 
 ### Architecture Overview
@@ -135,3 +162,4 @@ npx dotenv-cli -e .env.test -- \
 
 ## Change Log
 - **2025-10-16** Added reverse direction, purge mode, quiet logging, and documentation.
+ - **2025-12-14** Documented Auth UID mismatch risk when cloning Firestore between prod/test.

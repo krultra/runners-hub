@@ -40,7 +40,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
     try {
       const userId = await getUserIdByPersonId(personId);
       if (userId) {
-        navigate(`/runners/${userId}`);
+        navigate(`/runners/${personId}`);
         return;
       }
     } catch (err) {
