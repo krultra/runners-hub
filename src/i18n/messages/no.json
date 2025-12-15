@@ -202,12 +202,13 @@
   "registration": {
     "title": "Påmelding",
     "waitlistRegistration": "Ventelistepåmelding",
-    "reviewingRegistration": "Gjennomgår påmelding",
-    "reviewingWaitlistRegistration": "Gjennomgår ventelistepåmelding",
+    "reviewingRegistration": "Rediger påmelding",
+    "reviewingWaitlistRegistration": "Rediger ventelistepåmelding",
+    "updateRunnerProfile": "Oppdater løperprofilen min med disse opplysningene",
     "steps": {
-      "personalInfo": "Personlig informasjon",
+      "personalInfo": "Personopplysninger",
       "raceDetails": "Løpsdetaljer",
-      "reviewSubmit": "Gjennomgang og innsending"
+      "reviewSubmit": "Se over og send inn"
     },
     "updateInfo": "Du kan oppdatere påmeldingen din nedenfor.",
     "paymentMade": "Betaling utført",
@@ -259,7 +260,7 @@
     "countryCode": "Landskode",
     "phoneNumber": "Telefonnummer",
     "phoneHelper": "Oppgi nummer uten landskode",
-    "representing": "Representerer (valgfritt)",
+    "representing": "Klubb (valgfritt)",
     "representingHelper": "Idrettsklubb, bedrift, veldedighet, etc.",
     "commonCountries": "Vanlige land",
     "allCountries": "Alle land",

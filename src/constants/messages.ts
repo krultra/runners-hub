@@ -6,5 +6,7 @@ export const ERROR_MESSAGES = {
   dateOfBirth: 'Date of birth is required',
   raceDistance: 'Please select a race distance',
   travelRequired: 'Please specify the travel requirements for your participation',
+  notifyFutureEvents: 'Please choose Yes or No',
+  sendRunningOffers: 'Please choose Yes or No',
   termsAccepted: 'You must accept the terms and conditions',
 };

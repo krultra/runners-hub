@@ -288,7 +288,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    {selectedPhoneCode.flag}
+                    {selectedPhoneCode.code}
                   </InputAdornment>
                 ),
               }}

@@ -14,15 +14,15 @@ export const initialFormData = {
   representing: '',
   raceDistance: '',
   travelRequired: '',
-  termsAccepted: false,
+  termsAccepted: undefined as boolean | undefined,
   comments: '',
-  // Marketing preferences (default to false)
-  notifyFutureEvents: false,
-  sendRunningOffers: false,
+  // Marketing preferences (default to undefined)
+  notifyFutureEvents: undefined as boolean | undefined,
+  sendRunningOffers: undefined as boolean | undefined,
   // Event edition ID
   editionId: '',
   status: 'pending', // Default status
-  paymentRequired: 300,
+  paymentRequired: 0,
   paymentMade: 0,
   // License fields
   hasYearLicense: undefined as boolean | undefined,

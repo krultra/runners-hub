@@ -11,6 +11,10 @@ import {
   Paper,
   Alert,
   Checkbox,
+  Radio,
+  RadioGroup,
+  FormControl,
+  FormLabel,
   FormControlLabel,
   FormHelperText,
   Link,
@@ -41,10 +45,10 @@ interface ReviewRegistrationProps {
     representing: string;
     raceDistance: string;
     travelRequired: string;
-    termsAccepted: boolean;
+    termsAccepted: boolean | undefined;
     comments: string;
-    notifyFutureEvents: boolean;
-    sendRunningOffers: boolean;
+    notifyFutureEvents: boolean | undefined;
+    sendRunningOffers: boolean | undefined;
     paymentRequired: number;
     paymentMade: number;
     isOnWaitinglist: boolean;
@@ -58,9 +62,24 @@ interface ReviewRegistrationProps {
   onBlur?: (field: string) => void;
   isEditingExisting?: boolean;
   isFull?: boolean;
+  showUpdateRunnerProfileOption?: boolean;
+  updateRunnerProfileChecked?: boolean;
+  onUpdateRunnerProfileChange?: (checked: boolean) => void;
 }
 
-const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData, errors, fieldRefs, onChange, onBlur, isEditingExisting = false, isFull = false }) => {
+const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
+  event,
+  formData,
+  errors,
+  fieldRefs,
+  onChange,
+  onBlur,
+  isEditingExisting = false,
+  isFull = false,
+  showUpdateRunnerProfileOption,
+  updateRunnerProfileChecked,
+  onUpdateRunnerProfileChange
+}) => {
   const { t } = useTranslation();
   const getLocalizedField = useLocalizedField();
   
@@ -89,6 +108,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
   // Only charge license fee if user doesn't have year license
   const actualLicenseFee = (licenseFee > 0 && formData.hasYearLicense !== true) ? licenseFee : 0;
   const totalFee = participationFee + actualLicenseFee + serviceFee + depositFee;
+  const paymentRemaining = Math.max(0, totalFee - (formData.paymentMade ?? 0));
 
   // Find the selected nationality and phone code
   const selectedCountry = COUNTRIES.find(
@@ -290,11 +310,11 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
                 </Typography>
               </ListItem>
               
-              {formData.paymentMade < formData.paymentRequired && (
+              {paymentRemaining > 0 && (
                 <ListItem sx={{ py: 1, px: 0 }}>
                   <ListItemText primary={t('form.paymentRemaining')} />
                   <Typography variant="subtitle1" color="error" sx={{ fontWeight: 700 }}>
-                    {formData.paymentRequired - formData.paymentMade} NOK
+                    {paymentRemaining} NOK
                   </Typography>
                 </ListItem>
               )}
@@ -304,7 +324,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
         <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
           {!isEditingExisting ? 
             t('form.paymentInstructions') :
-            formData.paymentMade < formData.paymentRequired ?
+            paymentRemaining > 0 ?
               t('form.paymentNotValid') :
               t('form.paymentComplete')
           }
@@ -312,41 +332,67 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
       </Paper>
 
       <Box sx={{ mt: 3 }}>
-        <Box sx={{ mb: 2 }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                inputRef={notifyCheckboxRef}
-                checked={formData.notifyFutureEvents}
-                name="notifyFutureEvents"
-                color="primary"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('notifyFutureEvents', e.target.checked)}
-              />
-            }
-            label={
-              <Typography variant="body2">
-                {t('form.notifyFutureEventsLabel')}
-              </Typography>
-            }
-          />
+        {showUpdateRunnerProfileOption && onUpdateRunnerProfileChange && (
+          <Box sx={{ mb: 2 }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={Boolean(updateRunnerProfileChecked)}
+                  name="updateRunnerProfile"
+                  color="primary"
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdateRunnerProfileChange(e.target.checked)}
+                />
+              }
+              label={
+                <Typography variant="body2">
+                  {t('registration.updateRunnerProfile')}
+                </Typography>
+              }
+            />
+          </Box>
+        )}
+        <Box sx={{ mb: 2 }} ref={fieldRefs.notifyFutureEvents}>
+          <FormControl error={!!errors.notifyFutureEvents} component="fieldset" variant="standard">
+            <FormLabel component="legend">
+              <Typography variant="body2">{t('form.notifyFutureEventsLabel')}</Typography>
+            </FormLabel>
+            <RadioGroup
+              row
+              name="notifyFutureEvents"
+              value={formData.notifyFutureEvents === true ? 'yes' : formData.notifyFutureEvents === false ? 'no' : ''}
+              onChange={(e) => {
+                const v = e.target.value;
+                onChange('notifyFutureEvents', v === 'yes');
+                onBlur && onBlur('notifyFutureEvents');
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio inputRef={notifyCheckboxRef} />} label={t('common.yes')} />
+              <FormControlLabel value="no" control={<Radio />} label={t('common.no')} />
+            </RadioGroup>
+            <FormHelperText>{errors.notifyFutureEvents || ''}</FormHelperText>
+          </FormControl>
         </Box>
-        
-        <Box sx={{ mb: 2 }}>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={formData.sendRunningOffers}
-                name="sendRunningOffers"
-                color="primary"
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange('sendRunningOffers', e.target.checked)}
-              />
-            }
-            label={
-              <Typography variant="body2">
-                {t('form.sendRunningOffersLabel')}
-              </Typography>
-            }
-          />
+
+        <Box sx={{ mb: 2 }} ref={fieldRefs.sendRunningOffers}>
+          <FormControl error={!!errors.sendRunningOffers} component="fieldset" variant="standard">
+            <FormLabel component="legend">
+              <Typography variant="body2">{t('form.sendRunningOffersLabel')}</Typography>
+            </FormLabel>
+            <RadioGroup
+              row
+              name="sendRunningOffers"
+              value={formData.sendRunningOffers === true ? 'yes' : formData.sendRunningOffers === false ? 'no' : ''}
+              onChange={(e) => {
+                const v = e.target.value;
+                onChange('sendRunningOffers', v === 'yes');
+                onBlur && onBlur('sendRunningOffers');
+              }}
+            >
+              <FormControlLabel value="yes" control={<Radio />} label={t('common.yes')} />
+              <FormControlLabel value="no" control={<Radio />} label={t('common.no')} />
+            </RadioGroup>
+            <FormHelperText>{errors.sendRunningOffers || ''}</FormHelperText>
+          </FormControl>
         </Box>
         
         <FormControlLabel
@@ -355,13 +401,20 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({ event, formData
             // "termsAccepted" field in the form data. The checkbox is checked if the value of
             // formData.termsAccepted is true, and unchecked if it is false.
             <Checkbox
-              checked={formData.termsAccepted}
+              indeterminate={formData.termsAccepted === undefined}
+              checked={formData.termsAccepted === true}
               name="termsAccepted"
               color="primary"
               // The "onChange" property is a function that is called whenever the checkbox is clicked.
               // The function takes a single argument, which is the event object that was generated by
               // the browser when the checkbox was clicked.
-              onChange={(e) => onChange('termsAccepted', e.target.checked)}
+              onChange={(e) => {
+                if (formData.termsAccepted === undefined) {
+                  onChange('termsAccepted', true);
+                  return;
+                }
+                onChange('termsAccepted', e.target.checked);
+              }}
               // The "onBlur" property is a function that is called whenever the checkbox loses focus.
               // The function takes no arguments. The reason we have an onBlur handler here is to validate
               // the field when the user clicks away from it.

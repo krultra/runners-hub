@@ -82,7 +82,7 @@ export const createRegistration = async (
     const registrationToSave = {
       ...registrationData,
       // Ensure payment fields exist (for backward compatibility or manual calls)
-      paymentRequired: registrationData.paymentRequired ?? 300,
+      paymentRequired: registrationData.paymentRequired ?? 0,
       paymentMade: registrationData.paymentMade ?? 0,
       // Convert Date object to Firestore Timestamp
       dateOfBirth: registrationData.dateOfBirth ? Timestamp.fromDate(registrationData.dateOfBirth) : null,

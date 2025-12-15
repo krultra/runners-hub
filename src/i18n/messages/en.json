@@ -204,6 +204,7 @@
     "waitlistRegistration": "Waitinglist Registration",
     "reviewingRegistration": "Reviewing Registration",
     "reviewingWaitlistRegistration": "Reviewing Waitinglist Registration",
+    "updateRunnerProfile": "Update my runner profile with these details",
     "steps": {
       "personalInfo": "Personal Information",
       "raceDetails": "Race Details",
@@ -259,7 +260,7 @@
     "countryCode": "Country Code",
     "phoneNumber": "Phone Number",
     "phoneHelper": "Enter number without country code",
-    "representing": "Representing (Optional)",
+    "representing": "Club (Optional)",
     "representingHelper": "Sports club, company, charity, etc.",
     "commonCountries": "Common Countries",
     "allCountries": "All Countries",

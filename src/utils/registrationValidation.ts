@@ -192,6 +192,19 @@ export const validateReviewSubmit = (
 ): Record<string, string> => {
   const errors: Record<string, string> = {};
 
+  // Marketing consents (must explicitly choose yes/no)
+  if (shouldValidate('notifyFutureEvents', options)) {
+    if (formData.notifyFutureEvents !== true && formData.notifyFutureEvents !== false) {
+      errors.notifyFutureEvents = ERROR_MESSAGES.notifyFutureEvents || 'Please choose Yes or No';
+    }
+  }
+
+  if (shouldValidate('sendRunningOffers', options)) {
+    if (formData.sendRunningOffers !== true && formData.sendRunningOffers !== false) {
+      errors.sendRunningOffers = ERROR_MESSAGES.sendRunningOffers || 'Please choose Yes or No';
+    }
+  }
+
   // Terms and conditions
   if (shouldValidate('termsAccepted', options)) {
     if (!formData.termsAccepted) {
@@ -247,7 +260,7 @@ export const getStepFields = (step: number): string[] => {
         'travelRequired', 'comments'
       ];
     case 2: // Review/Submit
-      return ['termsAccepted', 'isOnWaitinglist', 'waitinglistExpires'];
+      return ['notifyFutureEvents', 'sendRunningOffers', 'termsAccepted', 'isOnWaitinglist', 'waitinglistExpires'];
     default:
       return [];
   }

@@ -1,7 +1,18 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
+import {
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  limit,
+  query,
+  setDoc,
+  where,
+  serverTimestamp
+} from "firebase/firestore";
 import { getRegistrationsByEdition } from "../services/registrationService";
 import { testFirestoreConnection } from "../services/testFirestore";
 import {
@@ -28,6 +39,7 @@ import RaceDetailsForm from "../components/registration/RaceDetailsForm";
 import ReviewRegistration from "../components/registration/ReviewRegistration";
 import RegistrationStepper from "../components/registration/RegistrationStepper";
 import RegistrationSnackbar from "../components/registration/RegistrationSnackbar";
+import { db } from "../config/firebase";
 
 
 // Inner component containing all hooks and logic, now receiving event as prop
@@ -52,6 +64,8 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     string | null
   >(null);
   const [prefillChecked, setPrefillChecked] = useState(false);
+  const [profilePrefillChecked, setProfilePrefillChecked] = useState(false);
+  const [updateRunnerProfile, setUpdateRunnerProfile] = useState(true);
 
   // Form state
   const [activeStep, setActiveStep] = useState(0);
@@ -99,6 +113,21 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   const selectedDistance = event.raceDistances?.find(d => d.id === formData.raceDistance);
   const licenseFee = selectedDistance?.fees?.oneTimeLicense ?? event.fees?.oneTimeLicense ?? 0;
   const requiresLicense = licenseFee > 0;
+
+  const calculatedPaymentRequired = useMemo(() => {
+    const participationFee = selectedDistance?.fees?.participation ?? event.fees?.participation ?? 0;
+    const oneTimeLicenseFee = selectedDistance?.fees?.oneTimeLicense ?? event.fees?.oneTimeLicense ?? 0;
+    const serviceFee = selectedDistance?.fees?.service ?? event.fees?.service ?? (event.fees as any)?.baseCamp ?? 0;
+    const depositFee = selectedDistance?.fees?.deposit ?? event.fees?.deposit ?? 0;
+    const actualLicenseFee = (oneTimeLicenseFee > 0 && formData.hasYearLicense !== true) ? oneTimeLicenseFee : 0;
+    return participationFee + actualLicenseFee + serviceFee + depositFee;
+  }, [event.fees, formData.hasYearLicense, selectedDistance]);
+
+  useEffect(() => {
+    if (calculatedPaymentRequired > 0 && formData.paymentRequired !== calculatedPaymentRequired) {
+      setFormData((prev: any) => ({ ...prev, paymentRequired: calculatedPaymentRequired }));
+    }
+  }, [calculatedPaymentRequired, formData.paymentRequired]);
 
   // Validation context for race-specific settings (passed explicitly to validators)
   const validationContext: RaceValidationContext = {
@@ -258,10 +287,17 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           const { getRegistrationsByUserId } = await import(
             "../services/registrationService"
           );
-          const registrations = await getRegistrationsByUserId(
+          let registrations = await getRegistrationsByUserId(
             user.uid,
             event.id
           );
+
+          if ((!registrations || registrations.length === 0) && user.email) {
+            const { getRegistrationsByEmail } = await import(
+              "../services/registrationService"
+            );
+            registrations = await getRegistrationsByEmail(user.email, event.id);
+          }
           if (registrations && registrations.length > 0) {
             const reg = registrations[0];
             if (!isMounted) return;
@@ -333,12 +369,167 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     const unsub = onAuthStateChanged(auth, (u) => {
       setUser(u);
       setAuthChecked(true);
+      setProfilePrefillChecked(false);
       if (u && u.email) {
         setFormData((prev: any) => ({ ...prev, email: u.email }));
       }
     });
     return unsub;
   }, []);
+
+  type FirestoreUserProfile = {
+    uid?: string | null;
+    email?: string;
+    firstName?: string;
+    lastName?: string;
+    nationality?: string;
+    dateOfBirth?: any;
+    phoneCountryCode?: string | null;
+    phone?: string | null;
+    representing?: string[] | string | null;
+  };
+
+  const normalizeEmail = (value: string) => value.trim().toLowerCase();
+
+  const normalizePhoneCountryCode = (value: string | null | undefined): string => {
+    const trimmed = String(value ?? '').trim();
+    if (!trimmed) return '';
+    return trimmed.startsWith('+') ? trimmed : `+${trimmed.replace(/^\+/, '')}`;
+  };
+
+  const normalizePhoneDigits = (value: string | null | undefined): string => {
+    return String(value ?? '').replace(/\D/g, '').slice(0, 15);
+  };
+
+  const extractRepresentingValue = (value: unknown): string => {
+    if (Array.isArray(value)) {
+      const arr = value.map((v) => String(v ?? '').trim()).filter(Boolean);
+      return arr.length ? arr[arr.length - 1] : '';
+    }
+    return String(value ?? '').trim();
+  };
+
+  const resolveUserProfileDoc = useCallback(async (uid: string, email: string | null | undefined) => {
+    const usersRef = collection(db, 'users');
+
+    const directSnap = await getDoc(doc(db, 'users', uid));
+    if (directSnap.exists()) {
+      return { id: directSnap.id, data: directSnap.data() as FirestoreUserProfile };
+    }
+
+    const byUidSnap = await getDocs(query(usersRef, where('uid', '==', uid), limit(1)));
+    if (!byUidSnap.empty) {
+      const d = byUidSnap.docs[0];
+      return { id: d.id, data: d.data() as FirestoreUserProfile };
+    }
+
+    if (email) {
+      const normalized = normalizeEmail(email);
+      const byEmailSnap = await getDocs(query(usersRef, where('email', '==', normalized), limit(1)));
+      if (!byEmailSnap.empty) {
+        const d = byEmailSnap.docs[0];
+        return { id: d.id, data: d.data() as FirestoreUserProfile };
+      }
+    }
+
+    return null;
+  }, []);
+
+  // Prefill from runner profile when user is logged in and has no existing registration for this edition.
+  useEffect(() => {
+    if (!authChecked || !prefillChecked || !user || !user.uid) {
+      return;
+    }
+    if (isEditingExisting) {
+      return;
+    }
+    if (profilePrefillChecked) {
+      return;
+    }
+
+    let isMounted = true;
+    const loadProfilePrefill = async () => {
+      try {
+        const resolved = await resolveUserProfileDoc(user.uid, user.email);
+        if (!isMounted) return;
+        if (!resolved) {
+          return;
+        }
+
+        const profile = resolved.data;
+        const normalizedPhoneCountryCode = normalizePhoneCountryCode(profile.phoneCountryCode ?? null);
+        const normalizedPhone = normalizePhoneDigits(profile.phone ?? null);
+        const normalizedDob = toDate(profile.dateOfBirth);
+        const representingValue = extractRepresentingValue(profile.representing);
+
+        setFormData((prev: any) => {
+          const next: any = { ...prev };
+          if (!next.firstName && profile.firstName) next.firstName = profile.firstName;
+          if (!next.lastName && profile.lastName) next.lastName = profile.lastName;
+
+          if ((!next.nationality || next.nationality === initialFormData.nationality) && profile.nationality) {
+            next.nationality = profile.nationality;
+          }
+
+          if (!next.dateOfBirth && normalizedDob) next.dateOfBirth = normalizedDob;
+
+          if ((next.phoneCountryCode === initialFormData.phoneCountryCode || !next.phoneCountryCode) && normalizedPhoneCountryCode) {
+            next.phoneCountryCode = normalizedPhoneCountryCode;
+          }
+          if (!next.phoneNumber && normalizedPhone) next.phoneNumber = normalizedPhone;
+          if (!next.representing && representingValue) next.representing = representingValue;
+
+          return next;
+        });
+      } catch (err) {
+        console.warn('[RegistrationPage] Failed to prefill from runner profile', err);
+      } finally {
+        if (isMounted) setProfilePrefillChecked(true);
+      }
+    };
+
+    loadProfilePrefill();
+    return () => {
+      isMounted = false;
+    };
+  }, [authChecked, prefillChecked, user, isEditingExisting, profilePrefillChecked, resolveUserProfileDoc]);
+
+  const upsertRunnerProfileFromForm = useCallback(async () => {
+    if (!user?.uid) {
+      return;
+    }
+    const resolved = await resolveUserProfileDoc(user.uid, user.email);
+    const docId = resolved?.id || user.uid;
+    const existing = resolved?.data;
+    const existingRepresenting = existing?.representing;
+    const representingArr = Array.isArray(existingRepresenting)
+      ? existingRepresenting.map((v) => String(v ?? '').trim()).filter(Boolean)
+      : (typeof existingRepresenting === 'string' && existingRepresenting.trim())
+        ? [existingRepresenting.trim()]
+        : [];
+
+    const newRepresenting = String(formData.representing ?? '').trim();
+    const mergedRepresenting = newRepresenting && !representingArr.includes(newRepresenting)
+      ? [...representingArr, newRepresenting]
+      : representingArr;
+
+    const payload: Record<string, any> = {
+      uid: user.uid,
+      email: normalizeEmail(String(user.email || formData.email || '')),
+      firstName: String(formData.firstName || '').trim(),
+      lastName: String(formData.lastName || '').trim(),
+      nationality: String(formData.nationality || '').trim(),
+      dateOfBirth: formData.dateOfBirth ?? null,
+      phoneCountryCode: normalizePhoneCountryCode(formData.phoneCountryCode),
+      phone: normalizePhoneDigits(formData.phoneNumber),
+      updatedAt: serverTimestamp()
+    };
+    if (mergedRepresenting.length) {
+      payload.representing = mergedRepresenting;
+    }
+
+    await setDoc(doc(db, 'users', docId), payload, { merge: true });
+  }, [user, formData, resolveUserProfileDoc]);
 
   useEffect(() => {
     if (authChecked && !user) {
@@ -385,6 +576,8 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       // Validate all fields except terms and conditions
       const currentErrors = validateAll(formData, validationContext, { showAllErrors: true });
       const errorsWithoutTerms = { ...currentErrors };
+      delete errorsWithoutTerms.notifyFutureEvents;
+      delete errorsWithoutTerms.sendRunningOffers;
       delete errorsWithoutTerms.termsAccepted;
       
       // Only advance if no errors
@@ -585,7 +778,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           representing: formData.representing?.trim() || "",
           raceDistance: formData.raceDistance,
           travelRequired: formData.travelRequired?.trim() || "",
-          termsAccepted: formData.termsAccepted,
+          termsAccepted: formData.termsAccepted === true,
           comments: formData.comments?.trim() || "",
           // Include marketing preferences
           notifyFutureEvents: formData.notifyFutureEvents ?? false,
@@ -595,7 +788,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           // Waiting list info
           isOnWaitinglist: formData.isOnWaitinglist,
           waitinglistExpires: formData.waitinglistExpires,
-          paymentRequired: formData.paymentRequired ?? 300,
+          paymentRequired: calculatedPaymentRequired > 0 ? calculatedPaymentRequired : (formData.paymentRequired ?? 0),
           paymentMade: formData.paymentMade ?? 0,
           // License info - only include if license is required for this race
           // Use null instead of undefined for Firestore compatibility
@@ -611,6 +804,15 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             "../services/registrationService"
           );
           await updateRegistration(existingRegistrationId, registrationData);
+
+          if (updateRunnerProfile) {
+            try {
+              await upsertRunnerProfileFromForm();
+            } catch (err) {
+              console.error('[RegistrationPage] Failed to update runner profile from registration', err);
+            }
+          }
+
           setSnackbarMessage(t('registration.registrationUpdated'));
           setSnackbarSeverity("success");
         } else {
@@ -633,6 +835,15 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             registrationData,
             user?.uid,
           );
+
+          if (updateRunnerProfile) {
+            try {
+              await upsertRunnerProfileFromForm();
+            } catch (err) {
+              console.error('[RegistrationPage] Failed to update runner profile from registration', err);
+            }
+          }
+
           if (registrationData.isOnWaitinglist) {
             setSnackbarMessage(t('registration.waitlistSuccess'));
           } else {
@@ -663,17 +874,11 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       }
     } else {
       // Show error message
-      setSnackbarMessage(
-        t('registration.acceptTermsBeforeSubmitting'),
-      );
+      setErrors(currentErrors);
+      setSnackbarMessage(t('registration.completeFieldsBeforeSubmitting'));
       setSnackbarOpen(true);
-      // Scroll to terms checkbox
-      if (currentErrors.termsAccepted) {
-        const ref = fieldRefs.current.termsAccepted;
-        if (ref) {
-          ref.scrollIntoView({ behavior: "smooth", block: "center" });
-        }
-      }
+      setSnackbarSeverity("error");
+      scrollToFirstError(currentErrors);
     }
   };
 
@@ -716,6 +921,11 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             errors={errors}
             fieldRefs={divRefs.current}
             onBlur={handleFieldTouch}
+            isEditingExisting={isEditingExisting}
+            isFull={isFull}
+            showUpdateRunnerProfileOption={Boolean(isLoggedIn)}
+            updateRunnerProfileChecked={updateRunnerProfile}
+            onUpdateRunnerProfileChange={(checked) => setUpdateRunnerProfile(checked)}
           />
         );
       default:
@@ -816,17 +1026,17 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             <Box sx={{ mb: 2 }}>
               <Alert
                 severity={
-                  formData.paymentMade >= formData.paymentRequired
+                  formData.paymentMade >= (calculatedPaymentRequired > 0 ? calculatedPaymentRequired : formData.paymentRequired)
                     ? "success"
-                    : formData.paymentMade < formData.paymentRequired
+                    : formData.paymentMade < (calculatedPaymentRequired > 0 ? calculatedPaymentRequired : formData.paymentRequired)
                       ? "warning"
                       : "info"
                 }
               >
-                {t('status.label')}:{" "}
-                {formData.paymentMade >= formData.paymentRequired
+                {t('status.label')}: {" "}
+                {formData.paymentMade >= (calculatedPaymentRequired > 0 ? calculatedPaymentRequired : formData.paymentRequired)
                   ? t('registration.paymentMade')
-                  : formData.paymentMade < formData.paymentRequired
+                  : formData.paymentMade < (calculatedPaymentRequired > 0 ? calculatedPaymentRequired : formData.paymentRequired)
                     ? t('registration.paymentRequired')
                     : t('registration.paymentPending')}
               </Alert>
