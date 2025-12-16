@@ -10,13 +10,13 @@ import {
   ListItemText,
   Paper,
   Alert,
-  Checkbox,
   Radio,
   RadioGroup,
   FormControl,
   FormLabel,
   FormControlLabel,
   FormHelperText,
+  Tooltip,
   Link,
   Button,
   TextField
@@ -80,8 +80,10 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
   updateRunnerProfileChecked,
   onUpdateRunnerProfileChange
 }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const getLocalizedField = useLocalizedField();
+  const lang = i18n.language?.toLowerCase() || '';
+  const currencyUnit = (lang.startsWith('no') || lang.startsWith('nb') || lang.startsWith('nn')) ? 'kr' : 'NOK';
   
   // Get registration config with defaults
   const config: RegistrationConfig = {
@@ -109,6 +111,33 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
   const actualLicenseFee = (licenseFee > 0 && formData.hasYearLicense !== true) ? licenseFee : 0;
   const totalFee = participationFee + actualLicenseFee + serviceFee + depositFee;
   const paymentRemaining = Math.max(0, totalFee - (formData.paymentMade ?? 0));
+
+  const renderInfo = (title: string) => (
+    <Tooltip title={title} arrow placement="top">
+      <Box
+        component="span"
+        sx={{
+          ml: 1,
+          display: 'inline-flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: 18,
+          height: 18,
+          borderRadius: '50%',
+          border: '1px solid',
+          borderColor: 'text.secondary',
+          color: 'text.secondary',
+          fontSize: 12,
+          lineHeight: 1,
+          cursor: 'help',
+          userSelect: 'none'
+        }}
+        aria-label="Info"
+      >
+        i
+      </Box>
+    </Tooltip>
+  );
 
   // Find the selected nationality and phone code
   const selectedCountry = COUNTRIES.find(
@@ -270,7 +299,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
         </Typography>
         <List disablePadding>
           <ListItem sx={{ py: 1, px: 0 }}>
-            <ListItemText primary={t('form.entryFee')} secondary={`${participationFee} kr`} />
+            <ListItemText primary={t('form.entryFee')} secondary={`${participationFee} ${currencyUnit}`} />
           </ListItem>
           {/* Show license fee line - either charged or waived */}
           {licenseFee > 0 && (
@@ -280,25 +309,25 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
                 secondary={
                   formData.hasYearLicense === true 
                     ? t('form.yearLicenseInfo')
-                    : `${licenseFee} kr`
+                    : `${licenseFee} ${currencyUnit}`
                 } 
               />
             </ListItem>
           )}
           {serviceFee > 0 && (
             <ListItem sx={{ py: 1, px: 0 }}>
-              <ListItemText primary={t('form.baseCampFee')} secondary={`${serviceFee} kr`} />
+              <ListItemText primary={t('form.baseCampFee')} secondary={`${serviceFee} ${currencyUnit}`} />
             </ListItem>
           )}
           {depositFee > 0 && (
             <ListItem sx={{ py: 1, px: 0 }}>
-              <ListItemText primary={t('form.deposit')} secondary={`${depositFee} kr`} />
+              <ListItemText primary={t('form.deposit')} secondary={`${depositFee} ${currencyUnit}`} />
             </ListItem>
           )}
           <ListItem sx={{ py: 1, px: 0, borderTop: '1px solid', borderColor: 'divider' }}>
             <ListItemText 
               primary={<Typography fontWeight={600}>{t('form.totalFee')}</Typography>} 
-              secondary={`${totalFee} kr`} 
+              secondary={`${totalFee} ${currencyUnit}`} 
             />
           </ListItem>
           {isEditingExisting && (
@@ -306,7 +335,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
               <ListItem sx={{ py: 1, px: 0 }}>
                 <ListItemText primary={t('form.paymentMadeLabel')} />
                 <Typography variant="body2">
-                  {formData.paymentMade} NOK
+                  {formData.paymentMade} {currencyUnit}
                 </Typography>
               </ListItem>
               
@@ -314,7 +343,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
                 <ListItem sx={{ py: 1, px: 0 }}>
                   <ListItemText primary={t('form.paymentRemaining')} />
                   <Typography variant="subtitle1" color="error" sx={{ fontWeight: 700 }}>
-                    {paymentRemaining} NOK
+                    {paymentRemaining} {currencyUnit}
                   </Typography>
                 </ListItem>
               )}
@@ -334,27 +363,37 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
       <Box sx={{ mt: 3 }}>
         {showUpdateRunnerProfileOption && onUpdateRunnerProfileChange && (
           <Box sx={{ mb: 2 }}>
-            <FormControlLabel
-              control={
-                <Checkbox
-                  checked={Boolean(updateRunnerProfileChecked)}
-                  name="updateRunnerProfile"
-                  color="primary"
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdateRunnerProfileChange(e.target.checked)}
-                />
-              }
-              label={
-                <Typography variant="body2">
-                  {t('registration.updateRunnerProfile')}
-                </Typography>
-              }
-            />
+            <FormControl component="fieldset" variant="standard">
+              <FormLabel component="legend">
+                <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                  <Typography variant="body2">{t('registration.updateRunnerProfile')}</Typography>
+                  {renderInfo(t('registration.updateRunnerProfileInfo'))}
+                </Box>
+              </FormLabel>
+              <RadioGroup
+                row
+                name="updateRunnerProfile"
+                value={Boolean(updateRunnerProfileChecked) ? 'yes' : 'no'}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  onUpdateRunnerProfileChange(v === 'yes');
+                }}
+              >
+                <FormControlLabel value="yes" control={<Radio />} label={t('common.yes')} />
+                <FormControlLabel value="no" control={<Radio />} label={t('common.no')} />
+              </RadioGroup>
+            </FormControl>
           </Box>
         )}
         <Box sx={{ mb: 2 }} ref={fieldRefs.notifyFutureEvents}>
           <FormControl error={!!errors.notifyFutureEvents} component="fieldset" variant="standard">
             <FormLabel component="legend">
-              <Typography variant="body2">{t('form.notifyFutureEventsLabel')}</Typography>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                <Typography variant="body2">
+                  {t('form.notifyFutureEventsLabel')}<span style={{ color: 'grey' }}> *</span>
+                </Typography>
+                {renderInfo(t('form.notifyFutureEventsInfo'))}
+              </Box>
             </FormLabel>
             <RadioGroup
               row
@@ -363,7 +402,9 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
               onChange={(e) => {
                 const v = e.target.value;
                 onChange('notifyFutureEvents', v === 'yes');
-                onBlur && onBlur('notifyFutureEvents');
+                if (onBlur) {
+                  setTimeout(() => onBlur('notifyFutureEvents'), 0);
+                }
               }}
             >
               <FormControlLabel value="yes" control={<Radio inputRef={notifyCheckboxRef} />} label={t('common.yes')} />
@@ -376,7 +417,12 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
         <Box sx={{ mb: 2 }} ref={fieldRefs.sendRunningOffers}>
           <FormControl error={!!errors.sendRunningOffers} component="fieldset" variant="standard">
             <FormLabel component="legend">
-              <Typography variant="body2">{t('form.sendRunningOffersLabel')}</Typography>
+              <Box sx={{ display: 'inline-flex', alignItems: 'center' }}>
+                <Typography variant="body2">
+                  {t('form.sendRunningOffersLabel')}<span style={{ color: 'grey' }}> *</span>
+                </Typography>
+                {renderInfo(t('form.sendRunningOffersInfo'))}
+              </Box>
             </FormLabel>
             <RadioGroup
               row
@@ -385,7 +431,9 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
               onChange={(e) => {
                 const v = e.target.value;
                 onChange('sendRunningOffers', v === 'yes');
-                onBlur && onBlur('sendRunningOffers');
+                if (onBlur) {
+                  setTimeout(() => onBlur('sendRunningOffers'), 0);
+                }
               }}
             >
               <FormControlLabel value="yes" control={<Radio />} label={t('common.yes')} />
@@ -395,52 +443,44 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
           </FormControl>
         </Box>
         
-        <FormControlLabel
-          control={
-            // This is a controlled checkbox component that is responsible for managing the state of the
-            // "termsAccepted" field in the form data. The checkbox is checked if the value of
-            // formData.termsAccepted is true, and unchecked if it is false.
-            <Checkbox
-              indeterminate={formData.termsAccepted === undefined}
-              checked={formData.termsAccepted === true}
+        <Box sx={{ mb: 1 }} ref={fieldRefs.termsAccepted}>
+          <FormControl error={!!errors.termsAccepted} component="fieldset" variant="standard">
+            <FormLabel component="legend">
+              <Box sx={{ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap' }}>
+                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
+                  {t('form.confirmTerms')} <Link
+                    component="button"
+                    variant="body2"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleOpenTermsDialog();
+                    }}
+                    sx={{ textDecoration: 'underline' }}
+                  >
+                    {t('form.termsLink')}
+                  </Link> {t('form.forEvent')} {event.eventName}.<span style={{ color: 'grey' }}> *</span>
+                </Typography>
+                {renderInfo(t('form.termsAcceptedInfo'))}
+              </Box>
+            </FormLabel>
+            <RadioGroup
+              row
               name="termsAccepted"
-              color="primary"
-              // The "onChange" property is a function that is called whenever the checkbox is clicked.
-              // The function takes a single argument, which is the event object that was generated by
-              // the browser when the checkbox was clicked.
+              value={formData.termsAccepted === true ? 'yes' : formData.termsAccepted === false ? 'no' : ''}
               onChange={(e) => {
-                if (formData.termsAccepted === undefined) {
-                  onChange('termsAccepted', true);
-                  return;
+                const v = e.target.value;
+                onChange('termsAccepted', v === 'yes');
+                if (onBlur) {
+                  setTimeout(() => onBlur('termsAccepted'), 0);
                 }
-                onChange('termsAccepted', e.target.checked);
               }}
-              // The "onBlur" property is a function that is called whenever the checkbox loses focus.
-              // The function takes no arguments. The reason we have an onBlur handler here is to validate
-              // the field when the user clicks away from it.
-              onBlur={() => onBlur && onBlur('termsAccepted')}
-            />
-          }
-          label={
-            <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-              {t('form.confirmTerms')} <Link 
-                component="button" 
-                variant="body2" 
-                onClick={(e) => {
-                  e.preventDefault();
-                  handleOpenTermsDialog();
-                }}
-                sx={{ textDecoration: 'underline' }}
-              >
-                {t('form.termsLink')}
-              </Link> {t('form.forEvent')} {event.eventName}.<span style={{ color: 'grey' }}> *</span>
-            </Typography>
-          }
-          ref={fieldRefs.termsAccepted}
-        />
-        <FormHelperText error={!!errors.termsAccepted}>
-          {errors.termsAccepted || ''}
-        </FormHelperText>
+            >
+              <FormControlLabel value="yes" control={<Radio />} label={t('common.yes')} />
+              <FormControlLabel value="no" control={<Radio />} label={t('common.no')} />
+            </RadioGroup>
+            <FormHelperText>{errors.termsAccepted || ''}</FormHelperText>
+          </FormControl>
+        </Box>
         
         <Box sx={{ mb: 2, display: 'flex', justifyContent: 'flex-start' }}>
           <Button
@@ -450,6 +490,7 @@ const ReviewRegistration: React.FC<ReviewRegistrationProps> = ({
               onChange('notifyFutureEvents', true);
               onChange('sendRunningOffers', true);
               onChange('termsAccepted', true);
+              if (onUpdateRunnerProfileChange) onUpdateRunnerProfileChange(true);
             }}
           >
             {t('form.acceptAll')}

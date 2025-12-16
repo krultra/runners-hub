@@ -35,9 +35,10 @@ interface PersonalInfoFormProps {
   isFull?: boolean;
   isEmailReadOnly?: boolean;
   registrationConfig?: RegistrationConfig;
+  representingOptions?: string[];
 }
 
-const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, isEmailReadOnly, registrationConfig }) => {
+const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange, errors, fieldRefs, onBlur, isEmailReadOnly, registrationConfig, representingOptions }) => {
   const { t } = useTranslation();
 
   // Get registration config with defaults
@@ -303,16 +304,34 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({ formData, onChange,
           {/* Representing field - only show if configured */}
           {config.fields.representing && (
             <Grid item xs={12}>
-              <TextField
-                id="representing"
-                name="representing"
-                label={t('form.representing')}
-                fullWidth
-                variant="outlined"
-                value={formData.representing}
-                onChange={(e) => onChange('representing', e.target.value)}
-                inputProps={{ maxLength: 60 }}
-                helperText={t('form.representingHelper')}
+              <Autocomplete
+                id="representing-autocomplete"
+                freeSolo
+                options={(representingOptions || []).filter(Boolean)}
+                value={formData.representing || ''}
+                inputValue={formData.representing || ''}
+                onChange={(_, newValue) => {
+                  const v = typeof newValue === 'string' ? newValue : (newValue ?? '');
+                  onChange('representing', v);
+                }}
+                onInputChange={(_, newInputValue) => {
+                  onChange('representing', newInputValue);
+                }}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    id="representing"
+                    name="representing"
+                    label={t('form.representing')}
+                    fullWidth
+                    variant="outlined"
+                    inputProps={{
+                      ...params.inputProps,
+                      maxLength: 60,
+                    }}
+                    helperText={t('form.representingHelper')}
+                  />
+                )}
               />
             </Grid>
           )}

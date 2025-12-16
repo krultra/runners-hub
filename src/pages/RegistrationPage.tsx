@@ -32,6 +32,7 @@ import {
   validateAll,
   markStepFieldsTouched,
   RaceValidationContext,
+  LICENSE_NUMBER_REGEX,
 } from "../utils/registrationValidation";
 import { useEventEdition, CurrentEvent, DEFAULT_REGISTRATION_CONFIG, RegistrationConfig } from "../contexts/EventEditionContext";
 import PersonalInfoForm from "../components/registration/PersonalInfoForm";
@@ -66,6 +67,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   const [prefillChecked, setPrefillChecked] = useState(false);
   const [profilePrefillChecked, setProfilePrefillChecked] = useState(false);
   const [updateRunnerProfile, setUpdateRunnerProfile] = useState(true);
+  const [representingOptions, setRepresentingOptions] = useState<string[]>([]);
 
   // Form state
   const [activeStep, setActiveStep] = useState(0);
@@ -74,6 +76,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     isOnWaitinglist: false,
     waitinglistExpires: null as Date | null
   });
+  const formDataRef = useRef<any>(formData);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [touchedFields, setTouchedFields] = useState<{
     [key: string]: boolean;
@@ -88,6 +91,8 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     "success" | "error" | "info" | "warning"
   >("info");
   const [snackbarOpen, setSnackbarOpen] = useState(false);
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Field refs for input elements
   const fieldRefs = useRef<{
@@ -129,6 +134,10 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     }
   }, [calculatedPaymentRequired, formData.paymentRequired]);
 
+  useEffect(() => {
+    formDataRef.current = formData;
+  }, [formData]);
+
   // Validation context for race-specific settings (passed explicitly to validators)
   const validationContext: RaceValidationContext = {
     requiresLicense,
@@ -158,12 +167,18 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
 
   // Handlers
   const handleFormChange = useCallback((field: string, value: any) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
+    setFormData((prev) => {
+      const next = { ...prev, [field]: value };
+      formDataRef.current = next;
+      return next;
+    });
     setTouchedFields((prev) => ({ ...prev, [field]: true }));
   }, []);
 
   const handleFieldTouch = (field: string) => {
     setTouchedFields((prev) => ({ ...prev, [field]: true }));
+
+    const currentFormData = formDataRef.current;
     
     // Validate the field immediately and show errors
     if (field) {
@@ -175,15 +190,15 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       const raceDetailsFields = ['raceDistance', 'hasYearLicense', 'licenseNumber', 'travelRequired', 'comments'];
       
       if (personalInfoFields.includes(field)) {
-        fieldErrors = validatePersonalInfo(formData, options);
+        fieldErrors = validatePersonalInfo(currentFormData, options);
       } else if (raceDetailsFields.includes(field)) {
-        fieldErrors = validateRaceDetails(formData, validationContext, options);
+        fieldErrors = validateRaceDetails(currentFormData, validationContext, options);
       } else {
-        fieldErrors = validateReviewSubmit(formData, options);
+        fieldErrors = validateReviewSubmit(currentFormData, options);
       }
       
       // Get the current field value to check if it's empty
-      const fieldValue = formData[field as keyof typeof formData];
+      const fieldValue = currentFormData[field as keyof typeof currentFormData];
       const isEmpty = fieldValue === '' || fieldValue === null || fieldValue === undefined;
       
       // Update the errors state for this field
@@ -387,6 +402,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     phoneCountryCode?: string | null;
     phone?: string | null;
     representing?: string[] | string | null;
+    nfifLicenseNumber?: string | null;
   };
 
   const normalizeEmail = (value: string) => value.trim().toLowerCase();
@@ -401,12 +417,35 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     return String(value ?? '').replace(/\D/g, '').slice(0, 15);
   };
 
+  const getEventYear = () => {
+    const d = event?.startTime instanceof Date ? event.startTime : new Date(event?.startTime as any);
+    const year = d && !Number.isNaN(d.getTime()) ? d.getFullYear() : new Date().getFullYear();
+    return year;
+  };
+
+  const getLicenseYear = (licenseNumber: string): number | null => {
+    const trimmed = String(licenseNumber ?? '').trim();
+    if (!LICENSE_NUMBER_REGEX.test(trimmed)) return null;
+    const parts = trimmed.split('-');
+    const year = Number(parts[1]);
+    return Number.isFinite(year) ? year : null;
+  };
+
   const extractRepresentingValue = (value: unknown): string => {
     if (Array.isArray(value)) {
       const arr = value.map((v) => String(v ?? '').trim()).filter(Boolean);
       return arr.length ? arr[arr.length - 1] : '';
     }
     return String(value ?? '').trim();
+  };
+
+  const extractRepresentingOptions = (value: unknown): string[] => {
+    const arr = Array.isArray(value)
+      ? value.map((v) => String(v ?? '').trim()).filter(Boolean)
+      : (typeof value === 'string' && value.trim())
+        ? [value.trim()]
+        : [];
+    return Array.from(new Set(arr));
   };
 
   const resolveUserProfileDoc = useCallback(async (uid: string, email: string | null | undefined) => {
@@ -461,6 +500,12 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
         const normalizedPhone = normalizePhoneDigits(profile.phone ?? null);
         const normalizedDob = toDate(profile.dateOfBirth);
         const representingValue = extractRepresentingValue(profile.representing);
+        const representingOpts = extractRepresentingOptions(profile.representing);
+        const storedLicenseNumber = String(profile.nfifLicenseNumber ?? '').trim();
+        const storedLicenseYear = getLicenseYear(storedLicenseNumber);
+        const eventYear = getEventYear();
+
+        setRepresentingOptions(representingOpts);
 
         setFormData((prev: any) => {
           const next: any = { ...prev };
@@ -479,6 +524,17 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           if (!next.phoneNumber && normalizedPhone) next.phoneNumber = normalizedPhone;
           if (!next.representing && representingValue) next.representing = representingValue;
 
+          // Prefill NFIF year license only if the stored license number is for the current event year.
+          if (
+            storedLicenseNumber &&
+            storedLicenseYear === eventYear &&
+            next.hasYearLicense === initialFormData.hasYearLicense &&
+            String(next.licenseNumber ?? '').trim() === ''
+          ) {
+            next.hasYearLicense = true;
+            next.licenseNumber = storedLicenseNumber;
+          }
+
           return next;
         });
       } catch (err) {
@@ -493,6 +549,26 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
       isMounted = false;
     };
   }, [authChecked, prefillChecked, user, isEditingExisting, profilePrefillChecked, resolveUserProfileDoc]);
+
+  // Always load representing options for the Club dropdown when logged in.
+  useEffect(() => {
+    if (!authChecked || !user?.uid) return;
+    let isMounted = true;
+    const loadRepresenting = async () => {
+      try {
+        const resolved = await resolveUserProfileDoc(user.uid, user.email);
+        if (!isMounted) return;
+        const opts = extractRepresentingOptions(resolved?.data?.representing);
+        setRepresentingOptions(opts);
+      } catch {
+        // ignore
+      }
+    };
+    loadRepresenting();
+    return () => {
+      isMounted = false;
+    };
+  }, [authChecked, user, resolveUserProfileDoc]);
 
   const upsertRunnerProfileFromForm = useCallback(async () => {
     if (!user?.uid) {
@@ -531,6 +607,27 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     await setDoc(doc(db, 'users', docId), payload, { merge: true });
   }, [user, formData, resolveUserProfileDoc]);
 
+  const upsertRunnerLicenseFromForm = useCallback(async () => {
+    if (!user?.uid) return;
+
+    const licenseNumber = String(formData.licenseNumber ?? '').trim();
+    if (formData.hasYearLicense !== true) return;
+    const licenseYear = getLicenseYear(licenseNumber);
+    if (!licenseYear) return;
+
+    const resolved = await resolveUserProfileDoc(user.uid, user.email);
+    const docId = resolved?.id || user.uid;
+
+    await setDoc(
+      doc(db, 'users', docId),
+      {
+        nfifLicenseNumber: licenseNumber,
+        updatedAt: serverTimestamp(),
+      },
+      { merge: true }
+    );
+  }, [user, formData.hasYearLicense, formData.licenseNumber, resolveUserProfileDoc]);
+
   useEffect(() => {
     if (authChecked && !user) {
       navigate("/auth?returnTo=/register", { replace: true });
@@ -564,6 +661,31 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     if (!user || !user.email) return false;
     return Object.keys(errors).length === 0;
   };
+
+  const isFinalStep = activeStep === steps.length - 1;
+  const submitDisabled =
+    isSubmitting ||
+    (isFinalStep &&
+      (!isFormValidForSubmission() ||
+        (isFull &&
+          !isEditingExisting &&
+          !formData.waitinglistExpires)));
+
+  const submitBlockedReasons: string[] = [];
+  if (isFinalStep) {
+    if (formData.notifyFutureEvents !== true && formData.notifyFutureEvents !== false) {
+      submitBlockedReasons.push(t('registration.submitBlock.notifyFutureEvents'));
+    }
+    if (formData.sendRunningOffers !== true && formData.sendRunningOffers !== false) {
+      submitBlockedReasons.push(t('registration.submitBlock.sendRunningOffers'));
+    }
+    if (formData.termsAccepted !== true) {
+      submitBlockedReasons.push(t('registration.submitBlock.termsAccepted'));
+    }
+    if (isFull && !isEditingExisting && !formData.waitinglistExpires) {
+      submitBlockedReasons.push(t('registration.submitBlock.waitinglistExpires'));
+    }
+  }
 
   const handleNext = () => {
     // Mark all fields for the current step as touched
@@ -711,8 +833,6 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     }
   }, [activeStep, validationAttempted, formData, validationContext, clearAllErrors]);
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-
   const handleSubmit = async () => {
     // Validate the entire form including terms and conditions
     setValidationAttempted(true);
@@ -805,6 +925,12 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           );
           await updateRegistration(existingRegistrationId, registrationData);
 
+          try {
+            await upsertRunnerLicenseFromForm();
+          } catch (err) {
+            console.error('[RegistrationPage] Failed to store NFIF license number', err);
+          }
+
           if (updateRunnerProfile) {
             try {
               await upsertRunnerProfileFromForm();
@@ -835,6 +961,12 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             registrationData,
             user?.uid,
           );
+
+          try {
+            await upsertRunnerLicenseFromForm();
+          } catch (err) {
+            console.error('[RegistrationPage] Failed to store NFIF license number', err);
+          }
 
           if (updateRunnerProfile) {
             try {
@@ -898,6 +1030,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             isFull={isFull}
             isEmailReadOnly={true}  /* Make email field read-only since it comes from auth */
             registrationConfig={registrationConfig}
+            representingOptions={representingOptions}
           />
         );
       case 1:
@@ -1056,18 +1189,23 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
             onClick={
               activeStep === steps.length - 1 ? handleSubmit : handleNext
             }
-            disabled={
-              isSubmitting ||
-              (activeStep === steps.length - 1 &&
-                (!isFormValidForSubmission() ||
-                  (isFull &&
-                    !isEditingExisting &&
-                    !formData.waitinglistExpires)))
-            }
+            disabled={submitDisabled}
           >
             {activeStep === steps.length - 1 ? t('registration.submit') : t('registration.next')}
           </Button>
         </Box>
+        {isFinalStep && submitDisabled && !isSubmitting && submitBlockedReasons.length > 0 && (
+          <Box sx={{ mt: 1 }}>
+            <Typography variant="body2" color="text.secondary">
+              {t('registration.submitDisabledHelp')}
+            </Typography>
+            {submitBlockedReasons.map((r) => (
+              <Typography key={r} variant="body2" color="text.secondary">
+                - {r}
+              </Typography>
+            ))}
+          </Box>
+        )}
       </Paper>
     </Container>
   );

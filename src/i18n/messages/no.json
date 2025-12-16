@@ -205,6 +205,7 @@
     "reviewingRegistration": "Rediger påmelding",
     "reviewingWaitlistRegistration": "Rediger ventelistepåmelding",
     "updateRunnerProfile": "Oppdater løperprofilen min med disse opplysningene",
+    "updateRunnerProfileInfo": "Ja: Løperprofilen din oppdateres med opplysningene fra denne påmeldingen. Nei: Løperprofilen din blir ikke endret.",
     "steps": {
       "personalInfo": "Personopplysninger",
       "raceDetails": "Løpsdetaljer",
@@ -238,14 +239,21 @@
     "agreeToWaitlist": "Vennligst godta å stå på venteliste før innsending",
     "selectWaitlistExpiration": "Vennligst velg utløpsdato for venteliste",
     "duplicateRegistration": "Du har allerede sendt inn en påmelding. Duplikater er ikke tillatt.",
-    "registrationSuccess": "Påmeldingen er sendt inn!",
-    "waitlistSuccess": "Vellykket ventelistepåmelding!",
-    "registrationUpdated": "Påmeldingen er oppdatert!",
+    "registrationSuccess": "Påmelding vellykket!",
+    "waitlistSuccess": "Ventelistepåmelding vellykket!",
+    "registrationUpdated": "Påmelding oppdatert!",
     "errorSubmitting": "Feil ved innsending av påmelding",
     "errorConnecting": "Feil ved tilkobling til databasen. Vennligst sjekk internettforbindelsen.",
     "couldNotConnect": "Kunne ikke koble til databasen. Vennligst sjekk internettforbindelsen.",
     "mustAcceptWaitlist": "Du må godta å stå på venteliste",
-    "selectExpirationDate": "Velg utløpsdato"
+    "selectExpirationDate": "Velg utløpsdato",
+    "submitDisabledHelp": "For å aktivere Send inn-knappen må du fullføre følgende:",
+    "submitBlock": {
+      "notifyFutureEvents": "Svar Ja eller Nei på \"Varsle meg og send informasjon om fremtidige arrangementer\"",
+      "sendRunningOffers": "Svar Ja eller Nei på \"Send meg relevant informasjon og tilbud...\"",
+      "termsAccepted": "Svar Ja for å bekrefte at du godtar vilkårene",
+      "waitinglistExpires": "Velg utløpsdato for venteliste"
+    }
   },
   "form": {
     "personalInfo": "Personlig informasjon",
@@ -307,9 +315,12 @@
     "mobilePhone": "Mobiltelefon",
     "notProvided": "Ikke oppgitt",
     "notifyFutureEventsLabel": "Varsle meg og send informasjon om fremtidige arrangementer",
+    "notifyFutureEventsInfo": "Ja: Du mottar viktige oppdateringer om fremtidige arrangementer. Dette inkluderer en invitasjon til forhåndspåmelding for neste års arrangement før påmeldingen åpner for allmennheten. Nei: Du vil ikke motta disse oppdateringene eller invitasjoner til forhåndspåmelding.",
     "sendRunningOffersLabel": "Send meg relevant informasjon og tilbud relatert til trail- og ultraløping",
+    "sendRunningOffersInfo": "Ja: KrUltra kan sende deg relevant informasjon og sporadiske tilbud relatert til trail- og ultraløping. Vi har en svært restriktiv markedsføringsprofil og kommer ikke til å fylle opp innboksen din. Nei: Du vil ikke motta disse meldingene.",
     "confirmTerms": "Jeg bekrefter at all informasjon er korrekt og godtar",
     "termsLink": "vilkårene",
+    "termsAcceptedInfo": "Ja: Du godtar vilkårene og kan sende inn påmeldingen. Nei: Du kan ikke sende inn påmeldingen.",
     "forEvent": "for",
     "acceptAll": "Godta alle ovenfor",
     "waitlistExpiryLabel": "Jeg ønsker at min plass på ventelisten utløper hvis jeg ikke blir forfremmet til deltakerlisten før følgende dato:",

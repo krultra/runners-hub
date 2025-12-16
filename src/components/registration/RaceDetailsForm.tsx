@@ -189,7 +189,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({
                   />
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     <Link
-                      href="https://isonen.no/event/cm1qawqik00o613hlk5o1kjjq/"
+                      href="https://isonen.no/event/cm1qawqik00o613hlk5o1kjjq/#eventContentTableId"
                       target="_blank"
                       rel="noopener noreferrer"
                     >
