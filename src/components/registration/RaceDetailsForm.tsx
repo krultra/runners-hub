@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useMemo, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocalizedField } from '../../hooks/useLocalizedField';
 import {
@@ -49,6 +49,14 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({
   const { t } = useTranslation();
   const getLocalizedField = useLocalizedField();
   const firstRadioRef = useRef<HTMLInputElement>(null);
+
+  const eventYear = useMemo(() => {
+    const d = event?.startTime instanceof Date ? event.startTime : new Date(event?.startTime as any);
+    const year = d && !Number.isNaN(d.getTime()) ? d.getFullYear() : new Date().getFullYear();
+    return year;
+  }, [event?.startTime]);
+
+  const licenseExample = useMemo(() => `123456-${eventYear}`, [eventYear]);
 
   // Get registration config with defaults
   const config: RegistrationConfig = {
@@ -183,9 +191,9 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({
                     onChange={(e) => onChange('licenseNumber', e.target.value)}
                     onBlur={() => onBlur && onBlur('licenseNumber')}
                     error={!!errors.licenseNumber}
-                    helperText={errors.licenseNumber || t('form.licenseNumberHelper')}
+                    helperText={errors.licenseNumber || t('form.licenseNumberHelper', { example: licenseExample })}
                     inputRef={fieldRefs.licenseNumber as any}
-                    placeholder="123456-2025"
+                    placeholder={licenseExample}
                   />
                   <Typography variant="body2" sx={{ mt: 1 }}>
                     <Link

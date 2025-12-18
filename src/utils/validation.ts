@@ -136,7 +136,7 @@ export const validateForm = (
       if ((touchedFields.licenseNumber || showAllErrors) && (!formData.licenseNumber || formData.licenseNumber.trim() === '')) {
         newErrors.licenseNumber = 'License number is required';
       } else if ((touchedFields.licenseNumber || showAllErrors) && formData.licenseNumber && !LICENSE_NUMBER_REGEX.test(formData.licenseNumber.trim())) {
-        newErrors.licenseNumber = 'Invalid license number format (expected: 123456-2025)';
+        newErrors.licenseNumber = 'Invalid license number format (expected: xxxxxx-yyyy)';
       }
     }
   }

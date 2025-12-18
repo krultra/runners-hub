@@ -119,6 +119,12 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   const licenseFee = selectedDistance?.fees?.oneTimeLicense ?? event.fees?.oneTimeLicense ?? 0;
   const requiresLicense = licenseFee > 0;
 
+  const eventYear = useMemo(() => {
+    const d = event?.startTime instanceof Date ? event.startTime : new Date(event?.startTime as any);
+    const year = d && !Number.isNaN(d.getTime()) ? d.getFullYear() : new Date().getFullYear();
+    return year;
+  }, [event?.startTime]);
+
   const calculatedPaymentRequired = useMemo(() => {
     const participationFee = selectedDistance?.fees?.participation ?? event.fees?.participation ?? 0;
     const oneTimeLicenseFee = selectedDistance?.fees?.oneTimeLicense ?? event.fees?.oneTimeLicense ?? 0;
@@ -141,6 +147,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   // Validation context for race-specific settings (passed explicitly to validators)
   const validationContext: RaceValidationContext = {
     requiresLicense,
+    eventYear,
     registrationConfig,
   };
 

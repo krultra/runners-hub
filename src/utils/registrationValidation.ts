@@ -20,6 +20,8 @@ export interface ValidationOptions {
 export interface RaceValidationContext {
   /** Whether the selected race requires a license (licenseFee > 0) */
   requiresLicense: boolean;
+  /** Event year derived from event start time (used for year-sensitive validation) */
+  eventYear: number;
   /** Registration config from the event */
   registrationConfig: RegistrationConfig;
 }
@@ -134,7 +136,7 @@ export const validateRaceDetails = (
   options: ValidationOptions = {}
 ): Record<string, string> => {
   const errors: Record<string, string> = {};
-  const { requiresLicense, registrationConfig } = context;
+  const { requiresLicense, registrationConfig, eventYear } = context;
 
   // Race distance (always required)
   if (shouldValidate('raceDistance', options)) {
@@ -157,7 +159,14 @@ export const validateRaceDetails = (
       if (!formData.licenseNumber || formData.licenseNumber.trim() === '') {
         errors.licenseNumber = 'License number is required';
       } else if (!LICENSE_NUMBER_REGEX.test(formData.licenseNumber.trim())) {
-        errors.licenseNumber = 'Invalid license number format (expected: 123456-2025)';
+        errors.licenseNumber = 'Invalid license number format (expected: xxxxxx-yyyy)';
+      } else {
+        const trimmed = formData.licenseNumber.trim();
+        const parts = trimmed.split('-');
+        const licenseYear = Number(parts[1]);
+        if (Number.isFinite(licenseYear) && licenseYear !== eventYear) {
+          errors.licenseNumber = "Your license looks to be for a different year from the event's year.";
+        }
       }
     }
   }
