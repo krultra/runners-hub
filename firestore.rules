@@ -10,15 +10,18 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
-    function isRunAlertUser() {
-      return request.auth != null && 
-        exists(/databases/$(database)/documents/users/$(request.auth.uid));
-    }
-
     // =============================================
     // Users Collection (Shared)
     // =============================================
     match /users/{userId} {
+      function isUserDocOwner() {
+        return request.auth != null && (
+          request.auth.uid == userId ||
+          (resource != null && resource.data.uid == request.auth.uid) ||
+          (resource != null && request.auth.token.email != null && resource.data.email == request.auth.token.email)
+        );
+      }
+
       // Public read access for basic info (name, personId) for runner search/profiles
       // Full read access for the user themselves or admins
       allow read: if true;  // Allow public read for runner search and profiles
@@ -30,12 +33,20 @@ service cloud.firestore {
           request.auth.uid == userId &&
           (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false)
         ) ||
-        isAdmin()
+        (
+          request.resource.data.uid == request.auth.uid &&
+          (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false)
+        ) ||
+        (
+          request.auth.token.email != null &&
+          request.resource.data.email == request.auth.token.email &&
+          (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false)
+        )
       );
 
       allow update: if request.auth != null && (
         (
-          request.auth.uid == userId &&
+          isUserDocOwner() &&
           request.resource.data.diff(resource.data).affectedKeys().hasOnly([
             'displayName',
             'photoURL',
@@ -55,20 +66,7 @@ service cloud.firestore {
           (!('isAdmin' in request.resource.data) || request.resource.data.isAdmin == false)
         ) ||
         (
-          isAdmin() &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly([
-            'displayName',
-            'photoURL',
-            'ra',
-            'lastLogin',
-            'firstName',
-            'lastName',
-            'phoneCountryCode',
-            'phone',
-            'email',
-            'personId',
-            'isAdmin'
-          ])
+          false
         )
       );
       
@@ -187,24 +185,24 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
-    match /moResults/{resultId}/{document=**} {
+    match /moParticipantStaging/{documentId} {
       allow read: if true;
       allow write: if isAdmin();
     }
 
-    // =============================================
-    // Reconciliation Staging (admin only)
-    // =============================================
-    match /moParticipantStaging/{runnerKey} {
-      allow read, write: if isAdmin();
+    match /moMatchCandidates/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    match /moMatchCandidates/{docId} {
-      allow read, write: if isAdmin();
+    match /adminMoActions/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
-    match /userDuplicateCandidates/{docId} {
-      allow read, write: if isAdmin();
+    match /userDuplicateCandidates/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
     }
 
     // =============================================

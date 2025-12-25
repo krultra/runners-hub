@@ -628,12 +628,14 @@ const RunnerProfilePage: React.FC = () => {
     profile?.personId && authPersonIds.includes(profile.personId)
   );
 
-  const canEdit = Boolean(profile) && !authLoading && (
+  const isOwnProfile = Boolean(profile) && !authLoading && Boolean(authUserId) && (
     authUserId === profile?.userId ||
+    authUserId === profile?.userDocId ||
     emailMatches ||
-    personIdMatches ||
-    isAdmin
+    personIdMatches
   );
+
+  const canEdit = isOwnProfile;
 
   const hasMoAppearances = useMemo(
     () => moResults.some((e) => isCountedMoClass(e.class)),
@@ -650,9 +652,10 @@ const RunnerProfilePage: React.FC = () => {
       profilePersonId: profile?.personId,
       authPersonIds,
       isAdmin,
+      isOwnProfile,
       canEdit
     });
-  }, [authLoading, authUserId, authEmail, profile, isAdmin, emailMatches, personIdMatches, authPersonIds, canEdit]);
+  }, [authLoading, authUserId, authEmail, profile, isAdmin, emailMatches, personIdMatches, authPersonIds, isOwnProfile, canEdit]);
 
   useEffect(() => {
     console.log(debugTag, 'Render personal details toggle', {
@@ -1179,6 +1182,12 @@ const RunnerProfilePage: React.FC = () => {
           Runner's page
         </Typography>
       </Box>
+
+      {!authLoading && !isOwnProfile && (
+        <Alert severity="info" sx={{ mb: 4 }}>
+          Viewing a public runner profile. Only your own profile shows personal details.
+        </Alert>
+      )}
 
       {canEdit && (
         <Paper sx={{ mb: 4 }}>
