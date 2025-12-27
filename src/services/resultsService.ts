@@ -237,24 +237,8 @@ const getEventResults = async (editionId: string): Promise<{
     // Track timing results retrieved
     let timingResults: any[] = [];
     let timingFoundByBib = new Map<number, boolean>();
-    
-    // Try to fetch from moTiming collection
-    for (const id of queryIds) {
-      console.log(`Searching for timing data with eventId='${id}'`);
-      // Try direct query with the ID format
-      const timingQuery = query(collection(db, 'moTiming'), where('eventId', '==', id));
-      const timingSnap = await getDocs(timingQuery);
-      console.log(`Found ${timingSnap.docs.length} timing records with eventId='${id}'`);
-      
-      if (timingSnap.docs.length > 0) {
-        timingResults = [...timingResults, ...timingSnap.docs];
-        // Log sample timing data
-        if (timingSnap.docs.length > 0) {
-          const sampleData = timingSnap.docs[0].data();
-          console.log(`Sample timing data: bib=${sampleData.bib}, totalTime=${JSON.stringify(sampleData.totalTime)}`);
-        }
-      }
-    }
+
+    // Timing support has been removed; keep timingResults empty.
     
     // Create a map of timing data by bib number
     const timingByBib = new Map();
@@ -338,16 +322,7 @@ const getEventResults = async (editionId: string): Promise<{
     // Sort participants by bib number
     participants.sort((a, b) => a.bib - b.bib);
 
-    // Fetch timing results for this edition (if any)
-    const timingSnap = await getDocs(
-      query(collection(db, 'moTiming'), where('eventId', '==', editionId))
-    );
-    console.log(`Found ${timingSnap.docs.length} timing records`);
-    
-    // Debug the first timing record
-    if (timingSnap.docs.length > 0) {
-      console.log('First timing record:', JSON.stringify(timingSnap.docs[0].data()));
-    }
+    // Timing support has been removed; do not load timing results here.
     
     // Enhanced timing map to include AG/AGG times and placements
     interface EnhancedTiming {
@@ -372,77 +347,6 @@ const getEventResults = async (editionId: string): Promise<{
     }
     
     const timingMap = new Map<number, EnhancedTiming>();
-    timingSnap.docs.forEach((t) => {
-      const record = t.data() as any;
-      console.log(`Processing timing record for bib #${record.bib}:`, record);
-      
-      if (record.bib != null) {
-        // Dump the whole record for debugging
-        console.log(`Full timing record for bib #${record.bib}:`, JSON.stringify(record));
-        
-        // Extract basic timing information
-        let timeSeconds = 0;
-        let displayTime = '';
-        
-        if (record.totalTime && typeof record.totalTime === 'object') {
-          timeSeconds = record.totalTime.seconds || 0;
-          displayTime = record.totalTime.display || '';
-        }
-        
-        if (timeSeconds > 0) {
-          // Create enhanced timing object with all available data
-          const enhancedTiming: EnhancedTiming = {
-            bib: record.bib,
-            display: displayTime,
-            seconds: timeSeconds,
-            registrationType: record.registrationType,
-            className: record.className,
-            age: record.age,
-            gender: record.gender
-          };
-          
-          // Extract AG time if available
-          if (record.totalAGTime && Array.isArray(record.totalAGTime) && record.totalAGTime.length === 2) {
-            enhancedTiming.agTimeDisplay = record.totalAGTime[0];
-            enhancedTiming.agTimeSeconds = record.totalAGTime[1];
-            console.log(`Found AG time for bib #${record.bib}: ${enhancedTiming.agTimeDisplay}`);
-          }
-          
-          // Extract AGG time if available
-          if (record.totalAGGTime && Array.isArray(record.totalAGGTime) && record.totalAGGTime.length === 2) {
-            enhancedTiming.aggTimeDisplay = record.totalAGGTime[0];
-            enhancedTiming.aggTimeSeconds = record.totalAGGTime[1];
-            console.log(`Found AGG time for bib #${record.bib}: ${enhancedTiming.aggTimeDisplay}`);
-          }
-          
-          // Extract placements
-          if (typeof record.scratchPlace === 'number') {
-            enhancedTiming.scratchPlace = record.scratchPlace;
-          }
-          
-          if (typeof record.genderPlace === 'number') {
-            enhancedTiming.genderPlace = record.genderPlace;
-          }
-          
-          if (typeof record.AGPlace === 'number') {
-            enhancedTiming.agPlace = record.AGPlace;
-          }
-          
-          if (typeof record.AGGPlace === 'number') {
-            enhancedTiming.aggPlace = record.AGGPlace;
-          }
-          
-          if (typeof record.classPlace === 'number') {
-            enhancedTiming.classPlace = record.classPlace;
-          }
-          
-          console.log(`Enhanced timing for bib #${record.bib}:`, enhancedTiming);
-          timingMap.set(record.bib, enhancedTiming);
-        } else {
-          console.log(`No valid time found for bib #${record.bib}`);
-        }
-      }
-    });
 
     // Fetch time grading factors for this event
     const factorsSnap = await getDocs(
