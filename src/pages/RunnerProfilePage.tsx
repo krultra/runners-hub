@@ -1188,6 +1188,7 @@ const RunnerProfilePage: React.FC = () => {
                 <CalendarCheck size={20} />
               </ListItemIcon>
               <ListItemText
+                disableTypography
                 primary={
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} alignItems={{ xs: 'flex-start', sm: 'center' }}>
                     <Typography variant="subtitle1" fontWeight={600}>
