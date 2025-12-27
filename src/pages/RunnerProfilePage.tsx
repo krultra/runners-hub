@@ -1170,7 +1170,7 @@ const RunnerProfilePage: React.FC = () => {
               disableGutters
               divider={!isLast}
               sx={{ py: 1.5 }}
-              secondaryAction={
+              secondaryAction={isOwnProfile ? (
                 <Button
                   variant="outlined"
                   size="small"
@@ -1182,7 +1182,7 @@ const RunnerProfilePage: React.FC = () => {
                 >
                   {t('runners.profile.upcoming.reviewRegistration')}
                 </Button>
-              }
+              ) : null}
             >
               <ListItemIcon sx={{ minWidth: 40 }}>
                 <CalendarCheck size={20} />
