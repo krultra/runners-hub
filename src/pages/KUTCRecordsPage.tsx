@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import { Trophy, Medal, Timer, MapPin, ArrowLeft, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   getMaxLoopsRecords,
   getFastestRaceTimes,
@@ -32,6 +33,7 @@ import {
 
 const KUTCRecordsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [loopRecords, setLoopRecords] = useState<LoopRecord[]>([]);
   const [fastestTimes, setFastestTimes] = useState<Map<string, FastestTimeRecord[]>>(new Map());
   const [appearanceGroups, setAppearanceGroups] = useState<{ top: AppearanceRecord[]; runnerUp: AppearanceRecord[] }>({
@@ -43,9 +45,9 @@ const KUTCRecordsPage: React.FC = () => {
   const [hasDataIntegrityIssues, setHasDataIntegrityIssues] = useState(false);
 
   const raceAvailabilityNotes: Record<string, string> = {
-    '2-loops': '(this race distance was only available in 2018)',
-    '3-loops': '(this race distance was only available in 2018)',
-    '7-loops': '(this race distance was only available in 2018, 2019 and 2020)'
+    '2-loops': t('kutc.records.raceAvailabilityNotes.2Loops'),
+    '3-loops': t('kutc.records.raceAvailabilityNotes.3Loops'),
+    '7-loops': t('kutc.records.raceAvailabilityNotes.7Loops')
   };
 
   useEffect(() => {
@@ -66,14 +68,14 @@ const KUTCRecordsPage: React.FC = () => {
         setAppearanceGroups(appearances);
       } catch (err) {
         console.error('Error fetching records:', err);
-        setError('Failed to load records data');
+        setError(t('kutc.records.loadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecords();
-  }, []);
+  }, [t]);
 
   if (loading) {
     return (
@@ -99,7 +101,7 @@ const KUTCRecordsPage: React.FC = () => {
     return <Medal size={28} color={colors[index]} style={{ marginRight: 8 }} />;
   };
 
-  const formatAppearances = (count: number) => `${count} ${count === 1 ? 'Edition' : 'Editions'}`;
+  const formatAppearances = (count: number) => t('kutc.records.appearancesCount', { count });
   const topGroup = appearanceGroups.top;
   const runnerUpGroup = appearanceGroups.runnerUp;
   const topAppearancesLabel = topGroup.length > 0 ? formatAppearances(topGroup[0].appearances) : null;
@@ -113,7 +115,7 @@ const KUTCRecordsPage: React.FC = () => {
           startIcon={<ArrowLeft />}
           onClick={() => navigate('/kutc/results')}
         >
-          Back to Overview
+          {t('kutc.backToOverview')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <Button
@@ -121,7 +123,7 @@ const KUTCRecordsPage: React.FC = () => {
           startIcon={<BarChart3 />}
           onClick={() => navigate('/kutc/all-time')}
         >
-          All-Time Leaderboard
+          {t('kutc.allTimeLeaderboard')}
         </Button>
       </Box>
 
@@ -129,16 +131,16 @@ const KUTCRecordsPage: React.FC = () => {
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
           <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          KUTC Records
+          {t('kutc.records.title')}
         </Typography>
         <Typography variant="h6" color="text.secondary">
-          All-time records and achievements
+          {t('kutc.records.subtitle')}
         </Typography>
       </Box>
 
       {hasDataIntegrityIssues && (
         <Alert severity="warning" sx={{ mb: 3 }}>
-          Some historical editions currently contain data errors. We are working to correct them as soon as possible.
+          {t('kutc.dataIntegrityWarning')}
         </Alert>
       )}
 
@@ -146,7 +148,7 @@ const KUTCRecordsPage: React.FC = () => {
       <Box sx={{ mb: 6 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold" sx={{ mb: 3 }}>
           <Trophy size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          Most Loops Completed
+          {t('kutc.records.mostLoopsCompleted')}
         </Typography>
 
         {loopRecords.length > 0 ? (
@@ -155,11 +157,11 @@ const KUTCRecordsPage: React.FC = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell><strong>Rank</strong></TableCell>
-                    <TableCell><strong>Participant</strong></TableCell>
-                    <TableCell align="center"><strong>Loops</strong></TableCell>
-                    <TableCell align="center"><strong>Time</strong></TableCell>
-                    <TableCell align="center"><strong>Edition</strong></TableCell>
+                    <TableCell><strong>{t('kutc.records.table.rank')}</strong></TableCell>
+                    <TableCell><strong>{t('kutc.records.table.participant')}</strong></TableCell>
+                    <TableCell align="center"><strong>{t('kutc.records.table.loops')}</strong></TableCell>
+                    <TableCell align="center"><strong>{t('kutc.records.table.time')}</strong></TableCell>
+                    <TableCell align="center"><strong>{t('kutc.records.table.edition')}</strong></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -186,7 +188,7 @@ const KUTCRecordsPage: React.FC = () => {
             </TableContainer>
           </Paper>
         ) : (
-          <Alert severity="info">No loop completion records available</Alert>
+          <Alert severity="info">{t('kutc.records.noLoopRecords')}</Alert>
         )}
       </Box>
 
@@ -194,10 +196,10 @@ const KUTCRecordsPage: React.FC = () => {
       <Box sx={{ mb: 6 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold" sx={{ mb: 3 }}>
           <Timer size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          Fastest Race Times
+          {t('kutc.records.fastestRaceTimesTitle')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 3, maxWidth: 720 }}>
-          The records listed for the various distances below are based only on times recorded by runners who were registered for that specific race distance. Split times from runners registered for a different race distance do not count as records, even if the time is faster than that of those registered as records for the race distance in question.
+          {t('kutc.records.fastestRaceTimesIntro')}
         </Typography>
 
         {Array.from(fastestTimes.entries())
@@ -222,10 +224,10 @@ const KUTCRecordsPage: React.FC = () => {
               <Table>
                 <TableHead>
                   <TableRow>
-                    <TableCell><strong>Rank</strong></TableCell>
-                    <TableCell><strong>Participant</strong></TableCell>
-                    <TableCell align="center"><strong>Time</strong></TableCell>
-                    <TableCell align="center"><strong>Edition</strong></TableCell>
+                    <TableCell><strong>{t('kutc.records.table.rank')}</strong></TableCell>
+                    <TableCell><strong>{t('kutc.records.table.participant')}</strong></TableCell>
+                    <TableCell align="center"><strong>{t('kutc.records.table.time')}</strong></TableCell>
+                    <TableCell align="center"><strong>{t('kutc.records.table.edition')}</strong></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -253,7 +255,7 @@ const KUTCRecordsPage: React.FC = () => {
         ))}
 
         {fastestTimes.size === 0 && (
-          <Alert severity="info">No race time records available</Alert>
+          <Alert severity="info">{t('kutc.records.noRaceTimeRecords')}</Alert>
         )}
       </Box>
 
@@ -261,7 +263,7 @@ const KUTCRecordsPage: React.FC = () => {
       <Box sx={{ mb: 4 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold" sx={{ mb: 3 }}>
           <MapPin size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          Most Appearances
+          {t('kutc.records.mostAppearancesTitle')}
         </Typography>
 
         <Paper elevation={2} sx={{ p: 3 }}>
@@ -282,7 +284,7 @@ const KUTCRecordsPage: React.FC = () => {
                           {leader.firstName} {leader.lastName}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Participated in: {leader.editions.join(', ').replace(/kutc-/g, '')}
+                          {t('kutc.records.participatedIn', { editions: leader.editions.join(', ').replace(/kutc-/g, '') })}
                         </Typography>
                       </CardContent>
                     </Card>
@@ -293,7 +295,7 @@ const KUTCRecordsPage: React.FC = () => {
               {runnerUpGroup.length > 0 && runnerUpAppearancesLabel && (
                 <>
                   <Typography variant="h6" fontWeight="bold" sx={{ mt: 4 }}>
-                    Runners-up – {runnerUpAppearancesLabel}
+                    {t('kutc.records.runnersUp', { label: runnerUpAppearancesLabel })}
                   </Typography>
                   <Grid container spacing={2} sx={{ mt: 1 }}>
                     {runnerUpGroup.map((leader) => (
@@ -304,7 +306,7 @@ const KUTCRecordsPage: React.FC = () => {
                               {leader.firstName} {leader.lastName}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
-                              Participated in: {leader.editions.join(', ').replace(/kutc-/g, '')}
+                              {t('kutc.records.participatedIn', { editions: leader.editions.join(', ').replace(/kutc-/g, '') })}
                             </Typography>
                           </CardContent>
                         </Card>
@@ -315,7 +317,7 @@ const KUTCRecordsPage: React.FC = () => {
               )}
             </>
           ) : (
-            <Alert severity="info">No appearance records available</Alert>
+            <Alert severity="info">{t('kutc.records.noAppearanceRecords')}</Alert>
           )}
         </Paper>
       </Box>

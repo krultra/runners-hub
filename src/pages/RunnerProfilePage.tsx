@@ -34,6 +34,7 @@ import { isAdminUser } from '../utils/adminUtils';
 import { useTranslation } from 'react-i18next';
 import {
   getRunnerProfile,
+  getPublicUpcomingRegistrations,
   RunnerParticipation,
   RunnerProfile,
   RunnerProfileEditableDetails,
@@ -42,7 +43,6 @@ import {
   getRunnerKutcParticipationData,
   updateRunnerProfileDetails
 } from '../services/runnerProfileService';
-import { getUserIdByPersonId } from '../services/runnerNavigationService';
 import { getRunnerMoResults, MOResultEntry, getEditionResults } from '../services/moResultsService';
 import { useEventEdition } from '../contexts/EventEditionContext';
 
@@ -62,9 +62,11 @@ const formatTimeDisplay = (display: string | null | undefined, seconds: number |
   return parts;
 };
 
-const formatDateTimeDisplay = (value: Date | null | undefined): string => {
+type TranslateFn = (key: string, options?: any) => string;
+
+const formatDateTimeDisplay = (value: Date | null | undefined, t: TranslateFn): string => {
   if (!value) {
-    return 'Date TBA';
+    return t('common.dateTba');
   }
   return value.toLocaleString(undefined, {
     year: 'numeric',
@@ -97,12 +99,12 @@ const formatLoops = (loops: number | undefined): string => {
   return loops.toString();
 };
 
-const formatMoClass = (value: string | undefined | null): string => {
+const formatMoClass = (value: string | undefined | null, t: TranslateFn): string => {
   if (!value) return '—';
   const v = String(value).toLowerCase();
-  if (v === 'konkurranse') return 'Competition';
-  if (v === 'trim_tidtaking') return 'Trim (timed)';
-  if (v === 'turklasse') return 'Tur';
+  if (v === 'konkurranse') return t('runners.profile.mo.class.competition');
+  if (v === 'trim_tidtaking') return t('runners.profile.mo.class.trimTimed');
+  if (v === 'turklasse') return t('runners.profile.mo.class.hike');
   return value;
 };
 
@@ -111,11 +113,11 @@ const isCompetitionClass = (value: string | undefined | null): boolean => {
   return String(value).toLowerCase() === 'konkurranse';
 };
 
-const formatMoStatus = (value: string | undefined | null): string => {
+const formatMoStatus = (value: string | undefined | null, t: TranslateFn): string => {
   const v = (value ?? '').toString().trim().toUpperCase();
-  if (v === 'DNS') return 'DNS';
-  if (v === 'DNF') return 'DNF';
-  return 'Finished';
+  if (v === 'DNS') return t('runners.profile.mo.status.dns');
+  if (v === 'DNF') return t('runners.profile.mo.status.dnf');
+  return t('runners.profile.mo.status.finished');
 };
 
 const isCountedMoClass = (value: string | undefined | null): boolean => {
@@ -151,8 +153,11 @@ const RunnerProfilePage: React.FC = () => {
   const [profile, setProfile] = useState<RunnerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [privateProfileLoaded, setPrivateProfileLoaded] = useState(false);
+  const [publicUpcomingLoaded, setPublicUpcomingLoaded] = useState(false);
   const [authUserId, setAuthUserId] = useState<string | null>(null);
   const [authEmail, setAuthEmail] = useState<string | null>(null);
+  const [authPersonId, setAuthPersonId] = useState<number | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [authLoading, setAuthLoading] = useState(true);
   const [detailsExpanded, setDetailsExpanded] = useState(false);
@@ -160,7 +165,6 @@ const RunnerProfilePage: React.FC = () => {
   const [detailsSaving, setDetailsSaving] = useState(false);
   const [detailsSuccess, setDetailsSuccess] = useState(false);
   const [detailsError, setDetailsError] = useState<string | null>(null);
-  const [authPersonIds, setAuthPersonIds] = useState<number[]>([]);
 
   const [kutcExpanded, setKutcExpanded] = useState(false);
   const [kutcLoading, setKutcLoading] = useState(false);
@@ -194,7 +198,11 @@ const RunnerProfilePage: React.FC = () => {
       setLoading(true);
       setError(null);
       try {
-        const data = await getRunnerProfile(userId, { includeParticipations: false, includeUpcomingRegistrations: true });
+        const data = await getRunnerProfile(userId, {
+          includeParticipations: false,
+          includeUpcomingRegistrations: false,
+          includePrivateDetails: false
+        });
         if (!isMounted) return;
         // Redirect to canonical route id (prefer personId) to avoid exposing email-style legacy ids.
         if (userId !== data.routeId) {
@@ -202,6 +210,8 @@ const RunnerProfilePage: React.FC = () => {
           return;
         }
         setProfile(data);
+        setPrivateProfileLoaded(false);
+        setPublicUpcomingLoaded(false);
         setKutcData(null);
         setKutcError(null);
         setKutcExpanded(false);
@@ -217,7 +227,7 @@ const RunnerProfilePage: React.FC = () => {
         });
       } catch (err: any) {
         if (isMounted) {
-          setError(err?.message || 'Failed to load runner profile');
+          setError(err?.message || t('runners.profile.loadFailed'));
           console.warn(debugTag, 'Failed to load profile', { userId, error: err });
         }
       } finally {
@@ -245,6 +255,7 @@ const RunnerProfilePage: React.FC = () => {
       const nextAuthEmail = user?.email ?? null;
       setAuthUserId(nextAuthUserId);
       setAuthEmail(nextAuthEmail);
+      setAuthPersonId(null);
       if (user?.email) {
         isAdminUser(user.email)
           .then((flag) => {
@@ -280,6 +291,36 @@ const RunnerProfilePage: React.FC = () => {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    if (!authUserId) {
+      setAuthPersonId(null);
+      return;
+    }
+
+    let cancelled = false;
+    const resolve = async () => {
+      try {
+        const authProfile = await getRunnerProfile(authUserId, {
+          includeParticipations: false,
+          includeUpcomingRegistrations: false,
+          includePrivateDetails: false
+        });
+        if (!cancelled) {
+          setAuthPersonId(authProfile.personId ?? null);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setAuthPersonId(null);
+        }
+      }
+    };
+
+    resolve();
+    return () => {
+      cancelled = true;
+    };
+  }, [authUserId]);
 
   useEffect(() => {
     if (!moExpanded || !profile?.userId) return;
@@ -533,39 +574,6 @@ const RunnerProfilePage: React.FC = () => {
   }, [kutcExpanded, profile?.userId, profile?.personId, kutcData]);
 
   useEffect(() => {
-    if (!profile?.personId || !authUserId) {
-      return;
-    }
-
-    let isMounted = true;
-
-    const resolveAuthPersonIds = async () => {
-      try {
-        const userIdMatch = await getUserIdByPersonId(profile.personId!);
-        if (!isMounted) {
-          return;
-        }
-        if (userIdMatch === authUserId) {
-          setAuthPersonIds([profile.personId!]);
-          console.log(debugTag, 'Mapped auth user to profile personId', {
-            authUserId,
-            profilePersonId: profile.personId
-          });
-        }
-      } catch (err) {
-        if (isMounted) {
-          console.warn(debugTag, 'Failed mapping personId to userId', err);
-        }
-      }
-    };
-
-    resolveAuthPersonIds();
-    return () => {
-      isMounted = false;
-    };
-  }, [profile?.personId, authUserId]);
-
-  useEffect(() => {
     if (!profile) {
       setEditableDetails(null);
       return;
@@ -608,34 +616,101 @@ const RunnerProfilePage: React.FC = () => {
     if (!kutcData) {
       return null;
     }
-    const appearanceLabel = kutcData.totalAppearances === 1 ? 'appearance' : 'appearances';
-    const totalLoopsLabel = kutcData.totalLoops === 1 ? 'loop' : 'loops';
     return {
-      appearances: `${kutcData.totalAppearances} ${appearanceLabel}`,
+      appearances: t('runners.profile.kutc.appearancesCount', { count: kutcData.totalAppearances }),
       years: formatYears(kutcData.appearanceYears),
-      totalLoops: `${kutcData.totalLoops} ${totalLoopsLabel}`,
+      totalLoops: t('runners.profile.kutc.loopsCount', { count: kutcData.totalLoops }),
       best: kutcData.bestPerformance
-        ? `${kutcData.bestPerformance.loops} loops • ${formatTimeDisplay(kutcData.bestPerformance.totalTimeDisplay, kutcData.bestPerformance.totalTimeSeconds)} (${kutcData.bestPerformance.year})`
+        ? t('runners.profile.kutc.bestPerformance', {
+            loops: kutcData.bestPerformance.loops,
+            time: formatTimeDisplay(kutcData.bestPerformance.totalTimeDisplay, kutcData.bestPerformance.totalTimeSeconds),
+            year: kutcData.bestPerformance.year
+          })
         : '—'
     };
-  }, [kutcData]);
-
-  const emailMatches = Boolean(
-    authEmail && profile?.email && authEmail.toLowerCase() === profile.email.toLowerCase()
-  );
+  }, [kutcData, t]);
 
   const personIdMatches = Boolean(
-    profile?.personId && authPersonIds.includes(profile.personId)
+    profile?.personId != null && authPersonId != null && profile.personId === authPersonId
   );
 
   const isOwnProfile = Boolean(profile) && !authLoading && Boolean(authUserId) && (
     authUserId === profile?.userId ||
     authUserId === profile?.userDocId ||
-    emailMatches ||
     personIdMatches
   );
 
   const canEdit = isOwnProfile;
+
+  useEffect(() => {
+    if (!profile || authLoading || !authUserId) {
+      return;
+    }
+    if (isOwnProfile) {
+      return;
+    }
+    if (publicUpcomingLoaded) {
+      return;
+    }
+
+    if (profile.personId == null) {
+      setProfile((prev) => (prev ? { ...prev, upcomingRegistrations: [] } : prev));
+      setPublicUpcomingLoaded(true);
+      return;
+    }
+
+    let cancelled = false;
+    const loadPublicUpcoming = async () => {
+      try {
+        const regs = await getPublicUpcomingRegistrations(profile.personId as number);
+        if (!cancelled) {
+          setProfile((prev) => (prev ? { ...prev, upcomingRegistrations: regs } : prev));
+          setPublicUpcomingLoaded(true);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setProfile((prev) => (prev ? { ...prev, upcomingRegistrations: [] } : prev));
+          setPublicUpcomingLoaded(true);
+        }
+      }
+    };
+
+    loadPublicUpcoming();
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, authUserId, isOwnProfile, profile, publicUpcomingLoaded]);
+
+  useEffect(() => {
+    if (!profile || authLoading || !isOwnProfile || privateProfileLoaded) {
+      return;
+    }
+
+    let cancelled = false;
+    const loadPrivate = async () => {
+      try {
+        const data = await getRunnerProfile(authUserId!, {
+          includeParticipations: false,
+          includeUpcomingRegistrations: true,
+          includePrivateDetails: true
+        });
+        if (cancelled) {
+          return;
+        }
+        setProfile(data);
+        setPrivateProfileLoaded(true);
+      } catch (err) {
+        if (!cancelled) {
+          console.warn(debugTag, 'Failed to load private profile details', err);
+        }
+      }
+    };
+
+    loadPrivate();
+    return () => {
+      cancelled = true;
+    };
+  }, [authLoading, authUserId, debugTag, isOwnProfile, privateProfileLoaded, profile]);
 
   const hasMoAppearances = useMemo(
     () => moResults.some((e) => isCountedMoClass(e.class)),
@@ -650,12 +725,12 @@ const RunnerProfilePage: React.FC = () => {
       profileUserId: profile?.userId,
       profileEmail: profile?.email,
       profilePersonId: profile?.personId,
-      authPersonIds,
+      authPersonId,
       isAdmin,
       isOwnProfile,
       canEdit
     });
-  }, [authLoading, authUserId, authEmail, profile, isAdmin, emailMatches, personIdMatches, authPersonIds, isOwnProfile, canEdit]);
+  }, [authLoading, authUserId, authEmail, profile, isAdmin, personIdMatches, authPersonId, isOwnProfile, canEdit]);
 
   useEffect(() => {
     console.log(debugTag, 'Render personal details toggle', {
@@ -753,7 +828,7 @@ const RunnerProfilePage: React.FC = () => {
         sanitizedPhone
       });
     } catch (err: any) {
-      setDetailsError(err?.message || 'Failed to update personal details');
+      setDetailsError(err?.message || t('runners.profile.detailsUpdateFailed'));
       console.error(debugTag, 'Failed saving personal details', {
         userId: profile.userId,
         error: err
@@ -806,15 +881,15 @@ const RunnerProfilePage: React.FC = () => {
         >
           <TableHead>
             <TableRow>
-              <TableCell>Edition</TableCell>
-              <TableCell>Race</TableCell>
-              <TableCell align="right">Race rank</TableCell>
-              <TableCell align="right">Race time</TableCell>
-              <TableCell align="right">Total rank</TableCell>
-              <TableCell align="right">Total loops</TableCell>
-              <TableCell align="right">Total time</TableCell>
-              <TableCell>Status</TableCell>
-              <TableCell align="right">Analysis</TableCell>
+              <TableCell>{t('runners.profile.kutc.table.edition')}</TableCell>
+              <TableCell>{t('runners.profile.kutc.table.race')}</TableCell>
+              <TableCell align="right">{t('runners.profile.kutc.table.raceRank')}</TableCell>
+              <TableCell align="right">{t('runners.profile.kutc.table.raceTime')}</TableCell>
+              <TableCell align="right">{t('runners.profile.kutc.table.totalRank')}</TableCell>
+              <TableCell align="right">{t('runners.profile.kutc.table.totalLoops')}</TableCell>
+              <TableCell align="right">{t('runners.profile.kutc.table.totalTime')}</TableCell>
+              <TableCell>{t('runners.profile.kutc.table.status')}</TableCell>
+              <TableCell align="right">{t('runners.profile.kutc.table.analysis')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -895,11 +970,11 @@ const RunnerProfilePage: React.FC = () => {
                           }
                         }}
                       >
-                        View
+                        {t('common.view')}
                       </Button>
                     ) : (
                       <Typography variant="body2" color="text.secondary">
-                        N/A
+                        {t('runners.profile.kutc.table.na')}
                       </Typography>
                     )}
                   </TableCell>
@@ -926,7 +1001,11 @@ const RunnerProfilePage: React.FC = () => {
     }
 
     const headerGender = entriesToShow.find((e) => isCompetitionClass(e.class) && e.gender)?.gender;
-    const genderHeaderLabel = headerGender === 'Male' ? 'Menn' : headerGender === 'Female' ? 'Kvinner' : 'Kjønn';
+    const genderHeaderLabel = headerGender === 'Male'
+      ? t('runners.profile.gender.men')
+      : headerGender === 'Female'
+        ? t('runners.profile.gender.women')
+        : t('runners.profile.gender.gender');
 
     return (
       <TableContainer
@@ -966,24 +1045,24 @@ const RunnerProfilePage: React.FC = () => {
         >
           <TableHead>
             <TableRow>
-              <TableCell>Edition</TableCell>
-              <TableCell>Class</TableCell>
-              <TableCell align="right">{`Rank (${genderHeaderLabel})`}</TableCell>
-              <TableCell align="right">Time</TableCell>
+              <TableCell>{t('runners.profile.mo.table.edition')}</TableCell>
+              <TableCell>{t('runners.profile.mo.table.class')}</TableCell>
+              <TableCell align="right">{t('runners.profile.mo.table.rankGender', { gender: genderHeaderLabel })}</TableCell>
+              <TableCell align="right">{t('runners.profile.mo.table.time')}</TableCell>
               <TableCell align="right">
                 <Tooltip
-                  title="Age and Gender Graded time. Race time is adjusted by a factor depending on the runner's age and gender."
+                  title={t('runners.profile.mo.table.aggTooltip')}
                   arrow
                   enterTouchDelay={0}
                   leaveTouchDelay={3000}
                 >
                   <Button variant="text" size="small" sx={{ p: 0, minWidth: 0, textTransform: 'none', fontWeight: 600, color: 'text.primary' }}>
-                    Rank (AGG)
+                    {t('runners.profile.mo.table.rankAgg')}
                   </Button>
                 </Tooltip>
               </TableCell>
-              <TableCell align="right">Adjusted</TableCell>
-              <TableCell>Status</TableCell>
+              <TableCell align="right">{t('runners.profile.mo.table.adjusted')}</TableCell>
+              <TableCell>{t('runners.profile.mo.table.status')}</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -1040,12 +1119,12 @@ const RunnerProfilePage: React.FC = () => {
                         {editionLabel}
                       </Button>
                     </TableCell>
-                    <TableCell>{formatMoClass(entry.class)}</TableCell>
+                    <TableCell>{formatMoClass(entry.class, t)}</TableCell>
                     <TableCell align="right">{formatRank(rowGenderRank as any)}</TableCell>
                     <TableCell align="right">{time}</TableCell>
                     <TableCell align="right">{formatRank(rowAggRank as any)}</TableCell>
                     <TableCell align="right">{adjusted}</TableCell>
-                    <TableCell>{formatMoStatus(entry.status)}</TableCell>
+                    <TableCell>{formatMoStatus(entry.status, t)}</TableCell>
                   </TableRow>
                 );
               })}
@@ -1059,7 +1138,7 @@ const RunnerProfilePage: React.FC = () => {
     if (!registrations.length) {
       return (
         <Typography variant="body2" color="text.secondary">
-          Currently not signed up for any future KrUltra event.
+          {t('runners.profile.upcoming.none')}
         </Typography>
       );
     }
@@ -1072,7 +1151,7 @@ const RunnerProfilePage: React.FC = () => {
             ? 'KUTC'
             : registration.registrationType === 'mo'
               ? 'MO'
-              : 'Event';
+              : t('editions.event');
           const statusLabel = registration.status ? registration.status : null;
           const editionYear = parseYearFromEditionId(registration.editionId);
           const hasYearInName = editionYear
@@ -1082,7 +1161,7 @@ const RunnerProfilePage: React.FC = () => {
             ? `${registration.eventName} (${editionYear})`
             : registration.eventName;
           const distanceLabel = registration.raceDistanceLabel || registration.raceDistance || null;
-          const updatedAtLabel = registration.updatedAt ? formatDateTimeDisplay(registration.updatedAt) : null;
+          const updatedAtLabel = registration.updatedAt ? formatDateTimeDisplay(registration.updatedAt, t) : null;
 
           return (
             <ListItem
@@ -1101,7 +1180,7 @@ const RunnerProfilePage: React.FC = () => {
                   }}
                   sx={{ textTransform: 'none' }}
                 >
-                  Review registration
+                  {t('runners.profile.upcoming.reviewRegistration')}
                 </Button>
               }
             >
@@ -1126,16 +1205,16 @@ const RunnerProfilePage: React.FC = () => {
                 secondary={
                   <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} alignItems={{ xs: 'flex-start', sm: 'center' }} sx={{ mt: 0.5 }}>
                     <Typography variant="body2" color="text.secondary">
-                      Starts {formatDateTimeDisplay(registration.startTime)}
+                      {t('runners.profile.upcoming.starts', { date: formatDateTimeDisplay(registration.startTime, t) })}
                     </Typography>
                     {typeof registration.registrationNumber === 'number' && (
                       <Typography variant="body2" color="text.secondary">
-                        Registration #{registration.registrationNumber}
+                        {t('runners.profile.upcoming.registrationNumber', { number: registration.registrationNumber })}
                       </Typography>
                     )}
                     {updatedAtLabel && (
                       <Typography variant="body2" color="text.secondary">
-                        Last updated {updatedAtLabel}
+                        {t('runners.profile.upcoming.lastUpdated', { date: updatedAtLabel })}
                       </Typography>
                     )}
                   </Stack>
@@ -1167,7 +1246,7 @@ const RunnerProfilePage: React.FC = () => {
   if (!profile || !stats) {
     return (
       <Container maxWidth="md" sx={{ py: 6 }}>
-        <Alert severity="info">Runner not found.</Alert>
+        <Alert severity="info">{t('runners.profile.notFound')}</Alert>
       </Container>
     );
   }
@@ -1179,13 +1258,13 @@ const RunnerProfilePage: React.FC = () => {
           {stats.name}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Runner's page
+          {t('runners.profile.pageSubtitle')}
         </Typography>
       </Box>
 
       {!authLoading && !isOwnProfile && (
         <Alert severity="info" sx={{ mb: 4 }}>
-          Viewing a public runner profile. Only your own profile shows personal details.
+          {t('runners.profile.publicProfileNotice')}
         </Alert>
       )}
 
@@ -1207,10 +1286,10 @@ const RunnerProfilePage: React.FC = () => {
             endIcon={<ChevronDown size={20} style={{ transform: detailsExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
           >
             <Typography variant="h5" component="span">
-              Personal details
+              {t('runners.profile.personalDetails.title')}
             </Typography>
             <Typography variant="body2" component="span" color="text.secondary">
-              {detailsExpanded ? 'Hide details' : 'Show details'}
+              {detailsExpanded ? t('runners.profile.personalDetails.hide') : t('runners.profile.personalDetails.show')}
             </Typography>
           </Button>
           <Collapse in={detailsExpanded} timeout="auto" unmountOnExit>
@@ -1218,7 +1297,7 @@ const RunnerProfilePage: React.FC = () => {
             <Box sx={{ px: 3, py: 3 }}>
               {detailsSuccess && (
                 <Alert severity="success" sx={{ mb: 2 }}>
-                  Changes saved successfully.
+                  {t('runners.profile.personalDetails.saved')}
                 </Alert>
               )}
               {detailsError && (
@@ -1229,7 +1308,7 @@ const RunnerProfilePage: React.FC = () => {
               <Grid container spacing={3}>
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="First name"
+                    label={t('runners.profile.personalDetails.firstName')}
                     fullWidth
                     value={editableDetails?.firstName ?? ''}
                     onChange={handleDetailChange('firstName')}
@@ -1238,7 +1317,7 @@ const RunnerProfilePage: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Last name"
+                    label={t('runners.profile.personalDetails.lastName')}
                     fullWidth
                     value={editableDetails?.lastName ?? ''}
                     onChange={handleDetailChange('lastName')}
@@ -1247,7 +1326,7 @@ const RunnerProfilePage: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Phone country code"
+                    label={t('runners.profile.personalDetails.phoneCountryCode')}
                     fullWidth
                     value={editableDetails?.phoneCountryCode ?? ''}
                     onChange={handleDetailChange('phoneCountryCode')}
@@ -1262,27 +1341,27 @@ const RunnerProfilePage: React.FC = () => {
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Phone number"
+                    label={t('runners.profile.personalDetails.phoneNumber')}
                     fullWidth
                     value={editableDetails?.phone ?? ''}
                     onChange={handleDetailChange('phone')}
                     disabled={detailsSaving}
-                    placeholder="e.g. 12345678"
+                    placeholder={t('runners.profile.personalDetails.phonePlaceholder')}
                     InputProps={{ inputMode: 'numeric' }}
                     inputProps={{ pattern: '[0-9]*', maxLength: 15 }}
                   />
                 </Grid>
                 <Grid item xs={12} md={6}>
                   <TextField
-                    label="Email"
+                    label={t('runners.profile.personalDetails.email')}
                     fullWidth
                     value={profile.email}
                     disabled
-                    helperText="Email is your unique identifier. To update it, contact post@krultra.no."
+                    helperText={t('runners.profile.personalDetails.emailHelper')}
                     InputProps={{
                       endAdornment: (
                         <InputAdornment position="end">
-                          <Tooltip title="Email updates require contacting post@krultra.no">
+                          <Tooltip title={t('runners.profile.personalDetails.emailTooltip')}>
                             <Info size={16} />
                           </Tooltip>
                         </InputAdornment>
@@ -1297,14 +1376,14 @@ const RunnerProfilePage: React.FC = () => {
                   onClick={handleCancelDetails}
                   disabled={detailsSaving || !hasDetailsChanged}
                 >
-                  Cancel
+                  {t('common.cancel')}
                 </Button>
                 <Button
                   variant="contained"
                   onClick={handleSaveDetails}
                   disabled={detailsSaving || !hasDetailsChanged}
                 >
-                  {detailsSaving ? 'Saving…' : 'Save changes'}
+                  {detailsSaving ? t('runners.profile.personalDetails.saving') : t('runners.profile.personalDetails.saveChanges')}
                 </Button>
               </Box>
             </Box>
@@ -1312,12 +1391,20 @@ const RunnerProfilePage: React.FC = () => {
         </Paper>
       )}
 
-      <Paper sx={{ p: 3, mb: 4 }}>
-        <Typography variant="h5" gutterBottom>
-          Registrations for upcoming events
-        </Typography>
-        {renderUpcomingRegistrations(profile.upcomingRegistrations)}
-      </Paper>
+      {!authLoading && Boolean(authUserId) ? (
+        <Paper sx={{ mb: 4 }}>
+          <Typography variant="h5" gutterBottom>
+            {t('runners.profile.upcoming.title')}
+          </Typography>
+          {isOwnProfile
+            ? (privateProfileLoaded
+                ? renderUpcomingRegistrations(profile.upcomingRegistrations)
+                : <Typography variant="body2" color="text.secondary">{t('common.loading')}</Typography>)
+            : (publicUpcomingLoaded
+                ? renderUpcomingRegistrations(profile.upcomingRegistrations)
+                : <Typography variant="body2" color="text.secondary">{t('common.loading')}</Typography>)}
+        </Paper>
+      ) : null}
 
       <Paper sx={{ mb: 4 }}>
         <Button
@@ -1336,10 +1423,10 @@ const RunnerProfilePage: React.FC = () => {
           endIcon={<ChevronDown size={20} style={{ transform: kutcExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
         >
           <Typography variant="h5" component="span">
-            {t('kutc.title')} participation history
+            {t('runners.profile.kutc.historyTitle', { event: t('kutc.title') })}
           </Typography>
           <Typography variant="body2" component="span" color="text.secondary">
-            {kutcExpanded ? 'Hide history' : 'Show history'}
+            {kutcExpanded ? t('runners.profile.kutc.hideHistory') : t('runners.profile.kutc.showHistory')}
           </Typography>
         </Button>
         <Collapse in={kutcExpanded} timeout="auto">
@@ -1371,16 +1458,16 @@ const RunnerProfilePage: React.FC = () => {
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>
                         <Typography variant="overline" color="text.secondary">
-                          Total appearances
+                          {t('runners.profile.kutc.stats.totalAppearances')}
                         </Typography>
                         <Typography variant="h5">{kutcStats?.appearances ?? '—'}</Typography>
-                        <Chip label={`Years: ${kutcStats?.years ?? '—'}`} size="small" />
+                        <Chip label={t('runners.profile.kutc.stats.years', { years: kutcStats?.years ?? '—' })} size="small" />
                       </Stack>
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>
                         <Typography variant="overline" color="text.secondary">
-                          Total loops completed
+                          {t('runners.profile.kutc.stats.totalLoops')}
                         </Typography>
                         <Typography variant="h5">{kutcStats?.totalLoops ?? '—'}</Typography>
                       </Stack>
@@ -1388,7 +1475,7 @@ const RunnerProfilePage: React.FC = () => {
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>
                         <Typography variant="overline" color="text.secondary">
-                          Best performance
+                          {t('runners.profile.kutc.stats.bestPerformance')}
                         </Typography>
                         <Typography variant="h6">{kutcStats?.best ?? '—'}</Typography>
                       </Stack>
@@ -1425,10 +1512,10 @@ const RunnerProfilePage: React.FC = () => {
           endIcon={<ChevronDown size={20} style={{ transform: moExpanded ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.2s' }} />}
         >
           <Typography variant="h5" component="span">
-            {t('mo.title')} participation history
+            {t('runners.profile.mo.historyTitle', { event: t('mo.title') })}
           </Typography>
           <Typography variant="body2" component="span" color="text.secondary">
-            {moExpanded ? 'Hide history' : 'Show history'}
+            {moExpanded ? t('runners.profile.mo.hideHistory') : t('runners.profile.mo.showHistory')}
           </Typography>
         </Button>
         <Collapse in={moExpanded} timeout="auto">
@@ -1455,16 +1542,16 @@ const RunnerProfilePage: React.FC = () => {
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>
                         <Typography variant="overline" color="text.secondary">
-                          Total appearances
+                          {t('runners.profile.mo.stats.totalAppearances')}
                         </Typography>
-                        <Typography variant="h5">{moSummary?.appearances ?? 0} {((moSummary?.appearances ?? 0) === 1) ? 'appearance' : 'appearances'}</Typography>
-                        <Chip label={`Years: ${formatYears(moSummary?.years ?? [])}`} size="small" />
+                        <Typography variant="h5">{t('runners.profile.mo.appearancesCount', { count: moSummary?.appearances ?? 0 })}</Typography>
+                        <Chip label={t('runners.profile.mo.stats.years', { years: formatYears(moSummary?.years ?? []) })} size="small" />
                       </Stack>
                     </Grid>
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>
                         <Typography variant="overline" color="text.secondary">
-                          Best time (gender)
+                          {t('runners.profile.mo.stats.bestTimeGender')}
                         </Typography>
                         <Typography variant="h6">{moSummary?.bestTimeDisplay ?? '—'} {moSummary?.bestGenderRank ? `• #${moSummary.bestGenderRank}` : ''}</Typography>
                       </Stack>
@@ -1472,7 +1559,7 @@ const RunnerProfilePage: React.FC = () => {
                     <Grid item xs={12} md={4}>
                       <Stack spacing={1}>
                         <Typography variant="overline" color="text.secondary">
-                          Best adjusted (AGG)
+                          {t('runners.profile.mo.stats.bestAdjustedAgg')}
                         </Typography>
                         <Typography variant="h6">{moSummary?.bestAdjustedDisplay ?? '—'} {moSummary?.bestAggRank ? `• #${moSummary.bestAggRank}` : ''}</Typography>
                       </Stack>

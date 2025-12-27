@@ -6,6 +6,7 @@ import { createRunnersHubTheme } from './config/theme';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container';
 import Alert from '@mui/material/Alert';
+import { useTranslation } from 'react-i18next';
 
 // Import pages
 import HomePage from './pages/HomePage';
@@ -23,10 +24,7 @@ import AuthTest from './components/AuthTest';
 import AdminPage from './pages/AdminPage';
 import RequireAdmin from './components/RequireAdmin';
 import PublicRegistrationsPage from './pages/PublicRegistrationsPage';
-import ImportMalvikingenPage from './pages/admin/ImportMalvikingenPage';
 import EQImportPage from './pages/admin/EQImportPage';
-import ResultsPage from './pages/ResultsPage';
-import GeneralResultsPage from './pages/GeneralResultsPage';
 import KUTCResultsOverviewPage from './pages/KUTCResultsOverviewPage';
 import KUTCYearResultsPage from './pages/KUTCYearResultsPage';
 import KUTCAllTimeLeaderboardPage from './pages/KUTCAllTimeLeaderboardPage';
@@ -54,6 +52,8 @@ export const ThemeModeContext = createContext<ThemeContextType>({
 });
 
 function App() {
+  const { t } = useTranslation();
+
   // Theme mode state with localStorage persistence
   const [mode, setModeState] = useState<ThemeMode>(() => {
     const stored = localStorage.getItem('theme_mode');
@@ -92,7 +92,7 @@ function App() {
         {/* Stage banner below header */}
         {stage !== 'production' && (
           <Alert severity="warning" variant="filled" sx={{ width: '100%', textAlign: 'center' }}>
-            {`Mode: ${stage.toUpperCase()}`}
+            {t('common.stageBanner', { stage: stage.toUpperCase() })}
           </Alert>
         )}
         {/* Ensure content isn't hidden behind fixed header or fixed footer */}
@@ -121,7 +121,7 @@ function App() {
             {/* Add the new admin route for importing Malvikingen data */}
             <Route path="/admin/import-malvikingen" element={
               <RequireAdmin>
-                <ImportMalvikingenPage />
+                <NotFoundPage />
               </RequireAdmin>
             } />
             {/* Add new admin route for EQ Timing CSV import */}
@@ -130,8 +130,6 @@ function App() {
                 <EQImportPage />
               </RequireAdmin>
             } />
-            <Route path="/results" element={<GeneralResultsPage />} />
-            <Route path="/results/mo-2025" element={<ResultsPage />} />
             {/* KUTC Results Routes */}
             <Route path="/kutc/results" element={<KUTCResultsOverviewPage />} />
             <Route path="/kutc/results/:year(\\d{4})" element={<KUTCResultsYearRedirect />} />
@@ -172,7 +170,10 @@ function App() {
           zIndex: (theme) => theme.zIndex.appBar,
         }}
       >
-        KrUltra 2025 - v{process.env.REACT_APP_VERSION || 'dev'}
+        {t('common.versionFooter', {
+          year: 2025,
+          version: process.env.REACT_APP_VERSION || 'dev'
+        })}
         </Box>
       </ThemeProvider>
     </ThemeModeContext.Provider>

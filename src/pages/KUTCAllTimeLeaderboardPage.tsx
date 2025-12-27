@@ -14,6 +14,7 @@ import { Trophy, Medal, ArrowLeft } from 'lucide-react';
 import { getAllTimeLeaderboard, AllTimeParticipant, KUTCEdition } from '../services/kutcResultsService';
 import { getUserIdByPersonId } from '../services/runnerNavigationService';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 type RankedParticipant = AllTimeParticipant & {
   rank: number;
@@ -22,6 +23,7 @@ type RankedParticipant = AllTimeParticipant & {
 
 const KUTCAllTimeLeaderboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [participants, setParticipants] = useState<AllTimeParticipant[]>([]);
   const [editions, setEditions] = useState<KUTCEdition[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,14 +76,14 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
         setEditions(data.editions);
       } catch (err) {
         console.error('Error fetching all-time leaderboard:', err);
-        setError('Failed to load leaderboard data');
+        setError(t('kutc.allTime.loadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchLeaderboard();
-  }, []);
+  }, [t]);
 
   // Filter participants based on search text
   const filteredParticipants = useMemo(() => {
@@ -128,7 +130,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
     },
     {
       field: 'name',
-      headerName: 'Participant',
+      headerName: t('kutc.allTime.columns.participant'),
       width: 220,
       renderCell: (params) => (
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -160,7 +162,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
     },
     {
       field: 'totalLoops',
-      headerName: 'Total',
+      headerName: t('kutc.allTime.columns.total'),
       width: 100,
       align: 'center' as const,
       headerAlign: 'center' as const,
@@ -225,7 +227,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
           startIcon={<ArrowLeft />}
           onClick={() => navigate('/kutc/results')}
         >
-          Back to Overview
+          {t('kutc.backToOverview')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <Button
@@ -233,7 +235,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
           startIcon={<Trophy />}
           onClick={() => navigate('/kutc/records')}
         >
-          Records
+          {t('events.records')}
         </Button>
       </Box>
 
@@ -241,19 +243,23 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
           <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          KUTC All-Time Leaderboard
+          {t('kutc.allTime.title')}
         </Typography>
         <Typography variant="h6" color="text.secondary">
-          Total loops completed across all KUTC editions
+          {t('kutc.allTime.subtitle')}
         </Typography>
         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-          Showing {filteredParticipants.length} participants across {editions.length} editions with a total of {filteredTotalLoops.toLocaleString()} completed loops
+          {t('kutc.allTime.summary', {
+            participants: filteredParticipants.length,
+            editions: editions.length,
+            loops: filteredTotalLoops.toLocaleString()
+          })}
         </Typography>
       </Box>
 
       {hasDataIntegrityIssues && (
         <Alert severity="warning" sx={{ mb: 3 }}>
-          Some historical editions currently contain data errors. We are working to correct them as soon as possible.
+          {t('kutc.dataIntegrityWarning')}
         </Alert>
       )}
 
@@ -263,11 +269,11 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
           id="participant-search"
           name="participantSearch"
           fullWidth
-          label="Search participants"
+          label={t('kutc.allTime.searchLabel')}
           variant="outlined"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Type name to filter..."
+          placeholder={t('kutc.allTime.searchPlaceholder')}
         />
       </Box>
 
@@ -310,7 +316,7 @@ const KUTCAllTimeLeaderboardPage: React.FC = () => {
       {/* Explanation */}
       <Box sx={{ mt: 2 }}>
         <Typography variant="body2" color="text.secondary">
-          Numbers show completed loops for that edition. A value of <strong>0</strong> means the runner registered but did not start (DNS). A dash (<strong>-</strong>) means the runner did not participate that year.
+          {t('kutc.allTime.explanation')}
         </Typography>
       </Box>
     </Container>

@@ -17,7 +17,7 @@ const APP_STAGE = process.env.REACT_APP_STAGE || 'production';
 const IS_TEST_ENV = APP_STAGE === 'test';
 
 const AppHeader: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [user, setUser] = useState<any>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [avatarMenuAnchor, setAvatarMenuAnchor] = useState<null | HTMLElement>(null);
@@ -73,9 +73,19 @@ const AppHeader: React.FC = () => {
     const unsub = onAuthStateChanged(auth, async (u) => {
       setUser(u);
       if (u) {
-        await createOrUpdateUser(u);
-        const adminFlag = await isAdminUser(u.email!);
-        setIsAdmin(adminFlag);
+        try {
+          await createOrUpdateUser(u);
+        } catch (err) {
+          console.warn('Unable to createOrUpdateUser during auth init', err);
+        }
+
+        try {
+          const adminFlag = await isAdminUser(u.email!);
+          setIsAdmin(adminFlag);
+        } catch (err) {
+          console.warn('Unable to determine admin status during auth init', err);
+          setIsAdmin(false);
+        }
         try {
           const appUser = await getUser(u.uid);
           const personId = (appUser as any)?.personId;
@@ -162,7 +172,7 @@ const AppHeader: React.FC = () => {
             <Box 
               component="img" 
               src="/krultra-logo.png" 
-              alt="KrUltra logo" 
+              alt={t('common.krultraLogoAlt')} 
               sx={{ 
                 height: 24, 
                 width: 24, 
@@ -256,7 +266,7 @@ const AppHeader: React.FC = () => {
                 },
               }}
             >
-              Events
+              {t('nav.events')}
             </Button>
             <Menu
               anchorEl={eventsMenuAnchor}
@@ -265,8 +275,8 @@ const AppHeader: React.FC = () => {
               anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
               transformOrigin={{ vertical: 'top', horizontal: 'left' }}
             >
-              <MenuItem onClick={() => { navigate('/kutc'); closeEventsMenu(); }}>Kruke's Ultra-Trail Challenge</MenuItem>
-              <MenuItem onClick={() => { navigate('/mo'); closeEventsMenu(); }}>Malvikingen Opp</MenuItem>
+              <MenuItem onClick={() => { navigate('/kutc'); closeEventsMenu(); }}>{t('kutc.title')}</MenuItem>
+              <MenuItem onClick={() => { navigate('/mo'); closeEventsMenu(); }}>{t('mo.title')}</MenuItem>
             </Menu>
 
             {/* Runners link */}
@@ -287,7 +297,7 @@ const AppHeader: React.FC = () => {
                 },
               }}
             >
-              Runners
+              {t('nav.runners')}
             </Button>
 
             {/* About link */}
@@ -308,7 +318,7 @@ const AppHeader: React.FC = () => {
                 },
               }}
             >
-              About
+              {t('nav.about')}
             </Button>
 
             {/* Admin link - only for admins */}
@@ -330,7 +340,7 @@ const AppHeader: React.FC = () => {
                   },
                 }}
               >
-                Admin
+                {t('nav.admin')}
               </Button>
             )}
           </Box>
@@ -343,7 +353,7 @@ const AppHeader: React.FC = () => {
 
             {/* Avatar/login icon */}
             {user ? (
-              <Tooltip title={userName || user.email || 'Logged in'}>
+              <Tooltip title={userName || user.email || t('common.loggedIn')}>
                 <IconButton
                   color="inherit"
                   size="small"
@@ -354,7 +364,7 @@ const AppHeader: React.FC = () => {
                 </IconButton>
               </Tooltip>
             ) : (
-              <Tooltip title="Log in">
+              <Tooltip title={t('nav.login')}>
                 <IconButton
                   color="inherit"
                   size="small"
@@ -371,7 +381,7 @@ const AppHeader: React.FC = () => {
             )}
 
             {/* Settings menu (theme toggle) */}
-            <Tooltip title="Settings">
+            <Tooltip title={t('common.settings')}>
               <IconButton
                 color="inherit"
                 size="small"
@@ -405,9 +415,9 @@ const AppHeader: React.FC = () => {
                 </Stack>
               </Box>
               <Divider sx={{ my: 0.5 }} />
-              <MenuItem onClick={handleRunnerProfile}>My runner page</MenuItem>
+              <MenuItem onClick={handleRunnerProfile}>{t('nav.myRunnerPage')}</MenuItem>
               <Divider sx={{ my: 0.5 }} />
-              <MenuItem onClick={handleLogout}>Log out</MenuItem>
+              <MenuItem onClick={handleLogout}>{t('nav.logout')}</MenuItem>
             </Menu>
           )}
 
@@ -506,11 +516,11 @@ const AppHeader: React.FC = () => {
             <Box sx={{ px: 1, py: 0.75, display: 'flex', alignItems: 'center', gap: 1 }}>
               <SunMoon size={16} style={{ color: '#6b7280', flexShrink: 0 }} />
               <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-                {(['system', 'light', 'dark'] as const).map((t) => (
+                {(['system', 'light', 'dark'] as const).map((theme) => (
                   <Box
-                    key={t}
+                    key={theme}
                     component="button"
-                    onClick={() => { setMode(t); setSettingsMenuAnchor(null); }}
+                    onClick={() => { setMode(theme); setSettingsMenuAnchor(null); }}
                     sx={{
                       px: 1,
                       py: 0.25,
@@ -521,7 +531,7 @@ const AppHeader: React.FC = () => {
                       cursor: 'pointer',
                       textTransform: 'capitalize',
                       transition: 'all 0.15s',
-                      ...(mode === t ? {
+                      ...(mode === theme ? {
                         backgroundColor: '#41719C',
                         color: 'white',
                         borderColor: '#41719C',
@@ -535,7 +545,7 @@ const AppHeader: React.FC = () => {
                       }),
                     }}
                   >
-                    {t}
+                    {theme}
                   </Box>
                 ))}
               </Box>

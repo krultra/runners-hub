@@ -21,10 +21,12 @@ import {
 } from '@mui/material';
 import { Trophy, Timer, ArrowLeft, Medal, BarChart3, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getRecords, MORecordsResult } from '../services/moResultsService';
 
 const MORecordsPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   type YearlyClassStat = {
     editionId: string;
     editionYear: number | null;
@@ -85,14 +87,14 @@ const MORecordsPage: React.FC = () => {
         setRecords(data);
       } catch (err) {
         console.error('[MO Records] Failed to load records', err);
-        setError('Klarte ikke å hente rekorddata.');
+        setError(t('mo.records.loadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchRecords();
-  }, []);
+  }, [t]);
 
   const renderFastestTable = (
     title: string,
@@ -104,7 +106,7 @@ const MORecordsPage: React.FC = () => {
     opts?: { showAdjusted?: boolean }
   ) => {
     if (!rows || rows.length === 0) {
-      return <Alert severity="info">Ingen rekorder registrert.</Alert>;
+      return <Alert severity="info">{t('mo.records.noRecordsRegistered')}</Alert>;
     }
 
     const getMedalIcon = (index: number) => {
@@ -125,15 +127,15 @@ const MORecordsPage: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell><strong>#</strong></TableCell>
-                <TableCell><strong>Løper</strong></TableCell>
-                <TableCell align="center"><strong>Tid</strong></TableCell>
+                <TableCell><strong>{t('mo.records.tables.runner')}</strong></TableCell>
+                <TableCell align="center"><strong>{t('mo.records.tables.time')}</strong></TableCell>
                 {opts?.showAdjusted && (
-                  <TableCell align="center"><strong>Justert tid</strong></TableCell>
+                  <TableCell align="center"><strong>{t('mo.records.tables.adjustedTime')}</strong></TableCell>
                 )}
                 {opts?.showAdjusted && (
-                  <TableCell align="center"><strong>Alder</strong></TableCell>
+                  <TableCell align="center"><strong>{t('mo.records.tables.age')}</strong></TableCell>
                 )}
-                <TableCell align="center"><strong>År</strong></TableCell>
+                <TableCell align="center"><strong>{t('mo.records.yearly.year')}</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -192,7 +194,7 @@ const MORecordsPage: React.FC = () => {
     valueKey: 'totalCompetition' | 'totalOverall'
   ) => {
     if (!rows || rows.length === 0) {
-      return <Alert severity="info">Ingen data tilgjengelig.</Alert>;
+      return <Alert severity="info">{t('mo.records.noDataAvailable')}</Alert>;
     }
 
     return (
@@ -205,8 +207,8 @@ const MORecordsPage: React.FC = () => {
             <TableHead>
               <TableRow>
                 <TableCell><strong>#</strong></TableCell>
-                <TableCell><strong>År</strong></TableCell>
-                <TableCell align="center"><strong>Deltakere</strong></TableCell>
+                <TableCell><strong>{t('mo.records.yearly.year')}</strong></TableCell>
+                <TableCell align="center"><strong>{t('mo.records.tables.participants')}</strong></TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -237,29 +239,29 @@ const MORecordsPage: React.FC = () => {
   if (error || !records) {
     return (
       <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
-        <Alert severity="error">{error ?? 'Ingen rekorddata tilgjengelig.'}</Alert>
+        <Alert severity="error">{error ?? t('mo.records.noDataAvailable')}</Alert>
       </Container>
     );
   }
 
   const appearanceCutoff = records.mostAppearances[0]?.appearances ?? 0;
   const appearanceTitle = appearanceCutoff
-    ? `Flest deltagelser – ${appearanceCutoff} ganger`
-    : 'Flest deltagelser';
+    ? t('mo.records.mostAppearancesWithCount', { count: appearanceCutoff })
+    : t('mo.records.mostAppearances');
 
   const runnerUpUsers = records.mostAppearances.filter(
     (item) => item.appearances < appearanceCutoff
   );
   const runnerUpCutoff = runnerUpUsers[0]?.appearances ?? 0;
   const runnerUpTitle = runnerUpCutoff
-    ? `Rett bak – ${runnerUpCutoff} ganger`
+    ? t('mo.records.runnerUpWithCount', { count: runnerUpCutoff })
     : null;
 
   return (
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
         <Button startIcon={<ArrowLeft />} onClick={() => navigate('/mo/results')}>
-          Tilbake til oversikt
+          {t('mo.backToOverview')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <Button
@@ -267,29 +269,29 @@ const MORecordsPage: React.FC = () => {
           startIcon={<BarChart3 />}
           onClick={() => navigate('/mo/all-time')}
         >
-          Adelskalender
+          {t('mo.allTimeLeaderboard')}
         </Button>
       </Box>
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
           <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          Rekorder – Malvikingen Opp
+          {t('mo.records.title')}
         </Typography>
         <Typography variant="h6" color="text.secondary">
-          Konkurranseklassens raskeste tider, justerte resultater og mest trofaste deltagere.
+          {t('mo.records.subtitle')}
         </Typography>
       </Box>
 
       <Grid container spacing={3}>
         <Grid item xs={12} md={6}>
-          {renderFastestTable('Raskeste menn (topp 5)', records.fastestMen)}
+          {renderFastestTable(t('mo.records.fastestMenTitle'), records.fastestMen)}
         </Grid>
         <Grid item xs={12} md={6}>
-          {renderFastestTable('Raskeste kvinner (topp 5)', records.fastestWomen)}
+          {renderFastestTable(t('mo.records.fastestWomenTitle'), records.fastestWomen)}
         </Grid>
         <Grid item xs={12}>
-          {renderFastestTable('Raskeste justerte tider (AGG – topp 10)', records.fastestAGG, {
+          {renderFastestTable(t('mo.records.fastestAggTitle'), records.fastestAGG, {
             showAdjusted: true
           })}
         </Grid>
@@ -298,7 +300,7 @@ const MORecordsPage: React.FC = () => {
       <Box sx={{ mt: 6 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
           <Users size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          Mest trofaste deltagere
+          {t('mo.records.mostLoyalParticipants')}
         </Typography>
 
         {records.mostAppearances.length > 0 ? (
@@ -317,11 +319,11 @@ const MORecordsPage: React.FC = () => {
                           {item.fullName}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                          Deltatt {item.appearances} ganger
+                          {t('mo.records.participatedCount', { count: item.appearances })}
                         </Typography>
                         {item.firstYear && item.lastYear && (
                           <Typography variant="caption" color="text.secondary">
-                            Første år: {item.firstYear} · Siste år: {item.lastYear}
+                            {t('mo.records.firstYearLastYear', { first: item.firstYear, last: item.lastYear })}
                           </Typography>
                         )}
                       </CardContent>
@@ -357,7 +359,7 @@ const MORecordsPage: React.FC = () => {
                               </Typography>
                             )}
                             <Typography variant="caption" color="text.secondary">
-                              {item.appearances} deltagelser
+                              {t('mo.records.participatedCount', { count: item.appearances })}
                             </Typography>
                           </CardContent>
                         </Card>
@@ -368,27 +370,27 @@ const MORecordsPage: React.FC = () => {
             )}
           </Paper>
         ) : (
-          <Alert severity="info">Ingen deltagelsesdata tilgjengelig.</Alert>
+          <Alert severity="info">{t('mo.records.noDataAvailable')}</Alert>
         )}
       </Box>
 
       <Box sx={{ mt: 6 }}>
         <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
           <Timer size={32} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          År med flest deltagere
+          {t('mo.records.yearsWithMostParticipants')}
         </Typography>
 
         <Grid container spacing={3}>
           <Grid item xs={12} md={6}>
             {renderParticipationTable(
-              'Konkurranse – flest deltagere',
+              t('mo.records.mostParticipantsCompetition'),
               records.topParticipationCompetition,
               'totalCompetition'
             )}
           </Grid>
           <Grid item xs={12} md={6}>
             {renderParticipationTable(
-              'Totalt – flest deltagere',
+              t('mo.records.mostParticipantsTotal'),
               records.topParticipationOverall,
               'totalOverall'
             )}
@@ -399,21 +401,21 @@ const MORecordsPage: React.FC = () => {
       {yearlyStats.length > 0 && (
         <Box sx={{ mt: 6 }}>
           <Typography variant="h4" component="h2" gutterBottom fontWeight="bold">
-            Årsstatistikk
+            {t('mo.records.yearlyStats')}
           </Typography>
           <Paper elevation={2} sx={{ p: 3 }}>
             <TableContainer>
               <Table size="small">
                 <TableHead>
                   <TableRow>
-                    <TableCell><strong>År</strong></TableCell>
-                    <TableCell align="right"><strong>Konk. fullført</strong></TableCell>
-                    <TableCell align="right"><strong>DNF</strong></TableCell>
-                    <TableCell align="right"><strong>DNS</strong></TableCell>
-                    <TableCell align="right"><strong>Trim</strong></TableCell>
-                    <TableCell align="right"><strong>Tur</strong></TableCell>
-                    <TableCell align="right"><strong>Funk.</strong></TableCell>
-                    <TableCell align="right"><strong>Total</strong></TableCell>
+                    <TableCell><strong>{t('mo.records.yearly.year')}</strong></TableCell>
+                    <TableCell align="right"><strong>{t('mo.records.yearly.competitionFinished')}</strong></TableCell>
+                    <TableCell align="right"><strong>{t('mo.records.yearly.dnf')}</strong></TableCell>
+                    <TableCell align="right"><strong>{t('mo.records.yearly.dns')}</strong></TableCell>
+                    <TableCell align="right"><strong>{t('mo.records.yearly.trim')}</strong></TableCell>
+                    <TableCell align="right"><strong>{t('mo.records.yearly.hike')}</strong></TableCell>
+                    <TableCell align="right"><strong>{t('mo.records.yearly.volunteer')}</strong></TableCell>
+                    <TableCell align="right"><strong>{t('mo.records.yearly.total')}</strong></TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -431,7 +433,7 @@ const MORecordsPage: React.FC = () => {
                   ))}
                   {yearlyTotals && (
                     <TableRow sx={{ fontWeight: 700 }}>
-                      <TableCell><strong>Totalt</strong></TableCell>
+                      <TableCell><strong>{t('mo.records.yearly.totalsRow')}</strong></TableCell>
                       <TableCell align="right"><strong>{yearlyTotals.competitionFinished}</strong></TableCell>
                       <TableCell align="right"><strong>{yearlyTotals.competitionDnf}</strong></TableCell>
                       <TableCell align="right"><strong>{yearlyTotals.competitionDns}</strong></TableCell>
@@ -449,7 +451,7 @@ const MORecordsPage: React.FC = () => {
       )}
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 4 }}>
-        DNF- og DNS-oppføringer er utelatt fra alle totaler.
+        {t('mo.records.dnfDnsExcluded')}
       </Typography>
     </Container>
   );

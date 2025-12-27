@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Typography,
@@ -26,39 +27,95 @@ import {
 } from '@mui/material';
 import { Download, ArrowLeft, Info } from 'lucide-react';
 import { findEditionWithNeighbors, getEditionResults, MOEditionResultsOptions, MOResultClass, MOResultEntry } from '../services/moResultsService';
-import { formatDateNb, nbClassLabel, nbGenderLabel } from '../utils/localeNb';
 
 const ALL_CLASS_FILTER = 'all';
 const ALL_GENDER_FILTER = 'all';
 type DefinedRanking = NonNullable<MOEditionResultsOptions['ranking']>;
 
-const classOptions: { value: MOResultClass | typeof ALL_CLASS_FILTER; label: string }[] = [
-  { value: ALL_CLASS_FILTER, label: 'Alle klasser' },
-  { value: 'konkurranse', label: 'Konkurranse' },
-  { value: 'trim_tidtaking', label: 'Trim med tidtaking' },
-  { value: 'turklasse', label: 'Turklasse' }
-];
-
-const genderOptions: { value: string; label: string }[] = [
-  { value: ALL_GENDER_FILTER, label: 'Alle' },
-  { value: 'Male', label: 'Menn' },
-  { value: 'Female', label: 'Kvinner' }
-];
-
-const rankingOptions: { value: DefinedRanking; label: string }[] = [
-  { value: 'time', label: 'Løpstid' },
-  { value: 'adjusted', label: 'Justert tid' }
-];
-
 const MOEditionResultsPage: React.FC = () => {
   const { editionId } = useParams<{ editionId: string }>();
   const navigate = useNavigate();
+  const { i18n, t } = useTranslation();
   const [results, setResults] = useState<MOResultEntry[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [options, setOptions] = useState<MOEditionResultsOptions>({ classFilter: ALL_CLASS_FILTER, genderFilter: ALL_GENDER_FILTER, ranking: 'time' });
   const [editionMeta, setEditionMeta] = useState<{ edition?: number; startTime?: Date | null; isoDate?: string } | null>(null);
   const [neighbors, setNeighbors] = useState<{ previousId?: string; previousLabel?: string; nextId?: string; nextLabel?: string }>({});
+
+  const uiLocale = useMemo(() => {
+    if (i18n.language?.toLowerCase().startsWith('no')) {
+      return 'nb-NO';
+    }
+    return 'en-GB';
+  }, [i18n.language]);
+
+  const formatDate = (value: Date | string | number | null | undefined): string => {
+    if (!value) return '';
+    const d = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return new Intl.DateTimeFormat(uiLocale, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    }).format(d);
+  };
+
+  const classLabel = (value: string | null | undefined): string => {
+    if (!value) return '';
+    const v = String(value).toLowerCase();
+    if (v === 'konkurranse') return t('mo.editionResults.classLabels.competition');
+    if (v === 'trim_tidtaking' || v === 'trim' || v === 'timed') return t('mo.editionResults.classLabels.timedRecreation');
+    if (v === 'turklasse' || v === 'hike') return t('mo.editionResults.classLabels.hiking');
+    return value;
+  };
+
+  const genderLabel = (value: string | null | undefined): string => {
+    if (!value) return '';
+    const g = String(value).toLowerCase();
+    if (g === 'male' || g === 'm' || g === 'menn') return t('mo.editionResults.genderLabels.men');
+    if (g === 'female' || g === 'f' || g === 'kvinner') return t('mo.editionResults.genderLabels.women');
+    return '';
+  };
+
+  const classOptions = useMemo(
+    ():
+      {
+        value: MOResultClass | typeof ALL_CLASS_FILTER;
+        label: string;
+      }[] => [
+      { value: ALL_CLASS_FILTER, label: t('mo.editionResults.filters.allClasses') },
+      { value: 'konkurranse', label: t('mo.editionResults.classLabels.competition') },
+      { value: 'trim_tidtaking', label: t('mo.editionResults.classLabels.timedRecreation') },
+      { value: 'turklasse', label: t('mo.editionResults.classLabels.hiking') }
+    ],
+    [t]
+  );
+
+  const genderOptions = useMemo(
+    ():
+      {
+        value: string;
+        label: string;
+      }[] => [
+      { value: ALL_GENDER_FILTER, label: t('mo.editionResults.filters.allGenders') },
+      { value: 'Male', label: t('mo.editionResults.genderLabels.men') },
+      { value: 'Female', label: t('mo.editionResults.genderLabels.women') }
+    ],
+    [t]
+  );
+
+  const rankingOptions = useMemo(
+    ():
+      {
+        value: DefinedRanking;
+        label: string;
+      }[] => [
+      { value: 'time', label: t('mo.editionResults.ranking.time') },
+      { value: 'adjusted', label: t('mo.editionResults.ranking.adjusted') }
+    ],
+    [t]
+  );
 
   const classFilterValue = options.classFilter ?? ALL_CLASS_FILTER;
   const isNonCompetitiveSelection = classFilterValue === 'trim_tidtaking' || classFilterValue === 'turklasse';
@@ -80,9 +137,9 @@ const MOEditionResultsPage: React.FC = () => {
         }
         setNeighbors({
           previousId: previous?.id,
-          previousLabel: previous ? `MO ${previous.edition}` : undefined,
+          previousLabel: previous ? t('mo.editionResults.editionLabel', { edition: previous.edition }) : undefined,
           nextId: next?.id,
-          nextLabel: next ? `MO ${next.edition}` : undefined
+          nextLabel: next ? t('mo.editionResults.editionLabel', { edition: next.edition }) : undefined
         });
       } catch (err) {
         console.error('[MO Results] Failed to load edition metadata', err);
@@ -90,7 +147,7 @@ const MOEditionResultsPage: React.FC = () => {
     };
 
     fetchEditionMeta();
-  }, [editionId]);
+  }, [editionId, t]);
 
   useEffect(() => {
     if (!editionId) return;
@@ -103,7 +160,7 @@ const MOEditionResultsPage: React.FC = () => {
         setError(null);
       } catch (err) {
         console.error('[MO Results] Failed to load edition results', err);
-        setError('Kunne ikke hente resultater. Prøv igjen senere.');
+        setError(t('mo.editionResults.loadFailed'));
         setResults([]);
       } finally {
         setLoading(false);
@@ -111,7 +168,7 @@ const MOEditionResultsPage: React.FC = () => {
     };
 
     fetchResults();
-  }, [editionId, options]);
+  }, [editionId, options, t]);
 
   const handleChange = <T extends keyof MOEditionResultsOptions>(key: T, value: MOEditionResultsOptions[T]) => {
     setOptions((prev) => ({ ...prev, [key]: value }));
@@ -127,34 +184,34 @@ const MOEditionResultsPage: React.FC = () => {
   };
 
   const editionTitle = useMemo(() => {
-    if (!editionId) return 'Resultater';
-    if (editionMeta?.edition) {
-      return `Resultater ${editionMeta.edition}`;
+    const fallback = editionMeta?.edition ?? editionId;
+    if (!fallback) {
+      return t('mo.editionResults.title');
     }
-    return `Resultater ${editionId}`;
-  }, [editionId, editionMeta]);
+    return t('mo.editionResults.titleWithEdition', { edition: fallback });
+  }, [editionId, editionMeta?.edition, t]);
 
   const handleDownloadCsv = () => {
     if (results.length === 0) {
       return;
     }
     const header = [
-      'Plass',
-      'Navn',
-      'Klasse',
-      'Kjønn',
-      'Tid',
-      'Alders-/kjønnsjustert tid',
-      'Status',
-      'Klubb',
-      'Alder',
-      'UID'
+      t('mo.editionResults.csv.rank'),
+      t('mo.editionResults.csv.name'),
+      t('mo.editionResults.csv.class'),
+      t('mo.editionResults.csv.gender'),
+      t('mo.editionResults.csv.time'),
+      t('mo.editionResults.csv.adjustedTime'),
+      t('mo.editionResults.csv.status'),
+      t('mo.editionResults.csv.club'),
+      t('mo.editionResults.csv.age'),
+      t('mo.editionResults.csv.userId')
     ];
     const rows = results.map((entry) => [
       options.ranking === 'adjusted' ? entry.rankAdjusted ?? '' : entry.rankTime ?? '',
       entry.fullName,
-      nbClassLabel(entry.class),
-      entry.gender ? nbGenderLabel(entry.gender) : '',
+      classLabel(entry.class),
+      entry.gender ? genderLabel(entry.gender) : '',
       entry.timeDisplay ?? '',
       entry.adjustedDisplay ?? '',
       entry.status ?? '',
@@ -178,7 +235,7 @@ const MOEditionResultsPage: React.FC = () => {
     <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
         <Button startIcon={<ArrowLeft />} onClick={() => navigate('/mo/results')}>
-          Back to Overview
+          {t('mo.backToOverview')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -187,14 +244,14 @@ const MOEditionResultsPage: React.FC = () => {
             disabled={!neighbors.previousId}
             onClick={() => neighbors.previousId && navigate(`/mo/results/${neighbors.previousId}`)}
           >
-            ← {neighbors.previousLabel ?? 'Ingen tidligere'}
+            ← {neighbors.previousLabel ?? t('mo.editionResults.noPrevious')}
           </Button>
           <Button
             variant="outlined"
             disabled={!neighbors.nextId}
             onClick={() => neighbors.nextId && navigate(`/mo/results/${neighbors.nextId}`)}
           >
-            {neighbors.nextLabel ?? 'Ingen nyere'} →
+            {neighbors.nextLabel ?? t('mo.editionResults.noNext')} →
           </Button>
         </Box>
       </Box>
@@ -203,15 +260,15 @@ const MOEditionResultsPage: React.FC = () => {
         <Typography variant="h3" component="h1">
           {editionTitle}
         </Typography>
-        {editionMeta?.startTime ? <Chip label={formatDateNb(editionMeta.startTime)} /> : null}
+        {editionMeta?.startTime ? <Chip label={formatDate(editionMeta.startTime)} /> : null}
       </Stack>
 
       <Box display="flex" flexWrap="wrap" gap={2} mb={3} alignItems="center">
         <FormControl sx={{ minWidth: 200 }} size="small">
-          <InputLabel id="class-filter-label">Klasse</InputLabel>
+          <InputLabel id="class-filter-label">{t('mo.editionResults.filters.class')}</InputLabel>
           <Select
             labelId="class-filter-label"
-            label="Klasse"
+            label={t('mo.editionResults.filters.class')}
             value={classFilterValue}
             onChange={(event) => handleClassFilterChange(event.target.value as MOEditionResultsOptions['classFilter'])}
           >
@@ -224,10 +281,10 @@ const MOEditionResultsPage: React.FC = () => {
         </FormControl>
 
         <FormControl sx={{ minWidth: 200 }} size="small">
-          <InputLabel id="gender-filter-label">Kjønn</InputLabel>
+          <InputLabel id="gender-filter-label">{t('mo.editionResults.filters.gender')}</InputLabel>
           <Select
             labelId="gender-filter-label"
-            label="Kjønn"
+            label={t('mo.editionResults.filters.gender')}
             disabled={isNonCompetitiveSelection}
             value={options.genderFilter ?? ALL_GENDER_FILTER}
             onChange={(event) => handleChange('genderFilter', event.target.value as MOEditionResultsOptions['genderFilter'])}
@@ -259,7 +316,7 @@ const MOEditionResultsPage: React.FC = () => {
           ))}
         </ToggleButtonGroup>
 
-        <Tooltip title="Justert tid bruker Alle-mot-alle-poeng basert på alder og kjønn." placement="bottom">
+        <Tooltip title={t('mo.editionResults.adjustedRankingHelp')} placement="bottom">
           <Info size={18} />
         </Tooltip>
 
@@ -270,11 +327,11 @@ const MOEditionResultsPage: React.FC = () => {
             setOptions({ classFilter: 'konkurranse', genderFilter: ALL_GENDER_FILTER, ranking: 'adjusted' })
           }
         >
-          Alle-mot-alle
+          {t('mo.editionResults.allVsAll')}
         </Button>
 
         <Button variant="outlined" startIcon={<Download />} onClick={handleDownloadCsv} disabled={results.length === 0}>
-          Last ned CSV
+          {t('mo.editionResults.downloadCsv')}
         </Button>
       </Box>
 
@@ -285,21 +342,25 @@ const MOEditionResultsPage: React.FC = () => {
       ) : error ? (
         <Alert severity="error">{error}</Alert>
       ) : results.length === 0 ? (
-        <Alert severity="info">Ingen resultater for valgt filtrering.</Alert>
+        <Alert severity="info">{t('mo.editionResults.noResultsForFilter')}</Alert>
       ) : (
         <TableContainer component={Paper} variant="outlined">
           <Table size="small">
             <TableHead>
               <TableRow>
-                <TableCell>{options.ranking === 'adjusted' ? 'Plass (justert)' : 'Plass'}</TableCell>
-                <TableCell>Navn</TableCell>
-                <TableCell>Klasse</TableCell>
-                <TableCell>Kjønn</TableCell>
-                <TableCell>Tid</TableCell>
-                <TableCell>Justert tid</TableCell>
-                <TableCell>Status</TableCell>
-                <TableCell>Klubb/representasjon</TableCell>
-                <TableCell>Alder</TableCell>
+                <TableCell>
+                  {options.ranking === 'adjusted'
+                    ? t('mo.editionResults.table.rankAdjusted')
+                    : t('mo.editionResults.table.rank')}
+                </TableCell>
+                <TableCell>{t('mo.editionResults.table.name')}</TableCell>
+                <TableCell>{t('mo.editionResults.table.class')}</TableCell>
+                <TableCell>{t('mo.editionResults.table.gender')}</TableCell>
+                <TableCell>{t('mo.editionResults.table.time')}</TableCell>
+                <TableCell>{t('mo.editionResults.table.adjustedTime')}</TableCell>
+                <TableCell>{t('mo.editionResults.table.status')}</TableCell>
+                <TableCell>{t('mo.editionResults.table.representing')}</TableCell>
+                <TableCell>{t('mo.editionResults.table.age')}</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -319,9 +380,9 @@ const MOEditionResultsPage: React.FC = () => {
                       ? entry.rankAdjusted ?? entry.rankTime ?? ''
                       : entry.rankTime ?? entry.rankAdjusted ?? ''}
                   </TableCell>
-                  <TableCell>{entry.fullName || 'Ukjent'}</TableCell>
-                  <TableCell>{nbClassLabel(entry.class)}</TableCell>
-                  <TableCell>{entry.gender ? nbGenderLabel(entry.gender) : ''}</TableCell>
+                  <TableCell>{entry.fullName || t('mo.editionResults.unknownRunner')}</TableCell>
+                  <TableCell>{classLabel(entry.class)}</TableCell>
+                  <TableCell>{entry.gender ? genderLabel(entry.gender) : ''}</TableCell>
                   <TableCell>{entry.timeDisplay ?? ''}</TableCell>
                   <TableCell>{entry.adjustedDisplay ?? ''}</TableCell>
                   <TableCell>{entry.status ?? ''}</TableCell>

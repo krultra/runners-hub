@@ -5,7 +5,7 @@ import { Globe } from 'lucide-react';
 import { localeNames, Locale, supportedLocales } from '../i18n/locales';
 
 const LanguageSwitcher: React.FC = () => {
-  const { i18n } = useTranslation();
+  const { i18n, t } = useTranslation();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
 
@@ -29,7 +29,7 @@ const LanguageSwitcher: React.FC = () => {
       <IconButton
         onClick={handleClick}
         size="small"
-        aria-label="Change language"
+        aria-label={t('common.changeLanguage')}
         aria-controls={open ? 'language-menu' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}

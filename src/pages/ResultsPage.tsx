@@ -1,6 +1,6 @@
 import React, { useState, useEffect, SyntheticEvent, useCallback } from 'react';
 import { useEventEdition } from '../contexts/EventEditionContext';
-import { getEventResults } from '../services/resultsService';
+import NotFoundPage from './NotFoundPage';
 import { 
   DataGrid, 
   GridToolbar, 
@@ -24,6 +24,14 @@ import {
 } from '@mui/material';
 import { Info } from 'lucide-react';
 import { saveAs } from 'file-saver';
+
+async function getEventResults(
+  editionId: string
+): Promise<{ eventData: any; participants: any[] }> {
+  throw new Error(
+    `Legacy ResultsPage is deprecated (requested editionId='${editionId}'). Use /mo/results or /kutc/results instead.`
+  );
+}
 
 // Status enum for race status display
 enum Status {
@@ -270,8 +278,8 @@ const ResultsPage = () => {
           club: true,
           class: true,
           totalTimeDisplay: true,
-          ...(eventData.resultTypes?.includes('AG') ? { totalAGTimeDisplay: true, agPlace: true } : {}),
-          ...(eventData.resultTypes?.includes('AGG') ? { totalAGGTimeDisplay: true, aggPlace: true } : {})
+          ...(eventEditionData.resultTypes?.includes('AG') ? { totalAGTimeDisplay: true, agPlace: true } : {}),
+          ...(eventEditionData.resultTypes?.includes('AGG') ? { totalAGGTimeDisplay: true, aggPlace: true } : {})
         });
         
         // Set up default column visibility for timed recreational participants
@@ -892,4 +900,4 @@ const ResultsPage = () => {
   );
 };
 
-export default ResultsPage;
+export default NotFoundPage;

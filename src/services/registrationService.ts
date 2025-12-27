@@ -345,16 +345,34 @@ export const getTotalRegistrationsCount = async (): Promise<number> => {
  */
 export const countActiveParticipants = async (editionId: string): Promise<number> => {
   try {
-    const q = query(
-      collection(db, REGISTRATIONS_COLLECTION),
-      where('editionId', '==', editionId),
-      where('status', 'in', ['pending', 'confirmed'])
-    );
-    const snap = await getDocs(q);
-    // Count only those not on waiting list (missing flag treated as false)
-    return snap.docs.filter(doc => {
+    let snap: any = null;
+    try {
+      snap = await getDocs(
+        query(
+          collection(db, 'publicRegistrations'),
+          where('editionId', '==', editionId)
+        )
+      );
+    } catch (err) {
+      console.warn('Unable to query publicRegistrations for participant count, falling back', err);
+    }
+
+    if (!snap || snap.empty) {
+      snap = await getDocs(
+        query(
+          collection(db, REGISTRATIONS_COLLECTION),
+          where('editionId', '==', editionId),
+          where('status', 'in', ['pending', 'confirmed'])
+        )
+      );
+    }
+
+    // Count only active (pending/confirmed) and not on waiting list (missing flag treated as false)
+    return snap.docs.filter((doc: any) => {
       const data = doc.data();
-      return data.isOnWaitinglist !== true;
+      const status = String(data.status || '').toLowerCase();
+      const isActive = status === 'pending' || status === 'confirmed';
+      return isActive && data.isOnWaitinglist !== true;
     }).length;
   } catch (error) {
     console.error('Error counting active participants:', error);
@@ -368,14 +386,34 @@ export const countActiveParticipants = async (editionId: string): Promise<number
  */
 export const countWaitingList = async (editionId: string): Promise<number> => {
   try {
-    const q = query(
-      collection(db, REGISTRATIONS_COLLECTION),
-      where('editionId', '==', editionId),
-      where('status', 'in', ['pending','confirmed']),
-      where('isOnWaitinglist', '==', true)
-    );
-    const snap = await getDocs(q);
-    return snap.size;
+    let snap: any = null;
+    try {
+      snap = await getDocs(
+        query(
+          collection(db, 'publicRegistrations'),
+          where('editionId', '==', editionId)
+        )
+      );
+    } catch (err) {
+      console.warn('Unable to query publicRegistrations for waiting-list count, falling back', err);
+    }
+
+    if (!snap || snap.empty) {
+      snap = await getDocs(
+        query(
+          collection(db, REGISTRATIONS_COLLECTION),
+          where('editionId', '==', editionId),
+          where('status', 'in', ['pending', 'confirmed'])
+        )
+      );
+    }
+
+    return snap.docs.filter((doc: any) => {
+      const data = doc.data();
+      const status = String(data.status || '').toLowerCase();
+      const isActive = status === 'pending' || status === 'confirmed';
+      return isActive && data.isOnWaitinglist === true;
+    }).length;
   } catch (error) {
     console.error('Error counting waiting-list:', error);
     throw error;

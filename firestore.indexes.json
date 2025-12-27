@@ -9,6 +9,14 @@
       ]
     },
     {
+      "collectionGroup": "publicRegistrations",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "editionId", "order": "ASCENDING" },
+        { "fieldPath": "registrationNumber", "order": "ASCENDING" }
+      ]
+    },
+    {
       "collectionGroup": "registrations",
       "queryScope": "COLLECTION",
       "fields": [

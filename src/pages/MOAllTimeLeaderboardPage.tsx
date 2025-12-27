@@ -19,6 +19,7 @@ import {
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { Trophy, BarChart3, ArrowLeft, Info, MoreHorizontal } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   getAllTimeLeaderboard,
   MOAllTimeParticipant,
@@ -27,6 +28,7 @@ import {
 
 const MOAllTimeLeaderboardPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [participants, setParticipants] = useState<MOAllTimeParticipant[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -45,14 +47,14 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
         setParticipants(data.participants);
       } catch (err) {
         console.error('[MO All-Time] Failed to load leaderboard', err);
-        setError('Klarte ikke å hente adelskalender-data.');
+        setError(t('mo.allTime.loadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchLeaderboard();
-  }, []);
+  }, [t]);
 
   const filteredParticipants = useMemo(() => {
     if (!searchText) {
@@ -109,7 +111,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
     () => [
       {
         field: 'fullName',
-        headerName: 'Navn',
+        headerName: t('mo.allTime.columns.name'),
         flex: 1.2,
         minWidth: 160,
         renderCell: (params) => {
@@ -136,7 +138,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
       },
       {
         field: 'appearances',
-        headerName: 'Deltagelser',
+        headerName: t('mo.allTime.columns.appearances'),
         flex: 0.5,
         minWidth: 110,
         align: 'center',
@@ -144,7 +146,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
       },
       {
         field: 'bestTimeDisplay',
-        headerName: 'Beste tid',
+        headerName: t('mo.allTime.columns.bestTime'),
         flex: 0.6,
         minWidth: 120,
         align: 'center',
@@ -153,17 +155,17 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
       },
       {
         field: 'bestAdjustedDisplay',
-        headerName: 'Justert bestetid',
+        headerName: t('mo.allTime.columns.bestAdjusted'),
         flex: 0.7,
         minWidth: 140,
         align: 'center',
         headerAlign: 'center',
         valueGetter: (params) => params.row.bestAdjustedDisplay ?? '—',
         renderHeader: () => (
-          <Tooltip title="Alders- og kjønnsjustert beste tid (AGG)" arrow>
+          <Tooltip title={t('mo.allTime.bestAdjustedTooltip')} arrow>
             <Stack direction="row" alignItems="center" justifyContent="center" spacing={0.5} sx={{ width: '100%', cursor: 'help' }}>
               <Typography component="span" variant="body2" fontWeight={600}>
-                Justert bestetid
+                {t('mo.allTime.columns.bestAdjusted')}
               </Typography>
               <Info size={16} />
             </Stack>
@@ -172,7 +174,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
       },
       {
         field: 'editionYears',
-        headerName: 'År',
+        headerName: t('mo.allTime.columns.years'),
         flex: 1,
         minWidth: 200,
         renderCell: (params) => (
@@ -182,7 +184,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
             </Typography>
             <IconButton
               size="small"
-              aria-label="Vis detaljer"
+              aria-label={t('mo.allTime.showDetails')}
               onClick={(event) => {
                 event.stopPropagation();
                 setDetailParticipant(params.row as MOAllTimeParticipant);
@@ -194,7 +196,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
         )
       }
     ],
-    [formatYearRanges]
+    [formatYearRanges, t]
   );
 
   if (loading) {
@@ -219,7 +221,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
     <Container maxWidth="xl" sx={{ mt: 4, mb: 4 }}>
       <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'center', mb: 2 }}>
         <Button startIcon={<ArrowLeft />} onClick={() => navigate('/mo/results')}>
-          Tilbake til oversikt
+          {t('mo.backToOverview')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <Button
@@ -227,32 +229,32 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
           startIcon={<BarChart3 />}
           onClick={() => navigate('/mo/records')}
         >
-          Rekorder
+          {t('events.records')}
         </Button>
       </Box>
 
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
           <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-          Adelskalender – Malvikingen Opp
+          {t('mo.allTime.title')}
         </Typography>
         <Typography variant="h6" color="text.secondary">
-          Flest deltakelser på tvers av alle klasser og roller.
+          {t('mo.allTime.subtitle')}
         </Typography>
       </Box>
 
       <Box sx={{ mb: 3 }}>
         <TextField
-          label="Søk etter løper"
+          label={t('mo.allTime.searchLabel')}
           fullWidth
           value={searchText}
           onChange={(event) => setSearchText(event.target.value)}
-          placeholder="Skriv inn navn for å filtrere..."
+          placeholder={t('mo.allTime.searchPlaceholder')}
         />
       </Box>
 
       {visibleParticipants.length === 0 ? (
-        <Alert severity="info">Ingen resultater tilgjengelig for adelskalenderen.</Alert>
+        <Alert severity="info">{t('mo.allTime.noResults')}</Alert>
       ) : (
         <Paper elevation={2} sx={{ width: '100%', overflow: 'hidden' }}>
           <DataGrid
@@ -294,7 +296,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
 
       <Box sx={{ mt: 2 }}>
         <Typography variant="caption" color="text.secondary">
-          DNS-oppføringer er ekskludert. Tidskolonner gjelder kun for resultater i konkurranseklassen.
+          {t('mo.allTime.dnsExcludedNote')}
         </Typography>
       </Box>
 
@@ -312,9 +314,9 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
             <Stack spacing={1}>
               {detailParticipant.yearDetails.map((detail: MOAllTimeYearDetail) => {
                 const categoryLabels: Record<string, string> = {
-                  competition: 'Konkurranse',
-                  trim_tur: 'Trim / tur',
-                  volunteer: 'Funksjonær'
+                  competition: t('mo.allTime.categories.competition'),
+                  trim_tur: t('mo.allTime.categories.trimHike'),
+                  volunteer: t('mo.allTime.categories.volunteer')
                 };
                 return (
                   <Stack key={detail.year} spacing={0.25}>
@@ -332,13 +334,13 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
             </Stack>
           ) : (
             <Typography variant="body2" color="text.secondary">
-              Ingen år registrert.
+              {t('mo.allTime.noYearsRegistered')}
             </Typography>
           )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setDetailParticipant(null)} autoFocus>
-            Lukk
+            {t('common.close')}
           </Button>
         </DialogActions>
       </Dialog>

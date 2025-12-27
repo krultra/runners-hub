@@ -15,6 +15,7 @@ import {
   Divider
 } from '@mui/material';
 import { ArrowLeft, Trophy, Users, CheckCircle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   getEditionMetadata,
   getTotalCompetitionResults,
@@ -31,6 +32,7 @@ import KUTCResultsTable from '../components/KUTCResultsTable';
 type EditionResult = KUTCResultEntry & { editionId: string };
 
 const KUTCYearResultsPage: React.FC = () => {
+  const { t } = useTranslation();
   const { year: routeYear, editionId: routeEditionId } = useParams<{ year?: string; editionId?: string }>();
   const editionId = (() => {
     const raw = (routeEditionId ?? routeYear ?? '').toString();
@@ -88,7 +90,7 @@ const KUTCYearResultsPage: React.FC = () => {
         // Fetch metadata
         const meta = await getEditionMetadata(editionId);
         if (!meta) {
-          setError(`No results found for KUTC ${year}`);
+          setError(t('kutc.yearResults.noResultsForYear', { year }));
           return;
         }
         setMetadata(meta);
@@ -107,14 +109,14 @@ const KUTCYearResultsPage: React.FC = () => {
 
       } catch (err) {
         console.error('Error fetching KUTC results:', err);
-        setError('Failed to load results');
+        setError(t('kutc.yearResults.loadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchData();
-  }, [year]);
+  }, [editionId, t, year]);
 
   const { previousEdition, nextEdition } = useMemo(() => {
     if (!year || sortedEditions.length === 0) {
@@ -189,7 +191,7 @@ const KUTCYearResultsPage: React.FC = () => {
           return;
         }
         setLoadingRace(false);
-        setError('Failed to load race results');
+        setError(t('kutc.yearResults.loadRaceFailed'));
       }
     };
 
@@ -198,7 +200,7 @@ const KUTCYearResultsPage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [editionId, metadata, location.search]);
+  }, [editionId, metadata, location.search, t, year]);
 
   if (loading) {
     return (
@@ -218,9 +220,9 @@ const KUTCYearResultsPage: React.FC = () => {
           onClick={() => navigate('/kutc/results')}
           sx={{ mb: 2 }}
         >
-          Back to Overview
+          {t('kutc.backToOverview')}
         </Button>
-        <Alert severity="error">{error || 'No results found'}</Alert>
+        <Alert severity="error">{error || t('kutc.yearResults.noResultsFound')}</Alert>
       </Container>
     );
   }
@@ -237,7 +239,7 @@ const KUTCYearResultsPage: React.FC = () => {
           startIcon={<ArrowLeft />}
           onClick={() => navigate('/kutc/results')}
         >
-          Back to Overview
+          {t('kutc.backToOverview')}
         </Button>
         <Box sx={{ flex: '1 1 auto' }} />
         <Box sx={{ display: 'flex', gap: 1 }}>
@@ -246,14 +248,14 @@ const KUTCYearResultsPage: React.FC = () => {
             disabled={!previousEdition}
             onClick={() => previousEdition && navigate(`/kutc/results/${previousEdition.id}`)}
           >
-            ← {previousEdition ? `KUTC ${previousEdition.year || previousEdition.id}` : 'No earlier edition'}
+            ← {previousEdition ? `KUTC ${previousEdition.year || previousEdition.id}` : t('kutc.yearResults.noEarlierEdition')}
           </Button>
           <Button
             variant="outlined"
             disabled={!nextEdition}
             onClick={() => nextEdition && navigate(`/kutc/results/${nextEdition.id}`)}
           >
-            {nextEdition ? `KUTC ${nextEdition.year || nextEdition.id}` : 'No later edition'} →
+            {nextEdition ? `KUTC ${nextEdition.year || nextEdition.id}` : t('kutc.yearResults.noLaterEdition')} →
           </Button>
         </Box>
       </Box>
@@ -273,12 +275,15 @@ const KUTCYearResultsPage: React.FC = () => {
             }
           />
           <Typography variant="body1" color="text.secondary">
-            {metadata.totalParticipants} participants • {metadata.totalFinishers} finishers
+            {t('kutc.yearResults.participantsFinishers', {
+              participants: metadata.totalParticipants,
+              finishers: metadata.totalFinishers
+            })}
           </Typography>
         </Box>
         {hasDataIntegrityIssue && (
           <Alert severity="warning" sx={{ mt: 2 }}>
-            We have some errors in the data for this edition. We are working to correct them as soon as possible.
+            {t('kutc.dataIntegrityWarning')}
           </Alert>
         )}
       </Box>
@@ -290,7 +295,7 @@ const KUTCYearResultsPage: React.FC = () => {
           {totalRace && (
             <Box sx={{ mb: 4 }}>
               <Typography variant="h5" gutterBottom fontWeight="bold">
-                Overall Competition
+                {t('kutc.yearResults.overallCompetition')}
               </Typography>
               <Card 
                 elevation={4}
@@ -308,20 +313,20 @@ const KUTCYearResultsPage: React.FC = () => {
                     <Box display="flex" justifyContent="space-between" alignItems="center">
                       <Box>
                         <Typography variant="h4" fontWeight="bold">
-                          Total Competition
+                          {t('kutc.yearResults.totalCompetition')}
                         </Typography>
                         <Typography variant="body1" sx={{ mt: 1 }}>
-                          Last One Standing - All Participants
+                          {t('kutc.yearResults.lastOneStandingAllParticipants')}
                         </Typography>
                       </Box>
                       <Box textAlign="right">
                         <Typography variant="h6">
                           <Users size={18} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                          {totalRace.participants} runners
+                          {t('kutc.yearResults.runnersCount', { count: totalRace.participants })}
                         </Typography>
                         <Typography variant="body2">
                           <CheckCircle size={16} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                          {totalRace.finishers} with valid results
+                          {t('kutc.yearResults.withValidResults', { count: totalRace.finishers })}
                         </Typography>
                       </Box>
                     </Box>
@@ -333,7 +338,7 @@ const KUTCYearResultsPage: React.FC = () => {
 
           {/* Distance Cards */}
           <Typography variant="h5" gutterBottom fontWeight="bold" sx={{ mt: 4 }}>
-            Race Distances
+            {t('kutc.yearResults.raceDistances')}
           </Typography>
           <Grid container spacing={3}>
             {distanceRaces.map((race) => (
@@ -363,11 +368,11 @@ const KUTCYearResultsPage: React.FC = () => {
                       <Box>
                         <Typography variant="body1" color="text.secondary">
                           <Users size={18} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                          {race.participants} participants
+                          {t('common.participantsCount', { count: race.participants })}
                         </Typography>
                         <Typography variant="body1" color="text.secondary">
                           <CheckCircle size={18} style={{ verticalAlign: 'middle', marginRight: 4 }} />
-                          {race.finishers} finishers
+                          {t('kutc.yearResults.finishersCount', { count: race.finishers })}
                         </Typography>
                       </Box>
                     </CardContent>
@@ -387,7 +392,7 @@ const KUTCYearResultsPage: React.FC = () => {
             onClick={() => setSelectedRace(null)}
             sx={{ mb: 3 }}
           >
-            ← Back to Distances
+            ← {t('kutc.yearResults.backToDistances')}
           </Button>
 
           {loadingRace ? (
@@ -399,15 +404,15 @@ const KUTCYearResultsPage: React.FC = () => {
               {selectedRace === 'total' ? (
                 <KUTCResultsTable
                   results={totalResults}
-                  title="Total Competition - Last One Standing"
-                  subtitle="Ranked by loops completed (descending), then total time (ascending)"
+                  title={t('kutc.yearResults.totalCompetitionTitle')}
+                  subtitle={t('kutc.yearResults.totalCompetitionSubtitle')}
                   type="total"
                 />
               ) : (
                 <KUTCResultsTable
                   results={raceResults}
-                  title={distanceRaces.find(r => r.distanceKey === selectedRace)?.raceName || 'Race Results'}
-                  subtitle="Ranked by finish time for registered distance"
+                  title={distanceRaces.find(r => r.distanceKey === selectedRace)?.raceName || t('kutc.yearResults.raceResultsTitleFallback')}
+                  subtitle={t('kutc.yearResults.raceResultsSubtitle')}
                   type="race"
                 />
               )}

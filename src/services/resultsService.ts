@@ -100,7 +100,7 @@ export interface Participant {
 /**
  * Fetches event edition results data including all participants
  */
-export const getEventResults = async (editionId: string): Promise<{
+const getEventResults = async (editionId: string): Promise<{
   eventData: any;
   participants: Participant[];
 }> => {
@@ -202,23 +202,33 @@ export const getEventResults = async (editionId: string): Promise<{
     
     // Get regular registrations (from all possible edition IDs)
     for (const id of queryIds) {
-      const regSnap = await getDocs(
-        query(collection(db, 'registrations'), where('editionId', '==', id))
-      );
-      allRegDocs = [...allRegDocs, ...regSnap.docs];
-      debugMessages.push(`Found ${regSnap.docs.length} registrations in 'registrations' with editionId='${id}'`);
-      console.log(`Found ${regSnap.docs.length} registrations in 'registrations' with editionId='${id}'`);
+      let regSnap: any = null;
+      try {
+        regSnap = await getDocs(query(collection(db, 'publicRegistrations'), where('editionId', '==', id)));
+        allRegDocs = [...allRegDocs, ...regSnap.docs];
+        debugMessages.push(
+          `Found ${regSnap.docs.length} registrations in 'publicRegistrations' with editionId='${id}'`
+        );
+        console.log(`Found ${regSnap.docs.length} registrations in 'publicRegistrations' with editionId='${id}'`);
+      } catch (err) {
+        console.warn(`Unable to query publicRegistrations for editionId='${id}', falling back`, err);
+      }
+
+      if (!regSnap || regSnap.empty) {
+        const legacySnap = await getDocs(query(collection(db, 'registrations'), where('editionId', '==', id)));
+        allRegDocs = [...allRegDocs, ...legacySnap.docs];
+        debugMessages.push(`Found ${legacySnap.docs.length} registrations in 'registrations' with editionId='${id}'`);
+        console.log(`Found ${legacySnap.docs.length} registrations in 'registrations' with editionId='${id}'`);
+      }
     }
     
     // Get MO registrations (from all possible edition IDs)
-    const moRegSnap = await getDocs(
-      query(collection(db, 'moRegistrations'), where('editionId', 'in', queryIds))
-    );
-    console.log(`Found ${moRegSnap.docs.length} registrations in 'moRegistrations'`);
+    const moRegDocs: any[] = [];
+    console.log('Skipping legacy MO registration collections (publicMoRegistrations/moRegistrations)');
     debugMessages.forEach(msg => console.log(msg));
     
     // Combine both registration types
-    const allDocs = [...allRegDocs, ...moRegSnap.docs];
+    const allDocs = [...allRegDocs, ...moRegDocs];
     console.log(`Combined total: ${allDocs.length} registrations`);
     
     // Now fetch timing data to merge with registrations
@@ -258,21 +268,52 @@ export const getEventResults = async (editionId: string): Promise<{
     
     console.log(`Found timing data for ${timingByBib.size} participants`);
     
+    const eventYear = editionNumber && !isNaN(editionNumber) ? editionNumber : new Date().getFullYear();
     const participants: Participant[] = allDocs.map((d) => {
       const data = d.data();
-      const participantBib = data.registrationNumber || data.bib;
+      const participantBib = Number(data?.bib ?? data?.registrationNumber ?? 0);
       // Get timing data for this participant
       const timing = timingByBib.get(participantBib);
       
       // Log each participant with their bib number and timing status
       console.log(`Participant ${data.firstName} ${data.lastName}, bib=${participantBib}, regType=${data.registrationType}, hasTimingData=${!!timing}`);
+
+      const normalizeGender = (value: any): 'M' | 'K' | '*' => {
+        const v = (value ?? '').toString().trim().toUpperCase();
+        if (v === 'M' || v === 'K') return v;
+        return '*';
+      };
+
+      const inferAge = (): number | undefined => {
+        const age = Number(data?.age);
+        if (Number.isFinite(age) && age > 0) return age;
+        const yob = Number(data?.yearOfBirth);
+        if (Number.isFinite(yob) && yob > 1900) return Math.max(0, eventYear - yob);
+        return undefined;
+      };
+
+      const mapDateOfBirthDisplay = (): string => {
+        const yob = Number(data?.yearOfBirth);
+        if (Number.isFinite(yob) && yob > 1900) return String(yob);
+        if (data?.dateOfBirth?.toDate && typeof data.dateOfBirth.toDate === 'function') {
+          return data.dateOfBirth.toDate().toISOString();
+        }
+        if (typeof data?.dateOfBirth === 'string') return data.dateOfBirth;
+        return '';
+      };
+
+      const bibValue = Number(data?.bib ?? data?.registrationNumber ?? 0);
+      const genderValue = normalizeGender(data?.gender);
+      const ageValue = inferAge();
+      const dobDisplay = mapDateOfBirthDisplay();
+
       return {
         id: d.id,
-        bib: data.bib,
+        bib: bibValue,
         firstName: data.firstName,
         lastName: data.lastName,
-        dateOfBirth: data.dateOfBirth,
-        gender: data.gender,
+        dateOfBirth: dobDisplay,
+        gender: genderValue,
         club: data.club || '',
         class: data.class || '',
         registrationType: data.registrationType || 'competition',
@@ -282,13 +323,14 @@ export const getEventResults = async (editionId: string): Promise<{
         totalAGTimeSeconds: timing?.totalAGTime?.[1] || 0,
         totalAGGTimeDisplay: timing?.totalAGGTime?.[0] || '',
         totalAGGTimeSeconds: timing?.totalAGGTime?.[1] || 0,
+        age: ageValue,
         // Include the full moRegistrations data for access to additional fields like className
         moRegistrations: {
           class: data.class || '',
           className: data.className || '',
           classDescription: data.classDescription || '',
           representing: data.representing || '',
-          age: data.age || 0
+          age: ageValue || 0
         }
       } as Participant;
     });

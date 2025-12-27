@@ -11,6 +11,7 @@ export { sendDailySummary } from './scheduled/sendDailySummary';
 export { createRefundTasks } from './triggers/createRefundAdminTasks';
 export { manageScheduleOverride } from './triggers/updateScheduleOverride';
 export { calculateGradedTimes } from './triggers/calculateGradedTimes';
+export { projectPublicRegistrations } from './triggers/projectPublicRegistrations';
 
 // HTTP API endpoints
 export { getNextEdition } from './api/getNextEdition';

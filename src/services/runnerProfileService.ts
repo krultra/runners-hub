@@ -79,6 +79,7 @@ export interface RunnerProfile {
 export interface GetRunnerProfileOptions {
   includeParticipations?: boolean;
   includeUpcomingRegistrations?: boolean;
+  includePrivateDetails?: boolean;
 }
 
 export interface RunnerProfileEditableDetails {
@@ -169,6 +170,97 @@ const toDateFromUnknown = (value: any): Date | null => {
 };
 
 const upcomingStatusFilter = ['pending', 'confirmed'];
+
+export async function getPublicUpcomingRegistrations(personId: number): Promise<RunnerUpcomingRegistration[]> {
+  if (!Number.isFinite(personId)) {
+    return [];
+  }
+
+  const now = Timestamp.now();
+  const editionsRef = collection(db, 'eventEditions');
+  const editionsQuery = query(editionsRef, where('startTime', '>', now), orderBy('startTime', 'asc'));
+  const editionsSnapshot = await getDocs(editionsQuery);
+  if (editionsSnapshot.empty) {
+    return [];
+  }
+
+  const editions = editionsSnapshot.docs.map((editionDoc) => {
+    const editionData = editionDoc.data() as any;
+    const editionId = editionDoc.id;
+    const startTime = toDateFromUnknown(editionData.startTime);
+    const eventName = editionData.eventName || editionId;
+    const eventShortName = editionData.eventShortName || editionData.eventId || undefined;
+    const raceDistanceDefs: any[] = Array.isArray(editionData.raceDistances) ? editionData.raceDistances : [];
+    const type: RunnerUpcomingRegistration['registrationType'] = editionId.toLowerCase().startsWith('kutc-')
+      ? 'kutc'
+      : editionId.toLowerCase().startsWith('mo-')
+        ? 'mo'
+        : 'event';
+
+    return { editionId, startTime, eventName, eventShortName, raceDistanceDefs, type };
+  });
+
+  const editionIdSet = new Set(editions.map((e) => e.editionId));
+
+  const results: RunnerUpcomingRegistration[] = [];
+
+  const regSnapshot = await getDocs(
+    query(collection(db, 'publicRegistrations'), where('personId', '==', personId))
+  );
+  regSnapshot.forEach((docSnap) => {
+    const data = docSnap.data() as any;
+    const editionId = String(data.editionId || '').trim();
+    if (!editionIdSet.has(editionId)) {
+      return;
+    }
+    const status = String(data.status || '').toLowerCase();
+    if (!upcomingStatusFilter.includes(status)) {
+      return;
+    }
+    const edition = editions.find((e) => e.editionId === editionId);
+    if (!edition) {
+      return;
+    }
+
+    const raceDistance = data.raceDistance ? String(data.raceDistance) : null;
+    const rd = raceDistance
+      ? edition.raceDistanceDefs.find((it) => String(it?.id || it?.key || '').toLowerCase() === raceDistance.toLowerCase())
+      : null;
+    const raceDistanceLabel = rd
+      ? (rd.displayName || rd.displayName_en || rd.displayName_no || rd.name || null)
+      : null;
+
+    results.push({
+      registrationId: docSnap.id,
+      editionId,
+      eventName: edition.eventName,
+      eventShortName: edition.eventShortName,
+      startTime: edition.startTime,
+      registrationType: edition.type,
+      status: data.status || null,
+      registrationNumber: typeof data.registrationNumber === 'number' ? data.registrationNumber : null,
+      raceDistance,
+      raceDistanceLabel,
+      updatedAt: toDateFromUnknown(data.updatedAt)
+    });
+  });
+
+  const seen = new Set<string>();
+  const unique = results.filter((it) => {
+    const key = `${it.editionId}::${it.registrationType}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+
+  unique.sort((a, b) => {
+    const aTime = a.startTime?.getTime?.() ?? 0;
+    const bTime = b.startTime?.getTime?.() ?? 0;
+    return aTime - bTime;
+  });
+
+  return unique;
+}
 
 async function fetchUpcomingRegistrations(userId: string, email: string | null | undefined): Promise<RunnerUpcomingRegistration[]> {
   if (!userId) {
@@ -263,51 +355,6 @@ async function fetchUpcomingRegistrations(userId: string, email: string | null |
           const originalSnapshot = await getDocs(originalEmailQuery);
           originalSnapshot.forEach(pushRegistrationDoc);
         }
-      }
-
-      if (type === 'mo') {
-        const moRef = collection(db, 'moRegistrations');
-        let moQuery = query(
-          moRef,
-          where('editionId', '==', editionId),
-          where('userId', '==', userId)
-        );
-        let moSnapshot = await getDocs(moQuery);
-
-        if (moSnapshot.empty && email) {
-          const normalizedEmail = String(email).trim().toLowerCase();
-          moQuery = query(
-            moRef,
-            where('editionId', '==', editionId),
-            where('email', '==', normalizedEmail)
-          );
-          moSnapshot = await getDocs(moQuery);
-        }
-
-        moSnapshot.forEach((docSnap) => {
-          const data = docSnap.data() as any;
-          const raceDistance = data.raceDistance ? String(data.raceDistance) : data.class ? String(data.class) : null;
-          const rd = raceDistance
-            ? raceDistanceDefs.find((it) => String(it?.id || it?.key || '').toLowerCase() === raceDistance.toLowerCase())
-            : null;
-          const raceDistanceLabel = rd
-            ? (rd.displayName || rd.displayName_en || rd.displayName_no || rd.name || null)
-            : null;
-          const updatedAt = toDateFromUnknown(data.updatedAt || data.createdAt);
-          results.push({
-            registrationId: docSnap.id,
-            editionId,
-            eventName,
-            eventShortName,
-            startTime,
-            registrationType: type,
-            status: data.status || null,
-            registrationNumber: typeof data.registrationNumber === 'number' ? data.registrationNumber : null,
-            raceDistance,
-            raceDistanceLabel,
-            updatedAt
-          });
-        });
       }
     })
   );
@@ -584,7 +631,8 @@ export async function getRunnerProfile(userId: string, options?: GetRunnerProfil
       );
 
   const includeParticipations = options?.includeParticipations !== false;
-  const includeUpcomingRegistrations = options?.includeUpcomingRegistrations !== false;
+  const includeUpcomingRegistrations = options?.includeUpcomingRegistrations === true;
+  const includePrivateDetails = options?.includePrivateDetails === true;
 
   let participations: RunnerParticipation[] = [];
   let totalAppearances = 0;
@@ -602,7 +650,11 @@ export async function getRunnerProfile(userId: string, options?: GetRunnerProfil
   }
 
   const upcomingRegistrations = includeUpcomingRegistrations
-    ? await fetchUpcomingRegistrations(effectiveUserId, userData.email || null)
+    ? (
+        includePrivateDetails
+          ? await fetchUpcomingRegistrations(effectiveUserId, userData.email || null)
+          : (personId !== null ? await getPublicUpcomingRegistrations(personId) : [])
+      )
     : [];
 
   return {
@@ -612,9 +664,9 @@ export async function getRunnerProfile(userId: string, options?: GetRunnerProfil
     personId,
     firstName,
     lastName,
-    email: userData.email || '',
-    phoneCountryCode: userData.phoneCountryCode || null,
-    phone: userData.phone || null,
+    email: includePrivateDetails ? (userData.email || '') : '',
+    phoneCountryCode: includePrivateDetails ? (userData.phoneCountryCode || null) : null,
+    phone: includePrivateDetails ? (userData.phone || null) : null,
     totalAppearances,
     appearanceYears,
     totalLoops,

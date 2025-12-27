@@ -82,14 +82,6 @@ const AdminPage: React.FC = () => {
               <ListItemText primary={section.label} />
             </ListItem>
           ))}
-          <ListItem
-            component={Link}
-            to="/admin/import-malvikingen"
-            onClick={() => isMobile && setDrawerOpen(false)}
-            sx={{ color: 'inherit', textDecoration: 'none' }}
-          >
-            <ListItemText primary="Import Malvikingen" />
-          </ListItem>
         </List>
       </Drawer>
 

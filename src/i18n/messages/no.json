@@ -3,6 +3,16 @@
     "siteTitle": "RunnersHub",
     "loading": "Laster...",
     "error": "Feil",
+    "krultraLogoAlt": "KrUltra-logo",
+    "changeLanguage": "Bytt språk",
+    "loggedIn": "Logget inn",
+    "settings": "Innstillinger",
+    "stageBanner": "Modus: {{stage}}",
+    "versionFooter": "KrUltra {{year}} - v{{version}}",
+    "participantsCount": "{{count}} deltakere",
+    "noMetadataAvailable": "Ingen metadata tilgjengelig",
+    "dateTba": "Dato ikke fastsatt",
+    "view": "Vis",
     "save": "Lagre",
     "cancel": "Avbryt",
     "close": "Lukk",
@@ -27,11 +37,13 @@
   "nav": {
     "home": "Hjem",
     "events": "Arrangementer",
+    "runners": "Løpere",
     "results": "Resultater",
     "about": "Om",
     "login": "Logg inn",
     "logout": "Logg ut",
     "admin": "Admin",
+    "myRunnerPage": "Min løperside",
     "register": "Registrer"
   },
   "events": {
@@ -150,6 +162,137 @@
     "hikingClass": "Turklasse",
     "hikingClassDesc": "Deltakelse koster 50,- kroner.",
     "allTimeLeaderboard": "Adelskalender",
+    "backToOverview": "Tilbake til oversikt",
+    "allTime": {
+      "loadFailed": "Klarte ikke å hente adelskalender-data.",
+      "title": "Adelskalender – Malvikingen Opp",
+      "subtitle": "Flest deltakelser på tvers av alle klasser og roller.",
+      "searchLabel": "Søk etter løper",
+      "searchPlaceholder": "Skriv inn navn for å filtrere...",
+      "noResults": "Ingen resultater tilgjengelig for adelskalenderen.",
+      "dnsExcludedNote": "DNS-oppføringer er ekskludert. Tidskolonner gjelder kun for resultater i konkurranseklassen.",
+      "bestAdjustedTooltip": "Alders- og kjønnsjustert beste tid (AGG)",
+      "showDetails": "Vis detaljer",
+      "noYearsRegistered": "Ingen år registrert.",
+      "categories": {
+        "competition": "Konkurranse",
+        "trimHike": "Trim / tur",
+        "volunteer": "Funksjonær"
+      },
+      "columns": {
+        "name": "Navn",
+        "appearances": "Deltakelser",
+        "bestTime": "Beste tid",
+        "bestAdjusted": "Justert bestetid",
+        "years": "År"
+      }
+    },
+    "records": {
+      "loadFailed": "Klarte ikke å hente rekorddata.",
+      "title": "Rekorder – Malvikingen Opp",
+      "subtitle": "Konkurranseklassens raskeste tider, justerte resultater og mest trofaste deltagere.",
+      "fastestMenTitle": "Raskeste menn (topp 5)",
+      "fastestWomenTitle": "Raskeste kvinner (topp 5)",
+      "fastestAggTitle": "Raskeste justerte tider (AGG – topp 10)",
+      "noRecordsRegistered": "Ingen rekorder registrert.",
+      "noDataAvailable": "Ingen data tilgjengelig.",
+      "mostLoyalParticipants": "Mest trofaste deltagere",
+      "mostAppearancesWithCount": "Flest deltagelser – {{count}} ganger",
+      "mostAppearances": "Flest deltagelser",
+      "runnerUpWithCount": "Rett bak – {{count}} ganger",
+      "participatedCount": "Deltatt {{count}} ganger",
+      "firstYearLastYear": "Første år: {{first}} · Siste år: {{last}}",
+      "yearsWithMostParticipants": "År med flest deltagere",
+      "mostParticipantsCompetition": "Konkurranse – flest deltagere",
+      "mostParticipantsTotal": "Totalt – flest deltagere",
+      "yearlyStats": "Årsstatistikk",
+      "yearly": {
+        "year": "År",
+        "competitionFinished": "Konk. fullført",
+        "dnf": "DNF",
+        "dns": "DNS",
+        "trim": "Trim",
+        "hike": "Tur",
+        "volunteer": "Funk.",
+        "total": "Total",
+        "totalsRow": "Totalt"
+      },
+      "tables": {
+        "rank": "#",
+        "runner": "Løper",
+        "time": "Tid",
+        "adjustedTime": "Justert tid",
+        "age": "Alder",
+        "participants": "Deltakere"
+      },
+      "dnfDnsExcluded": "DNF- og DNS-oppføringer er utelatt fra alle totaler."
+    },
+    "editionResults": {
+      "loadFailed": "Kunne ikke hente resultater. Prøv igjen senere.",
+      "title": "Resultater",
+      "titleWithEdition": "Resultater {{edition}}",
+      "editionLabel": "MO {{edition}}",
+      "noPrevious": "Ingen tidligere",
+      "noNext": "Ingen nyere",
+      "filters": {
+        "class": "Klasse",
+        "gender": "Kjønn",
+        "allClasses": "Alle klasser",
+        "allGenders": "Alle"
+      },
+      "ranking": {
+        "time": "Løpstid",
+        "adjusted": "Justert tid"
+      },
+      "adjustedRankingHelp": "Justert tid bruker Alle-mot-alle-poeng basert på alder og kjønn.",
+      "allVsAll": "Alle-mot-alle",
+      "downloadCsv": "Last ned CSV",
+      "noResultsForFilter": "Ingen resultater for valgt filtrering.",
+      "unknownRunner": "Ukjent",
+      "classLabels": {
+        "competition": "Konkurranse",
+        "timedRecreation": "Trim med tidtaking",
+        "hiking": "Turklasse"
+      },
+      "genderLabels": {
+        "men": "Menn",
+        "women": "Kvinner"
+      },
+      "table": {
+        "rank": "Plass",
+        "rankAdjusted": "Plass (justert)",
+        "name": "Navn",
+        "class": "Klasse",
+        "gender": "Kjønn",
+        "time": "Tid",
+        "adjustedTime": "Justert tid",
+        "status": "Status",
+        "representing": "Klubb/representasjon",
+        "age": "Alder"
+      },
+      "csv": {
+        "rank": "Plass",
+        "name": "Navn",
+        "class": "Klasse",
+        "gender": "Kjønn",
+        "time": "Tid",
+        "adjustedTime": "Alders-/kjønnsjustert tid",
+        "status": "Status",
+        "club": "Klubb",
+        "age": "Alder",
+        "userId": "UID"
+      }
+    },
+    "resultsOverview": {
+      "loadFailed": "Kunne ikke hente resultater. Prøv igjen senere.",
+      "title": "Resultater – Malvikingen Opp",
+      "subtitle": "Velg en utgave for detaljerte resultater, rekorder og statistikk.",
+      "noResultsYet": "Ingen resultater tilgjengelig ennå.",
+      "dateUnknown": "Dato ukjent",
+      "unknownValue": "ukjent",
+      "statusLabel": "Status: {{value}}",
+      "resultsLabel": "Resultater: {{value}}"
+    },
     "moOnFacebook": "MO på Facebook",
     "registrationFees": "Påmeldingsavgifter",
     "participation": "Deltakelse",
@@ -164,11 +307,17 @@
     "title": "Kruke's Ultra-Trail Challenge",
     "tagline": "Påmelding og resultatportal",
     "taglineShort": "Finn din distanse. Finn din grense.",
+    "resultsTitle": "KUTC-resultater",
+    "historicalResultsSubtitle": "Kruke's Ultra-Trail Challenge - historiske resultater",
+    "failedToLoadEditions": "Klarte ikke å laste KUTC-utgaver",
+    "dataIntegrityWarning": "Noen tidligere utgaver inneholder for øyeblikket datafeil. Vi jobber med å rette dem så snart som mulig.",
+    "noResultsAvailableYet": "Ingen resultater tilgjengelig ennå. Sjekk igjen etter første KUTC-arrangement!",
     "aboutTitle": "Om løpet",
     "aboutText": "Kruke's Ultra-Trail Challenge er et multi-loop ultra trail-løp på grensen mellom Malvik og Trondheim.",
     "viewKutcResults": "Se KUTC-resultater",
     "officialWebsite": "Offisiell nettside",
     "allTimeLeaderboard": "Adelskalender",
+    "backToOverview": "Tilbake til oversikt",
     "raceDistances": "Løp",
     "lastOneStanding": "Alle deltakere er med i 'Last One Standing'-utfordringen!",
     "allParticipantsLOS": "Alle deltakere er med i 'Last One Standing'-utfordringen!",
@@ -180,7 +329,184 @@
     "depositNote": "Refunderes til alle deltakere som møter opp til løpet",
     "total": "Totalt",
     "footerNote": "For detaljert løpsinformasjon, besøk",
-    "officialKutcWebsite": "den offisielle KUTC-nettsiden"
+    "officialKutcWebsite": "den offisielle KUTC-nettsiden",
+    "allTime": {
+      "loadFailed": "Klarte ikke å hente adelskalender-data.",
+      "title": "Adelskalender – KUTC",
+      "subtitle": "Totalt antall runder på tvers av alle KUTC-utgaver",
+      "summary": "Viser {{participants}} deltakere på tvers av {{editions}} utgaver med totalt {{loops}} fullførte runder",
+      "searchLabel": "Søk etter løper",
+      "searchPlaceholder": "Skriv inn navn for å filtrere...",
+      "explanation": "Tallene viser fullførte runder for den utgaven. 0 betyr at løperen var påmeldt men ikke startet (DNS). Bindestrek (-) betyr at løperen ikke deltok det året.",
+      "columns": {
+        "participant": "Løper",
+        "total": "Totalt"
+      }
+    },
+    "records": {
+      "loadFailed": "Klarte ikke å hente rekorddata.",
+      "title": "KUTC-rekorder",
+      "subtitle": "Rekorder og prestasjoner gjennom alle år",
+      "mostLoopsCompleted": "Flest fullførte runder",
+      "fastestRaceTimesTitle": "Raskeste løpstider",
+      "fastestRaceTimesIntro": "Rekordene nedenfor er basert kun på tider registrert av løpere som var påmeldt den aktuelle distansen. Splittider fra løpere påmeldt en annen distanse teller ikke som rekord, selv om tiden skulle være raskere.",
+      "mostAppearancesTitle": "Flest deltakelser",
+      "noLoopRecords": "Ingen rekordoppføringer for runder tilgjengelig",
+      "noRaceTimeRecords": "Ingen rekordoppføringer for tider tilgjengelig",
+      "noAppearanceRecords": "Ingen deltakelsesrekorder tilgjengelig",
+      "appearancesCount_one": "{{count}} utgave",
+      "appearancesCount_other": "{{count}} utgaver",
+      "participatedIn": "Deltatt i: {{editions}}",
+      "runnersUp": "Rett bak – {{label}}",
+      "raceAvailabilityNotes": {
+        "2Loops": "(denne distansen var kun tilgjengelig i 2018)",
+        "3Loops": "(denne distansen var kun tilgjengelig i 2018)",
+        "7Loops": "(denne distansen var kun tilgjengelig i 2018, 2019 og 2020)"
+      },
+      "table": {
+        "rank": "Plass",
+        "participant": "Løper",
+        "loops": "Runder",
+        "time": "Tid",
+        "edition": "Utgave"
+      }
+    },
+    "yearResults": {
+      "loadFailed": "Klarte ikke å hente resultater",
+      "loadRaceFailed": "Klarte ikke å hente løpsresultater",
+      "noResultsFound": "Fant ingen resultater",
+      "noResultsForYear": "Fant ingen resultater for KUTC {{year}}",
+      "noEarlierEdition": "Ingen tidligere utgave",
+      "noLaterEdition": "Ingen nyere utgave",
+      "participantsFinishers": "{{participants}} deltakere • {{finishers}} fullførte",
+      "overallCompetition": "Total konkurranse",
+      "totalCompetition": "Total konkurranse",
+      "lastOneStandingAllParticipants": "Last One Standing – alle deltakere",
+      "runnersCount_one": "{{count}} løper",
+      "runnersCount_other": "{{count}} løpere",
+      "withValidResults": "{{count}} med gyldige resultater",
+      "raceDistances": "Distanser",
+      "finishersCount": "{{count}} fullførte",
+      "backToDistances": "Tilbake til distanser",
+      "totalCompetitionTitle": "Total konkurranse – Last One Standing",
+      "totalCompetitionSubtitle": "Rangert etter fullførte runder (synkende), deretter total tid (stigende)",
+      "raceResultsTitleFallback": "Løpsresultater",
+      "raceResultsSubtitle": "Rangert etter sluttid for påmeldt distanse"
+    }
+  },
+  "runners": {
+    "search": {
+      "title": "Løpersøk",
+      "subtitle": "Søk etter løpere registrert i RunnersHub",
+      "searchLabel": "Søk etter navn",
+      "searchPlaceholder": "Skriv inn fornavn, etternavn eller begge...",
+      "searchHelperText": "Begynn å skrive for å søke (minimum 2 tegn)",
+      "resultsTitle": "Søkeresultater",
+      "resultsCount_one": "{{count}} løper funnet",
+      "resultsCount_other": "{{count}} løpere funnet",
+      "noResults": "Fant ingen løpere som matcher \"{{query}}\"",
+      "noResultsHint": "Prøv et annet navn eller sjekk stavemåten",
+      "runnerId": "Løper-ID: {{id}}",
+      "initialTitle": "Start å søke etter løpere",
+      "initialHint": "Skriv inn et navn i søkefeltet over for å finne løpere"
+    },
+    "profile": {
+      "loadFailed": "Klarte ikke å laste løperprofil",
+      "detailsUpdateFailed": "Klarte ikke å oppdatere personopplysninger",
+      "notFound": "Fant ikke løper.",
+      "pageSubtitle": "Løperside",
+      "publicProfileNotice": "Du ser en offentlig løperprofil. Bare din egen profil viser personopplysninger.",
+      "gender": {
+        "men": "Menn",
+        "women": "Kvinner",
+        "gender": "Kjønn"
+      },
+      "personalDetails": {
+        "title": "Personopplysninger",
+        "show": "Vis detaljer",
+        "hide": "Skjul detaljer",
+        "saved": "Endringer lagret.",
+        "firstName": "Fornavn",
+        "lastName": "Etternavn",
+        "phoneCountryCode": "Landskode",
+        "phoneNumber": "Telefonnummer",
+        "phonePlaceholder": "f.eks. 12345678",
+        "email": "E-post",
+        "emailHelper": "E-post er din unike identifikator. For å endre den, kontakt post@krultra.no.",
+        "emailTooltip": "Endring av e-post krever at du kontakter post@krultra.no",
+        "saving": "Lagrer…",
+        "saveChanges": "Lagre endringer"
+      },
+      "upcoming": {
+        "title": "Påmeldinger til kommende arrangementer",
+        "none": "Ikke påmeldt noen fremtidige KrUltra-arrangementer.",
+        "reviewRegistration": "Se påmelding",
+        "starts": "Starter {{date}}",
+        "registrationNumber": "Påmelding #{{number}}",
+        "lastUpdated": "Sist oppdatert {{date}}"
+      },
+      "kutc": {
+        "historyTitle": "Deltakelseshistorikk – {{event}}",
+        "showHistory": "Vis historikk",
+        "hideHistory": "Skjul historikk",
+        "appearancesCount_one": "{{count}} deltakelse",
+        "appearancesCount_other": "{{count}} deltakelser",
+        "loopsCount_one": "{{count}} runde",
+        "loopsCount_other": "{{count}} runder",
+        "bestPerformance": "{{loops}} runder • {{time}} ({{year}})",
+        "stats": {
+          "totalAppearances": "Antall deltakelser",
+          "years": "År: {{years}}",
+          "totalLoops": "Totalt antall runder",
+          "bestPerformance": "Beste prestasjon"
+        },
+        "table": {
+          "edition": "Utgave",
+          "race": "Løp",
+          "raceRank": "Plass (løp)",
+          "raceTime": "Tid (løp)",
+          "totalRank": "Total plass",
+          "totalLoops": "Totalt runder",
+          "totalTime": "Total tid",
+          "status": "Status",
+          "analysis": "Analyse",
+          "na": "Ikke tilgjengelig"
+        }
+      },
+      "mo": {
+        "historyTitle": "Deltakelseshistorikk – {{event}}",
+        "showHistory": "Vis historikk",
+        "hideHistory": "Skjul historikk",
+        "appearancesCount_one": "{{count}} deltakelse",
+        "appearancesCount_other": "{{count}} deltakelser",
+        "class": {
+          "competition": "Konkurranse",
+          "trimTimed": "Trim (tidtaking)",
+          "hike": "Tur"
+        },
+        "status": {
+          "dns": "DNS",
+          "dnf": "DNF",
+          "finished": "Fullført"
+        },
+        "stats": {
+          "totalAppearances": "Antall deltakelser",
+          "years": "År: {{years}}",
+          "bestTimeGender": "Beste tid (kjønn)",
+          "bestAdjustedAgg": "Beste alders- og kjønnsgradert (AGG)"
+        },
+        "table": {
+          "edition": "Utgave",
+          "class": "Klasse",
+          "rankGender": "Plass ({{gender}})",
+          "time": "Tid",
+          "aggTooltip": "Alders- og kjønnsgradert tid. Tiden justeres med en faktor basert på løperens alder og kjønn.",
+          "rankAgg": "Plass (AGG)",
+          "adjusted": "Justert",
+          "status": "Status"
+        }
+      }
+    }
   },
   "editions": {
     "previousEdition": "Forrige utgave",

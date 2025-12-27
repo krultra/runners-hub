@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Typography,
@@ -18,6 +19,7 @@ import { listKUTCEditions, KUTCEdition } from '../services/kutcResultsService';
 
 const KUTCResultsOverviewPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t, i18n } = useTranslation();
   const [editions, setEditions] = useState<KUTCEdition[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,6 +27,8 @@ const KUTCResultsOverviewPage: React.FC = () => {
     () => editions.some(edition => edition.metadata?.resultsStatus === 'error'),
     [editions]
   );
+
+  const dateLocale = i18n.language?.startsWith('no') ? 'nb-NO' : 'en-GB';
 
   useEffect(() => {
     const fetchEditions = async () => {
@@ -34,7 +38,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
         setEditions(data);
       } catch (err) {
         console.error('Error fetching KUTC editions:', err);
-        setError('Failed to load KUTC editions');
+        setError(t('kutc.failedToLoadEditions'));
       } finally {
         setLoading(false);
       }
@@ -82,10 +86,10 @@ const KUTCResultsOverviewPage: React.FC = () => {
           <Box sx={{ flex: '1 1 240px' }}>
             <Typography variant="h3" component="h1" gutterBottom fontWeight="bold">
               <Trophy size={40} style={{ marginRight: 8, verticalAlign: 'middle' }} />
-              KUTC Results
+              {t('kutc.resultsTitle')}
             </Typography>
             <Typography variant="h6" color="text.secondary">
-              Kruke's Ultra-Trail Challenge - Historical Results
+              {t('kutc.historicalResultsSubtitle')}
             </Typography>
           </Box>
           <Box
@@ -102,7 +106,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
               startIcon={<BarChart3 />}
               onClick={() => navigate('/kutc/all-time')}
             >
-              All-Time Leaderboard
+              {t('kutc.allTimeLeaderboard')}
             </Button>
             <Button
               variant="outlined"
@@ -110,14 +114,14 @@ const KUTCResultsOverviewPage: React.FC = () => {
               startIcon={<Trophy />}
               onClick={() => navigate('/kutc/records')}
             >
-              Records
+              {t('events.records')}
             </Button>
           </Box>
         </Box>
 
         {hasDataIntegrityIssues && (
           <Alert severity="warning">
-            Some historical editions currently contain data errors. We are working to correct them as soon as possible.
+            {t('kutc.dataIntegrityWarning')}
           </Alert>
         )}
       </Box>
@@ -125,7 +129,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
       {/* Editions Grid */}
       {editions.length === 0 ? (
         <Alert severity="info">
-          No results available yet. Check back after the first KUTC event!
+          {t('kutc.noResultsAvailableYet')}
         </Alert>
       ) : (
         <Grid container spacing={3}>
@@ -177,7 +181,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
                             <Box sx={{ display: 'flex', alignItems: 'center', mb: 1.5 }}>
                               <Calendar size={16} style={{ marginRight: 8 }} />
                               <Typography variant="body2" color="text.secondary">
-                                {date ? date.toLocaleDateString('en-GB', {
+                                {date ? date.toLocaleDateString(dateLocale, {
                                   day: 'numeric',
                                   month: 'short',
                                   year: 'numeric'
@@ -189,12 +193,12 @@ const KUTCResultsOverviewPage: React.FC = () => {
 
                         {/* Participants only */}
                         <Typography variant="body2" color="text.secondary">
-                          <strong>{edition.metadata.totalParticipants}</strong> participants
+                          {t('common.participantsCount', { count: edition.metadata.totalParticipants })}
                         </Typography>
                       </Box>
                     ) : (
                       <Typography variant="body2" color="text.secondary">
-                        No metadata available
+                        {t('common.noMetadataAvailable')}
                       </Typography>
                     )}
                   </CardContent>

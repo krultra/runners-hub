@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   Container,
   Typography,
@@ -16,7 +17,6 @@ import Stack from '@mui/material/Stack';
 import Button from '@mui/material/Button';
 import { CalendarCheck, Trophy, BarChart3 } from 'lucide-react';
 import { listMoEventEditions, MOEventEditionSummary } from '../services/moResultsService';
-import { formatDateNb } from '../utils/localeNb';
 
 const statusChipColor: Record<string, 'default' | 'success' | 'warning' | 'error'> = {
   finalized: 'success',
@@ -34,9 +34,28 @@ const resultsStatusChipColor: Record<string, 'default' | 'success' | 'warning' |
 
 const MOResultsOverviewPage: React.FC = () => {
   const navigate = useNavigate();
+  const { i18n, t } = useTranslation();
   const [editions, setEditions] = useState<MOEventEditionSummary[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
+
+  const uiLocale = useMemo(() => {
+    if (i18n.language?.toLowerCase().startsWith('no')) {
+      return 'nb-NO';
+    }
+    return 'en-GB';
+  }, [i18n.language]);
+
+  const formatDate = (value: Date | string | number | null | undefined): string => {
+    if (!value) return '';
+    const d = value instanceof Date ? value : new Date(value);
+    if (Number.isNaN(d.getTime())) return '';
+    return new Intl.DateTimeFormat(uiLocale, {
+      year: 'numeric',
+      month: 'short',
+      day: '2-digit'
+    }).format(d);
+  };
 
   useEffect(() => {
     const fetchEditions = async () => {
@@ -47,14 +66,14 @@ const MOResultsOverviewPage: React.FC = () => {
         setError(null);
       } catch (err) {
         console.error('[MO Results] Failed to list editions', err);
-        setError('Kunne ikke hente resultater. Prøv igjen senere.');
+        setError(t('mo.resultsOverview.loadFailed'));
       } finally {
         setLoading(false);
       }
     };
 
     fetchEditions();
-  }, []);
+  }, [t]);
 
   const sorted = useMemo(() => {
     return editions
@@ -86,10 +105,10 @@ const MOResultsOverviewPage: React.FC = () => {
       >
         <Box>
           <Typography variant="h3" gutterBottom component="h1">
-            Resultater – Malvikingen Opp
+            {t('mo.resultsOverview.title')}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            Velg en utgave for detaljerte resultater, rekorder og statistikk.
+            {t('mo.resultsOverview.subtitle')}
           </Typography>
         </Box>
 
@@ -99,14 +118,14 @@ const MOResultsOverviewPage: React.FC = () => {
             startIcon={<Trophy />}
             onClick={() => navigate('/mo/records')}
           >
-            Rekorder
+            {t('events.records')}
           </Button>
           <Button
             variant="contained"
             startIcon={<BarChart3 />}
             onClick={() => navigate('/mo/all-time')}
           >
-            Adelskalender
+            {t('mo.allTimeLeaderboard')}
           </Button>
         </Stack>
       </Box>
@@ -118,7 +137,7 @@ const MOResultsOverviewPage: React.FC = () => {
       ) : null}
 
       {sorted.length === 0 ? (
-        <Alert severity="info">Ingen resultater tilgjengelig ennå.</Alert>
+        <Alert severity="info">{t('mo.resultsOverview.noResultsYet')}</Alert>
       ) : (
         <Grid container spacing={3}>
           {sorted.map((edition) => {
@@ -138,11 +157,23 @@ const MOResultsOverviewPage: React.FC = () => {
                         </Typography>
                       </Box>
                       <Typography variant="body2" color="text.secondary" gutterBottom>
-                        {startTime ? formatDateNb(startTime) : 'Dato ukjent'}
+                        {startTime ? formatDate(startTime) : t('mo.resultsOverview.dateUnknown')}
                       </Typography>
                       <Box display="flex" flexWrap="wrap" gap={1} mt={1.5}>
-                        <Chip label={`Status: ${status || 'ukjent'}`} color={statusColor} size="small" />
-                        <Chip label={`Resultater: ${resultsStatus || 'ukjent'}`} color={resultsStatusColor} size="small" />
+                        <Chip
+                          label={t('mo.resultsOverview.statusLabel', {
+                            value: status || t('mo.resultsOverview.unknownValue')
+                          })}
+                          color={statusColor}
+                          size="small"
+                        />
+                        <Chip
+                          label={t('mo.resultsOverview.resultsLabel', {
+                            value: resultsStatus || t('mo.resultsOverview.unknownValue')
+                          })}
+                          color={resultsStatusColor}
+                          size="small"
+                        />
                       </Box>
                     </CardContent>
                   </CardActionArea>

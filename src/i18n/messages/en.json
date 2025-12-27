@@ -3,6 +3,16 @@
     "siteTitle": "RunnersHub",
     "loading": "Loading...",
     "error": "Error",
+    "krultraLogoAlt": "KrUltra logo",
+    "changeLanguage": "Change language",
+    "loggedIn": "Logged in",
+    "settings": "Settings",
+    "stageBanner": "Mode: {{stage}}",
+    "versionFooter": "KrUltra {{year}} - v{{version}}",
+    "participantsCount": "{{count}} participants",
+    "noMetadataAvailable": "No metadata available",
+    "dateTba": "Date TBA",
+    "view": "View",
     "save": "Save",
     "cancel": "Cancel",
     "close": "Close",
@@ -27,11 +37,13 @@
   "nav": {
     "home": "Home",
     "events": "Events",
+    "runners": "Runners",
     "results": "Results",
     "about": "About",
     "login": "Log in",
     "logout": "Log out",
     "admin": "Admin",
+    "myRunnerPage": "My runner page",
     "register": "Register"
   },
   "events": {
@@ -150,6 +162,137 @@
     "hikingClass": "Hiking Class",
     "hikingClassDesc": "Participation costs 50 NOK.",
     "allTimeLeaderboard": "All-Time Leaderboard",
+    "backToOverview": "Back to Overview",
+    "allTime": {
+      "loadFailed": "Failed to load all-time leaderboard",
+      "title": "All-Time Leaderboard – Malvikingen Opp",
+      "subtitle": "Most participations across all classes and roles.",
+      "searchLabel": "Search runner",
+      "searchPlaceholder": "Type name to filter...",
+      "noResults": "No results available for the all-time leaderboard.",
+      "dnsExcludedNote": "DNS entries are excluded. Time columns apply only to results in the competition class.",
+      "bestAdjustedTooltip": "Best adjusted time (AGG)",
+      "showDetails": "Show details",
+      "noYearsRegistered": "No years registered.",
+      "categories": {
+        "competition": "Competition",
+        "trimHike": "Trim / hike",
+        "volunteer": "Volunteer"
+      },
+      "columns": {
+        "name": "Name",
+        "appearances": "Appearances",
+        "bestTime": "Best time",
+        "bestAdjusted": "Best adjusted",
+        "years": "Years"
+      }
+    },
+    "records": {
+      "loadFailed": "Failed to load record data",
+      "title": "Records – Malvikingen Opp",
+      "subtitle": "Fastest competition times, adjusted results, and most loyal participants.",
+      "fastestMenTitle": "Fastest men (top 5)",
+      "fastestWomenTitle": "Fastest women (top 5)",
+      "fastestAggTitle": "Fastest adjusted times (AGG – top 10)",
+      "noRecordsRegistered": "No records registered.",
+      "noDataAvailable": "No data available.",
+      "mostLoyalParticipants": "Most loyal participants",
+      "mostAppearancesWithCount": "Most appearances – {{count}} times",
+      "mostAppearances": "Most appearances",
+      "runnerUpWithCount": "Close behind – {{count}} times",
+      "participatedCount": "Participated {{count}} times",
+      "firstYearLastYear": "First year: {{first}} · Last year: {{last}}",
+      "yearsWithMostParticipants": "Years with most participants",
+      "mostParticipantsCompetition": "Competition – most participants",
+      "mostParticipantsTotal": "Total – most participants",
+      "yearlyStats": "Yearly statistics",
+      "yearly": {
+        "year": "Year",
+        "competitionFinished": "Competition finished",
+        "dnf": "DNF",
+        "dns": "DNS",
+        "trim": "Trim",
+        "hike": "Hike",
+        "volunteer": "Volunteer",
+        "total": "Total",
+        "totalsRow": "Total"
+      },
+      "tables": {
+        "rank": "#",
+        "runner": "Runner",
+        "time": "Time",
+        "adjustedTime": "Adjusted time",
+        "age": "Age",
+        "participants": "Participants"
+      },
+      "dnfDnsExcluded": "DNF and DNS entries are excluded from all totals."
+    },
+    "editionResults": {
+      "loadFailed": "Failed to load results. Please try again later.",
+      "title": "Results",
+      "titleWithEdition": "Results {{edition}}",
+      "editionLabel": "MO {{edition}}",
+      "noPrevious": "No earlier",
+      "noNext": "No later",
+      "filters": {
+        "class": "Class",
+        "gender": "Gender",
+        "allClasses": "All classes",
+        "allGenders": "All"
+      },
+      "ranking": {
+        "time": "Time",
+        "adjusted": "Adjusted time"
+      },
+      "adjustedRankingHelp": "Adjusted ranking uses the all-vs-all (AGG) scoring based on age and gender.",
+      "allVsAll": "All-vs-all",
+      "downloadCsv": "Download CSV",
+      "noResultsForFilter": "No results for the selected filters.",
+      "unknownRunner": "Unknown",
+      "classLabels": {
+        "competition": "Competition",
+        "timedRecreation": "Timed recreation",
+        "hiking": "Hiking class"
+      },
+      "genderLabels": {
+        "men": "Men",
+        "women": "Women"
+      },
+      "table": {
+        "rank": "Rank",
+        "rankAdjusted": "Rank (adjusted)",
+        "name": "Name",
+        "class": "Class",
+        "gender": "Gender",
+        "time": "Time",
+        "adjustedTime": "Adjusted time",
+        "status": "Status",
+        "representing": "Club / representing",
+        "age": "Age"
+      },
+      "csv": {
+        "rank": "Rank",
+        "name": "Name",
+        "class": "Class",
+        "gender": "Gender",
+        "time": "Time",
+        "adjustedTime": "Adjusted time",
+        "status": "Status",
+        "club": "Club",
+        "age": "Age",
+        "userId": "UID"
+      }
+    },
+    "resultsOverview": {
+      "loadFailed": "Failed to load results. Please try again later.",
+      "title": "Results – Malvikingen Opp",
+      "subtitle": "Select an edition for detailed results, records, and statistics.",
+      "noResultsYet": "No results available yet.",
+      "dateUnknown": "Date unknown",
+      "unknownValue": "unknown",
+      "statusLabel": "Status: {{value}}",
+      "resultsLabel": "Results: {{value}}"
+    },
     "moOnFacebook": "MO on Facebook",
     "registrationFees": "Registration Fees",
     "participation": "Participation",
@@ -164,11 +307,17 @@
     "title": "Kruke's Ultra-Trail Challenge",
     "tagline": "Registration and Results Portal",
     "taglineShort": "Find your distance. Find your limit.",
+    "resultsTitle": "KUTC Results",
+    "historicalResultsSubtitle": "Kruke's Ultra-Trail Challenge - Historical Results",
+    "failedToLoadEditions": "Failed to load KUTC editions",
+    "dataIntegrityWarning": "Some historical editions currently contain data errors. We are working to correct them as soon as possible.",
+    "noResultsAvailableYet": "No results available yet. Check back after the first KUTC event!",
     "aboutTitle": "About the race",
     "aboutText": "Kruke's Ultra-Trail Challenge is a multi-loop ultra trail race on the border between Malvik and Trondheim.",
     "viewKutcResults": "View KUTC Results",
     "officialWebsite": "Official Website",
     "allTimeLeaderboard": "All-Time Leaderboard",
+    "backToOverview": "Back to Overview",
     "raceDistances": "Races",
     "lastOneStanding": "All participants are part of the 'Last One Standing' challenge!",
     "allParticipantsLOS": "All participants are part of the 'Last One Standing' challenge!",
@@ -180,7 +329,184 @@
     "depositNote": "Returned to all participants who show up for the race",
     "total": "Total",
     "footerNote": "For detailed race information, please visit the",
-    "officialKutcWebsite": "official KUTC website"
+    "officialKutcWebsite": "official KUTC website",
+    "allTime": {
+      "loadFailed": "Failed to load leaderboard data",
+      "title": "KUTC All-Time Leaderboard",
+      "subtitle": "Total loops completed across all KUTC editions",
+      "summary": "Showing {{participants}} participants across {{editions}} editions with a total of {{loops}} completed loops",
+      "searchLabel": "Search participants",
+      "searchPlaceholder": "Type name to filter...",
+      "explanation": "Numbers show completed loops for that edition. A value of 0 means the runner registered but did not start (DNS). A dash (-) means the runner did not participate that year.",
+      "columns": {
+        "participant": "Participant",
+        "total": "Total"
+      }
+    },
+    "records": {
+      "loadFailed": "Failed to load records data",
+      "title": "KUTC Records",
+      "subtitle": "All-time records and achievements",
+      "mostLoopsCompleted": "Most Loops Completed",
+      "fastestRaceTimesTitle": "Fastest Race Times",
+      "fastestRaceTimesIntro": "The records listed for the various distances below are based only on times recorded by runners who were registered for that specific race distance. Split times from runners registered for a different race distance do not count as records, even if the time is faster than that of those registered as records for the race distance in question.",
+      "mostAppearancesTitle": "Most Appearances",
+      "noLoopRecords": "No loop completion records available",
+      "noRaceTimeRecords": "No race time records available",
+      "noAppearanceRecords": "No appearance records available",
+      "appearancesCount_one": "{{count}} edition",
+      "appearancesCount_other": "{{count}} editions",
+      "participatedIn": "Participated in: {{editions}}",
+      "runnersUp": "Runners-up – {{label}}",
+      "raceAvailabilityNotes": {
+        "2Loops": "(this race distance was only available in 2018)",
+        "3Loops": "(this race distance was only available in 2018)",
+        "7Loops": "(this race distance was only available in 2018, 2019 and 2020)"
+      },
+      "table": {
+        "rank": "Rank",
+        "participant": "Participant",
+        "loops": "Loops",
+        "time": "Time",
+        "edition": "Edition"
+      }
+    },
+    "yearResults": {
+      "loadFailed": "Failed to load results",
+      "loadRaceFailed": "Failed to load race results",
+      "noResultsFound": "No results found",
+      "noResultsForYear": "No results found for KUTC {{year}}",
+      "noEarlierEdition": "No earlier edition",
+      "noLaterEdition": "No later edition",
+      "participantsFinishers": "{{participants}} participants • {{finishers}} finishers",
+      "overallCompetition": "Overall Competition",
+      "totalCompetition": "Total Competition",
+      "lastOneStandingAllParticipants": "Last One Standing - All Participants",
+      "runnersCount_one": "{{count}} runner",
+      "runnersCount_other": "{{count}} runners",
+      "withValidResults": "{{count}} with valid results",
+      "raceDistances": "Race Distances",
+      "finishersCount": "{{count}} finishers",
+      "backToDistances": "Back to Distances",
+      "totalCompetitionTitle": "Total Competition - Last One Standing",
+      "totalCompetitionSubtitle": "Ranked by loops completed (descending), then total time (ascending)",
+      "raceResultsTitleFallback": "Race Results",
+      "raceResultsSubtitle": "Ranked by finish time for registered distance"
+    }
+  },
+  "runners": {
+    "search": {
+      "title": "Runner Search",
+      "subtitle": "Search for runners registered in RunnersHub",
+      "searchLabel": "Search by name",
+      "searchPlaceholder": "Enter first name, last name, or both...",
+      "searchHelperText": "Start typing to search (minimum 2 characters)",
+      "resultsTitle": "Search Results",
+      "resultsCount_one": "{{count}} runner found",
+      "resultsCount_other": "{{count}} runners found",
+      "noResults": "No runners found matching \"{{query}}\"",
+      "noResultsHint": "Try a different name or check your spelling",
+      "runnerId": "Runner ID: {{id}}",
+      "initialTitle": "Start searching for runners",
+      "initialHint": "Enter a name in the search box above to find runners"
+    },
+    "profile": {
+      "loadFailed": "Failed to load runner profile",
+      "detailsUpdateFailed": "Failed to update personal details",
+      "notFound": "Runner not found.",
+      "pageSubtitle": "Runner's page",
+      "publicProfileNotice": "Viewing a public runner profile. Only your own profile shows personal details.",
+      "gender": {
+        "men": "Men",
+        "women": "Women",
+        "gender": "Gender"
+      },
+      "personalDetails": {
+        "title": "Personal details",
+        "show": "Show details",
+        "hide": "Hide details",
+        "saved": "Changes saved successfully.",
+        "firstName": "First name",
+        "lastName": "Last name",
+        "phoneCountryCode": "Phone country code",
+        "phoneNumber": "Phone number",
+        "phonePlaceholder": "e.g. 12345678",
+        "email": "Email",
+        "emailHelper": "Email is your unique identifier. To update it, contact post@krultra.no.",
+        "emailTooltip": "Email updates require contacting post@krultra.no",
+        "saving": "Saving…",
+        "saveChanges": "Save changes"
+      },
+      "upcoming": {
+        "title": "Registrations for upcoming events",
+        "none": "Currently not signed up for any future KrUltra event.",
+        "reviewRegistration": "Review registration",
+        "starts": "Starts {{date}}",
+        "registrationNumber": "Registration #{{number}}",
+        "lastUpdated": "Last updated {{date}}"
+      },
+      "kutc": {
+        "historyTitle": "{{event}} participation history",
+        "showHistory": "Show history",
+        "hideHistory": "Hide history",
+        "appearancesCount_one": "{{count}} appearance",
+        "appearancesCount_other": "{{count}} appearances",
+        "loopsCount_one": "{{count}} loop",
+        "loopsCount_other": "{{count}} loops",
+        "bestPerformance": "{{loops}} loops • {{time}} ({{year}})",
+        "stats": {
+          "totalAppearances": "Total appearances",
+          "years": "Years: {{years}}",
+          "totalLoops": "Total loops completed",
+          "bestPerformance": "Best performance"
+        },
+        "table": {
+          "edition": "Edition",
+          "race": "Race",
+          "raceRank": "Race rank",
+          "raceTime": "Race time",
+          "totalRank": "Total rank",
+          "totalLoops": "Total loops",
+          "totalTime": "Total time",
+          "status": "Status",
+          "analysis": "Analysis",
+          "na": "N/A"
+        }
+      },
+      "mo": {
+        "historyTitle": "{{event}} participation history",
+        "showHistory": "Show history",
+        "hideHistory": "Hide history",
+        "appearancesCount_one": "{{count}} appearance",
+        "appearancesCount_other": "{{count}} appearances",
+        "class": {
+          "competition": "Competition",
+          "trimTimed": "Trim (timed)",
+          "hike": "Hike"
+        },
+        "status": {
+          "dns": "DNS",
+          "dnf": "DNF",
+          "finished": "Finished"
+        },
+        "stats": {
+          "totalAppearances": "Total appearances",
+          "years": "Years: {{years}}",
+          "bestTimeGender": "Best time (gender)",
+          "bestAdjustedAgg": "Best adjusted (AGG)"
+        },
+        "table": {
+          "edition": "Edition",
+          "class": "Class",
+          "rankGender": "Rank ({{gender}})",
+          "time": "Time",
+          "aggTooltip": "Age and Gender Graded time. Race time is adjusted by a factor depending on the runner's age and gender.",
+          "rankAgg": "Rank (AGG)",
+          "adjusted": "Adjusted",
+          "status": "Status"
+        }
+      }
+    }
   },
   "editions": {
     "previousEdition": "Previous Edition",

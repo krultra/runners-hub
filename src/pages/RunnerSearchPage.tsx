@@ -19,6 +19,7 @@ import { Search, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '../config/firebase';
+import { useTranslation } from 'react-i18next';
 
 interface RunnerSearchResult {
   id: string;
@@ -49,6 +50,7 @@ const resolveRunnerId = (runner: RunnerSearchResult): string => {
 
 const RunnerSearchPage: React.FC = () => {
   const navigate = useNavigate();
+  const { t } = useTranslation();
   const [searchText, setSearchText] = useState('');
   const [results, setResults] = useState<RunnerSearchResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -141,10 +143,10 @@ const RunnerSearchPage: React.FC = () => {
     <Container maxWidth="md" sx={{ py: 4 }}>
       <Box sx={{ mb: 4 }}>
         <Typography variant="h3" gutterBottom>
-          Runner Search
+          {t('runners.search.title')}
         </Typography>
         <Typography variant="body1" color="text.secondary">
-          Search for runners registered in RunnersHub
+          {t('runners.search.subtitle')}
         </Typography>
       </Box>
 
@@ -154,11 +156,11 @@ const RunnerSearchPage: React.FC = () => {
           fullWidth
           id="runner-search"
           name="runnerSearch"
-          label="Search by name"
+          label={t('runners.search.searchLabel')}
           variant="outlined"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Enter first name, last name, or both..."
+          placeholder={t('runners.search.searchPlaceholder')}
           inputRef={searchInputRef}
           InputProps={{
             startAdornment: (
@@ -172,7 +174,7 @@ const RunnerSearchPage: React.FC = () => {
               </InputAdornment>
             ) : null
           }}
-          helperText="Start typing to search (minimum 2 characters)"
+          helperText={t('runners.search.searchHelperText')}
         />
       </Paper>
 
@@ -188,10 +190,10 @@ const RunnerSearchPage: React.FC = () => {
         <Paper sx={{ p: 2 }}>
           <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Typography variant="h6">
-              Search Results
+              {t('runners.search.resultsTitle')}
             </Typography>
             <Chip 
-              label={`${results.length} ${results.length === 1 ? 'runner' : 'runners'} found`} 
+              label={t('runners.search.resultsCount', { count: results.length })} 
               color={results.length > 0 ? 'primary' : 'default'}
               size="small"
             />
@@ -201,10 +203,10 @@ const RunnerSearchPage: React.FC = () => {
             <Box sx={{ py: 4, textAlign: 'center' }}>
               <User size={64} style={{ marginBottom: 16, opacity: 0.5 }} />
               <Typography variant="body1" color="text.secondary">
-                No runners found matching "{searchText}"
+                {t('runners.search.noResults', { query: searchText })}
               </Typography>
               <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-                Try a different name or check your spelling
+                {t('runners.search.noResultsHint')}
               </Typography>
             </Box>
           ) : (
@@ -225,7 +227,7 @@ const RunnerSearchPage: React.FC = () => {
                           </Typography>
                         </Stack>
                       }
-                      secondary={runner.personId ? `Runner ID: ${runner.personId}` : undefined}
+                      secondary={runner.personId ? t('runners.search.runnerId', { id: runner.personId }) : undefined}
                     />
                   </ListItemButton>
                 </ListItem>
@@ -240,10 +242,10 @@ const RunnerSearchPage: React.FC = () => {
         <Paper sx={{ p: 6, textAlign: 'center' }}>
           <Search size={64} style={{ marginBottom: 16, opacity: 0.5 }} />
           <Typography variant="h6" color="text.secondary" gutterBottom>
-            Start searching for runners
+            {t('runners.search.initialTitle')}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Enter a name in the search box above to find runners
+            {t('runners.search.initialHint')}
           </Typography>
         </Paper>
       )}
