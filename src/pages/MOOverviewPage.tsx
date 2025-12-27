@@ -21,7 +21,7 @@ import {
   getAdjacentEditions
 } from '../services/eventEditionService';
 import { getVerboseName } from '../services/codeListService';
-import { Globe, PersonStanding, Facebook, Mountain, Trophy, BarChart3 } from 'lucide-react';
+import { Globe, Facebook, Trophy, BarChart3 } from 'lucide-react';
 import { getKrultraUrl } from '../config/urls';
 import { getEventLogoUrl } from '../services/strapiService';
 
@@ -109,7 +109,7 @@ const MOOverviewPage: React.FC = () => {
     };
 
     load();
-  }, []);
+  }, [t]);
 
   if (loading) {
     return (

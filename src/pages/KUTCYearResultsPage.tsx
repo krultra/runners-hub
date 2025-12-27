@@ -24,7 +24,6 @@ import {
   KUTCEdition,
   KUTCEditionMetadata,
   KUTCResultEntry,
-  KUTCRaceInfo
 } from '../services/kutcResultsService';
 import { getEventEdition, EventEdition } from '../services/eventEditionService';
 import KUTCResultsTable from '../components/KUTCResultsTable';
@@ -129,7 +128,7 @@ const KUTCYearResultsPage: React.FC = () => {
     const previous = index > 0 ? sortedEditions[index - 1] : null;
     const next = index < sortedEditions.length - 1 ? sortedEditions[index + 1] : null;
     return { previousEdition: previous, nextEdition: next };
-  }, [year, sortedEditions]);
+  }, [editionId, year, sortedEditions]);
 
   // Fetch race-specific results when a race is selected
   const handleRaceClick = (distanceKey: string) => {

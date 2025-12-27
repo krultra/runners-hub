@@ -1,5 +1,4 @@
 import { getFirestore, collection, query, where, getDocs, setDoc, doc, serverTimestamp } from 'firebase/firestore';
-import { AppUser } from './userUtils';
 import type { Registration } from '../types';
 
 /**

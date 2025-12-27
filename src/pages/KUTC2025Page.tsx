@@ -43,7 +43,7 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   
   // State for user authentication and registration
   const [user, setUser] = useState<any>(null);
-  const [isUserRegistered, setIsUserRegistered] = useState(false);
+  const [, setIsUserRegistered] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
   const [statusLabel, setStatusLabel] = useState<string>('');
@@ -92,7 +92,6 @@ const KUTC2025PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const resultsStatusCode = String(event.resultsStatus || '').toLowerCase();
   const hasResultsAvailable = ['incomplete', 'preliminary', 'unofficial', 'final'].includes(resultsStatusCode) 
     || ['4', '5', '6', '7'].includes(event.resultsStatus || '');
-  const isEventOngoing = (resultsStatusCode === 'ongoing' || event.resultsStatus === '2') && raceStarted && !raceEnded;
   const hasFinalResults = resultsStatusCode === 'final' || resultsStatusCode === '7';
   
   const showLiveResultsButton = Boolean(liveResultsURL && !hasFinalResults);

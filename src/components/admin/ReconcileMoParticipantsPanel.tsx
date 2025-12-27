@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   collection,
   doc,
@@ -82,7 +82,6 @@ const ReconcileMoParticipantsPanel: React.FC = () => {
 
   const load = async () => {
     setLoading(true);
-    const clauses = [where('status', '==', 'pending')];
     const q = query(collection(db, 'moMatchCandidates'), orderBy('matchType'), orderBy('score', 'desc'), limit(500));
     const snap = await getDocs(q);
     const candidates: MatchCandidateDoc[] = [];

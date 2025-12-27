@@ -196,7 +196,7 @@ const MOAllTimeLeaderboardPage: React.FC = () => {
         )
       }
     ],
-    [formatYearRanges, t]
+    [formatYearRanges, navigate, t]
   );
 
   if (loading) {

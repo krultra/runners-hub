@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useContext, useRef } from 'react';
-import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, ListItemIcon, Stack, Container, Divider, Button } from '@mui/material';
+import React, { useEffect, useState, useContext } from 'react';
+import { AppBar, Toolbar, Typography, IconButton, Tooltip, Box, Chip, Menu, MenuItem, Stack, Container, Divider, Button } from '@mui/material';
 import { Settings, CircleUser, LogIn, Globe, ChevronDown, Ruler, SunMoon } from 'lucide-react';
 import { notifyUnitsChange } from '../hooks/useUnits';
 import { KRULTRA_URL } from '../config/urls';
 import { useTranslation } from 'react-i18next';
-import { supportedLocales, localeNames, Locale } from '../i18n/locales';
+import { supportedLocales, Locale } from '../i18n/locales';
 import { getAuth, onAuthStateChanged, signOut } from 'firebase/auth';
 import { useNavigate } from 'react-router-dom';
 import { createOrUpdateUser, getUser } from '../utils/userUtils';
@@ -62,10 +62,6 @@ const AppHeader: React.FC = () => {
   };
   const closeEventsMenu = () => {
     setEventsMenuAnchor(null);
-  };
-
-  const handleLogin = () => {
-    navigate('/auth');
   };
 
   useEffect(() => {

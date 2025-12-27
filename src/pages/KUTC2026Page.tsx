@@ -25,13 +25,6 @@ import { formatDistance, formatElevation } from '../utils/units';
 import { getKrultraUrl } from '../config/urls';
 import { getEventLogoUrl } from '../services/strapiService';
 
-// Status code mapping for KUTC
-const STATUS_MAP: Record<string, number> = {
-  hidden: 0, draft: 10, announced: 20, pre_registration: 30, open: 40,
-  waitlist: 44, late_registration: 50, full: 54, closed: 60,
-  in_progress: 70, suspended: 75, finished: 80, cancelled: 90, finalized: 100
-};
-
 // Inner component with full hooks/logic, receives guaranteed `event`
 const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const { t } = useTranslation();
@@ -57,7 +50,7 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   
   // State for user authentication and registration
   const [user, setUser] = useState<any>(null);
-  const [isUserRegistered, setIsUserRegistered] = useState(false);
+  const [, setIsUserRegistered] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [isCheckingRegistration, setIsCheckingRegistration] = useState(true);
   const [logoUrl, setLogoUrl] = useState<string | null>(null);
@@ -125,7 +118,6 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
     if (typeof (val as any).toDate === 'function') return (val as any).toDate();
     return new Date(val);
   })();
-  const registrationNotYetOpen = eventStatusCode < 30 && registrationOpensDate && now < registrationOpensDate;
   
   // Results availability logic
   const liveResultsURL = event.liveResultsURL ?? '';
@@ -133,20 +125,13 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
   const resultsStatusCode = String(event.resultsStatus || '').toLowerCase();
   const hasResultsAvailable = ['incomplete', 'preliminary', 'unofficial', 'final'].includes(resultsStatusCode) 
     || ['4', '5', '6', '7'].includes(event.resultsStatus || '');
-  const isEventOngoing = (resultsStatusCode === 'ongoing' || event.resultsStatus === '2') && raceStarted && !raceEnded;
   const hasFinalResults = resultsStatusCode === 'final' || resultsStatusCode === '7';
   
   const showLiveResultsButton = Boolean(liveResultsURL && !hasFinalResults);
   const showFinalResultsButton = Boolean(resultURL && hasFinalResults);
-  const showKUTCResultsButton = Boolean(hasResultsAvailable);
   
   // Participants list visibility: show only before race starts and if there are participants
   const showParticipantsList = activeParticipants > 0 && !raceStarted && !hasResultsAvailable;
-
-  const formatCurrency = (value?: number) => {
-    if (value === undefined || value === null) return '—';
-    return `${value.toLocaleString('no-NO')} NOK`;
-  };
   
   // Check if user is authenticated and has a registration (re-run on location change)
   useEffect(() => {
@@ -227,71 +212,6 @@ const KUTC2026PageInner: React.FC<{ event: CurrentEvent }> = ({ event }) => {
 
   // Determine if new registrations should go on waiting-list
   const forceQueue = waitingListCount > 0;
-
-  const renderResultsButtons = (options?: { compact?: boolean }) => {
-    const compact = options?.compact ?? false;
-
-    if (!showLiveResultsButton && !showFinalResultsButton && !showKUTCResultsButton) {
-      return (
-        <Typography variant="body2" color="text.secondary">
-          Results will be published here when available.
-        </Typography>
-      );
-    }
-
-    return (
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: compact ? 'row' : 'column',
-          alignItems: compact ? 'flex-start' : 'center',
-          gap: 2,
-          flexWrap: 'wrap',
-          justifyContent: compact ? 'flex-start' : 'center',
-          mb: compact ? 0 : 4
-        }}
-      >
-        {showKUTCResultsButton && (
-          <Button
-            component={RouterLink}
-            to={`/kutc/results/${editionId}`}
-            variant="contained"
-            color="primary"
-            size="large"
-            sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220 }}
-          >
-            KUTC Results
-          </Button>
-        )}
-        {showLiveResultsButton && (
-          <Button
-            variant="contained"
-            color="success"
-            size="large"
-            href={liveResultsURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220 }}
-          >
-            Live Results
-          </Button>
-        )}
-        {showFinalResultsButton && (
-          <Button
-            variant={showKUTCResultsButton ? 'outlined' : 'contained'}
-            color="primary"
-            size="large"
-            href={resultURL}
-            target="_blank"
-            rel="noopener noreferrer"
-            sx={{ fontWeight: 700, px: 4, py: 1.5, minWidth: 220, borderWidth: 2 }}
-          >
-            Final Results
-          </Button>
-        )}
-      </Box>
-    );
-  };
 
   const isLoggedIn = Boolean(user);
   const hasActiveRegistration = userRegistration && !isRegistrationInvalid;

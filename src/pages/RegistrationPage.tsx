@@ -107,12 +107,12 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   >({});
 
   // Get registration config with defaults
-  const registrationConfig: RegistrationConfig = {
+  const registrationConfig: RegistrationConfig = useMemo(() => ({
     fields: {
       ...DEFAULT_REGISTRATION_CONFIG.fields,
       ...event.registrationConfig?.fields
     }
-  };
+  }), [event.registrationConfig?.fields]);
 
   // Compute whether license is required for the selected race distance
   const selectedDistance = event.raceDistances?.find(d => d.id === formData.raceDistance);
@@ -145,11 +145,11 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
   }, [formData]);
 
   // Validation context for race-specific settings (passed explicitly to validators)
-  const validationContext: RaceValidationContext = {
+  const validationContext: RaceValidationContext = useMemo(() => ({
     requiresLicense,
     eventYear,
     registrationConfig,
-  };
+  }), [requiresLicense, eventYear, registrationConfig]);
 
   // Reset validation state when switching to Race Details step
   useEffect(() => {
@@ -383,6 +383,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     setSnackbarMessage,
     setSnackbarSeverity,
     setSnackbarOpen,
+    t,
     event.id
   ]);
 
@@ -422,12 +423,6 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
 
   const normalizePhoneDigits = (value: string | null | undefined): string => {
     return String(value ?? '').replace(/\D/g, '').slice(0, 15);
-  };
-
-  const getEventYear = () => {
-    const d = event?.startTime instanceof Date ? event.startTime : new Date(event?.startTime as any);
-    const year = d && !Number.isNaN(d.getTime()) ? d.getFullYear() : new Date().getFullYear();
-    return year;
   };
 
   const getLicenseYear = (licenseNumber: string): number | null => {
@@ -510,7 +505,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
         const representingOpts = extractRepresentingOptions(profile.representing);
         const storedLicenseNumber = String(profile.nfifLicenseNumber ?? '').trim();
         const storedLicenseYear = getLicenseYear(storedLicenseNumber);
-        const eventYear = getEventYear();
+        const currentEventYear = eventYear;
 
         setRepresentingOptions(representingOpts);
 
@@ -534,7 +529,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
           // Prefill NFIF year license only if the stored license number is for the current event year.
           if (
             storedLicenseNumber &&
-            storedLicenseYear === eventYear &&
+            storedLicenseYear === currentEventYear &&
             next.hasYearLicense === initialFormData.hasYearLicense &&
             String(next.licenseNumber ?? '').trim() === ''
           ) {
@@ -555,7 +550,7 @@ const RegistrationPageInner: React.FC<{ event: CurrentEvent }> = ({
     return () => {
       isMounted = false;
     };
-  }, [authChecked, prefillChecked, user, isEditingExisting, profilePrefillChecked, resolveUserProfileDoc]);
+  }, [authChecked, eventYear, prefillChecked, user, isEditingExisting, profilePrefillChecked, resolveUserProfileDoc]);
 
   // Always load representing options for the Club dropdown when logged in.
   useEffect(() => {

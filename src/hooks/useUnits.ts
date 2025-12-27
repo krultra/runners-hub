@@ -1,4 +1,4 @@
-import { useState, useEffect, useSyncExternalStore } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import type { UnitSystem } from '../utils/units';
 
 // Simple pub/sub for same-window updates

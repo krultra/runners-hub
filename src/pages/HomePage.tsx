@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   Container,
@@ -55,7 +55,6 @@ const HomePage: React.FC = () => {
   const [editions, setEditions] = useState<EditionWithStatus[]>([]);
   const [showPast, setShowPast] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
-  const [myRegCount, setMyRegCount] = useState<number>(0);
   const [myRegByEdition, setMyRegByEdition] = useState<Record<string, { status?: string; isOnWaitinglist?: boolean }>>({});
   const [eventLogos, setEventLogos] = useState<Record<string, string>>({});
 
@@ -78,14 +77,12 @@ const HomePage: React.FC = () => {
     let isMounted = true;
     const loadRegs = async () => {
       if (!userId) {
-        if (isMounted) setMyRegCount(0);
         if (isMounted) setMyRegByEdition({});
         return;
       }
       try {
         const regs = await getActiveRegistrationsForUser(userId);
         if (!isMounted) return;
-        setMyRegCount(regs.length);
         const byEdition: Record<string, { status?: string; isOnWaitinglist?: boolean }> = {};
         (regs || []).forEach((r) => {
           const editionId = String((r as any).editionId || '');
@@ -96,7 +93,6 @@ const HomePage: React.FC = () => {
         });
         setMyRegByEdition(byEdition);
       } catch {
-        if (isMounted) setMyRegCount(0);
         if (isMounted) setMyRegByEdition({});
       }
     };
@@ -190,183 +186,7 @@ const HomePage: React.FC = () => {
     };
   }, [editions]);
 
-  const featuredEvents = (
-    <Paper
-      elevation={0}
-      sx={{
-        mb: 5,
-        p: { xs: 3, md: 4 },
-        borderRadius: 3,
-        border: (theme) => `1px solid ${theme.palette.divider}`,
-        backgroundColor: (theme) => theme.palette.background.paper,
-      }}
-    >
-      <Typography variant="h5" gutterBottom fontWeight={700}>
-        {t('home.exploreSignatureEvents')}
-      </Typography>
-      <Grid container spacing={3}>
-        <Grid item xs={12} md={6}>
-          <Paper
-            elevation={4}
-            sx={{
-              height: '100%',
-              p: 3,
-              borderRadius: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              background: 'linear-gradient(135deg, rgba(25,118,210,0.24) 0%, rgba(25,118,210,0.08) 100%)',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
-              },
-              cursor: 'pointer'
-            }}
-            role="button"
-            tabIndex={0}
-            onClick={() => navigate('/kutc')}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                navigate('/kutc');
-              }
-            }}
-          >
-            <Box>
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                {eventLogos['kutc'] && (
-                  <Box
-                    component="img"
-                    src={eventLogos['kutc']}
-                    alt="KUTC logo"
-                    sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover' }}
-                  />
-                )}
-                <Typography
-                  variant="h6"
-                  fontWeight={700}
-                  sx={{
-                    color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
-                  }}
-                >
-                  {t('kutc.title')}
-                </Typography>
-              </Stack>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.secondary : 'rgba(255,255,255,0.85)'
-                }}
-              >
-                {t('kutc.taglineShort')}
-              </Typography>
-            </Box>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 'auto' }}>
-              <Button
-                variant="contained"
-                color="primary"
-                onClick={() => navigate('/kutc')}
-              >
-                {t('common.explore')}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  navigate('/kutc/results');
-                }}
-              >
-                {t('events.results')}
-              </Button>
-            </Stack>
-          </Paper>
-        </Grid>
-        <Grid item xs={12} md={6}>
-          <Paper
-            elevation={4}
-            sx={{
-              height: '100%',
-              p: 3,
-              borderRadius: 3,
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 2,
-              background: 'linear-gradient(135deg, rgba(46,125,50,0.24) 0%, rgba(46,125,50,0.08) 100%)',
-              transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-              '&:hover': {
-                transform: 'translateY(-4px)',
-                boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
-              },
-              cursor: 'pointer'
-            }}
-            role="button"
-            tabIndex={0}
-            onClick={() => navigate('/mo')}
-            onKeyDown={(event) => {
-              if (event.key === 'Enter' || event.key === ' ') {
-                event.preventDefault();
-                navigate('/mo');
-              }
-            }}
-          >
-            <Box>
-              <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
-                {eventLogos['mo'] && (
-                  <Box
-                    component="img"
-                    src={eventLogos['mo']}
-                    alt="MO logo"
-                    sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover' }}
-                  />
-                )}
-                <Typography
-                  variant="h6"
-                  fontWeight={700}
-                  sx={{
-                    color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
-                  }}
-                >
-                  {t('mo.title')}
-                </Typography>
-              </Stack>
-              <Typography
-                variant="body2"
-                sx={{
-                  color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.secondary : 'rgba(255,255,255,0.85)'
-                }}
-              >
-                {t('mo.taglineShort')}
-              </Typography>
-            </Box>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 'auto' }}>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  navigate('/mo');
-                }}
-              >
-                {t('common.explore')}
-              </Button>
-              <Button
-                variant="outlined"
-                onClick={(event) => {
-                  event.stopPropagation();
-                  navigate('/mo/results');
-                }}
-              >
-                {t('events.results')}
-              </Button>
-            </Stack>
-          </Paper>
-        </Grid>
-      </Grid>
-    </Paper>
-  );
-
-  const editionCards = (visible: EditionWithStatus[]) => (
+  const editionCards = useCallback((visible: EditionWithStatus[]) => (
     <Grid container spacing={3} justifyContent="center">
         {visible.map(ed => {
           // Determine if event has a dedicated event edition page
@@ -584,9 +404,185 @@ const HomePage: React.FC = () => {
           </Grid>
         );})}
       </Grid>
-    );
+    ), [myRegByEdition, navigate, t, userId]);
 
   const content = useMemo(() => {
+    const featuredEvents = (
+      <Paper
+        elevation={0}
+        sx={{
+          mb: 5,
+          p: { xs: 3, md: 4 },
+          borderRadius: 3,
+          border: (theme) => `1px solid ${theme.palette.divider}`,
+          backgroundColor: (theme) => theme.palette.background.paper,
+        }}
+      >
+        <Typography variant="h5" gutterBottom fontWeight={700}>
+          {t('home.exploreSignatureEvents')}
+        </Typography>
+        <Grid container spacing={3}>
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={4}
+              sx={{
+                height: '100%',
+                p: 3,
+                borderRadius: 3,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                background: 'linear-gradient(135deg, rgba(25,118,210,0.24) 0%, rgba(25,118,210,0.08) 100%)',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
+                },
+                cursor: 'pointer'
+              }}
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate('/kutc')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  navigate('/kutc');
+                }
+              }}
+            >
+              <Box>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                  {eventLogos['kutc'] && (
+                    <Box
+                      component="img"
+                      src={eventLogos['kutc']}
+                      alt="KUTC logo"
+                      sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover' }}
+                    />
+                  )}
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    sx={{
+                      color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
+                    }}
+                  >
+                    {t('kutc.title')}
+                  </Typography>
+                </Stack>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.secondary : 'rgba(255,255,255,0.85)'
+                  }}
+                >
+                  {t('kutc.taglineShort')}
+                </Typography>
+              </Box>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 'auto' }}>
+                <Button
+                  variant="contained"
+                  color="primary"
+                  onClick={() => navigate('/kutc')}
+                >
+                  {t('common.explore')}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate('/kutc/results');
+                  }}
+                >
+                  {t('events.results')}
+                </Button>
+              </Stack>
+            </Paper>
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={4}
+              sx={{
+                height: '100%',
+                p: 3,
+                borderRadius: 3,
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 2,
+                background: 'linear-gradient(135deg, rgba(46,125,50,0.24) 0%, rgba(46,125,50,0.08) 100%)',
+                transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+                '&:hover': {
+                  transform: 'translateY(-4px)',
+                  boxShadow: '0 12px 32px rgba(0,0,0,0.18)'
+                },
+                cursor: 'pointer'
+              }}
+              role="button"
+              tabIndex={0}
+              onClick={() => navigate('/mo')}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  navigate('/mo');
+                }
+              }}
+            >
+              <Box>
+                <Stack direction="row" spacing={1} alignItems="center" sx={{ mb: 1 }}>
+                  {eventLogos['mo'] && (
+                    <Box
+                      component="img"
+                      src={eventLogos['mo']}
+                      alt="MO logo"
+                      sx={{ width: 28, height: 28, borderRadius: 1, objectFit: 'cover' }}
+                    />
+                  )}
+                  <Typography
+                    variant="h6"
+                    fontWeight={700}
+                    sx={{
+                      color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.primary : 'common.white'
+                    }}
+                  >
+                    {t('mo.title')}
+                  </Typography>
+                </Stack>
+                <Typography
+                  variant="body2"
+                  sx={{
+                    color: (theme) => theme.palette.mode === 'light' ? theme.palette.text.secondary : 'rgba(255,255,255,0.85)'
+                  }}
+                >
+                  {t('mo.taglineShort')}
+                </Typography>
+              </Box>
+              <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1} sx={{ mt: 'auto' }}>
+                <Button
+                  variant="contained"
+                  color="success"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate('/mo');
+                  }}
+                >
+                  {t('common.explore')}
+                </Button>
+                <Button
+                  variant="outlined"
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    navigate('/mo/results');
+                  }}
+                >
+                  {t('events.results')}
+                </Button>
+              </Stack>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Paper>
+    );
+
     let visible = editions.filter(e => {
       const d = deriveStatus(e);
       const code = String(e.statusItem?.code || e.status || '').toLowerCase();
@@ -665,7 +661,7 @@ const HomePage: React.FC = () => {
         </Paper>
       </>
     );
-  }, [loading, error, editions, navigate, showPast, featuredEvents, userId, myRegByEdition, t]);
+  }, [editionCards, editions, error, eventLogos, loading, navigate, showPast, t]);
 
   return (
     <Container maxWidth="md" sx={{ pt: 8 }}>

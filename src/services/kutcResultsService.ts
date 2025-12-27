@@ -457,7 +457,7 @@ export async function getAllTimeLeaderboard(): Promise<{
       
       // Process each result
       for (const result of results) {
-        const { personId, firstName, lastName, loopsCompleted, status } = result;
+        const { personId, firstName, lastName, loopsCompleted } = result;
         
         // Get or create participant entry
         if (!participantMap.has(personId)) {

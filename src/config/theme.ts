@@ -17,8 +17,6 @@ const darkPalette = {
   primaryDark: '#41719C',
 };
 
-const getPaletteTokens = (mode: PaletteMode) => (mode === 'dark' ? darkPalette : lightPalette);
-
 // Create a theme based on mode
 export const createRunnersHubTheme = (mode: PaletteMode) => createTheme({
   palette: {

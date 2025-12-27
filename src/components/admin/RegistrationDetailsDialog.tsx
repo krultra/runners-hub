@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -24,7 +24,6 @@ import { FormControlLabel, Checkbox } from '@mui/material';
 import CircularProgress from '@mui/material/CircularProgress';
 import { CheckCircle, XCircle } from 'lucide-react';
 import {
-  onSnapshot,
   DocumentReference,
 } from 'firebase/firestore';
 import { doc, updateDoc, getDoc, arrayUnion, Timestamp } from 'firebase/firestore';
@@ -91,9 +90,9 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
   );
   // mail send progress state
   const [mailProgressOpen, setMailProgressOpen] = useState(false);
-  const [mailStatus, setMailStatus] = useState<string>('pending');
+  const [mailStatus] = useState<string>('pending');
   const [mailError, setMailError] = useState<string>('');
-  const [timerExceeded, setTimerExceeded] = useState(false);
+  const [timerExceeded] = useState(false);
   const unsubscribeRef = useRef<() => void | null>(null);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const [mailDetailsOpen, setMailDetailsOpen] = useState(false);
@@ -141,13 +140,22 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
       comments: registration.comments || '',
     });
     setEditMode(false);
-  }, [registration.id]);
+  }, [registration]);
+
+  const cleanupMailResources = useCallback(() => {
+    const unsub = unsubscribeRef.current;
+    const timer = timerRef.current;
+    if (unsub) unsub();
+    if (timer) clearTimeout(timer);
+  }, []);
 
   // cleanup mail listener & timer on unmount
   useEffect(() => {
+    const unsub = unsubscribeRef.current;
+    const timer = timerRef.current;
     return () => {
-      if (unsubscribeRef.current) unsubscribeRef.current();
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (unsub) unsub();
+      if (timer) clearTimeout(timer);
     };
   }, []);
 
@@ -286,8 +294,7 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
   const confirmSendEmail = async () => {
     setEmailDialogOpen(false);
     // Clear any previous listener/timer (legacy)
-    if (unsubscribeRef.current) unsubscribeRef.current();
-    if (timerRef.current) clearTimeout(timerRef.current);
+    cleanupMailResources();
     try {
       const fullReg = await getRegistrationById(registration.id!);
       if (!fullReg) throw new Error('Registration not found');
@@ -694,8 +701,7 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
         open={mailProgressOpen}
         onClose={() => {
           setMailProgressOpen(false);
-          if (unsubscribeRef.current) unsubscribeRef.current();
-          if (timerRef.current) clearTimeout(timerRef.current);
+          cleanupMailResources();
         }}
         maxWidth="xs"
         fullWidth
@@ -733,8 +739,7 @@ const RegistrationDetailsDialog: React.FC<Props> = ({
           <Button
             onClick={() => {
               setMailProgressOpen(false);
-              if (unsubscribeRef.current) unsubscribeRef.current();
-              if (timerRef.current) clearTimeout(timerRef.current);
+              cleanupMailResources();
             }}
           >
             Close

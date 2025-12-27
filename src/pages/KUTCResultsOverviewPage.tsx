@@ -45,7 +45,7 @@ const KUTCResultsOverviewPage: React.FC = () => {
     };
 
     fetchEditions();
-  }, []);
+  }, [t]);
 
   const handleEditionClick = (editionId: string) => {
     navigate(`/kutc/results/${editionId}`);

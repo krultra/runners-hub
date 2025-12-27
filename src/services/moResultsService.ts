@@ -742,12 +742,6 @@ export const getAllTimeLeaderboard = async (): Promise<MOAllTimeLeaderboardResul
           return a.localeCompare(b);
         });
 
-      const toYearLabels = (ids: Set<string>) =>
-        sortEditions(ids).map((editionId) => {
-          const year = stats.editionYearMap.get(editionId) ?? extractEditionYear(editionId);
-          return year != null ? String(year) : editionId.replace('mo-', '');
-        });
-
       const overallEditions = sortEditions(stats.editions);
       const categoryOrder: ('competition' | 'trim_tur' | 'volunteer')[] = [
         'competition',

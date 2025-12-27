@@ -107,7 +107,7 @@ const KUTCOverviewPage: React.FC = () => {
     };
 
     load();
-  }, []);
+  }, [t]);
 
   if (loading) {
     return (

@@ -9,7 +9,6 @@ import {
   Container,
   Divider,
   Grid,
-  IconButton,
   InputAdornment,
   List,
   ListItem,
@@ -242,7 +241,7 @@ const RunnerProfilePage: React.FC = () => {
     return () => {
       isMounted = false;
     };
-  }, [userId]);
+  }, [navigate, t, userId]);
 
   useEffect(() => {
     let isMounted = true;

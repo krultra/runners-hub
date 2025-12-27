@@ -17,6 +17,9 @@ import {
 } from '@mui/material';
 import { CurrentEvent, DEFAULT_REGISTRATION_CONFIG, RegistrationConfig } from '../../contexts/EventEditionContext';
 
+// License number format: NNNNNN-YYYY (e.g., 221393-2025)
+const LICENSE_NUMBER_REGEX = /^\d{6}-\d{4}$/;
+
 interface RaceDetailsFormProps {
   formData: {
     raceDistance: string;
@@ -33,9 +36,6 @@ interface RaceDetailsFormProps {
   event: CurrentEvent;
   touchedFields?: Record<string, boolean>;
 }
-
-// License number format: NNNNNN-YYYY (e.g., 221393-2025)
-const LICENSE_NUMBER_REGEX = /^\d{6}-\d{4}$/;
 
 const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({ 
   formData, 
@@ -193,6 +193,7 @@ const RaceDetailsForm: React.FC<RaceDetailsFormProps> = ({
                     error={!!errors.licenseNumber}
                     helperText={errors.licenseNumber || t('form.licenseNumberHelper', { example: licenseExample })}
                     inputRef={fieldRefs.licenseNumber as any}
+                    inputProps={{ pattern: LICENSE_NUMBER_REGEX.source }}
                     placeholder={licenseExample}
                   />
                   <Typography variant="body2" sx={{ mt: 1 }}>

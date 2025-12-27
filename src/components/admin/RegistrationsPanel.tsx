@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { useTheme, Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Alert } from '@mui/material';
+import { Box, Typography, TextField, Button, CircularProgress, TableContainer, Paper, Table, TableHead, TableRow, TableCell, TableBody, Alert } from '@mui/material';
 import RegistrationDetailsDialog from './RegistrationDetailsDialog';
 import { getRegistrationsByEdition, generateTestRegistrations } from '../../services/registrationService';
 import { syncUsersFromRegistrations } from '../../utils/userSyncUtils';
@@ -21,8 +21,6 @@ const RegistrationsPanel: React.FC = () => {
   const [testCount, setTestCount] = useState<number>(0);
   const [testLoading, setTestLoading] = useState(false);
   const [syncLoading, setSyncLoading] = useState(false);
-
-  const theme = useTheme();
 
   // State for details dialog
   const [dialogOpen, setDialogOpen] = useState(false);

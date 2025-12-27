@@ -7,10 +7,8 @@ import {
   Box, 
   Toolbar, 
   useTheme, 
-  useMediaQuery,
 } from '@mui/material';
 import { useEventEdition } from '../contexts/EventEditionContext';
-import { Link } from 'react-router-dom';
 import InvitationsPanel from '../components/admin/InvitationsPanel';
 import RegistrationsPanel from '../components/admin/RegistrationsPanel';
 import TemplatesPanel from '../components/admin/TemplatesPanel';
@@ -34,7 +32,6 @@ const AdminPage: React.FC = () => {
   useEventEdition();
   const [active, setActive] = useState<SectionKey>('landing');
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   // Define drawer width and make it initially closed for all devices
   const drawerWidth = 180; // Width for drawer
   const [drawerOpen, setDrawerOpen] = useState(false);
